@@ -1,0 +1,16 @@
+              WarpedFramework 2D - java API - 
+         Copyright (C) 2021-2024 Angelo E.J. Wilson 
+                 somegamelab@gmail.com
+
+Released under GNU Lesser General Public License version 2.1-or-later.
+See the text file included in this directory called LICENSE-LGPL-2.1.
+The directory containing this file has a sub-directory called 'lib'. The contents of lib are licensed seperately by Oracle under Oracle No-Fee Terms and Conditions (NFTC). https://www.oracle.com/downloads/licenses/no-fee-license.html
+The contents of lib is not part of the WarpedFramework 2D Library (WF2D). The contents of lib has not been modified by WF2D. WF2D references and utilizes functions contained within lib but does not claim any Copyright to the contents of lib. This Copyright notice refers to the contents of the directory containg this file excluding the contents of the lib sub-directory.
+		
+
+This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or any later version.
+
+This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with this library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+

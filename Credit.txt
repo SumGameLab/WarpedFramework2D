@@ -1,0 +1,181 @@
+
+By SomeKid and shortround
+created with java on windows using : 
+
+-------------============= EclipseFoundation =============-------------
+------------- https://www.eclipse.org/ -------------
+
+-------------============= paint.net =============-------------
+------------- https://www.getpaint.net/ ------------
+
+-------------============= WinRAR =============-------------
+------------- https://www.win-rar.com/start.html?&L=0 -------------
+
+-------------============= Notepad++ =============-------------
+------------- https://notepad-plus-plus.org/ -------------
+
+-------------============= Audacity =============-------------
+------------- https://www.audacityteam.org/ -------------
+
+-------------============= VideoLAN =============-------------
+------------- https://www.videolan.org/vlc// -------------
+
+
+Special thanks and credit to
+
+-------------============= OpenMoji =============-------------
+------------- https://openmoji.org/ -------------
+
+License : CC BY-SA 4.0
+Benedikt Groß
+Daniel Utz
+Sofie Ascherl
+Miriam Vollmeier
+Kai Wanschura
+Johanna Wellnitz
+Jonas Roßner
+Marius Schnabel
+Lisa Schulz
+Mariella Steeb
+Sina Schulz
+Vanessa Boutzikoudi
+Jose Avila
+Baris Camli
+Ronja Bäurlen
+Rana Cakir
+Lisa Thiel
+Hilda Kalyoncu
+Julian Grüneberg
+Laura Humpfer
+Emily Jäger
+Kai Magnus Müller
+Martin Wehl
+Selina Bauder
+Abby Esquivel
+Aileen Gedrat
+Anne Frauendorf
+Daniel Quiros
+Daniela Ivandikov
+Hend Hourani
+Lois Proksch
+Louisa Mantsch
+Marleen Heine
+Nadja Grün
+Pascal Ligon
+Sarah Mager
+Sina Chlod
+Vincent Seitz
+Ferdinand Sorg
+Laura Dworatschek
+Jonas Dunkel
+Ricarda Krejci
+Antonia Wagner
+Evelyn Soos
+Fanny Jung
+Nicole Kornhaas
+Tonia Reinhardt
+Yasmin Abdullahi
+Sam Eckert
+Selina Lange
+Rifat Can Erdogan
+Laura Schießer
+Nadine Bartel
+Florian Nagel
+Hartmut Bohnacker
+Carlin MacKenzie
+Felix Häberle
+Liz Bravo
+Tara Lynn Connelly
+Jasmin Fassler
+Linda Hartmann
+Kris Kowal
+Alexander Müller
+
+25/10/24
+
+
+-------------============= FreeSound =============-------------
+------------- https://freesound.org/ -------------
+
+S: Magpie by kangaroovindaloo | License: Creative Commons 0 | Timestamp: 2024-10-02 01:28:54.443705
+S: Wind chimes 2 (loud) by giddster | License: Creative Commons 0 | Timestamp: 2024-09-27 11:11:34.345014
+S: Fireball Explosion.wav by HighPixel | License: Creative Commons 0 | Timestamp: 2024-08-30 07:21:42.280945
+S: SnowBall by Nicolas4677 | License: Creative Commons 0 | Timestamp: 2024-08-30 07:05:39.577765
+S: small moving metallic part by F3ather | License: Creative Commons 0 | Timestamp: 2024-08-14 04:17:45.857029
+S: Incoming Artillery.wav by bendodge | License: Attribution 3.0 | Timestamp: 2024-08-14 04:12:54.840517
+S: Heavy Book by IENBA | License: Creative Commons 0 | Timestamp: 2024-08-14 03:30:42.628858
+S: 1_Knife_Slash_A.wav by lmbubec | License: Creative Commons 0 | Timestamp: 2024-08-14 03:23:30.741867
+S: raking leaves field recording by Garuda1982 | License: Creative Commons 0 | Timestamp: 2024-08-14 01:38:42.081657
+S: pickaxe.wav by 14FPanskaPavlik_Filip | License: Creative Commons 0 | Timestamp: 2024-08-13 11:33:36.290538
+S: Pickaxe by CaptainYulef | License: Creative Commons 0 | Timestamp: 2024-08-13 10:51:44.513575
+S: Pickaxe #4.wav by abstraktgeneriert | License: Creative Commons 0 | Timestamp: 2024-08-13 10:49:07.456245
+S: Mac - Pew - Poof 1.wav by MackinMeat | License: Creative Commons 0 | Timestamp: 2024-08-11 11:40:35.947936
+S: knife sharpen 03.wav by Anthousai | License: Creative Commons 0 | Timestamp: 2024-08-11 11:28:13.231916
+S: Action Effect.mp3 by BlackOfentse | License: Creative Commons 0 | Timestamp: 2024-08-11 02:36:38.162396
+S: invalid1.wav by mmaal | License: Creative Commons 0 | Timestamp: 2024-08-11 02:35:31.269325
+S: Knock_on_door.wav by Philip_Daniels | License: Creative Commons 0 | Timestamp: 2024-08-10 06:34:48.502706
+S: shotgun.wav by hiramjustus | License: Creative Commons 0 | Timestamp: 2024-08-09 13:22:20.716121
+S: rack 12-guage shotgun.mp3 by zekybomb | License: Creative Commons 0 | Timestamp: 2024-08-09 13:19:02.280555
+S: 3-Legged Robot Walker.mp3 by AGMoneyTrigga | License: Creative Commons 0 | Timestamp: 2024-08-09 13:13:57.857429
+S: Trumpet sad chromatic wah wah.wav by SpliceSound | License: Creative Commons 0 | Timestamp: 2024-08-09 13:11:16.712278
+S: Game Pickup by IENBA | License: Creative Commons 0 | Timestamp: 2024-08-09 12:27:59.659340
+S: Wooden Tap by AidanSounds | License: Creative Commons 0 | Timestamp: 2024-08-09 04:41:09.094790
+S: Picture frame dropped on wood floor, shatters.wav by SpliceSound | License: Creative Commons 0 | Timestamp: 2024-08-09 03:50:10.778998
+S: KB_PopPop_0.wav by KaBlazik_Samples | License: Creative Commons 0 | Timestamp: 2024-08-09 03:35:06.048476
+S: Sci-Fi_Explosion_2.wav by Anomaex | License: Creative Commons 0 | Timestamp: 2024-05-03 08:06:59.620300
+S: Self Destruct/Alpha-11 Warhead Explosion by FusionWolf3740 | License: Creative Commons 0 | Timestamp: 2024-05-03 02:28:00.975739
+S: Coins Move - 2 by SpaceJoe | License: Creative Commons 0 | Timestamp: 2024-05-02 14:48:39.976048
+S: type writer.aif by Walter_Odington | License: Creative Commons 0 | Timestamp: 2024-05-02 14:27:35.947053
+S: Cash Register Sounds by bspiller5 | License: Attribution 3.0 | Timestamp: 2024-05-02 14:24:09.010519
+S: bell ding 2.wav by 5ro4 | License: Creative Commons 0 | Timestamp: 2024-05-02 14:23:27.578608
+S: sci-fi short scan by pyth0n11 | License: Creative Commons 0 | Timestamp: 2024-05-01 06:26:26.276988
+S: Tractor Beam / Power Generator Loop by wubitog | License: Creative Commons 0 | Timestamp: 2024-04-30 08:58:43.643980
+S: 2 alarm long a.wav by jobro | License: Attribution 3.0 | Timestamp: 2024-04-06 14:36:56.283728
+S: Fire_Burning_02.flac by wwstudioswastaken | License: Creative Commons 0 | Timestamp: 2024-04-06 14:34:49.061399
+S: Evil Laugh by balloonhead | License: Creative Commons 0 | Timestamp: 2024-04-03 05:39:57.756691
+S: Construction Soundscape by sbda | License: Creative Commons 0 | Timestamp: 2024-03-30 07:36:49.082749
+S: a gentle breeze, wind 1 by mario1298 | License: Creative Commons 0 | Timestamp: 2024-02-27 08:37:36.778669
+S: a gentle breeze, wind 3 by mario1298 | License: Creative Commons 0 | Timestamp: 2024-02-27 08:37:09.423381
+S: a gentle breeze, wind 4 by mario1298 | License: Creative Commons 0 | Timestamp: 2024-02-27 08:36:53.571248
+S: a gentle breeze, wind 6 by mario1298 | License: Creative Commons 0 | Timestamp: 2024-02-27 08:35:47.621530
+S: Desert ambiance with slight wind on bushes, muffled gust of wind, road hum, explosion at 4'50 by felix.blume | License: Creative Commons 0 | Timestamp: 2024-02-27 08:32:29.201349
+S: Underwater Ambience by Fission9 | License: Creative Commons 0 | Timestamp: 2024-02-27 08:31:18.647560
+S: Sea Ambiance Water Waves by tawix | License: Creative Commons 0 | Timestamp: 2024-02-27 08:30:18.271132
+S: brittany island seacost les glenans.wav by bruno.auzet | License: Creative Commons 0 | Timestamp: 2024-02-27 08:29:34.060880
+S: Forest River 3 by deadrobotmusic | License: Creative Commons 0 | Timestamp: 2024-02-27 08:28:40.332658
+S: 200712 Early Summer birds, forest ambience, Vireo Cardinal Sparrow Wren Grackle Robin Warbler Redstart Dove Insects, noisy water traffic, PEC 7am.flac by TRP | License: Creative Commons 0 | Timestamp: 2024-02-27 08:28:06.954546
+S: Pond in forest_01.mp3 by EugenePacino | License: Creative Commons 0 | Timestamp: 2024-02-27 08:27:27.615824
+S: 150529-003 Birds Insect Frogs Loretto Ambiance.wav by MaciekKubera | License: Creative Commons 0 | Timestamp: 2024-02-27 08:26:17.577353
+S: Ambiance_Forest (Birds, insects, airplanes, passers-by).wav by Mar.Sounds | License: Creative Commons 0 | Timestamp: 2024-02-27 08:25:18.061247
+S: Scanner.Scanning process(7lrs,mltprcssng).wav by newlocknew | License: Attribution 4.0 | Timestamp: 2024-02-27 07:41:40.306673
+S: Security Scanning 01.wav by MATRIXXX_ | License: Creative Commons 0 | Timestamp: 2024-02-27 07:32:32.559340
+S: Modular Sounds Thru Cheap Computer Speakers Recorded At A Distance With Phone.wav by gis_sweden | License: Creative Commons 0 | Timestamp: 2024-02-18 11:36:35.376676
+S: Journey To The Interweb by Aemyn | License: Creative Commons 0 | Timestamp: 2024-02-18 11:36:14.406203
+S: Sci-fi Laboratory Ambience by qubodup | License: Attribution 4.0 | Timestamp: 2024-02-18 11:33:29.777409
+S: factoryplace by WaveAdventurer | License: Attribution NonCommercial 4.0 | Timestamp: 2024-02-18 11:32:20.178206
+S: copy_machine_01.wav by joedeshon | License: Attribution 4.0 | Timestamp: 2024-02-18 11:27:07.596392
+S: IndustrialNoiseRhitmic 140106_02.wav by klankbeeld | License: Attribution 4.0 | Timestamp: 2024-02-18 11:26:16.614247
+S: Machine Steampunk Factory by szegvari | License: Creative Commons 0 | Timestamp: 2024-02-18 11:25:30.905369
+S: Deep Space Ambiance.wav by Nakhas | License: Creative Commons 0 | Timestamp: 2024-02-18 11:22:47.226647
+S: 3D Printer Further - Senn K6 SD 788T.WAV by lunchmoney | License: Creative Commons 0 | Timestamp: 2024-02-18 11:22:22.858160
+S: AC Unit.wav by zolopher | License: Creative Commons 0 | Timestamp: 2024-02-18 11:20:29.953444
+S: mechanical kneading by bruno.auzet | License: Creative Commons 0 | Timestamp: 2024-02-18 11:19:17.878008
+S: Sea Ambiance Water Waves by tawix | License: Creative Commons 0 | Timestamp: 2024-02-18 11:14:37.076678
+S: Airport Ambiance.wav by exert.com.au | License: Attribution 3.0 | Timestamp: 2024-02-18 11:13:45.901373
+S: conservatory ambiance recording by CastleofSamples | License: Attribution 3.0 | Timestamp: 2024-02-18 11:07:23.860597
+S: MysterySound.mp3 by Monoluluhulu | License: Creative Commons 0 | Timestamp: 2023-12-02 06:08:51.505893
+S: Space Atmosphere Remastered Compilation.wav by MATRIXXX_ | License: Creative Commons 0 | Timestamp: 2023-12-02 06:07:01.182466
+S: Space Atmosphere 02.wav by MATRIXXX_ | License: Creative Commons 0 | Timestamp: 2023-12-02 06:06:21.161178
+S: Space Atmosphere 03.wav by MATRIXXX_ | License: Creative Commons 0 | Timestamp: 2023-12-02 06:06:16.512812
+S: Space Atmosphere 01.wav by MATRIXXX_ | License: Creative Commons 0 | Timestamp: 2023-12-02 06:06:06.881505
+S: Space Atmosphere 04.wav by MATRIXXX_ | License: Creative Commons 0 | Timestamp: 2023-12-02 06:05:35.806395
+S: Waterbottle, grab, squeeze.wav by SpliceSound | License: Creative Commons 0 | Timestamp: 2023-12-01 14:03:20.574376
+S: UIHover2.wav by wobesound | License: Creative Commons 0 | Timestamp: 2023-12-01 13:38:20.079183
+S: click by florianreichelt | License: Creative Commons 0 | Timestamp: 2023-12-01 13:35:03.161964
+S: fx9.wav by Blackie666 | License: Creative Commons 0 | Timestamp: 2023-12-01 13:17:35.778405
+S: Space Main Menu (Trailer) by LightMister | License: Creative Commons 0 | Timestamp: 2023-12-01 13:15:30.569983
+S: Fantasy Loop by deleted_user_4397472 | License: Creative Commons 0 | Timestamp: 2018-10-31 13:23:16.783906
+S: Fantasy Loop by deleted_user_4397472 | License: Creative Commons 0 | Timestamp: 2018-10-31 13:06:48.008748
+
+
+
