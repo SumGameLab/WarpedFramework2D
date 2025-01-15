@@ -18,7 +18,7 @@ import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.window.WarpedWindow;
 import warped.utilities.enums.generalised.DirectionType;
 import warped.utilities.enums.generalised.StyleType;
-import warped.utilities.math.geometry.curves.bezier.BezierCurveLinearI;
+import warped.utilities.math.geometry.bezier.BezierCurveLinearI;
 import warped.utilities.math.vectors.Vec2i;
 import warped.utilities.utils.Console;
 

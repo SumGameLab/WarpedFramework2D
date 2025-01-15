@@ -273,6 +273,7 @@ public class UtilsString {
 		return result;
 	}
 	
+	
 	public static <E extends Enum<?>> String convertEnumToString(E type) {return convertEnumStringToString(type.toString());}
 	private static String convertEnumStringToString(String string) {
 		String result = "";;

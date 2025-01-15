@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
 
 import warped.WarpedFramework2D;
 import warped.WarpedProperties;
-import warped.application.tile.TileTransitionType;
+import warped.application.tile.TerrainTileTransitionType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.utilities.enums.generalised.ColorComponentType;
 import warped.utilities.enums.generalised.Colour;
@@ -754,7 +754,7 @@ public class UtilsImage {
 	 * @param image1 : transition from this tile
 	 * @param image2 : transition two this tile
 	 */
-	public static BufferedImage generateTileTransitionImage(BufferedImage image1, BufferedImage image2, TileTransitionType transitionType) {		
+	public static BufferedImage generateTileTransitionImage(BufferedImage image1, BufferedImage image2, TerrainTileTransitionType transitionType) {		
 		if(image1 == null || image2 == null) {
 			Console.err("UtilsImage -> generateTransitionImage() -> passed null image as parameter");
 			return null;

@@ -67,6 +67,7 @@ public abstract class WarpedFramework2D {
 		});
 		mediaPlayer.loadMP4("/framework/graphics/warped_framework.mp4");
 		
+		UtilsName.initialize();
 		
 		FrameworkSprites.loadFrameworkSprites();
 		FrameworkAudio.loadFrameworkAudio();

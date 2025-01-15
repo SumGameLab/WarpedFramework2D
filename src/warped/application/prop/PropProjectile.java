@@ -5,7 +5,7 @@ package warped.application.prop;
 import java.awt.image.BufferedImage;
 
 import warped.application.object.WarpedObject;
-import warped.utilities.math.geometry.curves.bezier.BezierCurveLinearD;
+import warped.utilities.math.geometry.bezier.BezierCurveLinearD;
 import warped.utilities.math.vectors.Vec2d;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsMath;

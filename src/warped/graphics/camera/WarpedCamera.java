@@ -6,7 +6,7 @@ import warped.application.object.WarpedObject;
 import warped.application.object.WarpedObjectIdentity;
 import warped.application.state.WarpedState;
 import warped.graphics.window.WarpedWindow;
-import warped.utilities.math.geometry.curves.bezier.BezierCurveCamera;
+import warped.utilities.math.geometry.bezier.BezierCurveCamera;
 import warped.utilities.math.vectors.Vec2d;
 import warped.utilities.math.vectors.Vec2i;
 import warped.utilities.utils.Console;

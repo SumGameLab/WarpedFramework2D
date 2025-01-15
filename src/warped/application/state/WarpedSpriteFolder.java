@@ -224,7 +224,10 @@ public class WarpedSpriteFolder<T extends WarpedLinkable<? extends Enum<?>>> ext
 			return null;
 		}
 	}
+	
 	public BufferedImage getSprite(T sheetName, int x, int y) {return getSheet(sheetName).getSprite(x, y);}
-	public BufferedImage getSprite(T sheetName, int index) {return getSheet(sheetName).getSprite(index);}		
+	public BufferedImage getSprite(T sheetName, int index) {return getSheet(sheetName).getSprite(index);}
+	/**@return a random sprite from the specified sheet*/
+	public BufferedImage getSprite(T sheetName) {return getSheet(sheetName).getRandomRawSprite();}
 	
 }

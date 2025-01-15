@@ -94,12 +94,11 @@ public class AssemblyGameObjectInspector extends WarpedAssembly {
 				break;
 				
 			case TILE:
-				WarpedTile tile = (WarpedTile) object;
+				WarpedTile<?> tile = (WarpedTile<?>) object;
 				
 				titleLabel.setText("Tile  :  " + tile.getPrimaryType().getString());
 				objectText.putTextLine(0, "Size : " + tile.getSize().getString());
-				objectText.putTextLine(1, "Primary Type    :  " + tile.getPrimaryType().getString());
-				objectText.putTextLine(2, "Secondary Type  :  " + tile.getSecondaryType().getString());
+				objectText.putTextLine(1, "Tile Type    :  " + tile.getPrimaryType());
 				objectText.updateTextBox();
 				
 

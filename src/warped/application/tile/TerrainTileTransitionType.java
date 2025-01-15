@@ -11,7 +11,7 @@ import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsMath;
 
-public enum TileTransitionType {
+public enum TerrainTileTransitionType {
 	
 	UP,
 	DOWN,
@@ -39,18 +39,18 @@ public enum TileTransitionType {
 	private static final int SECONDARY_GIVER			= 6;
 	private static final int SECONDARY_RANDOM_GIVER 	= 7;
 	
-	private static Map<Integer, TileTransitionType> map = new HashMap<>();
+	private static Map<Integer, TerrainTileTransitionType> map = new HashMap<>();
 	static {
-		for (TileTransitionType type : TileTransitionType.values()) {
+		for (TerrainTileTransitionType type : TerrainTileTransitionType.values()) {
             map.put(type.ordinal(), type);
         }
 	}
 	
-	public static TileTransitionType get(int index) {return (TileTransitionType) map.get(index);}
+	public static TerrainTileTransitionType get(int index) {return (TerrainTileTransitionType) map.get(index);}
 	public static int size() {return map.size();}
 
 	public BufferedImage getTileTransition() {return getTileTransition(this);}
-	public static BufferedImage getTileTransition(TileTransitionType transitionType) {
+	public static BufferedImage getTileTransition(TerrainTileTransitionType transitionType) {
 		switch(transitionType) {
 		case DOWN:	  return FrameworkSprites.tileTransitions.getSprite(0,0);
 		case UP:	  return FrameworkSprites.tileTransitions.getSprite(0,1);
@@ -73,8 +73,8 @@ public enum TileTransitionType {
 	}
 
 	/**Does a transition of the input type in the input relative position connect to the tile*/
-	public boolean connects(TileTransitionType relativePos) {return connects(this, relativePos);}
-	public static boolean connects(TileTransitionType transition, TileTransitionType relativePos) {
+	public boolean connects(TerrainTileTransitionType relativePos) {return connects(this, relativePos);}
+	public static boolean connects(TerrainTileTransitionType transition, TerrainTileTransitionType relativePos) {
 		if(relativePos == LEFT) {
 			switch(transition) {
 			case DOWN: 	  return true;	
@@ -122,8 +122,8 @@ public enum TileTransitionType {
 	}
 		
 
-	/*
-	public static TileCelestial getConnectingTile(WarpedTile leftTile, WarpedTile aboveTile, WarpedTile aboveRightTile) {
+	
+	public static <K extends WarpedTileable<? extends Enum<?>>> TerrainTile<K> getConnectingTile(TerrainTile<K> leftTile, TerrainTile<K> aboveTile, TerrainTile<K> aboveRightTile) {
 		if(leftTile == null && aboveTile == null) {
 			Console.err("TileTransitionType -> getConnectingTile() -> leftTile && aboveTile is null");
 			return null;
@@ -141,9 +141,9 @@ public enum TileTransitionType {
 			isAboveMatching = false; 
 		}
 		
-		TileTransitionType leftTransition = null;
-		TileTransitionType aboveTransition = null;
-		TileTransitionType aboveRightTransition = null;
+		TerrainTileTransitionType leftTransition = null;
+		TerrainTileTransitionType aboveTransition = null;
+		TerrainTileTransitionType aboveRightTransition = null;
 		
 		if(aboveTile == null) aboveTransition = getPossibleAbove(leftTile.getTransitionType());
 		else aboveTransition = aboveTile.getTransitionType();
@@ -154,13 +154,13 @@ public enum TileTransitionType {
 		if(aboveRightTile == null) aboveRightTransition = getPossibleRight(aboveTransition);
 		else aboveRightTransition = aboveRightTile.getTransitionType();
 		
-		TileTransitionType resultTransition = getConnectingTransition(leftTransition, aboveTransition, aboveRightTransition, isAllMatching, isAboveMatching, isInverseType);
+		TerrainTileTransitionType resultTransition = getConnectingTransition(leftTransition, aboveTransition, aboveRightTransition, isAllMatching, isAboveMatching, isInverseType);
 		int typeGiver = getTileTypeGiver(resultTransition, leftTransition, aboveTransition, aboveRightTransition, isInverseType);
 		
-		TileType primaryType = null;;
-		TileType secondaryType = null;
+		K primaryType = null;;
+		K secondaryType = null;
 		
-		WarpedTile tileType = null;
+		TerrainTile<K> tileType = null;
 		
 		switch(typeGiver) {
 		case LEFT_GIVER:    
@@ -179,7 +179,7 @@ public enum TileTransitionType {
 			if(leftTile == null) tileType = aboveTile;
 			else tileType  = leftTile;
 			primaryType   = tileType.getSecondaryType();
-			secondaryType = tileType.getParent().getRandomTransition(primaryType);
+			secondaryType = tileType.getParentTerrain().getRandomTransition(primaryType);
 			break;
 		case ABOVE_GIVER:       
 			if(aboveTile == null) tileType = leftTile;
@@ -203,13 +203,13 @@ public enum TileTransitionType {
 			if(leftTile == null) tileType = aboveTile;
 			else tileType  = leftTile;
 			primaryType = tileType.getPrimaryType();
-			secondaryType = tileType.getParent().getRandomTransition(primaryType);
+			secondaryType = tileType.getParentTerrain().getRandomTransition(primaryType);
 			break;
 		case SECONDARY_RANDOM_GIVER:
 			if(leftTile == null) tileType = aboveTile;
 			else tileType  = leftTile;
 			secondaryType = tileType.getSecondaryType();
-			primaryType = tileType.getParent().getRandomTransition(secondaryType);
+			primaryType = tileType.getParentTerrain().getRandomTransition(secondaryType);
 			break;
 		default:
 			Console.err("TileTransitionType -> getConnectingTile -> invalid type givver : " + typeGiver);
@@ -217,13 +217,13 @@ public enum TileTransitionType {
 		}
 		
 		//Console.ln("TIleTransitionType -> getConnectingTile() -> (primaryType, secondaryType, transition) :  ( " + primaryType + ", " + secondaryType + ", " +  resultTransition + ") ");
-		WarpedTileSet set = tileType.getParent();
-		return set.generateCelestialTile(parent, primaryType, secondaryType, resultTransition);		
+		TerrainTileSet<K> set = tileType.getParentTerrain();
+		return set.generateTerrainTile(primaryType, secondaryType, resultTransition);		
 	}
-	*/
+
 	
 	private static int errorCount = 0;
-	public static TileTransitionType getConnectingTransition(TileTransitionType left, TileTransitionType above, TileTransitionType aboveRight, boolean isAllMatching, boolean isAboveMatching, boolean isInverseType) {
+	public static TerrainTileTransitionType getConnectingTransition(TerrainTileTransitionType left, TerrainTileTransitionType above, TerrainTileTransitionType aboveRight, boolean isAllMatching, boolean isAboveMatching, boolean isInverseType) {
 		switch(left) {
 		case DOWN:
 			switch(above) {
@@ -540,7 +540,7 @@ public enum TileTransitionType {
 		}		
 	}
 	
-	public static int getTileTypeGiver(TileTransitionType transition, TileTransitionType left, TileTransitionType above, TileTransitionType aboveRight, boolean isInverseType) {
+	public static int getTileTypeGiver(TerrainTileTransitionType transition, TerrainTileTransitionType left, TerrainTileTransitionType above, TerrainTileTransitionType aboveRight, boolean isInverseType) {
 		switch(left) {
 		case DOWN: 
 			switch(above) {
@@ -623,7 +623,7 @@ public enum TileTransitionType {
 			case NONE:
 				return LEFT_INVERT_GIVER;
 			case DOWN: case OUTER_3: case OUTER_4:
-				if(transition == OUTER_1  && !aboveRight.connects(TileTransitionType.UP)) return SECONDARY_RANDOM_GIVER;
+				if(transition == OUTER_1  && !aboveRight.connects(TerrainTileTransitionType.UP)) return SECONDARY_RANDOM_GIVER;
 				else return SECONDARY_GIVER;
 			case LEFT: case INNER_2: case OUTER_1: case UP:
 				return ABOVE_GIVER;
@@ -640,7 +640,7 @@ public enum TileTransitionType {
 			case NONE:
 				return LEFT_INVERT_GIVER;
 			case DOWN: case OUTER_3: case OUTER_4:
-				if(transition == OUTER_1  && !aboveRight.connects(TileTransitionType.UP)) return SECONDARY_RANDOM_GIVER;
+				if(transition == OUTER_1  && !aboveRight.connects(TerrainTileTransitionType.UP)) return SECONDARY_RANDOM_GIVER;
 				else return SECONDARY_GIVER;
 			case LEFT: case INNER_2: case OUTER_1: case UP:
 				return ABOVE_GIVER;
@@ -652,12 +652,12 @@ public enum TileTransitionType {
 			case LEFT:
 				return ABOVE_GIVER;
 			case OUTER_3: case OUTER_4: case DOWN:
-				if(transition == INNER_1  && !aboveRight.connects(TileTransitionType.UP)) return PRIMARY_RANDOM_GIVER;
+				if(transition == INNER_1  && !aboveRight.connects(TerrainTileTransitionType.UP)) return PRIMARY_RANDOM_GIVER;
 				else return PRIMARY_GIVER;
 			case RIGHT: case INNER_1: case OUTER_2: case INNER_2: 
 				return ABOVE_GIVER;
 			case UP: case INNER_3: case INNER_4: case NONE:
-				if(transition == INNER_1  && !aboveRight.connects(TileTransitionType.UP)) return PRIMARY_RANDOM_GIVER;
+				if(transition == INNER_1  && !aboveRight.connects(TerrainTileTransitionType.UP)) return PRIMARY_RANDOM_GIVER;
 				else return PRIMARY_GIVER;
 			default: break;
 			}
@@ -667,10 +667,10 @@ public enum TileTransitionType {
 			case RIGHT: case LEFT: case INNER_1: case INNER_2: case OUTER_1: case OUTER_2:
 				return ABOVE_GIVER;
 			case DOWN: case OUTER_3: case OUTER_4:
-				if(transition == OUTER_1 && !aboveRight.connects(TileTransitionType.UP)) return SECONDARY_RANDOM_GIVER;
+				if(transition == OUTER_1 && !aboveRight.connects(TerrainTileTransitionType.UP)) return SECONDARY_RANDOM_GIVER;
 				else return SECONDARY_GIVER;
 			case UP: case INNER_3: case INNER_4: case NONE:
-				if(transition == INNER_1 && !aboveRight.connects(TileTransitionType.UP)) return PRIMARY_RANDOM_GIVER;
+				if(transition == INNER_1 && !aboveRight.connects(TerrainTileTransitionType.UP)) return PRIMARY_RANDOM_GIVER;
 				else return PRIMARY_GIVER;								
 			default: break;
 			}
@@ -681,8 +681,8 @@ public enum TileTransitionType {
 		}
 	}
 	
-	public static TileTransitionType getPossibleAbove(TileTransitionType left) {
-		ArrayList<TileTransitionType> possible = new ArrayList<>();
+	public static TerrainTileTransitionType getPossibleAbove(TerrainTileTransitionType left) {
+		ArrayList<TerrainTileTransitionType> possible = new ArrayList<>();
 		switch(left) {
 		case DOWN: case LEFT: case INNER_1: case INNER_2: case INNER_3:	case OUTER_4: case NONE:
 			possible.add(RIGHT);
@@ -708,8 +708,8 @@ public enum TileTransitionType {
 		return possible.get(UtilsMath.random(possible.size()));
 	}
 	
-	public static TileTransitionType getPossibleLeft(TileTransitionType above) {
-		ArrayList<TileTransitionType> possible = new ArrayList<>();
+	public static TerrainTileTransitionType getPossibleLeft(TerrainTileTransitionType above) {
+		ArrayList<TerrainTileTransitionType> possible = new ArrayList<>();
 		switch(above) {
 		case DOWN: case LEFT: case INNER_2: case OUTER_1: case OUTER_3: case OUTER_4:
 			possible.add(RIGHT);
@@ -737,8 +737,8 @@ public enum TileTransitionType {
 	}
 	
 	
-	public static TileTransitionType getPossibleRight(TileTransitionType above) {
-		ArrayList<TileTransitionType> possible = new ArrayList<>();
+	public static TerrainTileTransitionType getPossibleRight(TerrainTileTransitionType above) {
+		ArrayList<TerrainTileTransitionType> possible = new ArrayList<>();
 		switch(above) {
 		case DOWN: case INNER_1: case OUTER_4:
 			possible.add(DOWN);
