@@ -11,9 +11,9 @@ import warped.utilities.enums.generalised.ButtonStateType;
 public class GUITile extends WarpedGUI {
 
 	ButtonSprite tileSprite;
-	WarpedTile tile;
+	WarpedTile<?> tile;
 	
-	public GUITile(WarpedTile tile, int xOffset, int yOffset) {
+	public GUITile(WarpedTile<?> tile, int xOffset, int yOffset) {
 		this.tile = tile;
 		this.tileSprite = new ButtonSprite(tile.raster());
 		position.x = tile.getPosition().x + xOffset;

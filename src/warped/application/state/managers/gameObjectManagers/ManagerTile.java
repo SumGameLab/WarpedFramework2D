@@ -2,6 +2,7 @@
 
 package warped.application.state.managers.gameObjectManagers;
 
+import warped.application.state.WarpedState;
 import warped.application.state.groups.WarpedGroup;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.application.tile.WarpedTile;
@@ -21,8 +22,7 @@ public class ManagerTile<T extends WarpedTile<?>> extends WarpedManager<T> {
 	//--------
 	@SuppressWarnings("unchecked")
 	public <K extends WarpedTileable<? extends Enum<?>>> WarpedTile<K> getTile(WarpedGroupIdentity groupID, int x, int y) {
-		@SuppressWarnings("unchecked")
-		WarpedGroup<WarpedTile<?>> group = (WarpedGroup<WarpedTile<?>>) getGroup(groupID);		
+		WarpedGroup<WarpedTile<?>> group = WarpedState.tileManager.getGroup(groupID);		
 		if(x < 0 || y < 0 || x >= group.getMapGridSize().x || y >= group.getMapGridSize().y) {
 			Console.err("TileManager -> getTile() -> tile coordinates are outside of bounds : " + group.getMapGridSize().getString());
 			return null;
@@ -34,6 +34,7 @@ public class ManagerTile<T extends WarpedTile<?>> extends WarpedManager<T> {
 			return null;
 		} else return (WarpedTile<K>) result;
 	} 
+	
 	
 	public double[] getRoughnessGrid(WarpedGroupIdentity groupID) {
 		if(groupID.getManagerType() != WarpedManagerType.TILE) {
@@ -80,9 +81,7 @@ public class ManagerTile<T extends WarpedTile<?>> extends WarpedManager<T> {
 		return result;
 	}
 		
-	@SuppressWarnings("unchecked")
-	public <K extends WarpedTileable<? extends Enum<?>>> WarpedGroup<WarpedTile<K>> getTileGroup(WarpedGroupIdentity groupID){return (WarpedGroup<WarpedTile<K>>) getGroup(groupID.getGroupIndex());}
-	
+
 	//--------
 	//------------------- Find ---------------------
 	//--------

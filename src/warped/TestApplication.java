@@ -2,7 +2,6 @@
 
 package warped;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,14 +13,15 @@ import warped.application.state.WarpedImageFolder;
 import warped.application.state.WarpedSpriteFolder;
 import warped.application.state.WarpedState;
 import warped.application.state.groups.WarpedGroup;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
-import warped.graphics.window.WarpedViewport;
 import warped.graphics.window.WarpedWindow;
 import warped.utilities.enums.WarpedLinkable;
 
 public class TestApplication extends WarpedApplication {
 	
-
+	public static void main(String[] args) {		
+		WarpedFramework2D.startFramework("WarpedFramework2D - SomeKid", 1920, 1080, null);
+		WarpedFramework2D.startApplication(new TestApplication());
+	}
 
 	private enum TestSprites implements WarpedLinkable<TestSprites>{
 		TEST_1,
@@ -94,8 +94,8 @@ public class TestApplication extends WarpedApplication {
     WarpedState.openGroup(testGroup);
     
     
-    WarpedViewport testViewport = new WarpedViewport("test", WarpedManagerType.GUI, 0, 0, WarpedWindow.width, WarpedWindow.height);
-    WarpedWindow.setViewPorts(Arrays.asList(testViewport));
+    //WarpedViewport testViewport = new WarpedViewport("test", WarpedManagerType.GUI, 0, 0, WarpedWindow.width, WarpedWindow.height);
+    //WarpedWindow.setViewPorts(Arrays.asList(testViewport));
     //WarpedWindow.createViewport(WarpedManagerType.GUI, 0, 0, WarpedWindow.width, WarpedWindow.height);
     
     

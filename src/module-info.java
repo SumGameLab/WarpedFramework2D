@@ -18,16 +18,6 @@ module WarpedFramework2D {
 	exports warped.application.depthFields;
 	exports warped.application.entities;
 	exports warped.application.entities.item;
-	exports warped.application.entities.item.ammunition;
-	exports warped.application.entities.item.artifact;
-	exports warped.application.entities.item.container;
-	exports warped.application.entities.item.drink;
-	exports warped.application.entities.item.element;
-	exports warped.application.entities.item.equipment;
-	exports warped.application.entities.item.equipment.apparel;
-	exports warped.application.entities.item.equipment.tool;
-	exports warped.application.entities.item.food;
-	exports warped.application.entities.item.resource;
 	exports warped.application.entities.projectile;
 	exports warped.application.gui;
 	exports warped.application.gui.textBox;

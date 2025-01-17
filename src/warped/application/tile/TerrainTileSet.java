@@ -9,9 +9,7 @@ import java.util.List;
 import warped.application.state.WarpedState;
 import warped.application.state.groups.WarpedGroup;
 import warped.application.state.groups.WarpedGroupIdentity;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.sprite.spriteSheets.WarpedSpriteSheet;
-import warped.utilities.enums.generalised.DirectionType;
 import warped.utilities.math.vectors.Vec2i;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsImage;
@@ -720,7 +718,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     		
     		
     		WarpedGroupIdentity groupID = WarpedState.tileManager.addGroup(name);
-    		WarpedGroup<WarpedTile> group = WarpedState.tileManager.getGroup(groupID);
+    		WarpedGroup<WarpedTile<?>> group = WarpedState.tileManager.getGroup(groupID);
     		
     		group.setMapSize(mapWidth, mapHeight);
     		group.setPixelSize(mapWidth * getTileWidth(), mapHeight * getTileHeight());

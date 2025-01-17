@@ -18,7 +18,7 @@ import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.math.vectors.Vec2i;
 import warped.utilities.utils.Console;
 
-public class GUITileMap<T extends WarpedTile> extends WarpedGUI {
+public class GUITileMap<T extends WarpedTile<?>> extends WarpedGUI {
 
 	public static final double ZOOM_OUT_SCALE  = 0.5;
 	public static final double ZOOM_DEF_SCALE  = 1.0;
@@ -31,7 +31,7 @@ public class GUITileMap<T extends WarpedTile> extends WarpedGUI {
 	
 	protected Vec2i tileMapSize = new Vec2i();
 	
-	protected WarpedGroup<WarpedTile> group;
+	protected WarpedGroup<WarpedTile<?>> group;
 	protected WarpedGroupIdentity groupID;
 	
 	
@@ -173,7 +173,7 @@ public class GUITileMap<T extends WarpedTile> extends WarpedGUI {
 				int drawX = x * tileSize.x;
 				int drawY = y * tileSize.y;
 				
-				WarpedTile tile = group.getMember(x + y * mapGridSize.x);
+				WarpedTile<?> tile = group.getMember(x + y * mapGridSize.x);
 				g.drawImage(tile.raster(), drawX, drawY, tileSize.x, tileSize.y, null);				
 			}
 		}

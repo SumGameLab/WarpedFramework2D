@@ -42,15 +42,13 @@ public abstract class WarpedFramework2D {
 	
 	public static boolean isDebuging() {return isDebugging;}
 	
-	
-	
-	public static void main(String[] args) {		
-		startFramework("WarpedFramework2D - SomeKid", 1920, 1080, null);
-		startApplication(new TestApplication());
-	}
-	
-	
-	
+	/**Call This function on the first line of your main function.
+	 * It will prepare and start the framework to run your application.
+	 * 
+	 *@param windowName - The name you want to be displayed at the top of the window (when application is in window)
+	 *@param gameWidth, gameHeight - The native resolution for your game (note: the game width/height can be scaled which is the windowWidth/windowHeight. gameWidth/height is the native resolution)
+	 *@param iconPath - the path relative to src folder for the icon you want to be displayed in the top left corner of the window. If path is null or invalid the window will have default java application icon
+	 **/
 	public static final void startFramework(String windowName, int gameWidth, int gameHeight, String iconPath) {
 		Console.ln("WarpedFramework2D -> startFramework() -> starting : ");
 		Console.startLogging();
@@ -129,15 +127,22 @@ public abstract class WarpedFramework2D {
 		}
 	}
 	
+	/**Call this function on the second line of your main function.
+	 * It will prepare and start your application.
+	 * 
+	 * @param input a new instance of your application. This can be any class that extends WarpedApplication.
+	 * */
 	public static final void startApplication(WarpedApplication application) {		
 		app = application;
-		app.start();
+		app.load();
 		
 		state.initialize();
-		UtilsName.initialize();
-				
+		
+		isLoading = false;
+		setLoadProgress(1.0);
+		Console.ln("WarpedFramework -> startApplication()");
+		app.startApplication();
 		WarpedState.play();
-		finishedLoading();
 	}
 	
 	public static final void stop() {
@@ -163,6 +168,7 @@ public abstract class WarpedFramework2D {
 	public final static boolean isRunning() {return isRunning;}
 	public final static boolean isLoading() {return isLoading;}
 	
+	/*
 	public static final void finishedLoading() {
 		if(isLoading == false) {
 			Console.err("WarpedFramework -> finishedLoading() -> already finished loading");
@@ -172,6 +178,7 @@ public abstract class WarpedFramework2D {
 		loadProgress = 0.0;
 		app.startApplication();
 	}
+	*/
 	public static final double getLoadProgress() {return loadProgress;}
 	public static final void setLoadProgress(double progress) {loadProgress = UtilsMath.clamp(progress, 0.0, 1.0);}
 	

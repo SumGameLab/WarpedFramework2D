@@ -46,7 +46,7 @@ public class GUIInventoryItems extends WarpedGUI {
 	private Color hoverColor = new Color(60,60,60,60);
 	
 	private boolean isDragging = false;
-	private WarpedGroup<WarpedItem> invent;
+	private WarpedGroup<WarpedItem<?>> invent;
 	private WarpedGroupIdentity inventoryID;
 	
 	public GUIInventoryItems(int columns, int rows) {
@@ -111,7 +111,7 @@ public class GUIInventoryItems extends WarpedGUI {
 		setRaster(img);
 	}
 	
-	public WarpedGroup<WarpedItem> getInventory(){return invent;}
+	public WarpedGroup<WarpedItem<?>> getInventory(){return invent;}
 	public WarpedGroupIdentity getInventoryID() {return inventoryID;}
 	
 	@Override
@@ -196,12 +196,12 @@ public class GUIInventoryItems extends WarpedGUI {
 	
 	public void dropItem(GUIInventoryItems previousInventory, int dragIndex, int dropIndex) {
 		Console.ln("GUIInventory -> dropItem() -> drag index : " + dragIndex + " -> drop index : " + dropIndex);
-		WarpedItem item = previousInventory.getItem(dragIndex);
+		WarpedItem<?> item = previousInventory.getItem(dragIndex);
 		previousInventory.removeItem(dragIndex);
 		addItem(item, dropIndex);
 	}
 	
-	private WarpedItem getItem(int itemIndex) {
+	private WarpedItem<?> getItem(int itemIndex) {
 		if(itemIndex < 0 || itemIndex >= invent.getMemberCount()) {
 			Console.err("GUIInventory -> getItem() -> itemIndex out of bounds : " + itemIndex);
 			return null;
@@ -215,7 +215,7 @@ public class GUIInventoryItems extends WarpedGUI {
 		updateGraphics();
 	}
 	/**Note : this will also add the item to this inventory's context group, not just add it to the GUI*/
-	private void addItem(WarpedItem item, int index) {
+	private void addItem(WarpedItem<?> item, int index) {
 		WarpedState.itemManager.getGroup(inventoryID).addMember(item, index);
 		updateGraphics();
 	}

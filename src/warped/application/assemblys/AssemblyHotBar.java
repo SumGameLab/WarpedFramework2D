@@ -8,15 +8,16 @@ import warped.application.state.WarpedAssembly;
 import warped.application.state.WarpedState;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.user.keyboard.WarpedKeyboardController;
 import warped.utilities.math.vectors.Vec2i;
 import warped.utilities.utils.Console;
 
 public class AssemblyHotBar extends WarpedAssembly {
 
-	private GUIButton close  = new GUIButton(FrameworkSprites.standardIcons.getSprite(2, 4));
+	private GUIButton close  = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
 	private GUIButton title  = new GUIButton("HotBar");
-	private GUIButton clear  = new GUIButton(FrameworkSprites.standardIcons.getSprite(9, 4));
+	private GUIButton clear  = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.TRASH));
 	private GUIHotBar hotBar = new GUIHotBar();
 	
 	private Vec2i closeOffset = new Vec2i(150, 0);

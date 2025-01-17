@@ -12,6 +12,7 @@ import java.util.List;
 
 import warped.WarpedProperties;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.KeyboardIcons;
 import warped.user.actions.WarpedAction;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.ButtonStateType;
@@ -53,8 +54,8 @@ public class GUIPopOutToggle extends WarpedGUI {
 	private BufferedImage popedOutRaster; //The raster that displays all the buttons
 	
 	private static int stdIconSize = 20;
-	private static BufferedImage popUpArrowGraphic   = FrameworkSprites.standardIcons.getSprite(1, 26);
-	private static BufferedImage popDownArrowGraphic = FrameworkSprites.standardIcons.getSprite(1, 27);
+	private static BufferedImage popUpArrowGraphic   = FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_UP);
+	private static BufferedImage popDownArrowGraphic = FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_DOWN);
 
 	public int getToggleIndex() {return selectIndex;}
 	

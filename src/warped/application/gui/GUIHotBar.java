@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import warped.WarpedProperties;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.KeyboardIcons;
 import warped.user.keyboard.WarpedKeyBind;
 import warped.user.keyboard.WarpedKeyboardController;
 import warped.user.mouse.WarpedMouseEvent;
@@ -80,7 +81,7 @@ public class GUIHotBar extends WarpedGUI {
 			
 			if(i == hotBinds.size()) {
 				g.drawImage(WarpedKeyBind.getKeyImage(-1), rx, ry, rx + keySize.x, ry + keySize.y, null);
-				g.drawImage(FrameworkSprites.standardIcons.getSprite(5, 5), rx, ry, buttonSize.x, buttonSize.y, null); 
+				g.drawImage(FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_UP), rx, ry, buttonSize.x, buttonSize.y, null); 
 			} else {
 				WarpedKeyBind<?> bind = hotBinds.get(i);
 				g.drawImage(WarpedKeyBind.getKeyImage(bind.getKey()), rx, ry, keySize.x, keySize.y, null);

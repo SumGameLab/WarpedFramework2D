@@ -9,10 +9,7 @@ import java.util.HashMap;
 import warped.application.state.WarpedState;
 import warped.application.state.groups.WarpedGroup;
 import warped.application.state.groups.WarpedGroupIdentity;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.sprite.spriteSheets.WarpedSpriteSheet;
-import warped.utilities.enums.generalised.DirectionType;
-import warped.utilities.math.vectors.Vec2i;
 import warped.utilities.utils.UtilsMath;
 
 public class  WarpedTileSet<T extends WarpedTileable<? extends Enum<?>>> {
@@ -67,8 +64,8 @@ public class  WarpedTileSet<T extends WarpedTileable<? extends Enum<?>>> {
 		
 		
 		WarpedGroupIdentity groupID = WarpedState.tileManager.addGroup();
-		@SuppressWarnings("rawtypes")
-		WarpedGroup<WarpedTile> group = WarpedState.tileManager.getGroup(groupID);
+		
+		WarpedGroup<WarpedTile<?>> group = WarpedState.tileManager.getGroup(groupID);
 		
 		for(int y = 0; y < mapHeight; y++) {
 			for(int x = 0; x < mapWidth; x++) {
@@ -92,7 +89,7 @@ public class  WarpedTileSet<T extends WarpedTileable<? extends Enum<?>>> {
 		}
 		
 		WarpedGroupIdentity groupID = WarpedState.tileManager.addGroup();
-		WarpedGroup<WarpedTile> group = WarpedState.tileManager.getGroup(groupID);
+		WarpedGroup<WarpedTile<?>> group = WarpedState.tileManager.getGroup(groupID);
 		
 		for(int y = 0; y < mapHeight; y++) {
 			for(int x = 0; x < mapWidth; x++) {

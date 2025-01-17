@@ -19,6 +19,7 @@ import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.application.tile.WarpedTile;
 import warped.audio.FrameworkAudio;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.utilities.math.vectors.Vec2d;
 import warped.utilities.utils.Console;
 
@@ -44,7 +45,7 @@ public class AssemblyGameObjectInspector extends WarpedAssembly {
 	private Vec2d objectTextOffset    = new Vec2d(  0, 60);
 	
 	private GUIButton titleButton   = new GUIButton("GameObject Inspector");
-	private GUIButton closeButton   = new GUIButton(FrameworkSprites.standardIcons.getSprite(2, 4));
+	private GUIButton closeButton   = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
 	
 	private GUIObjectIcon   icon   	    = new GUIObjectIcon( new Vec2d(iconOffset.x, iconOffset.y), 90);
 	private GUIValue  positionValue	= new GUIValue(new Vec2d(positionValueOffset.x, positionValueOffset.y), new Vec2d(300,30));

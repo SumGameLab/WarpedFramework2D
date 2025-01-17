@@ -4,7 +4,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import warped.application.entities.item.resource.ResourceType;
+import warped.application.entities.item.ResourceType;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsImage;

@@ -39,7 +39,7 @@ public class WarpedManager<T extends WarpedObject> {
 	public static ManagerEntitie<WarpedEntitie> generateEntitieManager(){return new ManagerEntitie<WarpedEntitie>();}
 	public static ManagerDepthField<WarpedDepthField> generateDepthFieldManager(){return new ManagerDepthField<WarpedDepthField>();}
 	public static ManagerGUI<WarpedGUI> generateGUIManager(){return new ManagerGUI<WarpedGUI>();}
-	public static ManagerTile<WarpedTile> generateTileManager(){return new ManagerTile<WarpedTile>();}
+	public static ManagerTile<WarpedTile<?>> generateTileManager(){return new ManagerTile<WarpedTile<?>>();}
 	public static ManagerVisualEffect<WarpedProp> generateVisualEffectManager(){
 		ManagerVisualEffect<WarpedProp> manager = new ManagerVisualEffect<WarpedProp>(); 
 		manager.init();
@@ -47,7 +47,7 @@ public class WarpedManager<T extends WarpedObject> {
 	}
 	
 	public  ArrayList<WarpedGroup<T>> getActiveGroups(){return activeGroups;}
-	public static ManagerItem<WarpedItem> generateItemManager(){return new ManagerItem<WarpedItem>();}
+	public static ManagerItem<WarpedItem<?>> generateItemManager(){return new ManagerItem<WarpedItem<?>>();}
 	
 	protected WarpedManager() {
 		managerType = WarpedManagerType.OBJECT;

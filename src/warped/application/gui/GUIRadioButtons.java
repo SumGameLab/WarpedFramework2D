@@ -9,6 +9,7 @@ import java.util.List;
 
 import warped.WarpedProperties;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.user.actions.WarpedAction;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.AxisType;
@@ -122,12 +123,12 @@ public class GUIRadioButtons extends WarpedGUI {
 		this.style = style;
 		switch(style) {
 		case CHECK_BOX:
-			selectedImage   = FrameworkSprites.standardIcons.getSprite(3, 26);
-			unselectedImage = FrameworkSprites.standardIcons.getSprite(3, 27);
+			selectedImage   = FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_CHECKED);
+			unselectedImage = FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_UNCHECKED);
 			break;
 		case CLASSIC:
-			selectedImage   = FrameworkSprites.standardIcons.getSprite(4, 26);
-			unselectedImage = FrameworkSprites.standardIcons.getSprite(4, 27);
+			selectedImage   = FrameworkSprites.getStandardIcon(StandardIcons.RADIO_CHECKED);
+			unselectedImage = FrameworkSprites.getStandardIcon(StandardIcons.RADIO_UNCHECKED);
 			break;
 		default:
 			Console.err("GUIRadioButtons -> setStyleType() -> invalid case : " + style);

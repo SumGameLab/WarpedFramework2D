@@ -14,7 +14,7 @@ public abstract class WarpedApplication  {
 	
 	/////////////////////////////////////////////////////////////
 			
-	public final void start() {
+	public final void load() {
 		Console.ln("WarpedGame -> Constructing Application : " + this.getClass().getSimpleName());
 		WarpedMouse.setCursorState(WarpedMouse.LOAD);
 		loadAssets();

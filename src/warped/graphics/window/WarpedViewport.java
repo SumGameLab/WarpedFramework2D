@@ -133,6 +133,26 @@ public class WarpedViewport {
 		setDefaultRenderHints();
 		
 	}
+	
+	@SuppressWarnings("unchecked")
+	public WarpedViewport(String name, WarpedManagerType target) {
+		this.name = name;
+		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
+		//viewportTimer = new Timer("WarpedViewport : " + name);
+		this.size = new Vec2i(WarpedWindow.width, WarpedWindow.height);
+		this.position = new Vec2i(); 
+		this.target = WarpedState.getManager(target);;
+		this.camera = WarpedState.cameraManager.getDefaultCamera(target);
+		camera.setCornerPins(0, 0, size.x, size.y);
+		
+		Console.ln("WarpedViewPort -> " + name + " Constructing..");
+		
+		rasterBuffer = new BufferedImage[bufferSize];
+		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x, size.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		raster = rasterBuffer[0];
+		setDefaultRenderHints();
+		
+	}
 
 	public void update() {
 		long cycleStartTime = System.nanoTime();

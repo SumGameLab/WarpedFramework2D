@@ -20,6 +20,7 @@ import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.audio.FrameworkAudio;
 import warped.graphics.camera.WarpedCameraType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.graphics.window.WarpedViewport;
 import warped.graphics.window.WarpedWindow;
 import warped.user.WarpedUserInput;
@@ -105,10 +106,10 @@ public class AssemblyFrameworkInspector extends WarpedAssembly {
 
 	
 	private GUIButton title    = new GUIButton("  WarpedFramework2D  ");
-	private GUIButton next     = new GUIButton(FrameworkSprites.standardIcons.getSprite(6, 4));
-	private GUIButton previous = new GUIButton(FrameworkSprites.standardIcons.getSprite(8, 4));
-	private GUIToggle refresh  = new GUIToggle(FrameworkSprites.standardIcons.getSprite(4, 4));
-	private GUIButton close    = new GUIButton(FrameworkSprites.standardIcons.getSprite(2, 4)); 
+	private GUIButton next     = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.POINT_RIGHT));
+	private GUIButton previous = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.POINT_LEFT));
+	private GUIToggle refresh  = new GUIToggle(FrameworkSprites.getStandardIcon(StandardIcons.REFRESH));
+	private GUIButton close    = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE)); 
 	
 	private GUIButton smallRes = new GUIButton("720p");
 	private GUIButton normalRes = new GUIButton("1080p");

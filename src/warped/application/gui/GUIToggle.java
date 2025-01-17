@@ -12,6 +12,7 @@ import warped.WarpedProperties;
 import warped.audio.FrameworkAudio;
 import warped.audio.WarpedAudioClip;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.user.actions.WarpedAction;
 import warped.user.mouse.WarpedMouse;
 import warped.user.mouse.WarpedMouseEvent;
@@ -72,8 +73,8 @@ public class GUIToggle extends WarpedGUI {
 	
 	
 	public GUIToggle() {
-		toggleOnImage = FrameworkSprites.standardIcons.getSprite(3, 26);
-		toggleOffImage = FrameworkSprites.standardIcons.getSprite(3, 27);
+		toggleOnImage = FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_CHECKED);
+		toggleOffImage = FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_UNCHECKED);
 		
 		hoveredOnImage = UtilsImage.generateTintedClone(toggleOnImage, 30, Colour.RED);
 		hoveredOffImage = UtilsImage.generateTintedClone(toggleOffImage, 30, Colour.RED);

@@ -15,7 +15,6 @@ import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
@@ -27,6 +26,7 @@ import javax.swing.JFrame;
 import javafx.embed.swing.JFXPanel;
 import warped.WarpedFramework2D;
 import warped.WarpedProperties;
+import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.user.WarpedUserInput;
 import warped.user.mouse.WarpedMouseEvent;
@@ -113,12 +113,21 @@ public class WarpedWindow extends Canvas {
 	
 	private static Object[] renderHints = new Object[6];
 	
-	public static final int RENDERING 			   = 0;
-	public static final int COLOR                  = 1;
-	public static final int ANTIALIASING		   = 2;
-	public static final int INTERPOLATION          = 3;
-	public static final int ALPHA_INTERPOLATION    = 4;
-	public static final int DITHERING              = 5;
+	public enum RenderHints {
+		RENDERING, 			
+		COLOR,               
+		ANTIALIASING,		
+		INTERPOLATION,
+		ALPHA_INTERPOLATION, 
+		DITHERING           
+	}
+	
+	//public static final int RENDERING 			   = 0;
+	//public static final int COLOR                  = 1;
+	//public static final int ANTIALIASING		   = 2;
+	//public static final int INTERPOLATION          = 3;
+	//public static final int ALPHA_INTERPOLATION    = 4;
+	//public static final int DITHERING              = 5;
 		
 	public WarpedWindow(String windowName, int applicationWidth, int applicationHeight, String iconPath) {
 		Console.ln("WarpedWindow -> Creating window with Settings : ");
@@ -127,12 +136,12 @@ public class WarpedWindow extends Canvas {
 		Console.ln("WarpedWindow -> Height : " + applicationHeight);
 		System.setProperty("sun.java2d.opengl", "True");
 
-		renderHints[RENDERING] 			 = RenderingHints.VALUE_RENDER_SPEED;
-		renderHints[ANTIALIASING] 		 = RenderingHints.VALUE_ANTIALIAS_OFF;
-		renderHints[COLOR] 				 = RenderingHints.VALUE_COLOR_RENDER_SPEED;
-		renderHints[INTERPOLATION] 		 = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
-		renderHints[ALPHA_INTERPOLATION] = RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;
-		renderHints[DITHERING]			 = RenderingHints.VALUE_DITHER_DISABLE;
+		renderHints[RenderHints.RENDERING.ordinal()] 			 = RenderingHints.VALUE_RENDER_SPEED;
+		renderHints[RenderHints.ANTIALIASING.ordinal()] 		 = RenderingHints.VALUE_ANTIALIAS_OFF;
+		renderHints[RenderHints.COLOR.ordinal()] 				 = RenderingHints.VALUE_COLOR_RENDER_SPEED;
+		renderHints[RenderHints.INTERPOLATION.ordinal()] 		 = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+		renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]   = RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;
+		renderHints[RenderHints.DITHERING.ordinal()]			 = RenderingHints.VALUE_DITHER_DISABLE;
 		
 		WarpedWindow.windowName = windowName;
 		WarpedWindow.width  = applicationWidth;
@@ -158,6 +167,8 @@ public class WarpedWindow extends Canvas {
 		createBufferStrategy(2);
 		bs = getBufferStrategy();
         
+		viewPorts[0] = new WarpedViewport("Default", WarpedManagerType.GUI, 0, 0, width, height);
+				
         loadTimer.scheduleAtFixedRate(updateLoadGraphics, 0, 16);
 
 	}
@@ -184,8 +195,8 @@ public class WarpedWindow extends Canvas {
 		windowScale.set((double)windowResolution.x / (double)applicationResolution.x, (double)windowResolution.y / (double)applicationResolution.y);
 		Console.ln("WarpedWindow -> setWindowResolution() -> setting resolution to : " + x + ", " + y);
 		Console.ln("WarpedWindow -> setWindowResolution() -> setting resolution scale to : " + windowScale.getString());
-		if(windowScale.x >= 1.0 || windowScale.y >= 1.0) renderHints[INTERPOLATION] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
-		else renderHints[INTERPOLATION] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
+		if(windowScale.x >= 1.0 || windowScale.y >= 1.0) renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+		else renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 		
 		Dimension size = new Dimension(WarpedWindow.width, WarpedWindow.height);
 		setPreferredSize(size);
@@ -223,7 +234,7 @@ public class WarpedWindow extends Canvas {
 			oFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 			oFrame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
 		}		
-		
+		 
 		startExecutor();
 	}
 	
@@ -345,22 +356,27 @@ public class WarpedWindow extends Canvas {
 	}
 
 	private static void setRenderHints(Graphics2D g) {
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,	   		renderHints[RENDERING]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 		renderHints[ANTIALIASING]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 	renderHints[COLOR]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 		renderHints[INTERPOLATION]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, 			renderHints[DITHERING]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, renderHints[ALPHA_INTERPOLATION]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,	   		renderHints[RenderHints.RENDERING.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 		renderHints[RenderHints.ANTIALIASING.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 	renderHints[RenderHints.COLOR.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 		renderHints[RenderHints.INTERPOLATION.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, 			renderHints[RenderHints.DITHERING.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]);
 	}
 	
 
 	private static void renderLoadscreen() {
 		bufferGraphics = getBufferGraphics();
 		if(WarpedFramework2D.getLoadProgress() > loadProgress) loadProgress += 0.004;
+		
 		if(loadProgress >= 1.0) {
-			WarpedFramework2D.finishedLoading(); 
-			loadProgress = 0.0; 
+			updateLoadGraphics.cancel();
+			loadTimer.cancel();
+			updateLoadGraphics = null;
+			loadTimer = null;
+			startExecutor();
 		}
+		
 		bufferGraphics.drawImage(FrameworkSprites.loadBackground, 0, 0, width, height, null);
 		bufferGraphics.setColor(Color.GRAY);
 		bufferGraphics.fillRect(loadBarPosition.x, loadBarPosition.y, loadBarSize.x, loadBarSize.y);
@@ -381,16 +397,16 @@ public class WarpedWindow extends Canvas {
 	//--------
 	//---------------- View Ports --------
 	//--------
-	public static void setViewPorts(List<WarpedViewport> ports) { 	 	
-		Console.ln("WarpedWindow -> setViewPorts() -> seting " + ports.size() + " viewports");
-		viewPorts = new WarpedViewport[ports.size()];
+	public static void setViewPorts(WarpedViewport... ports) { 	 	
+		Console.ln("WarpedWindow -> setViewPorts() -> seting " + ports.length + " viewports");
+		viewPorts = new WarpedViewport[ports.length];
 		updateLoadGraphics.cancel();
 		loadTimer.cancel();
 		updateLoadGraphics = null;
 		loadTimer = null;
-		for(int i = 0; i < ports.size(); i++) {
-			viewPorts[i] = ports.get(i);
-			Console.ln("WarpedWindow -> added viewport : " + ports.get(i).getName() + " at index " + i);
+		for(int i = 0; i < ports.length; i++) {
+			viewPorts[i] = ports[i];
+			Console.ln("WarpedWindow -> added viewport : " + ports[i].getName() + " at index " + i);
 		}
 		startExecutor();
 	}

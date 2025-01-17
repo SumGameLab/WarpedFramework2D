@@ -77,11 +77,11 @@ public class WarpedState {
 	@SuppressWarnings("unchecked")
 	public static final ManagerGUI<WarpedGUI>        		guiManager        =  (ManagerGUI<WarpedGUI>) managers[WarpedManagerType.GUI.ordinal()];
 	@SuppressWarnings("unchecked")
-	public static final ManagerTile<WarpedTile>				tileManager 	  =  (ManagerTile<WarpedTile>) managers[WarpedManagerType.TILE.ordinal()];
+	public static final ManagerTile<WarpedTile<?>>			tileManager 	  =  (ManagerTile<WarpedTile<?>>) managers[WarpedManagerType.TILE.ordinal()];
 	@SuppressWarnings("unchecked")
 	public static final ManagerVisualEffect<WarpedProp>   	vfxManager     	  =  (ManagerVisualEffect<WarpedProp>) managers[WarpedManagerType.VFX.ordinal()];
 	@SuppressWarnings("unchecked")
-	public static final ManagerItem<WarpedItem>				itemManager		  =  (ManagerItem<WarpedItem>) managers[WarpedManagerType.ITEM.ordinal()];
+	public static final ManagerItem<WarpedItem<?>>				itemManager	  =  (ManagerItem<WarpedItem<?>>) managers[WarpedManagerType.ITEM.ordinal()];
 	
 	protected static ArrayList<WarpedAudioFolder<?>> audioFolders = new ArrayList<>();
 	protected static ArrayList<WarpedAssembly> assemblys = new ArrayList<>();

@@ -28,12 +28,12 @@ public interface WarpedTileable<T extends Enum<?>> {
 	public default T getRandom() {return get(size());}
 	
 	@SuppressWarnings("unchecked")
-	public default String getDescription() {return getDescription((T)this);};
-	@SuppressWarnings("unchecked")
 	public default double getRoughness() {return getRoughness((T)this);};
-	
-	public abstract String getDescription(T tileType);
 	public abstract double getRoughness(T tileType);
+	
+	@SuppressWarnings("unchecked")
+	public default String getDescription() {return getDescription((T)this);};
+	public abstract String getDescription(T tileType);
 	
 	
 }

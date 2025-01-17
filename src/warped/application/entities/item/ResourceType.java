@@ -1,7 +1,8 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 
-package warped.application.entities.item.resource;
+package warped.application.entities.item;
 
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.Map;
 import warped.utilities.utils.UtilsMath;
 import warped.utilities.utils.UtilsString;
 
-public enum ResourceType {
+public enum ResourceType implements ItemBindable<ResourceType> {
 	
 	/**NOTE:
 	 * When adding new entrys to the list, consider 
@@ -165,16 +166,13 @@ public enum ResourceType {
 	
 	UNKNOWN;
 	
+	;public static Map<Integer, ResourceType> map = new HashMap<>();
+	static {for(ResourceType sprite : ResourceType.values()) map.put(sprite.ordinal(), sprite);}
+	@Override
+	public Map<Integer, ResourceType> getMap() {return map;}
+
 	
-	private static Map<Integer, ResourceType> map = new HashMap<>();
-	static {
-        for (ResourceType type : ResourceType.values()) {
-            map.put(type.ordinal(), type);
-        }
-    }
-	public static ResourceType get(int index) {
-	    return (ResourceType) map.get(index);
-	}
+
 	
 	private static ResourceType gasStart 	= HYDROGEN_SULFIED;
 	private static ResourceType gasEnd 	 	= PROPANE;
@@ -207,19 +205,19 @@ public enum ResourceType {
 	public static int getNumberOfLiquids() {return getNumberOfEntrysFrom(liquidStart, liquidEnd);}
 	
 	/**a & b inclusive*/
-	public static ResourceType getRandomResourceFrom(ResourceType a, ResourceType b) {
+	public ResourceType getRandomResourceFrom(ResourceType a, ResourceType b) {
 		int rn = UtilsMath.random.nextInt(a.ordinal(), b.ordinal() + 1);
 		return get(rn); 
 	}
-	public static ResourceType getRandomResource() {return get(UtilsMath.random.nextInt(getSize() - 1));}
-	public static ResourceType getRandomGas() {return getRandomResourceFrom(gasStart, gasEnd);}
-	public static ResourceType getRandomSalt() {return getRandomResourceFrom(saltStart, saltEnd);}
-	public static ResourceType getRandomMetallicResource() {return getRandomResourceFrom(metalStart, metalEnd);}
-	public static ResourceType getRandomGem() {return getRandomResourceFrom(gemStart, gemEnd);}
-	public static ResourceType getRandomAcid() {return getRandomResourceFrom(acidStart, acidEnd);}
-	public static ResourceType getRandomLiquid() {return getRandomResourceFrom(liquidStart, liquidEnd);}
+	public ResourceType getRandomResource() {return get(UtilsMath.random.nextInt(getSize() - 1));}
+	public ResourceType getRandomGas() {return getRandomResourceFrom(gasStart, gasEnd);}
+	public ResourceType getRandomSalt() {return getRandomResourceFrom(saltStart, saltEnd);}
+	public ResourceType getRandomMetallicResource() {return getRandomResourceFrom(metalStart, metalEnd);}
+	public ResourceType getRandomGem() {return getRandomResourceFrom(gemStart, gemEnd);}
+	public ResourceType getRandomAcid() {return getRandomResourceFrom(acidStart, acidEnd);}
+	public ResourceType getRandomLiquid() {return getRandomResourceFrom(liquidStart, liquidEnd);}
 	
-	public static ArrayList<ResourceType> getRandomGasses(int number){
+	public ArrayList<ResourceType> getRandomGasses(int number){
 		if(number < 1) { 
 			System.err.println("ResourceType -> getRandomGasses() -> number is less than 1 -> it will be set to 1");
 			number = 1;
@@ -238,7 +236,7 @@ public enum ResourceType {
 		return result;
 	}
 	
-	public static ArrayList<ResourceType> getRandomMetals(int number){
+	public ArrayList<ResourceType> getRandomMetals(int number){
 		if(number < 1) { 
 			System.err.println("ResourceType -> getRandomMetals() -> number is less than 1 -> it will be set to 1");
 			number = 1;
@@ -497,15 +495,27 @@ public enum ResourceType {
 	
 	*/
 
-	public ItemResource generateResource() {return generateResource(this, 1);}
-	public ItemResource generateResource(int quantity) {return generateResource(this, quantity);}
-	public static ItemResource generateResource(ResourceType type, int quantity) {
-		if(quantity <= 0) {
-			System.err.println("AmmunitionType -> generateAmmunition() -> quantity must be greater than 0 : " + quantity + ", it will be set to 1.");
-			quantity = 1;
-		}
-		
-		return new ItemResource(type, quantity);
+	
+
+	@Override
+	public BufferedImage getRaster(ResourceType itemType) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public String getDescription(ResourceType itemType) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public int getValue(ResourceType itemType) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	@Override
+	public double getMass(ResourceType itemType) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 	
