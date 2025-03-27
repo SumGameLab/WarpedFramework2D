@@ -4,8 +4,8 @@ package warped.graphics.animation;
 
 import java.awt.image.BufferedImage;
 
-import warped.user.actions.WarpedAction;
-import warped.utilities.math.vectors.Vec2i;
+import warped.functionalInterfaces.WarpedAction;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsImage;
 
@@ -33,7 +33,7 @@ public class WarpedAnimation {
 	private boolean reverse = false;
 	private boolean isComplete = false;
 	
-	private Vec2i size = new Vec2i();
+	private VectorI size = new VectorI();
 	
 	private WarpedAction completeAction = () -> {Console.ln("WarpedAnimation -> default completionAction()");};
 	private WarpedAction completeReverseAction = () -> {Console.ln("WarpedAnimation -> default completionReverseAction()");};
@@ -57,7 +57,7 @@ public class WarpedAnimation {
 	public void setReverse(boolean reverse) {this.reverse = reverse;}
 	public void reverseOff() {reverse = false;}
 	public void reverseOn() {reverse = true;}
-	public Vec2i getSize() {return size;}
+	public VectorI getSize() {return size;}
 	public void setCompletionAction(WarpedAction completionAction) {this.completeAction = completionAction;}
 	
 	public void setFrameDuration(int frameDuration) {

@@ -2,8 +2,6 @@
 
 package warped.utilities.utils;
 
-import java.awt.AlphaComposite;
-import java.awt.Composite;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.math.BigDecimal;
@@ -14,63 +12,165 @@ import java.util.Random;
 
 import warped.application.tile.RiverSegment;
 import warped.utilities.enums.generalised.RotationType;
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
-import warped.utilities.math.vectors.Vec3d;
-import warped.utilities.math.vectors.Vec3i;
+import warped.utilities.math.vectors.VectorD;
+import warped.utilities.math.vectors.VectorI;
 
 public class UtilsMath {
 	
-	//
-	//---------------------Definitions--------------------------
-	//
+	//--------
+	//---------------- Definitions ----------------
+	//--------
 
-	public static final Composite clearComposite = AlphaComposite.getInstance(AlphaComposite.CLEAR);
-	public static final Composite drawComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+	public static final Random random = new Random();
 	
-	public static Random random = new Random();
-	/**Sixteenth Rotation*/
-	public static final double PI_ON_EIGHTH	   = Math.PI * 0.125;
-	/**Eighth Rotation*/
+	/**One sixteenth of a full rotation.
+	 * @return double - rotation in radians.
+	 * @author 5som3*/
+	public static final double PI_ON_EIGHT	   = Math.PI * 0.125;
+	
+	/**One eighth of a full rotation.
+	 * @return double - rotation in radians.
+	 * @author 5som3*/
 	public static final double PI_ON_FOUR 	   = Math.PI * 0.25;
-	/**Quarter Rotation*/
-	public static final double PI_ON_TWO 	   = Math.PI * 0.5;		
-	/**Half Rotation*/
-	public static final double PI 			   = Math.PI * 1.0;		
-	/**Three Quarter Rotation*/
+	
+	/**One quarter of a full rotation.
+	 * @return double - rotation in radians.
+	 * @author 5som3*/
+	public static final double PI_ON_TWO 	   = Math.PI * 0.5;
+	
+	/**One half of a full rotation.
+	 * @return double - rotation in radians.
+	 * @author 5som3*/
+	public static final double PI 			   = Math.PI * 1.0;
+	
+	/**Three quarters of a full rotation.
+	 * @return double - rotation in radians.
+	 * @author 5som3*/
 	public static final double THREE_PI_ON_TWO = Math.PI * 1.5;
-	/**Full Rotation*/
+	
+	/**A full rotation.
+	 * @return double - rotation in radians.
+	 * @author 5som3*/
 	public static final double TWO_PI  		   = Math.PI * 2.0; 
 	
+	//--------
+	//---------------- Convert rotation --------
+	//--------
 	
-	public static final double convertCelsiusToJoules(double celsius) {return celsius * 1899.1005;}
+	/**Convert degrees to radian equivalent.
+	 * @param degrees - the angle in to convert.
+	 * @return double - the radian equivalent.
+	 * @author 5som3*/
+	public static final double convertDegreesToRadians(double degrees) {return degrees * 0.0174533;}
+	
+	/**Convert radians to degree equivalent.
+	 * @param radians - the radians in to convert.
+	 * @return double - the degree equivalent.
+	 * @author 5som3*/
+	public static final double convertRadiansToDegrees(double radians) {return radians * 57.2958;}
+	
+	//--------
+	//---------------- Convert Temperature --------
+	//--------
+	
+	/**Convert celsius to equivalent fahrenheit.
+	 * @param celsius - the value to convert.
+	 * @return double - fahrenheit equivalent.
+	 * @author 5som3*/
+	public static final double convertCelsiusToFahrenheit(double celsius) {return celsius * 33.8;}
+	
+	/**Convert celsius to the equivalent kelvin.
+	 * @param celsius - the value to convert.
+	 * @return double - the kelvin equivalent.
+	 * @author 5som3*/
+	public static final double covertCelsiusToKelvin(double celsius) {return celsius + 273.15;}
+	
+	/**Convert fahrenheit to celsius.
+	 * @param fahrenheit - the value to convert.
+	 * @return double - celsius equivalent.
+	 * @author 5som3*/
+	public static final double convertFahrenheitToCelsius(double fahrenheit) {return fahrenheit / 33.8;}
+	
+	//--------
+	//---------------- Convert Length --------
+	//--------
+	
+	
+	/**Convert yards to meters.
+	 * @param yards - the value to convert.
+	 * @return double - meter equivalent.
+	 * @author 5som3*/
 	public static final double convertYardToMeters(double yards) {return yards * 0.9144;}
+	
+	/**Convert feet to meters.
+	 * @param feet - the value to convert.
+	 * @return double - meter equivalent.
+	 * @author 5som3*/
 	public static final double convertFeetToMeters(double feet) {return feet * 0.3048;}
+	
+	/**Convert inches to meters.
+	 * @param yards - the value to convert.
+	 * @return double - meter equivalent.
+	 * @author 5som3*/
 	public static final double convertInchesToMeters(double inches) {return inches * 0.0254;}
 	
+	
+	//--------
+	//---------------- Convert Mass --------
+	//--------
+	
+	/**Convert ounces to kilograms.
+	 * @param ounces - the value to convert.
+	 * @return double - the kilogram equivalent. 
+	 * @author 5som3*/
 	public static final double convertOuncesToKilo(double ounces) {return ounces * 0.0283495;}
+	
+	/**Convert pounds to kilograms.
+	 * @param pounds - the value to convert.
+	 * @return double - the kilogram equivalent. 
+	 * @author 5som3*/
 	public static final double convertPoundsToKilo(double pounds) {return pounds * 0.453592;}
+	
+	/**Convert tons to kilograms.
+	 * @param ounces - the value to convert.
+	 * @return double - the kilogram equivalent. 
+	 * @author 5som3*/
 	public static final double convertTonToKilo(double tons) {return tons * 1016.05;}
 	
+	//--------
+	//---------------- Convert time --------
+	//--------
 	
+	/**The duration of a single cycle given a specific frequency.
+	 * @param frequency - the framerate measured in frames per second.
+	 * @return long - the duration of a single cycle in milliseconds. 
+	 * @author 5som3*/
+	public static final long convertHzToMillis(int frequency) {return (long) (1000 / frequency);}
+
 	
+	//--------
+	//---------------- Basic Maths --------
+	//--------	
 	
-	//
-	//-------------------Basic Maths-------------------------------
-	//	
-	public static double difference(double a, double b) {
-		double result = a - b;
-		if(result < 0) result *= -1.0;
-		return result;
-	}
-	public static double pythag(double opposite, double hypotenuse) {return Math.asin(opposite / hypotenuse);}
+	/**The absolute square of a number.
+	 * @param value - the value to square. 
+	 * @return int - the absolute square. 
+	 * @author 5som3*/
 	public static int square(int value) {return (value * value);}
-	public static int cubed(int value) {return(value * value * value);}
-	public static int floor(double value) { return (int)Math.floor(value);}
+	
+	/**The absolute square of a number.
+	 * @param value - the value to square. 
+	 * @return double - the absolute square. 
+	 * @author 5som3*/
 	public static double square(double value) {return (value * value);}
-	public static double cubed(double value) {return(value * value * value);}
+	
+	/**Round a decimal value to a specific number of decimal points.
+	 * @param value - the value to round.
+	 * @param decimalPlaces - the number of decimals the result will have.
+	 * @return double - the rounded number. i.e. round(3.1415, 3) = 3.142.
+	 * @author 5som3*/
 	public static double round(double value, int decimalPlaces) {
-		if (decimalPlaces < 0) {
+		if (decimalPlaces < 1 || decimalPlaces > 9) {
 			Console.err("Maths -> nextDouble -> invalid number of decimal places : " + decimalPlaces);
 			decimalPlaces = 1;			
 		}
@@ -79,7 +179,13 @@ public class UtilsMath {
 		return bd.doubleValue();
 	}
 	
-	public static Float round(float value, int decimalPlaces) {
+	
+	/**Round a decimal value to a specific number of decimal points.
+	 * @param value - the value to round.
+	 * @param decimalPlaces - the number of decimals the result will have.
+	 * @return double - the rounded number. i.e. round(3.1415, 3) = 3.142.
+	 * @author 5som3*/
+	public static float round(float value, int decimalPlaces) {
 		if (decimalPlaces < 0) {
 			Console.err("Maths -> nextDouble -> invalid number of decimal places : " + decimalPlaces);
 			decimalPlaces = 1;			
@@ -89,11 +195,20 @@ public class UtilsMath {
 		return bd.floatValue();
 	}
 	
-	public static double dividePrecise(int a, int b) {return ((double)a)/ ((double)b);}
+	/**Divide two integers with double precision.
+	 * @param a - the numerator.
+	 * @param b - the denominator.
+	 * @return double - the result in double precision.
+	 * @author 5som3*/
+	public static double divide(int a, int b) {return ((double)a)/ ((double)b);}
 	
 	//--------
 	//---------------- inversion --------
 	//--------
+	/**Invert an array of booleans. All trues will become false and all false will become true.
+	 * @param array - the array to invert.
+	 * @return boolean[] - a new array inverse to the original one.
+	 * @author 5som3*/
 	public static boolean[] invert(boolean[] array) { 
 		boolean[] result = new boolean[array.length];
 		for(int i = 0; i < array.length; i++) {
@@ -115,51 +230,6 @@ public class UtilsMath {
 	//---------------- Angular Math -------- 
 	//--------	
 	
-	public static Vec2d getUnitVector(double rotation) {return new Vec2d(Math.cos(rotation), Math.sin(rotation));}
-	
-	public static Vec2d getUnitVector(double rotation, double scale) {return new Vec2d(Math.cos(rotation) * scale, Math.sin(rotation) * scale);}
-	 
-	/**Angle of unit Vector pointing from Vec1 to Vec2
-	 * Angle is defined as clockwise rotation from the positive x axis (java standard positive x axis is horizontal right translation)
-	 * Angle is radians
-	 * */
-	public static double getDirectionAngle(Vec2d vec1, Vec2d vec2) {
-		Vec2d dst = positiveDifference(vec2, vec1);
-		if(vec2.y > vec1.y && vec2.x > vec1.x) {
-			return(Math.atan(dst.y/dst.x));			
-		} 
-		if(vec2.y > vec1.y && vec2.x < vec1.x) {
-			return(UtilsMath.PI_ON_TWO + Math.atan(dst.x/dst.y));
-		} 
-		if(vec2.y < vec1.y && vec2.x < vec1.x) {
-			return (UtilsMath.PI + Math.atan(dst.y/dst.x));
-		} 
-		if(vec2.y < vec1.y && vec2.x > vec1.x) {
-			return(UtilsMath.THREE_PI_ON_TWO + Math.atan(dst.x/dst.y));
-		}
-		
-		Console.err("Maths -> getDirectionAngle() -> math error, this case should not be reached");
-		return -1.0;
-	}
-	public static double getDirectionAngle(Vec3d vec1, Vec3d vec2) {
-		Vec3d dst = positiveDifference(vec2, vec1);
-		if(vec2.y > vec1.y && vec2.x > vec1.x) {
-			return(Math.atan(dst.y/dst.x));			
-		} 
-		if(vec2.y > vec1.y && vec2.x < vec1.x) {
-			return(UtilsMath.PI_ON_TWO + Math.atan(dst.x/dst.y));
-		} 
-		if(vec2.y < vec1.y && vec2.x < vec1.x) {
-			return (UtilsMath.PI + Math.atan(dst.y/dst.x));
-		} 
-		if(vec2.y < vec1.y && vec2.x > vec1.x) {
-			return(UtilsMath.THREE_PI_ON_TWO + Math.atan(dst.x/dst.y));
-		}
-		Console.err("Maths -> getDirectionAngle() -> math error, this case should not be reached");
-		return -1.0;
-	}
-	public static double getDirectionAngle(Vec3d vec) {return getDirectionAngle(new Vec3d(), vec);}
-	public static double getDirectionAngle(Vec2d vec) {return getDirectionAngle(new Vec2d(), vec);}
 	
 	/**The shortest angular distance from r1 to r2
 	 * The r1 and r2 are defined as positive rotations from the positive x axis*/
@@ -181,7 +251,8 @@ public class UtilsMath {
 		if(clockwiseDistance < antiClockwiseDistance) return RotationType.CLOCKWISE;
 		else return RotationType.ANTICLOCKWISE;
 	}
-	
+
+
 	public static double angleBetweenVectors(Point p1, Point p2){
 		double result =	angleBetweenVectors(p1.x, p1.y, p2.x, p2.y);
 		if(Double.isNaN(result)) return 0.0;
@@ -194,52 +265,19 @@ public class UtilsMath {
 		else return result;
 	}
 	
-	public static double angleBetweenVectors(Vec2i vec1, Vec2i vec2){return angleBetweenVectors(vec1.x, vec1.y, vec2.x, vec2.y);}
-	public static double angleBetweenVectors(Vec3i vec1, Vec3i vec2) {return angleBetweenVectors(vec1.x, vec1.y, vec1.z, vec2.x, vec2.y, vec2.z);}
-	
-	public static double angleBetweenVectors(Vec2d vec1, Vec2d vec2){return angleBetweenVectors(vec1.x, vec1.y, vec2.x, vec2.y);}
+	public static double angleBetweenVectorsSigned(double vec1X, double vec1Y, double vec2X, double vec2Y) {	
+		return Math.atan2( determinant(vec1X, vec1Y, vec2X, vec2Y), dotProduct(vec1X, vec1Y, vec2X, vec2Y));
+		
+	}
 	
 	public static double angleBetweenVectors(double vec1X, double vec1Y, double vec2X, double vec2Y) {	
 		return Math.acos( 		  (dotProduct(vec1X, vec1Y, vec2X, vec2Y)) 
 						/ (magnitude(vec1X, vec1Y) * magnitude(vec2X, vec2Y)) );
 	}
-	public static double angleBetweenVectorsSigned(double vec1X, double vec1Y, double vec2X, double vec2Y) {	
-		return Math.atan2( determinant(vec1X, vec1Y, vec2X, vec2Y), dotProduct(vec1X, vec1Y, vec2X, vec2Y));
-		
-		
-	}
-	public static double angleBetweenVectors(Vec3d vec1, Vec3d vec2) {return angleBetweenVectors(vec1.x, vec1.y, vec1.z, vec2.x, vec2.y, vec2.z);}
-	public static double angleBetweenVectors(double vec1X, double vec1Y, double vec1Z, double vec2X, double vec2Y, double vec2Z) {	
-		return Math.acos(		 (dotProduct(vec1X, vec1Y, vec1Z, vec2X, vec2Y, vec2Z)) 
-						/ (magnitude(vec1X, vec1Y, vec1Z) * magnitude(vec2X, vec2Y, vec2Z)) );
-	}
 	
-	//--------
-	//---------------- Dot Product --------
-	//--------
-	public static int dotProduct(Point p1, Point p2) 	 {return dotProduct(p1.x, p1.y, p2.x, p2.y);}
-	public static int dotProduct(Vec2i vec1, Vec2i vec2) {return dotProduct(vec1.x, vec1.y, vec2.x, vec2.y);}
-	public static int dotProduct(Vec3i vec1, Vec3i vec2) {return dotProduct(vec1.x, vec1.y, vec1.z, vec2.x, vec2.y, vec2.x);}
-	public static int dotProduct(int x1, int y1, int x2, int y2) {return ( (x1 * x2) 
-																		 + (y1 * y2) );}
-	public static int dotProduct(int x1, int y1, int z1, int x2, int y2, int z2) {return ( (x1 * x2) 
-																						 + (y1 * y2)
-																						 + (z1 * z2));}
-	
-	public static double dotProduct(Vec2d vec1, Vec2d vec2) {return dotProduct(vec1.x, vec1.y, vec2.x, vec2.y);}
-	public static double dotProduct(Vec3d vec1, Vec3d vec2) {return dotProduct(vec1.x, vec1.y, vec1.z, vec2.x, vec2.y, vec2.z);}
-	public static double dotProduct(double x1, double y1, double x2, double y2) {return ( (x1 * x2) 
-																						+ (y1 * y2) );}
-	public static double dotProduct(double x1, double y1, double z1, double x2, double y2, double z2) {return ( (x1 * x2)
-																											  + (y1 * y2) 
-																											  + (z1 * z2) );}
-	
-	//--------
-	//---------------- Determinant --------
-	//--------
-	public static double determinant(Point p1, Point p2) {return determinant(p1.x, p1.y, p2.x, p2.y);}
-	public static double determinant(double x1, double y1, double x2, double y2) {return ( (x1 * y2)
-																						 - (y1 * x2));}
+	public static double dotProduct(double x1, double y1, double x2, double y2) {return ( (x1 * x2) + (y1 * y2) );}
+	public static double determinant(double x1, double y1, double x2, double y2) {return ( (x1 * y2) - (y1 * x2));}
+	public static double magnitude(double x, double y) {return Math.sqrt( square(x) + square(y));}
 	
 	//
 	//------------------ Math to String ----------------------------
@@ -249,66 +287,44 @@ public class UtilsMath {
 		System.out.printf("^x\n", value);}
 	public static void printBin(int value) {Console.ln(Integer.toBinaryString(value));}
 	
-
-	//--------
-	//---------------- Magnitude --------
-	//--------
 	
-	public static double magnitude(int x, int y) {return Math.sqrt( square(x) + square(y) );}
-	public static double magnitude(int x, int y, int z) {return UtilsMath.square( square(x) + square(y) + square(z) );}
-	public static double magnitude(double x, double y) {return Math.sqrt( square(x) + square(y) );}
-	public static double magnitude(double x, double y, double z) {return UtilsMath.square( square(x) + square(y) + square(z) );}
-	public static double magnitude(Vec2i vec) {return Math.sqrt( square(vec.x) + square(vec.y) );}
-	public static double magnitude(Vec2d vec) {return Math.sqrt( square(vec.x) + square(vec.y) );}
-	public static double magnitude(Vec3i vec) {return Math.sqrt( square(vec.x) + square(vec.y) + square(vec.z)); }
-	public static double magnitude(Vec3d vec) {return Math.sqrt( square(vec.x) + square(vec.y) + square(vec.z)); }
-	
-	//--------
-	//---------------- Positive --------
-	//--------
-	
-	public static double positive(double value) {if(value < 0.0) return value *= -1.0; else return value;}
-	public static int positive(int value) {if(value < 0) return value *= -1; else return value;}
-	public static float positive(float value) {if(value < 0f) return value *= -1f; else return value;}
-	public static long positive(long value) {if(value < 0) return value *= -1; else return value;}
-	public static void positive(Vec2i vec) {
-		if(vec.x < 0) vec.x *= -1; 
-		if(vec.y < 0) vec.y *= -1;
-	}
-	public static void positive(Vec3i vec) {
-		if(vec.x < 0) vec.x *= -1; 
-		if(vec.y < 0) vec.y *= -1;
-		if(vec.z < 0) vec.z *= -1;
-	}
-	public static void positive(Vec2d vec) {
-		if(vec.x < 0.0) vec.x *= -1.0;
-		if(vec.y < 0.0) vec.y *= -1.0;
-	}
-	public static void positive(Vec3d vec) {
-		if(vec.x < 0.0) vec.x *= -1.0; 
-		if(vec.y < 0.0) vec.y *= -1.0;
-		if(vec.z < 0.0) vec.z *= -1.0;
-	}
-
-	
-	public static Vec2d positiveDifference(Vec2d vec1, Vec2d vec2) {
-		Vec2d result = new Vec2d(vec1);
-		result.minus(vec2);
-		positive(result);
+	/**Get a decimal value as a string with the specified number of decimal points.
+	 * @param value - the value to round.
+	 * @param decimalPlaces - the number of decimals the result will have.
+	 * @return string - the rounded number. i.e. round(3.1415, 3) = 3.142.
+	 * @author 5som3*/
+	public static String getString(double value, int decimalPlaces) {
+		String result = "";
+		if (decimalPlaces < 1 || decimalPlaces > 9) {
+			Console.err("Maths -> nextDouble -> invalid number of decimal places : " + decimalPlaces);
+			decimalPlaces = 1;			
+		}
+		BigDecimal bd = BigDecimal.valueOf(value);
+		bd = bd.setScale(decimalPlaces , RoundingMode.CEILING);
+		int decimalDiff = decimalPlaces - getNumberOfDecimals(bd);
+		
+		result += bd.doubleValue();
+		if(isIntegerValue(bd)) for(int i = 0; i < decimalPlaces - 1; i++) result += "0";
+		else for(int i = 0; i < decimalDiff; i++) {result += "0";}
 		return result;
 	}
-	public static Vec3d positiveDifference(Vec3d vec1, Vec3d vec2) {
-		Vec3d result = new Vec3d(vec1);
-		result.minus(vec2);
-		positive(result);	
-		return result;
-	}
-
-	
 	
 	//--------
 	//----------------------Comparators -----------------------
 	//--------
+	
+	/**Determine if the value has significant decimals.
+	 * @param bd - the value to check.
+	 * @return true if the decimals are all 0 else false;
+	 * @author 5som3*/
+	public static boolean isIntegerValue(BigDecimal bd) {return bd.stripTrailingZeros().scale() <= 0;}
+	
+	/**Determine the number of decimal places.
+	 * @param bigDecimal - the value to check
+	 * @return int - the number of decimal places
+	 * @author 5som3*/
+	public static int getNumberOfDecimals(BigDecimal bigDecimal) {return Math.max(0, bigDecimal.stripTrailingZeros().scale());}
+	
 	public static boolean isEqual(boolean[] b1, boolean[] b2) {
 		if(b1.length != b2.length) return false;
 		boolean result = true;
@@ -442,66 +458,59 @@ public class UtilsMath {
 	
 	
 	public static boolean isEqual(Point p1, Point p2) {if(p1.x == p2.x && p1.y == p2.y) return true; else return false;}
-	public static boolean isEqual(Vec2i vec1, Vec2i vec2) {if(vec1.x == vec2.x && vec1.y == vec2.y) return true; else return false;}
-	public static boolean isEqual(Vec3i vec1, Vec3i vec2) {if(vec1.x == vec2.x && vec1.y == vec2.y && vec1.z == vec2.z) return true; else return false;}
-	public static boolean isEqual(Vec2d vec1, Vec2d vec2) {if(vec1.x == vec2.x && vec1.y == vec2.y) return true; else return false;}
-	public static boolean isEqual(Vec3d vec1, Vec3d vec2) {if(vec1.x == vec2.x && vec1.y == vec2.y && vec1.z == vec2.z) return true; else return false;}
 	
-	public static boolean isDifGreaterThan(Point p1, Point p2, double x) {
-		int xDif = p1.x - p2.x;
-		int yDif = p1.y - p2.y;
-		if(xDif > x || xDif < -x || yDif > x || yDif < -x) return true; else return false;
-	}
+	
 	
 	
 	//--------
 	//---------------------- Bezier -----------------------
 	//--------
-	
-	public static Vec2d quadraticBezier(Vec2d p0, Vec2d p1,Vec2d p2, double t) {
-		Vec2d result = new Vec2d();
-		result.x = Math.pow(1 - t, 2) * p0.x + 
-				   (1 - t) * 2 * t * p1.x + 
-				   t * t * p2.x;
-		result.y = Math.pow(1 - t, 2) * p0.y + 
-				   (1 - t) * 2 * t * p1.y + 
-				   t * t * p2.y;
+	/*
+	public static VectorD quadraticBezier(VectorD p0, VectorD p1,VectorD p2, double t) {
+		VectorD result = new VectorD();
+		result.x() = Math.pow(1 - t, 2) * p0.x() + 
+				   (1 - t) * 2 * t * p1.x() + 
+				   t * t * p2.x();
+		result.y() = Math.pow(1 - t, 2) * p0.y() + 
+				   (1 - t) * 2 * t * p1.y() + 
+				   t * t * p2.y();
 		return result;
 	}
 
-	public static void quadraticBezier(Vec2d p0, Vec2d p1,Vec2d p2, double t, Vec2d pf) {
-		pf.x = Math.pow(1 - t, 2) * p0.x + 
-				   (1 - t) * 2 * t * p1.x + 
-				   t * t * p2.x;
-		pf.y = Math.pow(1 - t, 2) * p0.y + 
-				   (1 - t) * 2 * t * p1.y + 
-				   t * t * p2.y;
+	public static void quadraticBezier(VectorD p0, VectorD p1,VectorD p2, double t, VectorD pf) {
+		pf.x() = Math.pow(1 - t, 2) * p0.x() + 
+				   (1 - t) * 2 * t * p1.x() + 
+				   t * t * p2.x();
+		pf.y() = Math.pow(1 - t, 2) * p0.y() + 
+				   (1 - t) * 2 * t * p1.y() + 
+				   t * t * p2.y();
 		
 	}
 	
-	public static Vec2d cubicBezier(Vec2d p0, Vec2d p1, Vec2d p2, Vec2d p3, double t) {
-		Vec2d result = new Vec2d();
-		result.x = Math.pow(1 - t, 3) * p0.x + 
-				   Math.pow(1 - t, 2) * 3 * t * p1.x + 
-				   (1 - t) * 3 * t * t * p2.x + 
-				   t * t * t * p3.x;
-		result.y = Math.pow(1 - t, 3) * p0.y + 
-				   Math.pow(1 - t, 2) * 3 * t * p1.y + 
-				   (1 - t) * 3 * t * t * p2.y + 
-				   t * t * t * p3.y;
+	public static VectorD cubicBezier(VectorD p0, VectorD p1, VectorD p2, VectorD p3, double t) {
+		VectorD result = new VectorD();
+		result.x() = Math.pow(1 - t, 3) * p0.x() + 
+				   Math.pow(1 - t, 2) * 3 * t * p1.x() + 
+				   (1 - t) * 3 * t * t * p2.x() + 
+				   t * t * t * p3.x();
+		result.y() = Math.pow(1 - t, 3) * p0.y() + 
+				   Math.pow(1 - t, 2) * 3 * t * p1.y() + 
+				   (1 - t) * 3 * t * t * p2.y() + 
+				   t * t * t * p3.y();
 		return result;
 	}
 	
-	public static void cubicBezier(Vec2d p0, Vec2d p1, Vec2d p2, Vec2d p3, double t, Vec2d pf) {
-		pf.x = Math.pow(1 - t, 3) * p0.x + 
-				   Math.pow(1 - t, 2) * 3 * t * p1.x + 
-				   (1 - t) * 3 * t * t * p2.x + 
-				   t * t * t * p3.x;
-		pf.y = Math.pow(1 - t, 3) * p0.y + 
-				   Math.pow(1 - t, 2) * 3 * t * p1.y + 
-				   (1 - t) * 3 * t * t * p2.y + 
-				   t * t * t * p3.y;
+	public static void cubicBezier(VectorD p0, VectorD p1, VectorD p2, VectorD p3, double t, VectorD pf) {
+		pf.x() = Math.pow(1 - t, 3) * p0.x() + 
+				   Math.pow(1 - t, 2) * 3 * t * p1.x() + 
+				   (1 - t) * 3 * t * t * p2.x() + 
+				   t * t * t * p3.x();
+		pf.y() = Math.pow(1 - t, 3) * p0.y() + 
+				   Math.pow(1 - t, 2) * 3 * t * p1.y() + 
+				   (1 - t) * 3 * t * t * p2.y() + 
+				   t * t * t * p3.y();
 	}
+	*/
 	
 	//--------
 	//--------------------- Number List Generation ----------------------
@@ -546,64 +555,42 @@ public class UtilsMath {
 	//--------
 	//---------------------- Random Number Generation -----------------------
 	//--------
-	/**98.4% odds*/
+	/**Chance on 1 out of 6 coin flips.
+	 * @return boolean - true if one of the six coin flips is heads. (98.4% chance for true result)
+	 * @author 5som3*/
 	public static boolean c6() {return cn(6);}
-	/**96.5% odds*/
+	
+	/**Chance on 1 out of 5 coin flips.
+	 * @return boolean - true if one of the six coin flips is heads. (96.5% chance for true result)
+	 * @author 5som3*/
 	public static boolean c5() {return cn(5);}
-	/**93.7% odds*/
+	
+	/**Chance on 1 out of 4 coin flips.
+	 * @return boolean - true if one of the six coin flips is heads. (93.7% chance for true result)
+	 * @author 5som3*/
 	public static boolean c4() {return cn(4);}
-	/**87.5% odds*/
+	
+	/**Chance on 1 out of 3 coin flips.
+	 * @return boolean - true if one of the six coin flips is heads. (87.5% chance for true result)
+	 * @author 5som3*/
+	/***/
 	public static boolean c3() {if(random.nextBoolean() || random.nextBoolean() || random.nextBoolean()) return true; else return false;}
-	/**75.0% odds*/
+	
+	/**Chance on 1 out of 2 coin flips.
+	 * @return boolean - true if one of the six coin flips is heads. (75.0% chance for true result)
+	 * @author 5som3*/
+	/***/
 	public static boolean c2() {if(random.nextBoolean() || random.nextBoolean()) return true; else return false;}
-	/**50.0% odds*/
+	
+	/**Chance of heads in a coin flip.
+	 * @return boolean - true if flips heads. (50.0% chance for true result)
+	 * @author 5som3*/
 	public static boolean coinFlip() {return random.nextBoolean();}
-	/**33.3% odds*/
-	public static boolean d3() {if(random.nextInt(3) == 0) return true; else return false;}
-	public static int getD3() {return random.nextInt(1, 4);}
-	/**25.0% odds*/
-	public static boolean d4() {if(random.nextInt(4) == 0) return true; else return false;}
-	public static int getD4() {return random.nextInt(1, 5);}
-	/**20.0% odds*/
-	public static boolean d5() {if(random.nextInt(5) == 0) return true; else return false;}
-	public static int getD5() {return random.nextInt(1, 5);}
-	/**16.7% odds*/
-	public static boolean d6() {return diceRoll();}
-	public static boolean diceRoll() {if(random.nextInt(6) == 0) return true; else return false;}
-	public static int getDiceRoll() {return random.nextInt(1, 7);}
-	/**12.5% odds*/
-	public static boolean d8() {if(random.nextInt(8) == 0) return true; else return false;}
-	/**10.0% odds*/
-	public static boolean d10() {if(random.nextInt(10) == 0) return true; else return false;}
-	/**08.3% odds*/
-	public static boolean d12() {if(random.nextInt(12) == 0) return true; else return false;}
-	public static int getD12() {return random.nextInt(1, 13);}
-	/**06.2% odds*/
-	public static boolean d16() {if(random.nextInt(16) == 0) return true; else return false;}
-	public static int getD16() {return random.nextInt(1, 17);}
-	/**05.0% odds*/
-	public static boolean d20() {if(random.nextInt(20) == 0) return true; else return false;}
-	public static int getD20() {return random.nextInt(1, 21);}
-	/**01.0% odds*/
-	public static boolean d100() {if(random.nextInt(100) == 0) return true; else return false;}
-	public static int getD100() {return random.nextInt(1, 101);}
-	/**01.0% odds*/
-	public static boolean d1000() {if(random.nextInt(1000) == 0) return true; else return false;}
-	public static int getD1000() {return random.nextInt(1, 1001);}
-	public static boolean dn(int n) {
-		if(n <= 2) {
-			Console.err("Maths -> dn() -> dice must have at least two sides, n will be set to 2");
-			n = 2;
-		}
-		if(random.nextInt(n) == 0) return true; else return false;
-	}
-	public static int getDn(int n) {
-		if(n <= 2) {
-			Console.err("Maths -> dn() -> dice must have at least two sides, n will be set to 2");
-			n = 2;
-		}
-		return random.nextInt(1, n + 1);
-	}
+	
+	/**Chance on 1 out of (n) coin flips.
+	 * @param n - the number of coins to flip.
+	 * @return boolean - true if one of the (n) coin flips is heads.
+	 * @author 5som3*/
 	public static boolean cn(int n) {
 		if(n <= 1) {
 			Console.err("Maths -> cn() -> coin must be flipped at least once");
@@ -613,6 +600,112 @@ public class UtilsMath {
 			if(random.nextBoolean()) return true;
 		} return false;
 	}
+	
+	
+	/**Chance of calling a number on a 3 side dice.
+	 * @return boolean - true 1/3rd of the time. (33.3% chance for true result)
+	 * @author 5som3 */
+	public static boolean d3() {if(random.nextInt(3) == 0) return true; else return false;}
+	
+	/**Chance of calling a number on a 4 side dice.
+	 * @return boolean - true 1/4th of the time. (25.0% chance for true result)
+	 * @author 5som3 */
+	public static boolean d4() {if(random.nextInt(4) == 0) return true; else return false;}
+	
+	/**Chance of calling a number on a 5 side dice.
+	 * @return boolean - true 1/5th of the time. (20.0% chance for true result)
+	 * @author 5som3 */
+	public static boolean d5() {if(random.nextInt(5) == 0) return true; else return false;}
+
+	/**Chance of calling a number on a 6 side dice.
+	 * @return boolean - true 1/6th of the time. (16.7% chance for true result)
+	 * @author 5som3 */
+	public static boolean d6() {if(random.nextInt(6) == 0) return true; else return false;}
+
+	/**Chance of calling a number on a 6 side dice.
+	 * @return boolean - true 1/8th of the time. (12.5% chance for true result)
+	 * @author 5som3 */
+	public static boolean d8() {if(random.nextInt(8) == 0) return true; else return false;}
+
+	/**Chance of calling a number on a 10 side dice.
+	 * @return boolean - true 1/10th of the time. (10.0% chance for true result)
+	 * @author 5som3 */
+	public static boolean d10() {if(random.nextInt(10) == 0) return true; else return false;}
+	
+	/**Chance of calling a number on a 6 side dice.
+	 * @return boolean - true 1/12th of the time. (8.3% chance for true result)
+	 * @author 5som3 */
+	public static boolean d12() {if(random.nextInt(12) == 0) return true; else return false;}
+	
+	/**Chance of calling a number on a 6 side dice.
+	 * @return boolean - true 1/16th of the time. (6.2% chance for true result)
+	 * @author 5som3 */
+	public static boolean d16() {if(random.nextInt(16) == 0) return true; else return false;}
+	
+	/**Chance of calling a number on a 6 side dice.
+	 * @return boolean - true 1/20th of the time. (5.0% chance for true result)
+	 * @author 5som3 */
+	public static boolean d20() {if(random.nextInt(20) == 0) return true; else return false;}
+	
+	/**Chance of calling a number on an (n) sided dice.
+	 * @param n - the number of faces on the dice to roll.
+	 * @return boolean - true 1/(n)th of the time.
+	 * @author 5som3*/
+	public static boolean dn(int n) {
+		if(n <= 2) {
+			Console.err("Maths -> dn() -> dice must have at least two sides, n will be set to 2");
+			n = 2;
+		}
+		if(random.nextInt(n) == 0) return true; else return false;
+	}
+	
+	/**The outcome of rolling a 3 sided dice.
+	 * @return int - a number in the range 1 - 3 (inclusive). 
+	 * @author 5som3*/
+	public static int getD3() {return random.nextInt(1, 4);}
+	
+	/**The outcome of rolling a 4 sided dice.
+	 * @return int - a number in the range 1 - 4 (inclusive). 
+	 * @author 5som3*/
+	public static int getD4() {return random.nextInt(1, 5);}
+	
+	/**The outcome of rolling a 5 sided dice.
+	 * @return int - a number in the range 1 - 5 (inclusive). 
+	 * @author 5som3*/
+	public static int getD5() {return random.nextInt(1, 6);}
+	
+	/**The outcome of rolling a 6 sided dice.
+	 * @return int - a number in the range 1 - 4 (inclusive). 
+	 * @author 5som3*/
+	public static int getD6() {return random.nextInt(1, 7);}
+	
+	/**The outcome of rolling a 12 sided dice.
+	 * @return int - a number in the range 1 - 12 (inclusive). 
+	 * @author 5som3*/
+	public static int getD12() {return random.nextInt(1, 13);}
+	
+	/**The outcome of rolling a 16 sided dice.
+	 * @return int - a number in the range 1 - 16 (inclusive). 
+	 * @author 5som3*/
+	public static int getD16() {return random.nextInt(1, 17);}
+	
+	/**The outcome of rolling a 20 sided dice.
+	 * @return int - a number in the range 1 - 20 (inclusive). 
+	 * @author 5som3*/
+	public static int getD20() {return random.nextInt(1, 21);}	
+
+	/**The outcome of rolling an (n) sided dice.
+	 * @return int - a number in the range 1 - (n) (inclusive).
+	 * @param n - the number of faces on the dice. 
+	 * @author 5som3*/
+	public static int getDn(int n) {
+		if(n <= 2) {
+			Console.err("Maths -> dn() -> dice must have at least two sides, n will be set to 2");
+			n = 2;
+		}
+		return random.nextInt(1, n + 1);
+	}
+	
 	
 	public static int random(int lowerBound, int upperBound) {return random.nextInt(lowerBound, upperBound);}
 	public static int random(int upperBound) {return random.nextInt(upperBound);}
@@ -687,212 +780,173 @@ public class UtilsMath {
 	//--------
 	//---------------------Clamp functions----------------------
 	//--------
-	/**This function will take any radian rotation value and return the equivalent radian rotation within the range of 0 <= result <= TWO_PI 
+	/**This function will convert radian rotation to an equivalent radian rotation within the range of 0 <= result < TWO_PI 
 	 * @param double -> rotation in radians -> domain  :  any double value
 	 * @return double -> rotation in radians -> range  :  0 <= result < TWO_PI
 	 * */
 	public static double clampRadianRotation(double rotation) {
-		if(rotation > 0 && rotation < UtilsMath.TWO_PI) return rotation;
-		else {		
-			if(rotation == -TWO_PI || rotation == TWO_PI || rotation == 0) return 0;
-			if(rotation < -TWO_PI) {
-				double divisions = Math.floor(rotation / UtilsMath.TWO_PI);
-				return TWO_PI - (rotation - (divisions * UtilsMath.TWO_PI));
-			}
-			if(rotation > -UtilsMath.TWO_PI && rotation < 0) {
-				return UtilsMath.TWO_PI - rotation;
-			} 
-			if(rotation > UtilsMath.TWO_PI) {
-				double divisions = Math.floor(rotation / UtilsMath.TWO_PI);
-				return rotation - (divisions * UtilsMath.TWO_PI);
-			}
-			
-			Console.err("Maths -> clampRadian -> there is a critical math error, rotation : " + rotation);
-			return 0.0;
+		if(rotation >= 0.0 && rotation < UtilsMath.TWO_PI) return rotation;
+		if(rotation == -TWO_PI || rotation == TWO_PI) return 0.0;
+		
+		if(rotation < 0.0) {
+			double divisions = (Math.ceil((-rotation) / UtilsMath.TWO_PI));
+			return rotation + (divisions * UtilsMath.TWO_PI);
+		} else {
+			double divisions = Math.floor(rotation / UtilsMath.TWO_PI);
+			return rotation - (divisions * UtilsMath.TWO_PI);
 		}
 	}
 	
-	public static double clampDegreeRotation(double rotation) {
-		if(rotation > 0 && rotation < 360) return rotation;
-		else {
-			if(rotation < -360.0) {
-				double divisions = Math.floor(rotation / 360.0);
-				return 360 - (rotation - (divisions * 360.0));
-			}
-			if(rotation > -360.0 && rotation < 0) {
-				return 360 - rotation;
-			} 
-			if(rotation > 360) {
-				double divisions = Math.floor(rotation / 360);
-				return rotation - (divisions * 360);
-			}
-			
-			Console.err("Maths -> clampRotation -> there is a critical math error! :(");
-			return -1.0;
-		}
-	}
+	/**This function will convert degree rotation to an equivalent degree rotation within the range of 0 <= result < TWO_PI 
+	 * @param double -> rotation in degrees -> domain  :  any double value
+	 * @return double -> rotation in degrees -> range  :  0 <= result < TWO_PI
+	 * */
+	public static double clampDegreeRotation(double rotation) {return convertRadiansToDegrees(clampRadianRotation(convertDegreesToRadians(rotation)));}
 	
+	/** Confine a value to a specific range.
+	 * @param value - the value to be confined.
+	 * @param min   - the minimum of the confine range (inclusive).
+	 * @param max   - the maximum of the confine range (inclusive).
+	 * @return value if within the range; min if value is less than min; max if greater than max;
+	 * @author SomeKid*/
 	public static Double clamp(double value, double min, double max) {
 		if(value > max) return max;
 		if(value < min) return min;
 		return value;
 	}
 	
+	/** Confine a value to a specific range.
+	 * @param value - the value to be confined.
+	 * @param min   - the minimum of the confine range (inclusive).
+	 * @param max   - the maximum of the confine range (inclusive).
+	 * @return value if within the range; min if value is less than min; max if greater than max;
+	 * @author SomeKid*/
 	public static int clamp(int value, int min, int max) {
 		if(value > max) return max;
 		if(value < min) return min;
 		return value;
 	}
 	
+	/** Confine a value to a specific range.
+	 * @param value - the value to be confined.
+	 * @param min   - the minimum of the confine range (inclusive).
+	 * @param max   - the maximum of the confine range (inclusive).
+	 * @return value if within the range; min if value is less than min; max if greater than max;
+	 * @author SomeKid*/
 	public static float clamp(float value, float min, float max) {
 		if(value > max) return max;
 		if(value < min) return min;
 		return value;
 	}
 
+	/** Confine a value to a specific range.
+	 * @param value - the value to be confined.
+	 * @param min   - the minimum of the confine range (inclusive).
+	 * @param max   - the maximum of the confine range (inclusive).
+	 * @return value if within the range; min if value is less than min; max if greater than max;
+	 * @author SomeKid*/
 	public static Integer clamp(Integer value, Integer min, Integer max) {
 		if(value > max) return max;
 		if(value < min) return min;
 		return value;
 	}
 	
+	/** Stop a value from exceeding the specified maximum limit.
+	 * @param value - the value to be confined.
+	 * @param max   - the maximum limit (inclusive).
+	 * @return value if less than or equal to max; max if greater than max;
+	 * @author SomeKid*/
 	public static Double clampMax(double value, double max) {
 		if(value > max) return max;
 		return value;
 	}
-		
+
+	/** Stop a value from exceeding the specified maximum limit.
+	 * @param value - the value to be confined.
+	 * @param max   - the maximum limit (inclusive).
+	 * @return value if less than or equal to max; max if greater than max;
+	 * @author SomeKid*/
 	public static int clampMax(int value, int max) {
 		if(value > max) return max;
 		return value;
 	}
 	
+	/** Stop a value from exceeding the specified maximum limit.
+	 * @param value - the value to be confined.
+	 * @param max   - the maximum limit (inclusive).
+	 * @return value if less than or equal to max; max if greater than max;
+	 * @author SomeKid*/
 	public static float clampMax(float value, float max) {
 		if(value > max) return max;
 		return value;
 	}
 	
+	/** Stop a value from exceeding the specified maximum limit.
+	 * @param value - the value to be confined.
+	 * @param max   - the maximum limit (inclusive).
+	 * @return value if less than or equal to max; max if greater than max;
+	 * @author SomeKid*/
 	public static Integer clampMax(Integer value, Integer max) {
 		if(value > max) return max;
 		return value;
 	}
 
+	/** Stop a value from falling below the specified minimum limit.
+	 * @param value - the value to be confined.
+	 * @param min   - the maximum limit (inclusive).
+	 * @return value if greater than or equal to min; min if less than min;
+	 * @author SomeKid*/
 	public static Double clampMin(double value, double min) {
 		if(value < min) return min;
 		return value;
 	}
 	
+	/** Stop a value from falling below the specified minimum limit.
+	 * @param value - the value to be confined.
+	 * @param min   - the maximum limit (inclusive). 
+	 * @return value if greater than or equal to min; min if less than min;
+	 * @author SomeKid*/
 	public static int clampMin(int value, int min) {
 		if(value < min) return min;
 		return value;
 	}
 	
+	/** Stop a value from falling below the specified minimum limit.
+	 * @param value - the value to be confined.
+	 * @param min   - the maximum limit (inclusive).
+	 * @return value if greater than or equal to min; min if less than min;
+	 * @author SomeKid*/
 	public static float clampMin(float value, float min) {
 		if(value < min) return min;
 		return value;
 	}
 	
+	/** Stop a value from falling below the specified minimum limit.
+	 * @param value - the value to be confined.
+	 * @param min   - the maximum limit (inclusive).
+	 * @return value if greater than or equal to min; min if less than min;
+	 * @author SomeKid*/
 	public static Integer clampMin(Integer value, Integer min) {
 		if(value < min) return min;
 		return value;
 	}
 	
-	public static void clampMin(Vec2i vec, int min) {
-		if(vec.x < min) vec.x = min;
-		if(vec.y < min) vec.y = min;
-	}
-	
-	public static void clampMax(Vec2i vec, int max) {
-		if(vec.x > max) vec.x = max;
-		if(vec.y > max) vec.y = max;
-	}
 
-	public static void clamp(Vec2i vec, int min, int max) {
-		clampMin(vec, min);
-		clampMax(vec, max);
-	}
-	
-	public static void clampMin(Vec3i vec, int min) {
-		if(vec.x < min) vec.x = min;
-		if(vec.y < min) vec.y = min;
-		if(vec.z < min) vec.z = min;		
-	}
-	
-	public static void clampMax(Vec3i vec, int max) {
-		if(vec.x > max) vec.x = max;
-		if(vec.y > max) vec.y = max;
-		if(vec.z > max) vec.z = max;
-	}
-	
-	public static void clamp(Vec3i vec, int min, int max) {
-		clampMin(vec, min);
-		clampMax(vec, max);
-	}	
-	
-	public static void clampMin(Vec2d vec, double min) {
-		if(vec.x < min) vec.x = min;
-		if(vec.y < min) vec.y = min;
-	}
-	
-	public static void clampMax(Vec2d vec, double max) {
-		if(vec.x > max) vec.x = max;
-		if(vec.y > max) vec.y = max;
-	}
-	
-	public static void clamp(Vec2d vec, int min, int max) {
-		clampMin(vec, min);
-		clampMax(vec, max);
-	}
-	
-	public static void clampMin(Vec3d vec, double min) {
-		if(vec.x < min) vec.x = min;
-		if(vec.y < min) vec.y = min;
-		if(vec.z < min) vec.z = min;
-	}
-	
-	public static void clampMax(Vec3d vec, double max) {
-		if(vec.x > max) vec.x = max;
-		if(vec.y > max) vec.y = max;
-		if(vec.z > max) vec.z = max;
-	}
-	
-	public static void clamp(Vec3d vec, int min, int max) {
-		clampMin(vec, min);
-		clampMax(vec, max);
-	}
-	
-	
-	//
-	//------------------Vector Maths-----------------------------------------
-	//
-	
-	public static double vectorDifference(int x1, int y1, int x2, int y2) {
-		double result = Math.sqrt(square(x2 - x1) + square(y2 - y1) );
-		return result;
-	}
-	
-	public static double vectorDifference(double x1, double y1, double x2, double y2) {
-		double result = Math.sqrt( square(x2 - x1) + square(y2 - y1) );
-		return result;
-	}
-	
-	public static double vectorDifference(Vec2i vec1, Vec2i vec2)   {return vectorDifference(vec1.x, vec1.y, vec2.x, vec2.y);}
-	public static double vectorDifference(Vec2d vec1, Vec2d vec2)   {return vectorDifference(vec1.x, vec1.y, vec2.x, vec2.y);}
-	//public static double vectorDifference2D(Vec3d vec1, Vec3d vec2) {return vectorDifference(vec1.x, vec1.y, vec2.x, vec2.y);}
 	
 	//
 	//-------------------Searching Algorithms------------------------
 	//
 	
-	public static boolean contains(ArrayList<Vec2i> vectors, int x, int y) {return contains(vectors, new Vec2i(x, y));}
-	public static boolean contains(ArrayList<Vec2i> vectors, Vec2i vec) {
+	public static boolean contains(ArrayList<VectorI> vectors, int x, int y) {return contains(vectors, new VectorI(x, y));}
+	public static boolean contains(ArrayList<VectorI> vectors, VectorI vec) {
 		for(int i = 0; i < vectors.size(); i++) {
 			if(vectors.get(i).isEqual(vec)) return true;
 		}
 		return false;
 	}
 	
-	public static boolean containsCoordinate(ArrayList<RiverSegment> segments, int x, int y) {return containsCoordinate(segments, new Vec2i(x, y));}
-	public static boolean containsCoordinate(ArrayList<RiverSegment> segments, Vec2i vec) {
+	public static boolean containsCoordinate(ArrayList<RiverSegment> segments, int x, int y) {return containsCoordinate(segments, new VectorI(x, y));}
+	public static boolean containsCoordinate(ArrayList<RiverSegment> segments, VectorI vec) {
 		for(int i = 0; i < segments.size(); i++) {
 			if(segments.get(i).getCoords().isEqual(vec)) return true;
 		}
@@ -900,16 +954,18 @@ public class UtilsMath {
 	}
 	
 	
+	
 	public static int findMin(int[] values) 				 {return values[findMinIndex(values)];}
-	public static int findMin(int[][] values) 				 {Vec2i coords = findMinIndex(values); return values[coords.x][coords.y];}
+	public static int findMin(int[][] values) 				 {VectorI coords = findMinIndex(values); return values[coords.x()][coords.y()];}
 	public static double findMin(double[] values) 		  	 {return values[findMinIndex(values)];}
-	public static double findMin(double[][] values) 		 {Vec2i coords = findMinIndex(values); return values[coords.x][coords.y];}
+	public static double findMin(double[][] values) 		 {VectorI coords = findMinIndex(values); return values[coords.x()][coords.y()];}
 	public static double findMin(ArrayList<Integer> values)  {return values.get(findMinIndex(values));}
+	public static int findMax(Integer[] values)              {return values[findMaxIndex(values)];}
 	public static int findMax(int[] values) 				 {return values[findMaxIndex(values)];}
-	public static int findMax(int[][] values) 				 {Vec2i coords = findMaxIndex(values); return values[coords.x][coords.y];}
+	public static int findMax(int[][] values) 				 {VectorI coords = findMaxIndex(values); return values[coords.x()][coords.y()];}
+	public static int findMax(ArrayList<Integer> values)     {return values.get(findMaxIndex(values));}
 	public static double findMax(double[] values) 			 {return values[findMaxIndex(values)];}
-	public static double findMax(double[][] values) 	     {Vec2i coords = findMaxIndex(values); return values[coords.x][coords.y];}
-	public static double findMax(ArrayList<Integer> values)  {return values.get(findMinIndex(values));}
+	public static double findMax(double[][] values) 	     {VectorI coords = findMaxIndex(values); return values[coords.x()][coords.y()];}
 	
 	public static int findMinX(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinXIndex(rectangles)).x;}
 	public static int findMaxX(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMaxXIndex(rectangles)).x;}
@@ -932,14 +988,14 @@ public class UtilsMath {
 		return result;
 	}
 
-	public static Vec2i findMinIndex(int[][] values) {
-		Vec2i result = new Vec2i();
+	public static VectorI findMinIndex(int[][] values) {
+		VectorI result = new VectorI();
 		
-		Vec2i currentMin = new Vec2i();
+		VectorI currentMin = new VectorI();
 		for(int y = 0; y < values.length; y++) {
 			for(int x = 0; x < values[y].length; x++) {
 				if(x == 0 && y == 0) continue;
-				if(values[x][y] < values[currentMin.x][currentMin.y]) currentMin.set(x, y);
+				if(values[x][y] < values[currentMin.x()][currentMin.y()]) currentMin.set(x, y);
 			}
 		}
 		result = currentMin;
@@ -960,14 +1016,14 @@ public class UtilsMath {
 		return result;
 	}
 	
-	public static Vec2i findMinIndex(double[][] values) {
-		Vec2i result = new Vec2i();
+	public static VectorI findMinIndex(double[][] values) {
+		VectorI result = new VectorI();
 		
-		Vec2i currentMin = new Vec2i();
+		VectorI currentMin = new VectorI();
 		for(int y = 0; y < values.length; y++) {
 			for(int x = 0; x < values[y].length; x++) {
 				if(x == 0 && y == 0) continue;
-				if(values[x][y] < values[currentMin.x][currentMin.y]) currentMin.set(x, y);
+				if(values[x][y] < values[currentMin.x()][currentMin.y()]) currentMin.set(x, y);
 			}
 		}
 		result = currentMin;
@@ -989,6 +1045,19 @@ public class UtilsMath {
 	}
 	
 	
+	public static int findMaxIndex(Integer[] values) {
+		int result = -1; 
+		
+		int currentMax = 0;
+		for(int i = 0; i < values.length; i++) {
+			if(values[i] > currentMax) {
+				result = i;
+				currentMax = values[i];
+			}
+		}
+		
+		return result;
+	}
 	
 	public static int findMaxIndex(int[] values) {
 		int result = -1;
@@ -1003,14 +1072,14 @@ public class UtilsMath {
 		return result;
 	}
 	
-	public static Vec2i findMaxIndex(int[][] values) {
-		Vec2i result = new Vec2i();
+	public static VectorI findMaxIndex(int[][] values) {
+		VectorI result = new VectorI();
 		
-		Vec2i currentMin = new Vec2i();
+		VectorI currentMin = new VectorI();
 		for(int y = 0; y < values.length; y++) {
 			for(int x = 0; x < values[y].length; x++) {
 				if(x == 0 && y == 0) continue;
-				if(values[x][y] > values[currentMin.x][currentMin.y]) currentMin.set(x, y);
+				if(values[x][y] > values[currentMin.x()][currentMin.y()]) currentMin.set(x, y);
 			}
 		}
 		result = currentMin;
@@ -1031,14 +1100,14 @@ public class UtilsMath {
 		return result;
 	}
 	
-	public static Vec2i findMaxIndex(double[][] values) {
-		Vec2i result = new Vec2i();
+	public static VectorI findMaxIndex(double[][] values) {
+		VectorI result = new VectorI();
 		
-		Vec2i currentMin = new Vec2i();
+		VectorI currentMin = new VectorI();
 		for(int y = 0; y < values.length; y++) {
 			for(int x = 0; x < values[y].length; x++) {
 				if(x == 0 && y == 0) continue;
-				if(values[x][y] > values[currentMin.x][currentMin.y]) currentMin.set(x, y);
+				if(values[x][y] > values[currentMin.x()][currentMin.y()]) currentMin.set(x, y);
 			}
 		}
 		result = currentMin;
@@ -1047,15 +1116,15 @@ public class UtilsMath {
 	}
 	
 	public static int findMaxIndex(ArrayList<Integer> values) {
-		int result = -1;
+		int result = 0;
 		
-		int currentMin = 0;
-		for(int i = 0; i < values.size(); i++) {
-			if(i == 0) continue;
-			if(values.get(i) > values.get(currentMin)) currentMin = i;
+		int currentMax = values.get(0);
+		for(int i = 1; i < values.size(); i++) {
+			if(values.get(i) > currentMax) {
+				currentMax = values.get(i);
+				result = i;
+			}
 		}
-		result = currentMin;
-		
 		return result;
 	}
 	
@@ -1177,13 +1246,13 @@ public class UtilsMath {
 		return result;
 	}
 	
-	public static Vec2d findMinBounds(ArrayList<Rectangle> rectangles) {
-		Vec2d result = new Vec2d(findMinX(rectangles), findMinY(rectangles));		
+	public static VectorD findMinBounds(ArrayList<Rectangle> rectangles) {
+		VectorD result = new VectorD(findMinX(rectangles), findMinY(rectangles));		
 		return result;
 	}
 	
-	public static Vec2d findMaxBounds(ArrayList<Rectangle> rectangles) {
-		Vec2d result = new Vec2d();
+	public static VectorD findMaxBounds(ArrayList<Rectangle> rectangles) {
+		VectorD result = new VectorD();
 		double xMax = 0;
 		double yMax = 0;
 		

@@ -5,11 +5,12 @@ package warped.user.keyboard;
 import warped.WarpedFramework2D;
 import warped.WarpedProperties;
 import warped.application.state.WarpedState;
-import warped.user.actions.WarpedAction;
+import warped.functionalInterfaces.WarpedAction;
 
 public interface WarpedKeyboardActions {
 
 	WarpedAction toggleFrameworkInspector = () -> {WarpedState.frameworkInspector.toggle();};
+	WarpedAction toggleObjectInspector    = () -> {WarpedState.gameObjectInspector.toggle();};
 	WarpedAction toggleFullscreen 		  = () -> {WarpedFramework2D.getWindow().toggleFullscreen();};
 	WarpedAction toggleCapRenderSize 	  = () -> {WarpedProperties.toggleCapMinSize();};
 
@@ -23,3 +24,4 @@ public interface WarpedKeyboardActions {
 	
 	
 }
+

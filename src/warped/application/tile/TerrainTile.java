@@ -1,15 +1,13 @@
 package warped.application.tile;
 
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import warped.application.entities.item.ResourceType;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsImage;
 
-public class TerrainTile<T extends WarpedTileable<? extends Enum<?>>> extends WarpedTile<T> {
+public class TerrainTile<T extends TileableGenerative<? extends Enum<?>>> extends TileGenerative<T> {
 
 	protected T secondaryType;
 	protected TerrainTileTransitionType transitionType = TerrainTileTransitionType.NONE;
@@ -33,7 +31,7 @@ public class TerrainTile<T extends WarpedTileable<? extends Enum<?>>> extends Wa
 	double destructionProgress = 0.0;
 //	private TerrainDevelopmentType developmentType = TerrainDevelopmentType.NONE;
 	
-	private WarpedGroupIdentity developmentSuppliesID;
+	private WarpedGroupIdentity inventoryID;
 	
 	private double surfaceGravity;
 	private double surfaceGravityScalar;
@@ -56,7 +54,8 @@ public class TerrainTile<T extends WarpedTileable<? extends Enum<?>>> extends Wa
 		this.secondaryType = primaryType;
 		this.transitionType = TerrainTileTransitionType.NONE;
 		tileRaster = parent.getTileImage(primaryType);
-		setRaster(tileRaster);
+		getSprite().paint(tileRaster);
+		
 		initializeSelectOptions();
 	}
 
@@ -68,7 +67,8 @@ public class TerrainTile<T extends WarpedTileable<? extends Enum<?>>> extends Wa
 		this.secondaryType = parent.getRandomTransition(primaryType);
 		this.transitionType = transitionType;
 		tileRaster = parent.getTileImage(primaryType);
-		setRaster(tileRaster);
+		getSprite().paint(tileRaster);
+		
 		initializeSelectOptions();
 	}
 	
@@ -79,7 +79,7 @@ public class TerrainTile<T extends WarpedTileable<? extends Enum<?>>> extends Wa
 		this.secondaryType = secondaryType;
 		this.transitionType = transitionType;
 		tileRaster = parent.getTransitionImage(primaryType, secondaryType, transitionType);
-	    setRaster(tileRaster);
+		getSprite().paint(tileRaster);
 		initializeSelectOptions();
 	}
 
@@ -170,8 +170,8 @@ public class TerrainTile<T extends WarpedTileable<? extends Enum<?>>> extends Wa
 		if(tile1.getTransitionType() == tile2.getTransitionType()) return true; else return false;		
 	}
 	
-	public boolean isMatchingSet(WarpedTile<?> tile) {return isMatchingSet(this, tile);}
-	public static boolean isMatchingSet(WarpedTile<?> tile1, WarpedTile<?> tile2) {
+	public boolean isMatchingSet(TileGenerative<?> tile) {return isMatchingSet(this, tile);}
+	public static boolean isMatchingSet(TileGenerative<?> tile1, TileGenerative<?> tile2) {
 		if(tile1.isEqual(tile2)) {
 			Console.err("Tile -> isMatching() -> tile1 and tile2 are the same tile");
 			return false;
@@ -183,13 +183,7 @@ public class TerrainTile<T extends WarpedTileable<? extends Enum<?>>> extends Wa
 	
 	public boolean isPureTile() {if(tileType == secondaryType) return true; else return false;}
 	
-	protected void updateGraphics() {
-		BufferedImage img = UtilsImage.generateClone(tileRaster);
-		Graphics g = img.getGraphics();
-	//	if(isRiver)	g.drawImage(riverRaster, 0, 0, (int)size.x, (int)size.y, null);
-		g.dispose();
-		setRaster(img);
-	}
+
 	
 
 	

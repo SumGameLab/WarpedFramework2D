@@ -2,11 +2,11 @@
 
 package warped.utilities.math.geometry.bezier;
 
-import warped.utilities.math.vectors.Vec2d;
+import warped.utilities.math.vectors.VectorD;
 
 public class BezierCurveLinearD {
 	
-	protected Vec2d p0, p1, pf;
+	protected VectorD p0, p1, pf;
 	protected double t = 0.0;
 	protected double increment = 0.01;
 	protected boolean complete = false;
@@ -19,30 +19,30 @@ public class BezierCurveLinearD {
 
 	public boolean isValid() {if(p0 != null && p1 != null) return true; else return false;}
 	public void setIncrement(double increment) {this.increment = increment;}
-	public void setCurve(Vec2d p0, Vec2d p1) {
+	public void setCurve(VectorD p0, VectorD p1) {
 		t = 0.0;
 		complete = false;
 		this.p0 = p0;
 		this.p1 = p1;
-		pf = new Vec2d();
+		pf = new VectorD();
 	}
 	
-	public BezierCurveLinearD(Vec2d p0, Vec2d p1) {
+	public BezierCurveLinearD(VectorD p0, VectorD p1) {
 		this.p0 = p0;
 		this.p1 = p1;
-		pf = new Vec2d();
+		pf = new VectorD();
 	}
 	
-	public BezierCurveLinearD(Vec2d p0, Vec2d p1, Vec2d pf) {
+	public BezierCurveLinearD(VectorD p0, VectorD p1, VectorD pf) {
 		this.p0 = p0;
 		this.p1 = p1;
 		this.pf = pf;
 	}
 	
 	
-	public BezierCurveLinearD(Vec2d pf, Vec2d p1, double increment) {
+	public BezierCurveLinearD(VectorD pf, VectorD p1, double increment) {
 		this.pf = pf;
-		p0 = new Vec2d(pf);
+		p0 = new VectorD(pf);
 		this.p1 = p1;
 		this.increment = increment;
 	}
@@ -52,7 +52,10 @@ public class BezierCurveLinearD {
 		t = 0.0;
 	}
 	
-	public boolean isComplete(Vec2d vec) {
+	/**Check if the path is complete.
+	 * @apiNote If not complete will update the path by one increment. 
+	 * @author 5som3*/
+	public boolean isComplete(VectorD vec) {
 		if(complete) {
 			pf = null;
 			return true;
@@ -64,14 +67,15 @@ public class BezierCurveLinearD {
 			complete = true;
 		}
 		
-		vec.x = p0.x + (t * (p1.x - p0.x));
-		vec.y = p0.y + (t * (p1.y - p0.y));
+		vec.set(p0.x() + (t * (p1.x() - p0.x())), p0.y() + (t * (p1.y() - p0.y())));
 		
 		if(complete) return true;
 		else return false;
 	}
 
-	
+	/**Check if the path is complete.
+	 * @apiNote If not complete will update the path by one increment. 
+	 * @author 5som3*/
 	public boolean isComplete() {
 		if(complete) {
 			pf = null;
@@ -84,8 +88,7 @@ public class BezierCurveLinearD {
 			complete = true;
 		}
 		
-		pf.x = -(p0.x + (t * (p1.x - p0.x)));
-		pf.y = -(p0.y + (t * (p1.y - p0.y)));
+		pf.set(-(p0.x() + (t * (p1.x() - p0.x()))), -(p0.y() + (t * (p1.y() - p0.y()))));
 		
 		if(complete) return true;
 		else return false;

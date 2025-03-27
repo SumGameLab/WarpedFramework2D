@@ -9,6 +9,9 @@ import warped.application.state.WarpedAssembly;
 import warped.application.state.WarpedState;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.KeyboardIcons;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 
 public class AssemblyInventoryInspector extends WarpedAssembly {
 
@@ -30,46 +33,26 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 	//private boolean isAVisible = true;
 	//private boolean isBVisible = true;
 	
-	private GUIButton 	 aTitle			= new GUIButton();
-	private GUIButton 	 aClose			= new GUIButton();
-	private GUIButton 	 aSortAlphabet	= new GUIButton();
-	private GUIButton 	 aSortMass		= new GUIButton();
-	private GUIButton 	 aSortQuantity	= new GUIButton();
-	private GUIButton 	 aSortValue		= new GUIButton();
-	private GUIInventoryItems aInvent		= new GUIInventoryItems(64, 64);
+	private GUIButton 	 aTitle			= new GUIButton(100, 30);
+	private GUIButton 	 aClose			= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
+	private GUIButton 	 aSortAlphabet	= new GUIButton(FrameworkSprites.getKeyboardIcon(KeyboardIcons.A));
+	private GUIButton 	 aSortMass		= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.MASS));
+	private GUIButton 	 aSortQuantity	= new GUIButton(FrameworkSprites.getKeyboardIcon(KeyboardIcons.ONE));
+	private GUIButton 	 aSortValue		= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.DOLLAR));
+	private GUIInventoryItems aInvent	= new GUIInventoryItems(64, 64);
 	
-	private GUIButton 	 bTitle			= new GUIButton();
-	private GUIButton 	 bClose			= new GUIButton();
-	private GUIButton 	 bSortAlphabet	= new GUIButton();
-	private GUIButton 	 bSortMass		= new GUIButton();
-	private GUIButton 	 bSortQuantity	= new GUIButton();
-	private GUIButton 	 bSortValue		= new GUIButton();	
-	private GUIInventoryItems bInvent		= new GUIInventoryItems(64, 64);	
+	private GUIButton 	 bTitle			= new GUIButton(100, 30);
+	private GUIButton 	 bClose			= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
+	private GUIButton 	 bSortAlphabet	= new GUIButton(FrameworkSprites.getKeyboardIcon(KeyboardIcons.A));
+	private GUIButton 	 bSortMass		= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.MASS));
+	private GUIButton 	 bSortQuantity	= new GUIButton(FrameworkSprites.getKeyboardIcon(KeyboardIcons.ONE));
+	private GUIButton 	 bSortValue		= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.DOLLAR));	
+	private GUIInventoryItems bInvent	= new GUIInventoryItems(64, 64);	
 	
 	public AssemblyInventoryInspector(WarpedManagerType type) {
 		super(type);
 	}
 
-
-	
-	@Override
-	protected void offsetAssembly() {
-		aTitle.setPosition(100, 100);
-		aClose.setPosition(300, 100);       
-		aSortAlphabet.setPosition(100, 130);
-		aSortMass.setPosition(130, 130);    
-		aSortQuantity.setPosition(160, 130);
-		aSortValue.setPosition(190, 130);   
-		aInvent.setPosition(100, 160);      
-		
-		bTitle.setPosition(600, 100);       
-		bClose.setPosition(900, 100);      
-		bSortAlphabet.setPosition(200, 100);
-		bSortMass.setPosition(230, 100);    
-		bSortQuantity.setPosition(260, 100);
-		bSortValue.setPosition(290, 100);   
-		bInvent.setPosition(100, 130);      
-	}
 
 	
 	private void aInvisible() {
@@ -132,6 +115,22 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 	
 	@Override
 	protected void defineAssembly() {
+		aTitle.setPosition(100, 100);
+		aClose.setPosition(300, 100);       
+		aSortAlphabet.setPosition(100, 130);
+		aSortMass.setPosition(130, 130);    
+		aSortQuantity.setPosition(160, 130);
+		aSortValue.setPosition(190, 130);   
+		aInvent.setPosition(100, 160);      
+		
+		bTitle.setPosition(600, 100);       
+		bClose.setPosition(900, 100);      
+		bSortAlphabet.setPosition(200, 100);
+		bSortMass.setPosition(230, 100);    
+		bSortQuantity.setPosition(260, 100);
+		bSortValue.setPosition(290, 100);   
+		bInvent.setPosition(100, 130);      
+		
 		//--------
 		//--------------- Invent A ------------------
 		//--------
@@ -140,15 +139,14 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 				WarpedObjectIdentity id = i.getObjectID();
 				if(id.isEqualTo(bTitle) || id.isEqualTo(bSortAlphabet) || id.isEqualTo(bSortMass) || id.isEqualTo(bSortQuantity) || id.isEqualTo(bSortValue) || id.isEqualTo(bClose));
 				else {					
-					i.setPosition(aTitle.getPosition().x, aTitle.getPosition().y);
-					i.offsetPosition();
+					i.offset(aTitle);
 				}
 			});			
 		});
 		
-		aClose.setReleasedAction(() -> {aInvisible();});
+		aClose.setReleasedAction(mouseE -> {aInvisible();});
 		
-		aSortAlphabet.setReleasedAction(() -> {
+		aSortAlphabet.setReleasedAction(mouseE -> {
 			if(aAlphabetState == SORT_ASSENDING) {
 				aAlphabetState = SORT_DESSENDING;
 			} else {
@@ -156,7 +154,7 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 			}
 		});
 		
-		aSortMass.setReleasedAction(() -> {
+		aSortMass.setReleasedAction(mouseE -> {
 			if(aMassState == SORT_ASSENDING) {
 				aMassState = SORT_DESSENDING;
 			} else {
@@ -164,7 +162,7 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 			}
 		});
 		
-		aSortQuantity.setReleasedAction(() -> {
+		aSortQuantity.setReleasedAction(mouseE -> {
 			if(aQuantityState == SORT_ASSENDING) {
 				aQuantityState = SORT_DESSENDING;
 			} else {
@@ -172,7 +170,7 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 			}
 		});	
 		
-		aSortValue.setReleasedAction(() -> {
+		aSortValue.setReleasedAction(mouseE -> {
 			if(aValueState == SORT_ASSENDING) {
 				aValueState = SORT_DESSENDING;
 			} else {
@@ -189,15 +187,14 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 				WarpedObjectIdentity id = i.getObjectID();
 				if(id.isEqualTo(aTitle) || id.isEqualTo(aSortAlphabet) || id.isEqualTo(aSortMass) || id.isEqualTo(aSortQuantity) || id.isEqualTo(aSortValue) || id.isEqualTo(aClose));
 				else {					
-					i.setPosition(bTitle.getPosition().x, bTitle.getPosition().y);
-					i.offsetPosition();
+					i.offset(bTitle);
 				}
 			});			
 		});
 		
-		bClose.setReleasedAction(() -> {bInvisible();});
+		bClose.setReleasedAction(mouseE -> {bInvisible();});
 		
-		bSortAlphabet.setReleasedAction(() -> {
+		bSortAlphabet.setReleasedAction(mouseE -> {
 			if(bAlphabetState == SORT_ASSENDING) {
 				bAlphabetState = SORT_DESSENDING;
 			} else {
@@ -205,7 +202,7 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 			}
 		});
 		
-		bSortMass.setReleasedAction(() -> {
+		bSortMass.setReleasedAction(mouseE -> {
 			if(bMassState == SORT_ASSENDING) {
 				bMassState = SORT_DESSENDING;
 			} else {
@@ -213,7 +210,7 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 			}
 		});
 		
-		bSortQuantity.setReleasedAction(() -> {
+		bSortQuantity.setReleasedAction(mouseE -> {
 			if(bQuantityState == SORT_ASSENDING) {
 				bQuantityState = SORT_DESSENDING;
 			} else {
@@ -221,7 +218,7 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 			}
 		});	
 		
-		bSortValue.setReleasedAction(() -> {
+		bSortValue.setReleasedAction(mouseE -> {
 			if(bValueState == SORT_ASSENDING) {
 				bValueState = SORT_DESSENDING;
 			} else {
@@ -250,7 +247,6 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 		addMember(bInvent);       
 	}
 
-	@Override
-	protected void updateAssembly() {return;}
+	
 
 }

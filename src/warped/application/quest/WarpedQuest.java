@@ -4,8 +4,6 @@ package warped.application.quest;
 
 import java.util.ArrayList;
 
-import warped.application.object.WarpedObject;
-
 public class WarpedQuest {
 	
 	private String name = "defaultQuest";
@@ -14,12 +12,6 @@ public class WarpedQuest {
 	
 	private ArrayList<QuestStage> stages = new ArrayList<>();
 	
-	
-	public WarpedQuest generatePlanetQuest(WarpedObject planet) {
-		WarpedQuest result = new WarpedQuest(planet.getName());
-		//result.addStage(new QuestStage());
-		return result;
-	}
 	
 	public WarpedQuest(String name) {
 		this.name = name;	

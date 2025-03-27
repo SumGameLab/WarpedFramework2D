@@ -2,15 +2,15 @@
 
 package warped.utilities.utils.path;
 
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorD;
+import warped.utilities.math.vectors.VectorI;
 
 public interface WarpedPathable {
 
-	Vec2d getPosition();
+	VectorD getPosition();
 	
-	void setCurrentCoordinate(Vec2i coord);
-	Vec2i getCurrentCoordinate();
+	void setCurrentCoordinate(VectorI coord);
+	VectorI getCurrentCoordinate();
 	double getMoveSpeed();
 	
 

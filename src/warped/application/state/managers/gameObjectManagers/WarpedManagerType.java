@@ -9,7 +9,6 @@ import warped.utilities.utils.Console;
 
 public enum WarpedManagerType {
 
-	VFX,
 	OBJECT,
 	ENTITIE,
 	DEPTH_FIELD,

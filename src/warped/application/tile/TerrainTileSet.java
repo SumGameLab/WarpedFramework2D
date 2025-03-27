@@ -10,15 +10,15 @@ import warped.application.state.WarpedState;
 import warped.application.state.groups.WarpedGroup;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.graphics.sprite.spriteSheets.WarpedSpriteSheet;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsImage;
 import warped.utilities.utils.UtilsMath;
 
-public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends WarpedTileSet<T> {
+public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> extends TileSetGenerative<T> {
 
 
-	/** Generative Tile Set 
+	/* Generative Tile Set 
 	 * **NOTE**
 	 * You Must Manually validate a set by calling validate() before it can be used
 	 * 
@@ -60,7 +60,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
 		transitionRules.put(primaryType, new ArrayList<>(tileTypes.subList(1, tileTypes.size())));
 		tileImages.put(primaryType, tileSheet.getSprite(0));
 		
-		if(tileSheet.size() < tileTypes.size()) {
+		if(tileSheet.getSpriteCount() < tileTypes.size()) {
 			Console.err("WarpedTileSet -> WarpedTileSet() -> number of images on tile sheet is less than the number of tiles specified -> can't proceede");
 			return;
 		}
@@ -141,7 +141,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
 
 	
 	/**Use this if you need to link your tile types in a specific order. Otherwise you should just list your tileTypes as they appear in the sprite sheet and they will be linked automatically*/
-	public void setTileTypes(List<T> tileTypes, List<Vec2i> tileCoords) {
+	public void setTileTypes(List<T> tileTypes, List<VectorI> tileCoords) {
 		if(tileTypes.contains(null)) {
 			Console.err("TileSet " + name + " -> setTileTypes() -> tileTypes list continas null value");
 			return;
@@ -150,8 +150,8 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
 			Console.err("TileSet : " + name + " -> setTileTypes() -> tileCoords list contains a null value");
 			return;
 		}
-		if(tileTypes.size() > tileSheet.size()) {
-			Console.err("TileSheet : " + name + " -> setTileTypes -> more tile types than tiles (tileTypes, tileCount)  :  (" + tileTypes.size() + ", " + tileSheet.size() + ")");
+		if(tileTypes.size() > tileSheet.getSpriteCount()) {
+			Console.err("TileSheet : " + name + " -> setTileTypes -> more tile types than tiles (tileTypes, tileCount)  :  (" + tileTypes.size() + ", " + tileSheet.getSpriteCount() + ")");
 			return;
 		}
 		if(tileTypes.size() != tileCoords.size()) {
@@ -164,20 +164,20 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
 		}
 		
 		for(int i = 0; i < tileCoords.size(); i++) {
-			int Ax = tileCoords.get(i).x; // check each tile
-			int Ay = tileCoords.get(i).y; // check each tile
-			if(Ax > tileSheet.getXcount() || Ay > tileSheet.getYcount()) {
-				Console.err("TileSet : " + name + " -> setTileTypes() -> tileCoords contains a coordinate that is not in the sheet -> index, (x, y), (xMax, yMax)  :  " + i + ", ( " + Ax + ", " + Ay + "),  (" + tileSheet.getXcount() + ", " + tileSheet.getYcount() + ")" );
+			int Ax = tileCoords.get(i).x(); // check each tile
+			int Ay = tileCoords.get(i).y(); // check each tile
+			if(Ax > tileSheet.getSpriteCountX() || Ay > tileSheet.getSpriteCountY()) {
+				Console.err("TileSet : " + name + " -> setTileTypes() -> tileCoords contains a coordinate that is not in the sheet -> index, (x, y), (xMax, yMax)  :  " + i + ", ( " + Ax + ", " + Ay + "),  (" + tileSheet.getSpriteCountX() + ", " + tileSheet.getSpriteCountY() + ")" );
 				return;
 			}
 			if(Ax < 0 || Ay < 0) {
-				Console.err("TileSet : " + name + " -> setTileTypes() -> tileIndicies contains an index that is less than 0 (index, tileCount)  :  (" + Ax + ", " + tileSheet.size() + ")");
+				Console.err("TileSet : " + name + " -> setTileTypes() -> tileIndicies contains an index that is less than 0 (index, tileCount)  :  (" + Ax + ", " + tileSheet.getSpriteCount() + ")");
 				return;
 			}
 			for(int j = 0; j < tileCoords.size(); j++) {
 				if(i == j) continue; // do not check against itself
-				int Bx = tileCoords.get(j).x;
-				int By = tileCoords.get(j).y;
+				int Bx = tileCoords.get(j).x();
+				int By = tileCoords.get(j).y();
 				if(Ax == Bx && Ay == By) { // against each other tile in the set
 					Console.err("TileSet : " + name + " -> setTileTypes() -> the same tile has been set to two different tile types (tileIndex, i, j)  :  (" + tileTypes.get(Ax) + ", " + i + ", " + j + ")");
 					return;
@@ -307,7 +307,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     		return result;
     	}
     	
-    	public WarpedTile<T> generateTile(T primaryType, T secondaryType, TerrainTileTransitionType transitionType) {
+    	public WarpedTile generateTile(T primaryType, T secondaryType, TerrainTileTransitionType transitionType) {
     		if(!containsTileType(primaryType) || !containsTileType(secondaryType)) {
     			Console.err("TileSet : " + name + " -> generateCelestailTransitionTile() -> set does not contain the tile type : " + primaryType);
     			return null;
@@ -467,7 +467,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     			valid = false;
     			return;
     		}
-    		if(tileTypes.size() > tileSheet.size()) {
+    		if(tileTypes.size() > tileSheet.getSpriteCount()) {
     			Console.err("TileSet : " + name + " -> isValid() -> number of tile types exceeds the number of tiles");
     			valid = false;
     			return;
@@ -718,7 +718,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     		
     		
     		WarpedGroupIdentity groupID = WarpedState.tileManager.addGroup(name);
-    		WarpedGroup<WarpedTile<?>> group = WarpedState.tileManager.getGroup(groupID);
+    		WarpedGroup<WarpedTile> group = WarpedState.tileManager.getGroup(groupID);
     		
     		group.setMapSize(mapWidth, mapHeight);
     		group.setPixelSize(mapWidth * getTileWidth(), mapHeight * getTileHeight());
@@ -777,7 +777,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     					if(path.size() <= 1) continue;
     					
     					for(int i = 0; i < path.size(); i++) {
-    						 Vec2i coord = path.get(i).getCoords();
+    						 VectorI coord = path.get(i).getCoords();
     						 if(coord.x < 0 || coord.y < 0 || coord.x >= mapWidth || coord.y >= mapHeight) {
     							 if(i == 0) System.err.println("TileManager -> generateRivers() -> why is this outside map?");
     							 continue;
@@ -794,7 +794,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     				
     	}
     	
-    	private ArrayList<RiverSegment> generateRiverSegments(WarpedGroup<WarpedTile> group, Vec2i startCoords, int mapWidth, int mapHeight){
+    	private ArrayList<RiverSegment> generateRiverSegments(WarpedGroup<WarpedTile> group, VectorI startCoords, int mapWidth, int mapHeight){
     		int MAX_PASSES = 10000;
     		int passes = 0;
 
@@ -812,7 +812,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     			}
     			
     			RiverSegment previousSegment = path.get(path.size() - 1);
-    			Vec2i previousCoord = previousSegment.getCoords();
+    			VectorI previousCoord = previousSegment.getCoords();
     						
     			ArrayList<DirectionType> possibleDirections = new ArrayList<>();
     			
@@ -876,7 +876,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     				case DOWN:  
     					previousSegment.setNextSegment(DirectionType.DOWN);
     					previousSegment.updateSegmentType();
-    					RiverSegment dSeg = new RiverSegment(new Vec2i(dx, dy), DirectionType.UP);
+    					RiverSegment dSeg = new RiverSegment(new VectorI(dx, dy), DirectionType.UP);
     					path.add(dSeg);
     					if(dTile == null || dTile.isRiver()) {
     						isComplete = true;
@@ -886,7 +886,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     				case LEFT:
     					previousSegment.setNextSegment(DirectionType.LEFT);
     					previousSegment.updateSegmentType();
-    					RiverSegment lSeg = new RiverSegment(new Vec2i(lx, ly), DirectionType.RIGHT);
+    					RiverSegment lSeg = new RiverSegment(new VectorI(lx, ly), DirectionType.RIGHT);
     					path.add(lSeg);
     					if(lTile == null || lTile.isRiver()) {
     						isComplete = true;
@@ -896,7 +896,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     				case RIGHT: 
     					previousSegment.setNextSegment(DirectionType.RIGHT);
     					previousSegment.updateSegmentType();
-    					RiverSegment rSeg = new RiverSegment(new Vec2i(rx, ry), DirectionType.LEFT);
+    					RiverSegment rSeg = new RiverSegment(new VectorI(rx, ry), DirectionType.LEFT);
     					path.add(rSeg);
     					if(rTile == null || rTile.isRiver()) {
     						isComplete = true;
@@ -906,7 +906,7 @@ public class TerrainTileSet<T extends WarpedTileable<? extends Enum<?>>> extends
     				case UP: 	
     					previousSegment.setNextSegment(DirectionType.UP);
     					previousSegment.updateSegmentType();
-    					RiverSegment uSeg = new RiverSegment(new Vec2i(ux, uy), DirectionType.DOWN);
+    					RiverSegment uSeg = new RiverSegment(new VectorI(ux, uy), DirectionType.DOWN);
     					path.add(uSeg);
     					if(uTile == null || uTile.isRiver()) {
     						isComplete = true;

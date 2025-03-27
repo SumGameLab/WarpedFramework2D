@@ -7,9 +7,9 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
+import warped.functionalInterfaces.WarpedAction;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.window.WarpedWindow;
-import warped.user.actions.WarpedAction;
 import warped.utilities.utils.Console;
 
 public abstract class WarpedMouseController {

@@ -6,10 +6,10 @@ import warped.application.state.WarpedState;
 import warped.application.state.groups.WarpedGroup;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.application.tile.WarpedTile;
-import warped.application.tile.WarpedTileable;
+import warped.application.tile.TileableGenerative;
 import warped.utilities.utils.Console;
 
-public class ManagerTile<T extends WarpedTile<?>> extends WarpedManager<T> {
+public class ManagerTile<T extends WarpedTile> extends WarpedManager<T> {
 
 
 	protected ManagerTile() {
@@ -21,18 +21,18 @@ public class ManagerTile<T extends WarpedTile<?>> extends WarpedManager<T> {
 	//------------------- Access ---------------------
 	//--------
 	@SuppressWarnings("unchecked")
-	public <K extends WarpedTileable<? extends Enum<?>>> WarpedTile<K> getTile(WarpedGroupIdentity groupID, int x, int y) {
-		WarpedGroup<WarpedTile<?>> group = WarpedState.tileManager.getGroup(groupID);		
-		if(x < 0 || y < 0 || x >= group.getMapGridSize().x || y >= group.getMapGridSize().y) {
+	public <K extends TileableGenerative<? extends Enum<?>>> WarpedTile getTile(WarpedGroupIdentity groupID, int x, int y) {
+		WarpedGroup<WarpedTile> group = WarpedState.tileManager.getGroup(groupID);		
+		if(x < 0 || y < 0 || x >= group.getMapGridSize().x() || y >= group.getMapGridSize().y()) {
 			Console.err("TileManager -> getTile() -> tile coordinates are outside of bounds : " + group.getMapGridSize().getString());
 			return null;
 		}
 		
-		WarpedTile<?> result = group.getMember(x + (y * group.getMapGridSize().x));
+		WarpedTile result = group.getMember(x + (y * group.getMapGridSize().x()));
 		if(result == null) {
 			Console.err("TileManager -> getTile() -> getMember() returned a null tile from the group");
 			return null;
-		} else return (WarpedTile<K>) result;
+		} else return (WarpedTile) result;
 	} 
 	
 	
@@ -43,9 +43,9 @@ public class ManagerTile<T extends WarpedTile<?>> extends WarpedManager<T> {
 		}
 		
 		@SuppressWarnings("unchecked")
-		WarpedGroup<WarpedTile<?>> group = (WarpedGroup<WarpedTile<?>>) getGroup(groupID);
-		int width  = group.getMapGridSize().x;
-		int height = group.getMapGridSize().y;
+		WarpedGroup<WarpedTile> group = (WarpedGroup<WarpedTile>) getGroup(groupID);
+		int width  = group.getMapGridSize().x();
+		int height = group.getMapGridSize().y();
 		double [] result = new double[width * height];
 		
 		
@@ -53,12 +53,12 @@ public class ManagerTile<T extends WarpedTile<?>> extends WarpedManager<T> {
 		return result;
 	}
 	
-	public WarpedTile<?>[] getTiles(WarpedGroupIdentity groupID) {
+	public WarpedTile[] getTiles(WarpedGroupIdentity groupID) {
 		@SuppressWarnings("unchecked")
-		WarpedGroup<WarpedTile<?>> group = (WarpedGroup<WarpedTile<?>>) getGroup(groupID);		
-		int width  = group.getMapGridSize().x;
-		int height = group.getMapGridSize().y;
-		WarpedTile<?> [] result = new WarpedTile[width * height];
+		WarpedGroup<WarpedTile> group = (WarpedGroup<WarpedTile>) getGroup(groupID);		
+		int width  = group.getMapGridSize().x();
+		int height = group.getMapGridSize().y();
+		WarpedTile [] result = new WarpedTile[width * height];
 		
 		for(int i = 0; i < group.getMemberCount(); i++) {
 			result[i] = group.getMember(i);
@@ -66,12 +66,12 @@ public class ManagerTile<T extends WarpedTile<?>> extends WarpedManager<T> {
 		return result;
 	}
 	
-	public WarpedTile<?>[][] getTiles2D(WarpedGroupIdentity groupID) {
+	public WarpedTile[][] getTiles2D(WarpedGroupIdentity groupID) {
 		@SuppressWarnings("unchecked")
-		WarpedGroup<WarpedTile<?>> group = (WarpedGroup<WarpedTile<?>>) getGroup(groupID);		
-		int width  = group.getMapGridSize().x;
-		int height = group.getMapGridSize().y;
-		WarpedTile<?> [][] result = new WarpedTile[width][height];
+		WarpedGroup<WarpedTile> group = (WarpedGroup<WarpedTile>) getGroup(groupID);		
+		int width  = group.getMapGridSize().x();
+		int height = group.getMapGridSize().y();
+		WarpedTile [][] result = new WarpedTile[width][height];
 		
 		for(int y = 0; y < height; y++) {
 			for(int x = 0; x < width; x++) {

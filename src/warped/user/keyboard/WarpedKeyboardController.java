@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import warped.application.state.WarpedState;
-import warped.user.actions.WarpedAction;
+import warped.functionalInterfaces.WarpedAction;
 import warped.utilities.utils.Console;
 
 public abstract class WarpedKeyboardController implements WarpedKeyboardActions {
@@ -141,7 +141,7 @@ public abstract class WarpedKeyboardController implements WarpedKeyboardActions 
 			WarpedKeyBind<?> b = hotBinds.get(i);
 			if(bind.getBound() == null || b.getBound() == null) break;
 			if(bind.getBound().equals(b.getBound())){
-				WarpedState.notify.addNotification("Already bound to HotBar");
+				WarpedState.notify.note("Already bound to HotBar");
 				return;
 			}
 		}

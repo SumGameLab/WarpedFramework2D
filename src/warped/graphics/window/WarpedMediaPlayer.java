@@ -13,8 +13,8 @@ import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
-import warped.user.actions.WarpedAction;
-import warped.utilities.math.vectors.Vec2i;
+import warped.functionalInterfaces.WarpedAction;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 
@@ -25,8 +25,8 @@ public class WarpedMediaPlayer  {
 	private WarpedMediaPane mediaPane;
 	private Scene scene;
 	
-	private Vec2i fixedSize = new Vec2i();
-	private Vec2i frameSize = new Vec2i();
+	private VectorI fixedSize = new VectorI();
+	private VectorI frameSize = new VectorI();
 	
 	private static final int MIN_FRAME_WIDTH  =  400;
 	private static final int MIN_FRAME_HEIGHT =  300;
@@ -82,7 +82,7 @@ public class WarpedMediaPlayer  {
 	    nFrame.setTitle("WarpedMediaPlayer");
 	    nFrame.setIconImage(WarpedWindow.frameIcon);
 	  
-	    if(isFixedSize) nFrame.setSize(fixedSize.x, fixedSize.y);
+	    if(isFixedSize) nFrame.setSize(fixedSize.x(), fixedSize.y());
 	    else nFrame.setSize(1280, 640);
 	    
 	    //mediaPane.setFrameSize(nFrame.getSize().width - 16, nFrame.getSize().height - 38);
@@ -114,7 +114,7 @@ public class WarpedMediaPlayer  {
 		else isFullscreen = true;
 		initializeFrame();
 	}
-	public Vec2i getFrameSize() {return new Vec2i(frame.getWidth(), frame.getHeight());}
+	public VectorI getFrameSize() {return new VectorI(frame.getWidth(), frame.getHeight());}
 	
 	public void loadMP4(String path) {mediaPane.loadFrameworkMedia(path);}
 	public void play() {mediaPane.play();}
@@ -151,7 +151,7 @@ public class WarpedMediaPlayer  {
 		Console.ln("WarpedMediaPlayer -> setFixedSize() -> setting fixed size too ( " + width + ", " + height + ")");
 		isFixedSize = true;
 		fixedSize.set(width, height);
-		frame.setSize(fixedSize.x, fixedSize.y);
+		frame.setSize(fixedSize.x(), fixedSize.y());
 	}
 	
 	public void setFullscreen(boolean isFullscreen) {

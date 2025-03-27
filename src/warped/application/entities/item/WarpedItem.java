@@ -4,13 +4,13 @@ package warped.application.entities.item;
 
 import java.awt.image.BufferedImage;
 
-import warped.application.object.WarpedObject;
-import warped.application.object.WarpedOption;
+import warped.application.actionWrappers.ActionOption;
+import warped.application.entities.WarpedEntitie;
 import warped.application.state.WarpedState;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.utils.Console;
 
-public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends WarpedObject {
+public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends WarpedEntitie {
 		
 	protected T itemType;
 	protected int quantity = 1;
@@ -21,9 +21,9 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 		this.itemType = itemType;
 		this.name = itemType.getString();
 		setToolTip(name);
-		setRaster(raster);
+		sprite.paint(itemType.getRaster());
 		clearSelectOptions();
-		addSelectOption(new WarpedOption("Inspect", () -> {
+		addSelectOption(new ActionOption("Inspect", () -> {
 			WarpedState.itemInspector.selectItem(this);
 			WarpedState.itemInspector.open();
 		}));
@@ -34,9 +34,9 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 		this.name = itemType.getString();
 		this.quantity = quantity;
 		setToolTip(name);
-		setRaster(raster);
+		sprite.paint(itemType.getRaster());
 		clearSelectOptions();
-		addSelectOption(new WarpedOption("Inspect", () -> {
+		addSelectOption(new ActionOption("Inspect", () -> {
 			WarpedState.itemInspector.selectItem(this);
 			WarpedState.itemInspector.open();
 		}));
@@ -48,9 +48,9 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 		this.name = name;
 		this.quantity = quantity;
 		setToolTip(name);
-		setRaster(raster);
+		sprite.paint(itemType.getRaster());
 		clearSelectOptions();
-		addSelectOption(new WarpedOption("Inspect", () -> {
+		addSelectOption(new ActionOption("Inspect", () -> {
 			WarpedState.itemInspector.selectItem(this);
 			WarpedState.itemInspector.open();
 		}));
@@ -191,25 +191,7 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
 	@Override
-	protected void updateObject() {return;}
-
-	@Override
-	protected void updatePosition() {return;}
-	
-	@Override
-	protected void mouseReleased(WarpedMouseEvent mouseEvent) {return;}
-
-	@Override
-	protected void updateMid() {return;}
-
-	@Override
-	protected void updateSlow() {return;}
-
-	@Override
-	protected void updatePassive() {return;}
-
-	@Override
-	protected void updateRaster() {return;}
+	public void updateObject() {return;}
 	
 	
 	

@@ -2,248 +2,184 @@
 
 package warped.application.gui;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import warped.WarpedProperties;
 import warped.audio.FrameworkAudio;
 import warped.audio.WarpedAudioClip;
+import warped.functionalInterfaces.WarpedAction;
+import warped.functionalInterfaces.WarpedButtonAction;
+import warped.graphics.sprite.ToggleSprite;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
-import warped.user.actions.WarpedAction;
 import warped.user.mouse.WarpedMouse;
 import warped.user.mouse.WarpedMouseEvent;
-import warped.utilities.enums.generalised.ButtonStateType;
-import warped.utilities.enums.generalised.ButtonType;
 import warped.utilities.enums.generalised.Colour;
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsImage;
 
 public class GUIToggle extends WarpedGUI {
 	
-	/**AKA checkBox
-	 * To use GUIToggle as a checkbox simply change the untoggled image to be the empty check box
-	 * Then set the toggled image to be the checked version of the checkbox 
-	 * */
-	
-	private ButtonType buttonType = ButtonType.COLOR;
-	private ButtonStateType buttonState = ButtonStateType.RELEASED;
+	/*GUIToggle provides these functions
+	 * 		- set graphics that automatically respond to mouse interaction
+	 * 		- set sound effects that trigger automatically with mouse interaction
+	 * 		- set programmable actions for when the toggle is turned on or off
+	 * 		- optional repeating action that occurs while the toggle is turned on
+	 */
 	
 	private boolean toggle = false;
-	private boolean enteredDragging = false;
 	private boolean isLocked = false;
+	private boolean enteredDragging = false;
 	
-	//private ButtonSprite sprite;
+	private WarpedButtonAction toggleOnAction;
+	private WarpedButtonAction toggleOffAction;
+	private WarpedAction repeatingAction;	
 	
-	private WarpedAction toggleOnAction;
-	private WarpedAction toggleOffAction;
-	//private WarpedAction repeatingAction;
-	private WarpedAction rightClickAction;
-	
-	private WarpedAudioClip enteredSFX = FrameworkAudio.defaultHover;
-	private WarpedAudioClip exitedSFX  = FrameworkAudio.defaultUnhover;
+	private WarpedAudioClip enteredSFX    = FrameworkAudio.defaultHover;
+	private WarpedAudioClip exitedSFX     = FrameworkAudio.defaultUnhover;
 	private WarpedAudioClip toggleOnSFX   = FrameworkAudio.defaultPress;
-	private WarpedAudioClip toggleOffSFX  = FrameworkAudio.defaultRelease;
+	private WarpedAudioClip toggleOffSFX  = FrameworkAudio.defaultRelease;		
 	
-	private Vec2d defaultToggleSize = new Vec2d(120, 30);
-	
-	private int   borderThickness = 2;
-	private Color buttonBorderColor = Color.BLACK;
-	private Color buttonColor = Color.LIGHT_GRAY;
-	private Color buttonHoverColor = new Color(110,60,60); 
-	private Color buttonToggleColor = Color.RED;
-	
-	private Color labelColor = Color.YELLOW;
-	private boolean isLabelVisible = false;
-	private String label = "";
-	private Vec2i  textOffset = new Vec2i();
-	private Font font = UtilsFont.getPreferred();
-	
-	private BufferedImage toggleOnImage;
-	private BufferedImage toggleOffImage;
-	private BufferedImage hoveredOnImage;
-	private BufferedImage hoveredOffImage;
-	private BufferedImage lockedImage;
-	
+	private ToggleSprite sprite;
 	
 	public GUIToggle() {
-		toggleOnImage = FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_CHECKED);
-		toggleOffImage = FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_UNCHECKED);
-		
-		hoveredOnImage = UtilsImage.generateTintedClone(toggleOnImage, 30, Colour.RED);
-		hoveredOffImage = UtilsImage.generateTintedClone(toggleOffImage, 30, Colour.RED);
-		
-		lockedImage = UtilsImage.generateTintedClone(toggleOffImage, 60, Colour.BLACK);
-		
-		isLabelVisible = false;
-		buttonType = ButtonType.IMAGE;
-		buttonState = ButtonStateType.PLAIN;
-		updateGraphics();
+		sprite = new ToggleSprite(FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_CHECKED), FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_UNCHECKED)); 
+		setSprite(sprite);
+		updateToggleState();
+	}
+	
+	public GUIToggle(BufferedImage toggleOffImage) {
+		sprite = new ToggleSprite(UtilsImage.generateTintedClone(toggleOffImage, 60, Colour.RED), toggleOffImage);  
+		setSprite(sprite);
+		updateToggleState();
 	}
 	
 	
-	public GUIToggle(BufferedImage rawSprite) {	
-		toggleOffImage = rawSprite;
-		toggleOnImage = UtilsImage.generateTintedClone(toggleOffImage, 60, Colour.RED);
-		
-		hoveredOffImage = UtilsImage.generateTintedClone(toggleOffImage, 30, Colour.RED);
-		hoveredOnImage = UtilsImage.generateTintedClone(toggleOnImage, 30, Colour.RED);
-		
-		lockedImage = UtilsImage.generateTintedClone(toggleOffImage, 60, Colour.BLACK);
-		
-		isLabelVisible = false;
-		buttonType  = ButtonType.IMAGE;
-		buttonState = ButtonStateType.PLAIN;
-		updateGraphics();
+	public GUIToggle(BufferedImage toggleOnImage, BufferedImage toggleOffImage) {
+		sprite = new ToggleSprite(toggleOnImage, toggleOffImage); 
+		setSprite(sprite);
+		updateToggleState();
 	}	
 	
+	/**Set the toggle on action
+	 * @param toggleOnAction - The action will be triggered (once) each time the toggle is toggled on.
+	 * @author SomeKid*/
+	public void setToggleOnAction(WarpedButtonAction toggleOnAction) {this.toggleOnAction = toggleOnAction;}
 	
-	public GUIToggle(String label) {
-		this.label = label;
-		isLabelVisible = true;
-		buttonType  = ButtonType.COLOR;
-		buttonState = ButtonStateType.PLAIN;
-		setRaster(new BufferedImage((int)defaultToggleSize.x, (int)defaultToggleSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE));
-		updateGraphics();
-	}
+	/**Set the toggle off action
+	 * @param toggleOffAction - The action will be triggered (once) each time the toggle is toggled off.
+	 * @author SomeKid*/
+	public void setToggleOffAction(WarpedButtonAction toggleOffAction) {this.toggleOffAction = toggleOffAction;}
 	
-	//public void setRepeatingAction(WarpedAction repeatingAction) {this.repeatingAction = repeatingAction;}
-	public void setToggleOnAction(WarpedAction toggleOnAction) {this.toggleOnAction = toggleOnAction;}
-	public void setToggleOffAction(WarpedAction toggleOffAction) {this.toggleOffAction = toggleOffAction;}
-	public void setRightClickAction(WarpedAction rightClickAction) {this.rightClickAction = rightClickAction;}
-	public void setToggleAction(WarpedAction toggleOnAction, WarpedAction toggleOffAction) {setToggleOnAction(toggleOnAction); setToggleOffAction(toggleOffAction);}
+	/**Set repeating action
+	 * @param repeatingAction - this action will be triggered once every second for as long as the toggle is in the on state
+	 * @author SomeKid*/
+	public void setRepeatingAction(WarpedAction repeatingAction) {this.repeatingAction = repeatingAction;}
 	
+	/**Set toggle sound effect
+	 * @param enteredSFX - the clip will play (once) each time the mouse enters the toggle
+	 * @author SomeKid*/
 	public void setEnteredSFX(WarpedAudioClip enteredSFX)  {this.enteredSFX = FrameworkAudio.defaultHover;}
-	public void setExitedSFX(WarpedAudioClip exitedSFX)    {this.exitedSFX  = FrameworkAudio.defaultUnhover;}
-	public void setToggleOnSFX(WarpedAudioClip toggleOn)   {this.toggleOnSFX   = FrameworkAudio.defaultPress;}
-	public void setToggleOffSFX(WarpedAudioClip toggleOff) {this.toggleOffSFX  = FrameworkAudio.defaultRelease;}
 	
+	/**Set toggle sound effect
+	 * @param exitedSFX - the clip will play (once) each time the mouse exits the toggle
+	 * @author SomeKid*/
+	public void setExitedSFX(WarpedAudioClip exitedSFX)    {this.exitedSFX  = FrameworkAudio.defaultUnhover;}
+	
+	/**Set toggle sound effect
+	 * @param toggleOn - the clip will play (once) each time the toggle is toggled on
+	 * @author SomeKid*/
+	public void setToggleOnSFX(WarpedAudioClip toggleOnSFX)   {this.toggleOnSFX   = toggleOnSFX;}
+	
+	/**Set toggle sound effect
+	 * @param toggleOff - the clip will play (once) each time the toggle is toggled off
+	 * @author SomeKid*/
+	public void setToggleOffSFX(WarpedAudioClip toggleOffSFX) {this.toggleOffSFX  = toggleOffSFX;}
+	
+	/**Set the toggle state
+	 * @param toggle - the new state for the toggle
+	 * @author SomeKid*/
 	public void setToggleState(boolean toggle) {
 		this.toggle = toggle;
-		updateGraphics();
+		updateToggleState();
 	}
 	
 	
-	private void updateGraphics() {
-		switch(buttonType) {
-		case COLOR:
-			Graphics2D g = raster.createGraphics();
-			g.setColor(buttonBorderColor);
-			g.fillRect(0, 0, (int)size.x, (int)size.y);
-			
-			switch(buttonState) {
-			case HOVERED: 	g.setColor(buttonHoverColor);	break;
-			case EXITED: if(toggle) g.setColor(buttonToggleColor);
-						 else g.setColor(buttonColor); break;
-			case PLAIN: 	g.setColor(buttonColor); break;
-			case PRESSED: 	g.setColor(buttonToggleColor); break;
-			case RELEASED: 	g.setColor(buttonColor); break;
-			case TOGGLED: 	g.setColor(buttonToggleColor); break;
-			default: Console.err("GUIToggle -> updateGraphics() -> invalid switch Case : " + buttonState); break;			
-			}
-			g.fillRect(borderThickness, borderThickness, (int)size.x - borderThickness, (int)size.y - borderThickness);
-			
-			if(isLabelVisible) {
-				g.setColor(labelColor);
-				g.setFont(font);
-				g.drawString(label, (borderThickness * 2) + textOffset.x, (borderThickness * 2) + font.getSize() + textOffset.x);
-			}	
-			g.dispose();
-			setRaster(raster);
-			break;
-			
-		case IMAGE:
-			if(isLocked) {
-				setRaster(lockedImage);
-				break;
-			}
-			switch(buttonState) {
-			case HOVERED:
-				if(toggle) setRaster(hoveredOnImage);
-				else setRaster(hoveredOffImage); break;
-			case RELEASED:
-				if(toggle) {
-					toggleOffSFX.play();
-					if(toggleOffAction != null) toggleOffAction.action();
-					toggle = false;
-					setRaster(hoveredOnImage);
-				} else {
-					toggleOnSFX.play();
-					if(toggleOnAction != null) toggleOnAction.action();
-					toggle = true;
-					setRaster(hoveredOffImage);
-				}
-				break;
-			case PLAIN:
-				if(toggle) setRaster(toggleOnImage);
-				else setRaster(toggleOffImage);
-				break;
-			default: Console.err("GUIToggle -> updateGraphics() -> invalid switch case : " + buttonState); break;
-			}
-		break;
-		default: Console.err("GUIToggle -> updateGraphics() -> invalild switch case : " + buttonType); return;		
-		}
+	/**Toggle the locked state of the button; if the button is locked it will be unlocked and visa versa
+	 * @apiNote a locked toggle will not interact with the mouse
+	 * @author SomeKid*/
+	public void toggleLock() {
+		if(isLocked) unlock(); 
+		else lock();
 	}
 	
-	public void toggleLock() {if(isLocked) unlock(); else lock();}
-	
+	/**Lock the toggle
+	 * @apiNote a locked toggle will not interact with the mouse
+	 * @author SomeKid*/
 	public void lock() {
 		if(!isLocked) {			
 			isLocked = true;
-			updateGraphics();
+			updateToggleState();
 		}
 	}
 	
+	/**Unlock the toggle
+	 * @apiNote a locked toggle will not interact with the mouse
+	 * @author SomeKid*/
 	public void unlock() {
 		if(isLocked) {			
 			isLocked = false;
-			updateGraphics();
+			updateToggleState();
 		}
 	}
 	
+	/**Set the locked state for the toggle
+	 * @param toggle - the new state for the toggle
+	 * @author SomeKid*/
 	public void setToggle(boolean toggle) {
-		if(toggle) toggleOn(); 
-		else toggleOff();
+		this.toggle = toggle;
+		updateToggleState();
 	}
-	public void toggle() {
-		if(toggle)toggleOff();
-		else toggleOn();
+	
+	
+	private void toggle(WarpedMouseEvent buttonEvent) {
+		if(toggle) toggleOff(buttonEvent);
+		else toggleOn(buttonEvent);
 		
 	}
 	
-	
-	public void updateMidly() {
-		if(!toggle) return;
-		updateMid();
-		updateMidAction.action(this); 	
-	}
-	
-	public void toggleOff() {
+	private void toggleOff(WarpedMouseEvent buttonEvent) {
 		if(toggle) {
 			toggle = false;
-			updateGraphics();
-			if(toggleOffAction == null) Console.err("GUIToggle -> toggleOff -> toggleOffAction is null");
-			else toggleOffAction.action();
+			if(toggleOffAction == null ) Console.ln("GUIToggle -> toggleOff -> toggleOffAction is null");
+			else toggleOffAction.action(buttonEvent);
 			toggleOffSFX.play();
+			updateToggleState();
 		}
 	}
 	
-	public void toggleOn() {
+	private void toggleOn(WarpedMouseEvent buttonEvent) {
 		if(!toggle) {
 			toggle = true;
-			updateGraphics();
-			if(toggleOnAction == null) Console.err("GUIToggle -> toggleOn -> toggleOnAction is null");
-			else toggleOnAction.action();
+			if(toggleOnAction == null) Console.ln("GUIToggle -> toggleOn -> toggleOnAction is null");
+			else toggleOnAction.action(buttonEvent);
 			toggleOnSFX.play();
+			updateToggleState();
 		}
 	}
-
+	
+	
+	private void updateToggleState() {
+		if(isLocked) {
+			sprite.locked();
+			return;
+		}
+		
+		if(toggle) { 
+			if(isHovered()) sprite.hoveredOn(); else sprite.toggleOn();
+		} else {
+			if(isHovered()) sprite.hoveredOff(); else sprite.toggleOff();
+		}		
+	}
 	
 	@Override
 	protected void mouseEntered() {
@@ -252,8 +188,7 @@ public class GUIToggle extends WarpedGUI {
 			return;
 		}
 		enteredSFX.play();
-		buttonState = ButtonStateType.HOVERED;
-		updateGraphics();
+		updateToggleState();
 		
 	}
 
@@ -261,32 +196,23 @@ public class GUIToggle extends WarpedGUI {
 	protected void mouseExited() {
 		if(!enteredDragging) {			
 			exitedSFX.play();
-			buttonState = ButtonStateType.PLAIN;
-			updateGraphics();
+			updateToggleState();
 		}
 		enteredDragging = false;
 	}
 
-	@Override
-	protected void mousePressed(WarpedMouseEvent mouseEvent) {return;}
-		
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
 		if(isLocked) return;
-		if(!enteredDragging) {
-			if(mouseEvent.getMouseEvent().getButton() == MouseEvent.BUTTON1) toggle();
-			if(mouseEvent.getMouseEvent().getButton() == MouseEvent.BUTTON3) {
-				if(rightClickAction == null) Console.err("GUIToggle -> mouseReleased() -> toggle has no right click action");
-				else rightClickAction.action();
-				if(toggle) buttonState = ButtonStateType.RELEASED;
-				else buttonState = ButtonStateType.PLAIN;
-				updateGraphics();
-			}
-		}
+		if(!enteredDragging) toggle(mouseEvent);
 		enteredDragging = false;
-		
 	}
 
+	@Override
+	public void updateMid() {if(toggle && repeatingAction != null) repeatingAction.action();};
+
+	@Override
+	protected void mousePressed(WarpedMouseEvent mouseEvent) {return;}
 	@Override
 	protected void mouseMoved(WarpedMouseEvent mouseEvent) { return;}
 	@Override
@@ -294,13 +220,8 @@ public class GUIToggle extends WarpedGUI {
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
-	@Override
-	protected void updateRaster() {return;}
+	
 
-	@Override
-	protected void updateObject() {return;}
-
-	@Override
-	protected void updatePosition() {return;}
+	
 
 }

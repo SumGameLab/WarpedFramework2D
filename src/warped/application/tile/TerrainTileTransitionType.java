@@ -123,7 +123,7 @@ public enum TerrainTileTransitionType {
 		
 
 	
-	public static <K extends WarpedTileable<? extends Enum<?>>> TerrainTile<K> getConnectingTile(TerrainTile<K> leftTile, TerrainTile<K> aboveTile, TerrainTile<K> aboveRightTile) {
+	public static <K extends TileableGenerative<? extends Enum<?>>> TerrainTile<K> getConnectingTile(TerrainTile<K> leftTile, TerrainTile<K> aboveTile, TerrainTile<K> aboveRightTile) {
 		if(leftTile == null && aboveTile == null) {
 			Console.err("TileTransitionType -> getConnectingTile() -> leftTile && aboveTile is null");
 			return null;

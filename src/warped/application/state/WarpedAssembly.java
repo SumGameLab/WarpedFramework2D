@@ -5,7 +5,6 @@ package warped.application.state;
 import warped.application.entities.WarpedEntitie;
 import warped.application.gui.WarpedGUI;
 import warped.application.object.WarpedObject;
-import warped.application.prop.WarpedProp;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.utilities.utils.Console;
@@ -51,7 +50,6 @@ public abstract class WarpedAssembly {
 		} 
 		isAssembled = true;
 		WarpedState.assemblys.add(this);
-		offsetAssembly();
 		defineAssembly();
 		addAssembly();
 	}
@@ -67,21 +65,17 @@ public abstract class WarpedAssembly {
 			Console.err("Assembly -> addMember() -> tried to add a member of the wrong type, this assembly only accepts " + groupID.getManagerType().toString() + " type of object");
 			return;
 		}
-		if(obj instanceof WarpedProp && groupID.getManagerType() != WarpedManagerType.VFX) {
-			Console.err("Assembly -> addMember() -> tried to add a member of the wrong type, this assembly only accepts " + groupID.getManagerType().toString() + " type of object");
-			return;
-		}
 		WarpedState.getManager(groupID).getGroup(groupID).addMember(obj);
 	}
 	
 		
 	public final boolean isOpen() {return isOpen;}
-	public final void update() {if(isOpen) updateAssembly();}
 	
-	protected abstract void offsetAssembly();
+	protected void updateAssembly() {return;}
+	
 	protected abstract void defineAssembly();
 	protected abstract void addAssembly();
-	protected abstract void updateAssembly();
+	
 
 	
 		

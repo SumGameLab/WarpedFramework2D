@@ -2,63 +2,58 @@
 
 package warped.application.tile;
 
+import java.util.ArrayList;
+
+import warped.application.actionWrappers.ActionOption;
 import warped.application.object.WarpedObject;
-import warped.application.object.WarpedOption;
 import warped.application.state.WarpedState;
 import warped.user.mouse.WarpedMouseEvent;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 
-public class WarpedTile<T extends WarpedTileable<? extends Enum<?>>> extends WarpedObject {
+public class WarpedTile extends WarpedObject {
 
-	/**
+	/*
 	 * NOTE : 
 	 * For a large game such as WarpTech, there will be several million tiles
 	 * Obviously updating 20+ million entities is less than optimal.
 	 * The tiles should be kept in an unactive groups and then call updates on them very infrequently or on demand 
 	 * */
 
-	protected WarpedTileSet<T> parent; 
-	protected T tileType;
-	
 	protected int index = -1;
-	protected Vec2i coordinates = new Vec2i();
+	protected VectorI coordinates = new VectorI();
 	
+	private ArrayList<ActionOption> selectOptions = new ArrayList<>();
 
-	public WarpedTile(WarpedTileSet<T> parent, T tileType) {
-		this.parent = parent;
-		this.tileType = tileType;
-	    setRaster(parent.getTileImage(tileType));
-		initializeSelectOptions();
-	}
-	
 	
 	//--------
 	//------------------- Access ---------------------
 	//--------	
 	
-	public double getRoughness() {return tileType.getRoughness();}
+	/**Set the coordinates for this tile.
+	 * @param coordinates - the location of the tile in its tileMap.
+	 * @author 5som3 */
+	public void setCoordinates(VectorI coordinates) {this.coordinates = coordinates;}
 	
-	public T getPrimaryType() {return tileType;}
-	
-	public WarpedTileSet<T> getParent() {return parent;}	
-	public TerrainTileSet<T> getParentTerrain() {return (TerrainTileSet<T>) parent;}
-	
-	/**the direction of this tile relative to the one in context. i.e. this tile is above the tile being considered -> the dir is UP*/
-
-	public void setCoordinates(Vec2i coordinates) {this.coordinates = coordinates;}
 	public void setCoordinates(int x, int y, int index) {coordinates.set(x, y); this.index = index;}
 	public int getIndex() {return index;}
-	public Vec2i getCoords() {return coordinates;}
+	public VectorI getCoords() {return coordinates;}
 	
-
+	public final ActionOption getSelectOption(int index) {return selectOptions.get(index);}
+	public final ArrayList<ActionOption> getSelectOptions() {return selectOptions;}
+	
+	protected final void addSelectOption(ActionOption option) {selectOptions.add(option);}
+	protected final void clearSelectOptions() {selectOptions.clear();}
+	
+	public double getRoughness() {return 1.0;}
+	
 	//--------
 	//------------------- Interaction ---------------------
 	//--------
 	protected void initializeSelectOptions() {
-		addSelectOption(new WarpedOption("Inspect", () -> {
+		addSelectOption(new ActionOption("Inspect", () -> {
 			WarpedState.selector.close();
 			
-			WarpedState.gameObjectInspector.select(objectID);
+			WarpedState.gameObjectInspector.select(this);
 			WarpedState.gameObjectInspector.open();
 		}));
 	}
@@ -84,17 +79,17 @@ public class WarpedTile<T extends WarpedTileable<? extends Enum<?>>> extends War
 	//------------------- Update ---------------------
 	//--------
 
-	@Override
-	protected void updateRaster() {return;}
-	@Override
-	protected void updateObject() {return;}
-	@Override
-	protected void updatePosition() {return;}
-
-	protected void updateMid() {return;};
 	
-	protected void updateSlow() {return;}; 
+	@Override
+	public void updateObject() {return;}
 
-	protected void updatePassive() {return;};
+	@Override
+	public void updateMid() {return;};
+	
+	@Override
+	public void updateSlow() {return;}; 
+
+	@Override
+	public void updatePassive() {return;};
 	
 }

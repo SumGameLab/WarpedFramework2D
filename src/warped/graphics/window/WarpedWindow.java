@@ -8,6 +8,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
@@ -30,8 +31,8 @@ import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.user.WarpedUserInput;
 import warped.user.mouse.WarpedMouseEvent;
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorD;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsImage;
 import warped.utilities.utils.UtilsString;
@@ -66,16 +67,16 @@ public class WarpedWindow extends Canvas {
 	 *  
 	 * */ 
 	
-	private static final Vec2i MIN_WINDOW_RESOLUTION = new Vec2i(400, 300);
-	private static final Vec2i MAX_WINDOW_RESOLUTION = new Vec2i(3860, 2140);
+	private static final VectorI MIN_WINDOW_RESOLUTION = new VectorI(400, 300);
+	private static final VectorI MAX_WINDOW_RESOLUTION = new VectorI(3860, 2140);
 	
-	private static final Vec2i MIN_APPLICATION_RESOLUTION = new Vec2i(320, 200);
-	private static final Vec2i MAX_APPLICATION_RESOLUTION = new Vec2i(1920, 1080);
+	private static final VectorI MIN_APPLICATION_RESOLUTION = new VectorI(320, 200);
+	private static final VectorI MAX_APPLICATION_RESOLUTION = new VectorI(1920, 1080);
 	
-	private static Vec2i applicationResolution = new Vec2i(MIN_APPLICATION_RESOLUTION.x, MIN_APPLICATION_RESOLUTION.y); //Resolution of the application, not the displayed resolution
-	private static Vec2i windowResolution = new Vec2i(MIN_APPLICATION_RESOLUTION.x, MIN_APPLICATION_RESOLUTION.y);//Resolution of the window, the displayed resolution
-	private static Vec2d windowScale = new Vec2d(1.0, 1.0);
-	private static Vec2d mouseScale = new Vec2d(1.0, 1.0);
+	private static VectorI applicationResolution = new VectorI(MIN_APPLICATION_RESOLUTION.x(), MIN_APPLICATION_RESOLUTION.y()); //Resolution of the application, not the displayed resolution
+	private static VectorI windowResolution = new VectorI(MIN_APPLICATION_RESOLUTION.x(), MIN_APPLICATION_RESOLUTION.y());//Resolution of the window, the displayed resolution
+	private static VectorD windowScale = new VectorD(1.0, 1.0);
+	private static VectorD mouseScale = new VectorD(1.0, 1.0);
 	
 	private static String windowName = "WarpedFramework2D";
 	private static long updateDuration;
@@ -91,23 +92,24 @@ public class WarpedWindow extends Canvas {
 	private static JFrame frame;
 	
 	private static JFXPanel fxPanel = new JFXPanel();
+
+	private static AffineTransform at = new AffineTransform();
 	
 	private static Graphics2D bufferGraphics;
 	private static Graphics bsGraphics;
 	private static final int BUFFER_SIZE = 3;
 
-	/**The Window width and height*/
-	public static int width  = 1920; 
-	public static int height = 1080; 
-	public static Vec2i center = new Vec2i(width / 2, height / 2);
+	private static int width  = 1920; 
+	private static int height = 1080; 
+	private static VectorI center = new VectorI(width / 2, height / 2);
 			
 	private static WarpedViewport[] viewPorts = new WarpedViewport[1];
 	private static BufferedImage[] rasterBuffer = new BufferedImage[1];
 	private static int rasterIndex = 0;
 
 	private static int   loadBarBorderThickness = 5;
-	private static Vec2i loadBarSize = new Vec2i((int)(WarpedWindow.width - 200), 50);
-	private static Vec2i loadBarPosition = new Vec2i(100, WarpedWindow.height - 100);
+	private static VectorI loadBarSize = new VectorI((int)(WarpedWindow.width - 200), 50);
+	private static VectorI loadBarPosition = new VectorI(100, WarpedWindow.height - 100);
 	private static Font  font = new Font("FunnyFlont", Font.PLAIN, 20);
 	private static BufferStrategy bs;
 	
@@ -122,13 +124,6 @@ public class WarpedWindow extends Canvas {
 		DITHERING           
 	}
 	
-	//public static final int RENDERING 			   = 0;
-	//public static final int COLOR                  = 1;
-	//public static final int ANTIALIASING		   = 2;
-	//public static final int INTERPOLATION          = 3;
-	//public static final int ALPHA_INTERPOLATION    = 4;
-	//public static final int DITHERING              = 5;
-		
 	public WarpedWindow(String windowName, int applicationWidth, int applicationHeight, String iconPath) {
 		Console.ln("WarpedWindow -> Creating window with Settings : ");
 		Console.ln("WarpedWindow -> Name  : " + windowName);
@@ -174,9 +169,15 @@ public class WarpedWindow extends Canvas {
 	}
 	
 
-	
+	/**Sets the size of the WarpedWindow in pixels.
+	 * @param x - The new width of the window measured in pixels.
+	 * @param y - The new height of the window measured in pixels.
+	 * @implNote This will destroy the old window and replace it with a new one of the specified size.
+	 * @implNote Updating of the window and any viewports will be paused until the new window is ready  (usually less than 100ms)
+	 * @implNote NOTE : 4k applications not supported. Rendering a window larger than 1440p is not advised. 
+	 * @author SomeKid*/
 	public final void setWindowResolution(int x, int y) {
-		if(x < MIN_WINDOW_RESOLUTION.x || y < MIN_WINDOW_RESOLUTION.y || x > MAX_WINDOW_RESOLUTION.x || y > MAX_WINDOW_RESOLUTION.y) {
+		if(x < MIN_WINDOW_RESOLUTION.x() || y < MIN_WINDOW_RESOLUTION.y() || x > MAX_WINDOW_RESOLUTION.x() || y > MAX_WINDOW_RESOLUTION.y()) {
 			Console.err("WarpedWindow -> setWindowResolution() -> window resolution is out of bounds -> min : " + MIN_WINDOW_RESOLUTION.getString());
 			Console.err("WarpedWindow -> setWindowResolution() -> window resolution is out of bounds -> max : " + MAX_WINDOW_RESOLUTION.getString());
 			Console.err("WarpedWindow -> setWindowResolution() -> window resolution is out of bounds -> value : ( " + x + ", " + y + ")");
@@ -192,23 +193,386 @@ public class WarpedWindow extends Canvas {
 		WarpedWindow.width = x;
 		WarpedWindow.height = y;
 		WarpedWindow.windowResolution.set(x, y);
-		windowScale.set((double)windowResolution.x / (double)applicationResolution.x, (double)windowResolution.y / (double)applicationResolution.y);
+		windowScale.set((double)windowResolution.x() / (double)applicationResolution.x(), (double)windowResolution.y() / (double)applicationResolution.y());
 		Console.ln("WarpedWindow -> setWindowResolution() -> setting resolution to : " + x + ", " + y);
 		Console.ln("WarpedWindow -> setWindowResolution() -> setting resolution scale to : " + windowScale.getString());
-		if(windowScale.x >= 1.0 || windowScale.y >= 1.0) renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
+		if(windowScale.x() >= 1.0 || windowScale.y() >= 1.0) renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
 		else renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 		
 		Dimension size = new Dimension(WarpedWindow.width, WarpedWindow.height);
 		setPreferredSize(size);
-		for(int i = 0; i < BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(windowResolution.x, windowResolution.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		for(int i = 0; i < BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(windowResolution.x(), windowResolution.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		
-		if(windowScale.x != 1.0 || windowScale.y != 1.0) isFullScreen = false;
+		if(windowScale.x() != 1.0 || windowScale.y() != 1.0) isFullScreen = false;
 		else isFullScreen = true;
 		initializeFrame(isFullScreen);
 		setVisible(true);
 				
 	}
 	
+	/**Set the visibility of the JFrame.
+	 * @apiNote You shouldn't need to call this function manually.
+	 * @implNote Called automatically when constructing or resizing the window.
+	 * @author SomeKid*/
+	public final void setVisible(boolean isVisible) {frame.setVisible(isVisible);}
+	
+	/**Make the window fullscreen borderless.
+	 * @apiNote If the resolution of the monitor (native res) is different from the application then the application will be stretched to fill the monitor.
+	 * @apilNote This could distort the appearance of the application but it will still function predictably. 
+	 * @apilNote If this is a problem you should setWindowResolution() to the native res when the application starts.
+	 * @implNote NOTE : 4k applications NOT supported. Rendering a window larger than 1440p is not advised.
+	 * @implNote      : For 3840 x 2160 setWindowResolution(1920, 1080) and then fullscreen(). This will stretch without distortion and still be playable.
+	 * @author SomeKid*/
+	public void fullScreen() {
+		if(isFullScreen) return;
+		Console.ln("WarpedWindow -> fullscreen()");
+		initializeFrame(true);
+		setVisible(true);
+
+	}
+	
+	/**Make windowed with border.
+	 * @apiNote If the resolution of the monitor (native res) is different from the application then the application will be stretched to fill the monitor.
+	 * @apilNote This could distort the appearance of the application but it will still function predictably. 
+	 * @apilNote If this is a problem you should setWindowResolution() to the native res when the application starts.
+	 * @implNote NOTE : 4k applications NOT supported. Rendering a window larger than 1440p is not advised.
+	 * @implNote      : For 3840 x 2160 setWindowResolution(1920, 1080) and then fullscreen(). This will stretch without distortion and still be playable.
+	 * @author SomeKid*/
+	public void windowed() {
+		if(!isFullScreen) return;
+		Console.ln("WarpedWindow -> windowed()");
+		initializeFrame(false);
+		setVisible(true);
+	}
+	
+	/**Set the window mode.
+	 * @param isFullscreen - if true will be 'fullscreen borderless' else 'windowed bordered'.
+	 * @apiNote If the resolution of the monitor (native res) is different from the application then the application will be stretched to fill the monitor.
+	 * @apilNote This could distort the appearance of the application but it will still function predictably. 
+	 * @apilNote If this is a problem you should setWindowResolution() to the native res when the application starts.
+	 * @implNote NOTE : 4k applications NOT supported. Rendering a window larger than 1440p is not advised.
+	 * @implNote      : For 3840 x 2160 setWindowResolution(1920, 1080) and then fullscreen(). This will stretch without distortion and still be playable.
+	 * @author SomeKid*/
+	public void setFullscreen(boolean isFullScreen) {
+		if(WarpedWindow.isFullScreen == isFullScreen) {
+			Console.err("WarpedWindow -> setFullscreen() -> window fullscreen is already : " + isFullScreen);
+			return;
+		}
+		WarpedWindow.isFullScreen = isFullScreen;
+		if(isFullScreen) fullScreen();
+		else windowed();
+	}
+	
+	/**Toggle window mode between 'fullscreen borderless' and 'windowed bordered'.
+	 * @apiNote If the resolution of the monitor (native res) is different from the application then the application will be stretched to fill the monitor.
+	 * @apilNote This could distort the appearance of the application but it will still function predictably. 
+	 * @apilNote If this is a problem you should setWindowResolution() to the native res when the application starts.
+	 * @implNote NOTE : 4k applications NOT supported. Rendering a window larger than 1440p is not advised.
+	 * @implNote      : For 3840 x 2160 setWindowResolution(1920, 1080) and then fullscreen(). This will stretch without distortion and still be playable.
+	 * @author SomeKid*/
+	public void toggleFullscreen() {
+		Console.ln("WarpedWindow -> toggleFullscreen()");
+		if(isFullScreen) windowed();
+		else fullScreen();
+	}
+	
+	/**Get the time taken to update the window.
+	 * @return long - the time taken to do the most recent update cycle measured in nanoseconds.
+	 * @author SomeKid */
+	public static long getUpdateDuration() {return updateDuration;}
+	
+	/**Get one of the viewports in the window.
+	 * @param index - the index of the viewport, will return viewPorts[0] if index is invalid.
+	 * @author SomeKid*/
+	public static WarpedViewport getViewPort(int index) {
+		if(index < 0 || index >= viewPorts.length) {
+			Console.err("WarpedWindow -> getViewport() -> index is out of bounds : (index, length)" + index + ", " + viewPorts.length);
+			return viewPorts[0];
+		}
+		return viewPorts[index];
+	}
+	
+	/**Get the array containing the viewports.
+	 * @return WarpedViewport[] - the viewports
+	 * @author SomeKid*/
+	public static WarpedViewport[] getViewPorts(){return viewPorts;}
+	
+	/**Get the number of viewports in the window.
+	 * @return int - the viewport count.
+	 * @author SomeKid*/
+	public static int getViewPortCount() { return viewPorts.length;}
+	
+	/**Get the JFrame that the WarpedWindow is based on.
+	 * @return JFrame - The windows JFrame
+	 * @apiNote You should not need to access this during application development, it is here for debug purposes.
+	 * @author SomeKid*/
+	public static JFrame getFrame() {return frame;}
+	
+	/**Get the number of buffers
+	 * @return int - the buffer count.
+	 * @author SomeKid*/
+	public static int getBufferSize() {return BUFFER_SIZE;}
+	
+	/**Get the scale of the window
+	 * @return VectorD - the x and y scale.
+	 * @author SomeKid*/
+	public static VectorD getWindowScale() {return windowScale;}
+	
+	/**The width of the WarpedWindow in pixels.
+	 * @author 5som3*/
+	public static int getWindowWidth() {return width;}
+	
+	/**The height of the WarpedWindow in pixels
+	 * @author 5som3*/
+	public static int getWindowHeight() {return height;}
+	
+	/**The center of the window.
+	 * @return int - the center of the window x coordinate measured in pixels.
+	 * @author 5som3*/
+	public static int getCenterX() {return center.x();}
+	
+	/**The center of the window.
+	 * @return int - the center of the window y coordinate measured in pixels.
+	 * @author 5som3*/
+	public static int getCenterY() {return center.y();}
+	
+	/**Set the viewports to be displayed in the window.
+	 * @param ports - the viewports to add to this window. Ports will be drawn in the order they are added from bottom to top
+	 * @param       - i.e. setViewPorts(a, b, c) will be drawn : a behind b behind c
+	 * @author SomeKid*/
+	public static void setViewPorts(WarpedViewport... ports) { 	 	
+		Console.ln("WarpedWindow -> setViewPorts() -> seting " + ports.length + " viewports");
+		viewPorts = new WarpedViewport[ports.length];
+		updateLoadGraphics.cancel();
+		loadTimer.cancel();
+		updateLoadGraphics = null;
+		loadTimer = null;
+		for(int i = 0; i < ports.length; i++) {
+			viewPorts[i] = ports[i];
+			Console.ln("WarpedWindow -> added viewport : " + ports[i].getName() + " at index " + i);
+		}
+		startExecutor();
+	}
+	
+	/**DO NOT CALL - This function is called automatically when the application closes.
+	 * @implNote stops the window from updating
+	 * @author SomeKid */
+	public synchronized void stop() {
+		Console.ln("WarpedWindow -> stop()");
+		if(executor != null) executor.close();		
+		else Console.err("WarpedWindow -> stop() -> executor is already null");
+		closeFrame();
+	}
+	
+	//--------
+	//---------------- Global Graphic Options --------
+	//-------- Note : set graphics per viewport for greater level of graphics control
+	/**Better render quality but slower.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintRenderingQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
+	/**Reduced render quality but faster.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintRenderingSpeed()   {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingSpeed();}
+	/**Better colour quality but slower.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored. 
+	 * @author SomeKid*/
+	public void hintColorQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorQuality();}
+	/**Reduced colour quality but faster.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintColorSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorSpeed();}
+	/**Turn on antialiasing for images.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/            
+	public void hintAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
+	/**Turn off antialiasing for images.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/      
+	public void hintAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOff();}
+	/**Turn on antialiasing for text.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/      
+	public void hintTextAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
+	/**Turn off antialiasing for text.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/      
+	public void hintTextAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
+	            
+	/**Scale images using NearestNeighbour algorithm - fast but low quality.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/      
+	public void hintInterpolationNearestNeighbour() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationNearestNeighbour();}
+	/**Scale images using Bilinear algorithm - better quality than NearestNeighbour but slower.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/      
+	public void hintInterpolationBilinear() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBilinear();}
+	/**Scale images using Bicubic algorithm - slow but accurate scaling.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/      
+	public void hintInterpolationBicubic() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBicubic();}
+	            
+	/**Best quality alpha blending, slowest
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintAlphaInterpolationQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationQuality();}
+	/**Fast, reduced fidelity 
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintAlphaInterpolationSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationSpeed();}
+	            
+	/**Not sure what this does, lol.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintStrokeNormalise() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintStrokeNormalise();}
+	/**Not sure what this does, lol.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintStrokePure() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintStrokePure();}
+	            
+	/**Improves the quality of edges of rotated images, increases render time.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintDitheringOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOn();}
+	/**Skip dithering, increase render time.
+	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
+	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
+	 * @author SomeKid*/
+	public void hintDitheringOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOff();}
+	
+	
+	//--------
+	//--------
+	//--------
+	
+	
+	/**This method is not called it is scheduled for execution when the JFrame is initialized.
+	 * @author SomeKid*/
+	private static final void update() {
+		long cycleStartTime = System.nanoTime();
+		renderViewports();
+		dispatchMouseEvent();
+		updateDuration = System.nanoTime() - cycleStartTime;
+	}
+
+	/**Gets the next image in the buffer and fills it with black, then draws the viewports onto the image, finally the composite of viewports is drawn into this canvas
+	 * @author SomeKid*/
+	private static void renderViewports() {
+		bufferGraphics = getBufferGraphics();			
+		bufferGraphics.setColor(Color.BLACK);
+		bufferGraphics.fillRect(0, 0, windowResolution.x(), windowResolution.y());	
+
+		setRenderHints(bufferGraphics);
+	
+		for(int i = 0; i < viewPorts.length; i++) {
+			WarpedViewport port = viewPorts[i];
+			if(port.isVisible()) {
+				at.setTransform(windowScale.x(), 0.0, 0.0, windowScale.y(), port.getX() * windowScale.x(), port.getY() * windowScale.y());
+				bufferGraphics.drawRenderedImage(port.raster(), at);
+			}
+		}
+		bufferGraphics.dispose();
+		
+		bsGraphics = bs.getDrawGraphics();
+		bsGraphics.drawImage(rasterBuffer[rasterIndex], 0, 0, windowResolution.x(), windowResolution.y(), null);
+		bsGraphics.dispose();
+		bs.show();
+	}
+	
+	/**This method is not called it is scheduled when the WarpedWindow is constructed. Draws the load screen into the canvas while WarpedFramework2D is initialized.
+	 * @author SomeKid*/
+	private static void renderLoadscreen() {
+		bufferGraphics = getBufferGraphics();
+		if(WarpedFramework2D.getLoadProgress() > loadProgress) loadProgress += 0.004;
+		
+		if(loadProgress >= 1.0) {
+			updateLoadGraphics.cancel();
+			loadTimer.cancel();
+			updateLoadGraphics = null;
+			loadTimer = null;
+			startExecutor();
+		}
+		
+		bufferGraphics.drawImage(FrameworkSprites.loadBackground, 0, 0, width, height, null);
+		bufferGraphics.setColor(Color.GRAY);
+		bufferGraphics.fillRect(loadBarPosition.x(), loadBarPosition.y(), loadBarSize.x(), loadBarSize.y());
+		bufferGraphics.setColor(Color.GREEN);
+		bufferGraphics.fillRect(loadBarPosition.x() + loadBarBorderThickness, loadBarPosition.y() + loadBarBorderThickness, (int)((loadBarSize.x() - (loadBarBorderThickness * 2)) * loadProgress), loadBarSize.y() - (loadBarBorderThickness * 2));
+		bufferGraphics.setColor(Color.BLACK);
+		bufferGraphics.setFont(font);
+		bufferGraphics.drawString(UtilsString.getFunnyString(), loadBarPosition.x() * 2,  loadBarPosition.y() + 20 + loadBarBorderThickness * 2);
+		bufferGraphics.dispose();
+		
+		bsGraphics = bs.getDrawGraphics();
+		bsGraphics.drawImage(rasterBuffer[rasterIndex], 0, 0, width, height, null);
+		bsGraphics.dispose();
+		bs.show();
+	}
+	
+	/** Get the graphics for the next image in the buffer.
+	 * @author SomeKid*/
+	private static Graphics2D getBufferGraphics() {
+		rasterIndex++;
+		if(rasterIndex >= BUFFER_SIZE) rasterIndex = 0;
+		return rasterBuffer[rasterIndex].createGraphics();
+	}
+	
+	/** Sets the rendering hints for a graphics context using the hint parameters set in the WarpedWindow.
+	 * @author SomeKid*/
+	private static void setRenderHints(Graphics2D g) {
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,	   		renderHints[RenderHints.RENDERING.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 		renderHints[RenderHints.ANTIALIASING.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 	renderHints[RenderHints.COLOR.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 		renderHints[RenderHints.INTERPOLATION.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, 			renderHints[RenderHints.DITHERING.ordinal()]);
+		bufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]);
+	}
+		
+	/** Stops the executor that updates WarpedWindow and all of its viewports.
+	 * @author SomeKid*/
+	private static void stopExecutor() {if(executor!= null) executor.close();}
+	
+	/** Starts the executor and schedules update tasks for the WarpedWindow and all of its viewports.
+	 * @author SomeKid*/
+	private static void startExecutor() {
+		if(loadTimer != null) {
+			Console.err("WarpedWindow -> startExecutor() -> the load screen is still being rendered, ");
+			return;
+		}
+		executor = Executors.newScheduledThreadPool(viewPorts.length + 2);
+		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
+		for(int i = 0; i < viewPorts.length; i++) {			
+			executor.scheduleAtFixedRate(viewPorts[i]::update, 0, 16666666, TimeUnit.NANOSECONDS);
+		}		
+	}
+	
+	/** Close the JFrame
+	 * @author SomeKid*/
+	private static void closeFrame() {		
+		frame.removeWindowListener(stopListener);
+		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
+	}
+	
+	/**Creates a new JFrame and closes the old frame if one exists.
+	 * @author SomeKid*/
 	private final void initializeFrame(boolean fullscreen) {
 		stopExecutor();
 		WarpedWindow.isFullScreen = fullscreen;
@@ -237,223 +601,35 @@ public class WarpedWindow extends Canvas {
 		 
 		startExecutor();
 	}
-	
-	public final void setVisible(boolean isVisible) {frame.setVisible(isVisible);}
-	
-	private static final void update() {
-		long cycleStartTime = System.nanoTime();
-		renderViewports();
-		dispatchMouseEvent();
-		updateDuration = System.nanoTime() - cycleStartTime;
-	}
-	
-	//--------
-	//---------------- Access --------
-	//--------
-	public void fullScreen() {
-		if(isFullScreen) return;
-		Console.ln("WarpedWindow -> fullscreen()");
-		initializeFrame(true);
-		setVisible(true);
 
-	}
-	public void setFullscreen(boolean isFullScreen) {
-		if(WarpedWindow.isFullScreen == isFullScreen) {
-			Console.err("WarpedWindow -> setFullscreen() -> window fullscreen is already : " + isFullScreen);
-			return;
-		}
-		WarpedWindow.isFullScreen = isFullScreen;
-		if(isFullScreen) fullScreen();
-		else windowed();
-	}
-	
-	public void windowed() {
-		if(!isFullScreen) return;
-		Console.ln("WarpedWindow -> windowed()");
-		initializeFrame(false);
-		setVisible(true);
-	}
-	
-	public void toggleFullscreen() {
-		Console.ln("WarpedWindow -> toggleFullscreen()");
-		if(isFullScreen) windowed();
-		else fullScreen();
-	}
-	
-	public static long getUpdateDuration() {return updateDuration;}
-	public static WarpedViewport getViewPort(int index) {
-		if(index < 0 || index >= viewPorts.length) {
-			Console.err("WarpedWindow -> getViewport() -> index is out of bounds : (index, length)" + index + ", " + viewPorts.length);
-			return viewPorts[0];
-		}
-		return viewPorts[index];
-	}
-	public static WarpedViewport[] getViewPorts(){return viewPorts;}
-	public static int getViewPortCount() { return viewPorts.length;}
-	public static JFrame getFrame() {return frame;}
-	public static int getBufferSize() {return BUFFER_SIZE;}
-	public static Vec2d getWindowScale() {return windowScale;}
-	
-	//--------
-	//---------------- Global Graphic Options --------
-	//-------- Note : set graphics per viewport for greater level of graphics control
-	public void hintRenderingQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
-	public void hintRenderingSpeed()   {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingSpeed();}
-                
-	public void hintColorQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorQuality();}
-	public void hintColorSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorSpeed();}
-	            
-	public void hintAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
-	public void hintAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOff();}
-	            
-	public void hintTextAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
-	public void hintTextAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
-	            
-	public void hintInterpolationNearestNeighbour() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationNearestNeighbour();}
-	public void hintInterpolationBilinear() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBilinear();}
-	public void hintInterpolationBicubic() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBicubic();}
-	            
-	public void hintAlphaInterpolationQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationQuality();}
-	public void hintAlphaInterpolationSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationSpeed();}
-	            
-	public void hintStrokeNormalise() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintStrokeNormalise();}
-	public void hintStrokePure() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintStrokePure();}
-	            
-	public void hintDitheringOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOn();}
-	public void hintDitheringOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOff();}
-	
-	
-	public static Graphics2D getBufferGraphics() {
-		rasterIndex++;
-		if(rasterIndex >= BUFFER_SIZE) rasterIndex = 0;
-		return rasterBuffer[rasterIndex].createGraphics();
-	}
-
-	//--------
-	//---------------- Graphics Render --------
-	//--------
-	private static AffineTransform at = new AffineTransform();
-	public static void renderViewports() {
-		bufferGraphics = getBufferGraphics();			
-		bufferGraphics.setColor(Color.BLACK);
-		bufferGraphics.fillRect(0, 0, windowResolution.x, windowResolution.y);	
-
-		setRenderHints(bufferGraphics);
-	
-		for(int i = 0; i < viewPorts.length; i++) {
-			WarpedViewport port = viewPorts[i];
-			if(port.isVisible()) {
-				at.setTransform(windowScale.x, 0.0, 0.0, windowScale.y, port.getPosition().x * windowScale.x, port.getPosition().y * windowScale.y);
-				bufferGraphics.drawRenderedImage(port.raster(), at);
-			}
-		}
-		bufferGraphics.dispose();
-		
-		bsGraphics = bs.getDrawGraphics();
-		bsGraphics.drawImage(rasterBuffer[rasterIndex], 0, 0, windowResolution.x, windowResolution.y, null);
-		bsGraphics.dispose();
-		bs.show();
-	}
-
-	private static void setRenderHints(Graphics2D g) {
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,	   		renderHints[RenderHints.RENDERING.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 		renderHints[RenderHints.ANTIALIASING.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 	renderHints[RenderHints.COLOR.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 		renderHints[RenderHints.INTERPOLATION.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, 			renderHints[RenderHints.DITHERING.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]);
-	}
-	
-
-	private static void renderLoadscreen() {
-		bufferGraphics = getBufferGraphics();
-		if(WarpedFramework2D.getLoadProgress() > loadProgress) loadProgress += 0.004;
-		
-		if(loadProgress >= 1.0) {
-			updateLoadGraphics.cancel();
-			loadTimer.cancel();
-			updateLoadGraphics = null;
-			loadTimer = null;
-			startExecutor();
-		}
-		
-		bufferGraphics.drawImage(FrameworkSprites.loadBackground, 0, 0, width, height, null);
-		bufferGraphics.setColor(Color.GRAY);
-		bufferGraphics.fillRect(loadBarPosition.x, loadBarPosition.y, loadBarSize.x, loadBarSize.y);
-		bufferGraphics.setColor(Color.GREEN);
-		bufferGraphics.fillRect(loadBarPosition.x + loadBarBorderThickness, loadBarPosition.y + loadBarBorderThickness, (int)((loadBarSize.x - (loadBarBorderThickness * 2)) * loadProgress), loadBarSize.y - (loadBarBorderThickness * 2));
-		bufferGraphics.setColor(Color.BLACK);
-		bufferGraphics.setFont(font);
-		bufferGraphics.drawString(UtilsString.getFunnyString(), loadBarPosition.x * 2,  loadBarPosition.y + 20 + loadBarBorderThickness * 2);
-		bufferGraphics.dispose();
-		
-		bsGraphics = bs.getDrawGraphics();
-		bsGraphics.drawImage(rasterBuffer[rasterIndex], 0, 0, width, height, null);
-		bsGraphics.dispose();
-		bs.show();
-		
-	}
-	
-	//--------
-	//---------------- View Ports --------
-	//--------
-	public static void setViewPorts(WarpedViewport... ports) { 	 	
-		Console.ln("WarpedWindow -> setViewPorts() -> seting " + ports.length + " viewports");
-		viewPorts = new WarpedViewport[ports.length];
-		updateLoadGraphics.cancel();
-		loadTimer.cancel();
-		updateLoadGraphics = null;
-		loadTimer = null;
-		for(int i = 0; i < ports.length; i++) {
-			viewPorts[i] = ports[i];
-			Console.ln("WarpedWindow -> added viewport : " + ports[i].getName() + " at index " + i);
-		}
-		startExecutor();
-	}
-	
-	private static void stopExecutor() {
-		if(executor!= null) executor.close();
-	}
-	private static void startExecutor() {
-		
-		if(loadTimer != null) return;
-		executor = Executors.newScheduledThreadPool(viewPorts.length + 2);
-		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
-		for(int i = 0; i < viewPorts.length; i++) {			
-			executor.scheduleAtFixedRate(viewPorts[i]::update, 0, 16666666, TimeUnit.NANOSECONDS);
-		}
-		
-		
-	}
-	
-	public synchronized void stop() {
-		Console.ln("WarpedWindow -> stop()");
-		if(executor != null) executor.close();		
-		else Console.err("WarpedWindow -> stop() -> executor is already null");
-		closeFrame();
-	}
-	
-	private static void closeFrame() {		
-		frame.removeWindowListener(stopListener);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		frame.dispatchEvent(new WindowEvent(frame, WindowEvent.WINDOW_CLOSING));
-	}
-	
 	
 	//--------
 	//---------------- Mouse --------
 	//--------
+	/**DO NOT CALL - This function is called automatically by WarpedMouse when a mouse event occurs.
+	 * @implNote Checks if the mouse event occurred in the bounds of any of the viewports and forwards the event to any relevant port
+	 * @author SomeKid*/
 	public static void MouseEvent(WarpedMouseEvent mouseEvent) {
-//		mouseEvent.applywindowScale(windowScale);
+		//Console.ln("WarpedWindow -> mouseEvent() -> " + mouseEvent.getPointRelativeToCanvas());
 		if(WarpedFramework2D.isLoading()) return;
 		for(int i = viewPorts.length - 1; i >= 0; i--) {
 			WarpedViewport port = viewPorts[i];
-			if(port.isInteractive() && port.isVisible() && port.isHit(mouseEvent.getPointTrace())) {
+			if(port.isInteractive() && port.isVisible() && isHit(port, mouseEvent.getPointTrace())) {
 				port.MouseEvent(WarpedMouseEvent.generateClone(mouseEvent));
 			}
 		} 
 	}
 	
+	/** Checks if a point occurred within the bounds of a viewport.
+	 * @author SomeKid*/
+	private static final boolean isHit(WarpedViewport port, Point trace) { // check if click is contained within the bounds of the view port
+		if(trace.x > port.getX() && trace.x < (port.getX() + port.getWidth())
+		&& trace.y > port.getY() && trace.y < (port.getY() + port.getHeight())) return true;
+		else return false;
+	}
+	
+	/** Dispatches mouse events for each viewport if any exist. 
+	 * @author SomeKid*/
 	private static void dispatchMouseEvent() {
 		if(WarpedFramework2D.isLoading()) return;
 		for(int i = viewPorts.length - 1; i >= 0; i--) {

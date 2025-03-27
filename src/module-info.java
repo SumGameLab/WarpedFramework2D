@@ -14,20 +14,15 @@ module WarpedFramework2D {
 	requires transitive javafx.graphics;	
 	
 	exports warped;
+	exports warped.application.actionWrappers;
 	exports warped.application.assemblys;
 	exports warped.application.depthFields;
 	exports warped.application.entities;
 	exports warped.application.entities.item;
 	exports warped.application.entities.projectile;
 	exports warped.application.gui;
-	exports warped.application.gui.textBox;
-	exports warped.application.gui.lists;
 	exports warped.application.object;
-	exports warped.application.object.interfaces;
 	exports warped.application.player;
-	exports warped.application.prop;
-	exports warped.application.prop.animation;
-	exports warped.application.prop.particles;
 	exports warped.application.quest;
 	exports warped.application.state;
 	exports warped.application.state.groups;
@@ -35,6 +30,7 @@ module WarpedFramework2D {
 	exports warped.application.state.managers.gameObjectManagers;
 	exports warped.application.tile;
 	exports warped.audio;
+	exports warped.functionalInterfaces;
 	exports warped.graphics;
 	exports warped.graphics.animation;
 	exports warped.graphics.camera;
@@ -42,7 +38,6 @@ module WarpedFramework2D {
 	exports warped.graphics.sprite.spriteSheets;	
 	exports warped.graphics.window;
 	exports warped.user;
-	exports warped.user.actions;
 	exports warped.user.keyboard;
 	exports warped.user.mouse;
 	exports warped.utilities;

@@ -4,28 +4,78 @@ package warped.application.gui;
 
 
 import warped.application.object.WarpedObject;
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorD;
+import warped.utilities.math.vectors.VectorI;
 
 public abstract class WarpedGUI extends WarpedObject {
 
-	/**to position objects within a group relative to some point; typically the title bar 
-	 * If used, intended to be set when the element is initialized
-	 * Used in combination with 'offsetPosition()' function*/
-	protected Vec2d positionOffset = new Vec2d();
-	protected boolean isLocked = false;
+	protected VectorD offset = new VectorD(0, 0);
 
+	protected boolean isLocked 			= false;
+	protected boolean isDraggable 		= false;
+		
+	/**Set the offset for this GUI.
+	 * Use in conjunction with offset() to position elements within an assembly.
+	 * @param positionOffset - the offset to apply when calling offset()
+	 * @author 5som3*/
+	public void setOffset(VectorD positionOffset) {setOffset(positionOffset.x(), positionOffset.y());}
 	
-	public void setPositionOffset(Vec2d positionOffset) {this.positionOffset = positionOffset;}
-	public void setPositionOffset(Vec2i positionOffset) {this.positionOffset.set(positionOffset);}
-	public void setPositionOffset(double x, double y) {positionOffset.x = x; positionOffset.y = y;}
-	public void offsetPosition() {position.x += positionOffset.x; position.y += positionOffset.y;}
+	/**Set the offset for this GUI.
+	 * Use in conjunction with offset() to position elements within an assembly.
+	 * @param positionOffset - the offset to apply when calling offset()
+	 * @author 5som3*/
+	public void setOffset(VectorI positionOffset) {setOffset(positionOffset.x(), positionOffset.y());}
 	
+	/**Set the offset for this GUI.
+	 * Use in conjunction with offset() to position elements within an assembly.
+	 * @param x - the x offset in pixels.
+	 * @param y - the y offset in pixels.
+	 * @author 5som3*/
+	public void setOffset(double x, double y) {offset.set(x, y);}
+	
+	/**Offset this objects position from the specified gui's position.
+	 * @param gui - the GUI to use as the origin point for the offset.
+	 * @apiNote The offset will be the amount specified by the setOffset() function. 
+	 * @author 5som3*/
+	public void offset(WarpedGUI gui) {setPosition(gui.x() + offset.x(), gui.y() + offset.y());}
+	
+	/**Offset this objects position from the specified vector position.
+	 * @param origin - the origin point that the offset will be measured from.
+	 * @apiNote The offset will be the amount specified by the setOffset() function. 
+	 * @author 5som3*/
+	public void offset(VectorI origin) {setPosition(origin.x() + offset.x(), origin.y() + offset.y());}
+	
+	/**Offset this objects position from the specified vector position.
+	 * @param origin - the origin point that the offset will be measured from.
+	 * @apiNote The offset will be the amount specified by the setOffset() function. 
+	 * @author 5som3*/
+	public void offset(VectorD origin) {setPosition(origin.x() + offset.x(), origin.y() + offset.y());}
 
-	protected void updateMid() {return;};
+	/**Get the x coordinate of this GUI's offset.
+	 * @return double - the offset x coordinate in pixels 
+	 * @author 5som3*/
+	public double getOffsetX() {return offset.x();}
 	
-	protected void updateSlow() {return;}; 
+	/**Get the y coordinate of this GUI's offset.
+	 * @return double - the offset x coordinate in pixels 
+	 * @author 5som3*/
+	public double getOffsetY() {return offset.y();}
+	
+	@Override
+	public void updateObject() {return;}
+	
+	@Override
+	public void updateMid() {return;};
+	
+	@Override
+	public void updateSlow() {return;}; 
 
-	protected void updatePassive() {return;};
+	@Override
+	public void updatePassive() {return;};
+	
+	public final void draggable()   {isDraggable = true;}
+	public final void undraggable() {isDraggable = false;}
+	
 	
 }
+

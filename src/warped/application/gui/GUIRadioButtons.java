@@ -2,220 +2,302 @@
 
 package warped.application.gui;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 
-import warped.WarpedProperties;
+import warped.audio.FrameworkAudio;
+import warped.functionalInterfaces.WarpedAction;
+import warped.graphics.sprite.ToggleSprite;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
-import warped.user.actions.WarpedAction;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.AxisType;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.enums.generalised.Colour;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsMath;
 
 public class GUIRadioButtons extends WarpedGUI {
-
-	public enum StyleType {
-		CLASSIC,
-		CHECK_BOX,
-	}
-	private StyleType style = StyleType.CLASSIC;
+	
+	/*GUIRadioButtons provides these functions
+	 * 		- a visual display of multiple options where only one can be true at a time.
+	 * 		- programmable action for each of the options added.
+	 * 		- automatically resizes the sprite to fit the set number of options.
+	 * 		- optional text displayed next to buttons.
+	 * 		- Extremely useful when adding options to menus where only one can be true i.e. character select, resolution select, brush select 
+	 */
 	private AxisType axis = AxisType.VERTICAL;
 
-	private ArrayList<Boolean> buttons = new ArrayList<>();
 	private ArrayList<String> buttonNames = new ArrayList<>();
 	private ArrayList<WarpedAction> buttonActions = new ArrayList<>();
+	private ToggleSprite toggleSprite;
 	
-	private Vec2i buttonSize = new Vec2i(30, 30);
-	private Vec2i radioSize = new Vec2i(200, 200);
-	private Vec2i textOffset = new Vec2i(5);
+	private VectorI textOffset = new VectorI(5); //relative to each button
 	
-	private int buttonPadding = 5; 
+	private int horizontalPadding = 10; // padding between buttons horizontally
+	private int verticalPadding = 10; //padding between buttons vertically
 	
-	private static BufferedImage selectedImage;
-	private static BufferedImage unselectedImage;
-	//--------
-	//---------------- Constructor --------
-	//--------
-	public GUIRadioButtons(List<WarpedAction> buttonActions) {		
-		Console.ln("GUIRadioButtons -> Constructor() -> construction with " + buttonActions.size() + " buttons");
-		for(int i = 0 ; i < buttonActions.size(); i++) {
-			if(i == 0) buttons.add(true);
-			else buttons.add(false);
-			this.buttonNames.add("");
-			this.buttonActions.add(buttonActions.get(i));
+	private int borderThickness = 2;
+	private int trueIndex = 0;
+	private int hoveredIndex = -1;
+	
+	private Color backgroundColor = Colour.GREY_DARK.getColor();
+	private Color borderColor = Color.BLACK;
+	
+	private VectorI buttonSize = new VectorI();
+	
+	private Color textColor = Color.WHITE;
+	private Font textFont = UtilsFont.getPreferred();
+
+	
+	public GUIRadioButtons(WarpedAction... buttonActions) {		
+		if(buttonActions.length == 0) {
+			Console.err("GUIRadioButtons -> GUIRadioButtons() -> buttonActions must contain at least one action");
+			return;
 		}
-		
-		setStyleType(StyleType.CLASSIC);
+		for(int i = 0 ; i < buttonActions.length; i++) {
+			this.buttonNames.add("");
+			this.buttonActions.add(buttonActions[i]);
+			toggleSprite = new ToggleSprite(FrameworkSprites.getStandardIcon(StandardIcons.RADIO_CHECKED), FrameworkSprites.getStandardIcon(StandardIcons.RADIO_UNCHECKED));
+		}
+		buttonSize.set(30, 30);
 		updateRadioSize();
 		updateGraphics();
 	}
 	
 	public GUIRadioButtons(List<String> buttonNames, List<WarpedAction> buttonActions) {
-		if(buttonNames.size() != buttonActions.size()) {
-			Console.err("GUIRadioButtons -> constructor() -> number of names doesn't match number of actions");
-			return;
-		}
+		if(buttonNames.size() != buttonActions.size()) Console.err("GUIRadioButtons -> GUIRadioButtons() -> size of buttonNames and buttonActions do not match");
 		
-		for(int i = 0 ; i < buttonNames.size(); i++) {
-			if(i == 0) buttons.add(true);
-			else buttons.add(false);
+		for(int i = 0 ; i < buttonActions.size(); i++) {
 			this.buttonNames.add(buttonNames.get(i));
 			this.buttonActions.add(buttonActions.get(i));
+			toggleSprite = new ToggleSprite(FrameworkSprites.getStandardIcon(StandardIcons.RADIO_CHECKED), FrameworkSprites.getStandardIcon(StandardIcons.RADIO_UNCHECKED));
 		}
-		setStyleType(StyleType.CLASSIC);
+		buttonSize.set(30, 30);
 		updateRadioSize();
 		updateGraphics();
 	}
 	
-	public GUIRadioButtons(StyleType style, List<String> buttonNames, List<WarpedAction> buttonActions) {
-		if(buttonNames.size() != buttonActions.size()) {
-			Console.err("GUIRadioButtons -> constructor() -> number of names doesn't match number of actions");
-			return;
-		}
+	public GUIRadioButtons(List<String> buttonNames, List<WarpedAction> buttonActions, BufferedImage radioOn, BufferedImage radioOff) {
+		if(buttonNames.size() != buttonActions.size()) Console.err("GUIRadioButtons -> GUIRadioButtons() -> size of buttonNames and buttonActions do not match");
+		if(radioOn.getWidth() != radioOff.getWidth() || radioOn.getHeight() != radioOff.getHeight()) Console.err("GUIRadioButtons -> GUIRadioButtons() -> size of toggle images do not match");
 		
-		this.style = style;
-		for(int i = 0 ; i < buttonNames.size(); i++) {
-			if(i == 0) buttons.add(true);
-			else buttons.add(false);
+		for(int i = 0 ; i < buttonActions.size(); i++) {
 			this.buttonNames.add(buttonNames.get(i));
 			this.buttonActions.add(buttonActions.get(i));
+			toggleSprite = new ToggleSprite(FrameworkSprites.getStandardIcon(StandardIcons.RADIO_CHECKED), FrameworkSprites.getStandardIcon(StandardIcons.RADIO_UNCHECKED));
 		}
-		
-		setStyleType(style);
+		buttonSize.set(radioOn.getWidth(), radioOn.getHeight());
 		updateRadioSize();
 		updateGraphics();
 	}
 	
+
+	/**Set the axis that the buttons will spread across.
+	 * @param axis - the axis that will be applied.
+	 * @author SomeKid*/
+	public void setAxis(AxisType axis) {
+		this.axis = axis;
+		updateRadioSize();
+		updateGraphics();
+	}
 	
-	//--------
-	//---------------- Access --------
-	//--------
-	public void setRadioSize(int width, int height) {radioSize.set(width, height);}
-	public void setRadioSize(Vec2i radioSize) {this.radioSize.set(radioSize);}
-	public void setAxis(AxisType axis) {this.axis = axis;}
-	public void setButtonPadding(int buttonPadding) {this.buttonPadding = buttonPadding;}
+	/**The padding applied around the radio buttons
+	 * @param verticalPadding - will be applied beneath each button, if setAxis() is vertical this will be the button spacing
+	 * @param horizontalPadding - will be applied to the right of each button, if setAxis() is horizontal this will be the button spacing
+	 *@author SomeKid*/
+	public void setButtonPadding(int verticalPadding, int horizontalPadding) {
+		this.verticalPadding = verticalPadding;
+		this.horizontalPadding = horizontalPadding;
+		updateRadioSize();
+		updateGraphics();
+	}
+	
+	/**Set the state of the radio buttons.
+	 * @param radioStates - a list of the states that the radio buttons will have.
+	 * @author 5som3*/
+	public void setRadioState(boolean... radioStates){
+		
+	}
+	
+	/**Set the currently selected radio button.
+	 * @param index - the index of the button to set.
+	 * @apiNote This will not cause the button action to trigger, you should use this function if you want to set the default value for the radio buttons
+	 * @author SomeKid*/
 	public void setSelectButton(int index) {
-		if(buttons.size() == 0) {
+		if(buttonActions.size() == 0) {
 			Console.err("GUIRadioButtons -> setSelectButton() -> radio buttons have not been initialised");
 			return;
 		}
-		if(index < 0 || index >= buttons.size()) {
+		if(index < 0 || index >= buttonActions.size()) {
 			Console.err("GUIRadioButtons -> setSelectButton() -> index is out of bounds : " + index);
 			return;
 		}
-		for(int i = 0; i < buttons.size(); i++) buttons.set(i, false);
-		buttons.set(index, true);
+		this.trueIndex = index;
+		updateGraphics();
 	}
 	
-	public int getSelectedButtonIndex() {
-		for(int i = 0; i < buttons.size(); i++) if(buttons.get(i) == true) return i;
-		Console.err("GUIRadioButton -> getSelectedButtonIndex() -> No button is selected");
-		return -1;
+	/**Get the index of the currently selected button.
+	 * @return int - the index that is true.
+	 * @author SomeKid*/
+	public int getSelectedButtonIndex() {return trueIndex;}
+	
+	/**Set the color of the border
+	 * @param color - the color to use, for no border color set borderThickness to 0
+	 * @implNote Do not use colors with alpha less than 255.
+	 * @implNote The background and border are used to clear graphic data and this could be broken with semi transparent colors
+	 * @author SomeKid*/
+	public void setBorderColor(Color color) {
+		this.borderColor = color;
+		updateGraphics();
 	}
 	
-	public void setStyleType(StyleType style) {
-		this.style = style;
-		switch(style) {
-		case CHECK_BOX:
-			selectedImage   = FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_CHECKED);
-			unselectedImage = FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_UNCHECKED);
-			break;
-		case CLASSIC:
-			selectedImage   = FrameworkSprites.getStandardIcon(StandardIcons.RADIO_CHECKED);
-			unselectedImage = FrameworkSprites.getStandardIcon(StandardIcons.RADIO_UNCHECKED);
-			break;
-		default:
-			Console.err("GUIRadioButtons -> setStyleType() -> invalid case : " + style);
-			break;
+	/**Set the color of the background
+	 * @param color - the color to use
+	 * @implNote Do not use colors with alpha less than 255.
+	 * @implNote The background and border are used to clear graphic data and this could be broken with semi transparent colors
+	 * @author SomeKid*/
+	public void setBackgroudnColor(Color color) {
+		this.backgroundColor = color;
+		updateGraphics();
+	}
+	
+	/**Set the offset of the text displayed next to the radio buttons.
+	 * @param x, y - the coordinates measured in pixels from the top left corner for each of the corresponding buttons
+	 * @author SomeKid*/
+	public void setTextOffset(int x, int y) {
+		textOffset.set(x, y);
+		updateGraphics();
+	}
+	
+	/**Set the size of the text displayed next to the radio buttons. 
+	 * @param size - the size of the text, must be at least 1
+	 * @author SomeKid*/
+	public void setTextSize(int size) {
+		if(size < 1) { 
+			Console.err("GUIRadioButtons -> setTextSize() -> invalid size : " + size);
+			size = 12;
 		}
+		textFont = new Font(textFont.getFontName(), textFont.getStyle(), size);
+		updateGraphics();
 	}
-
-	//--------
-	//---------------- Update --------
-	//--------
+	
+	/**Set the style of the text displayed next to the radio buttons.
+	 * @param style - the style to use
+	 * 				- 0 plain
+	 * 				- 1 bold 
+	 * 				- 2 italic
+	 * @author SomeKid*/
+	public void setTextStyle(int style) {
+		if(style < 0 || style > 2) {
+			Console.err("GUIRadioButtons -> setTextStyle() -> invalid style : " + style);
+			style = 0;
+		}
+		textFont = new Font(textFont.getFontName(), style, textFont.getSize());
+		updateGraphics();
+	}
+	
+	/**Set the font of the text displayed next to the radio buttons.
+	 * @param font - the font to use
+	 * @author SomeKid*/
+	public void setTextFont(Font font) {
+		this.textFont = font;
+		updateGraphics();
+	}
+	
+	/**Set the color of the text displayed next to the radio buttons.
+	 * @param color - the color to use
+	 * @author SomeKid*/
+	public void setTextColor(Color color) {
+		this.textColor = color;
+		updateGraphics();
+	}
+	
 	private void updateRadioSize() {
-		if(axis == AxisType.HORIZONTAL) size.x = (buttonSize.x + buttonPadding) * buttons.size();  
-		else size.y = (buttonSize.y + buttonPadding) * buttons.size();		
+		if(axis == AxisType.HORIZONTAL) setSize((buttonSize.x() + horizontalPadding) * buttonActions.size(), buttonSize.y() + verticalPadding + textFont.getSize());
+		else setSize(buttonSize.x() + horizontalPadding, (buttonSize.y() + verticalPadding) * buttonActions.size() + textFont.getSize());
 	}
-	
-	@Override
-	protected void updateRaster() {return;}
 
-	@Override
-	protected void updateObject() {return;}
 
-	@Override
-	protected void updatePosition() {return;}
-
-	
-	//--------
-	//---------------- Graphics --------
-	//--------
-	public void updateGraphics() {
-		BufferedImage img = new BufferedImage(radioSize.x, radioSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
-		Graphics g = img.getGraphics();
+	private void updateGraphics() {
+		Graphics g = getGraphics();
 		
-		for(int i = 0; i < buttons.size(); i++) {
-			
+		if(borderThickness > 0) {
+			g.setColor(borderColor);
+			g.fillRect(0, 0, getWidth(), getHeight());
+		}
+		
+		g.setColor(backgroundColor);
+		g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
+		
+		g.setColor(textColor);
+		for(int i = 0; i < buttonActions.size(); i++) {
 			int buttonX = 0;
-			int buttonY = 0;
+			int buttonY = textFont.getSize();
 			
-			if(axis == AxisType.HORIZONTAL) buttonX = i * (buttonSize.x + buttonPadding);    				
-			else buttonY = i * (buttonSize.y + buttonPadding);
+			if(axis == AxisType.HORIZONTAL) buttonX = i * (buttonSize.x() + horizontalPadding);    				
+			else buttonY =  i * (buttonSize.y() + verticalPadding) + textFont.getSize();
 			
-			if(buttons.get(i)) g.drawImage(selectedImage, buttonX, buttonY, buttonSize.x, buttonSize.y, null);
-			else g.drawImage(unselectedImage, buttonX, buttonY, buttonSize.x, buttonSize.y, null); 
-			
-			g.setColor(UtilsFont.getPreferredColor());
-			g.setFont(UtilsFont.getPreferred());
-			g.drawString(buttonNames.get(i), buttonX + buttonSize.x + textOffset.x, buttonY + UtilsFont.getPreferredSize() + textOffset.y);	
+			if(i == trueIndex) {
+				if(i == hoveredIndex) g.drawImage(toggleSprite.getOnHoveredRaster(), buttonX, buttonY, buttonSize.x(), buttonSize.y(), null);
+				else g.drawImage(toggleSprite.getOnRaster(), buttonX, buttonY, buttonSize.x(), buttonSize.y(), null);
+			} else {
+				if(i == hoveredIndex) g.drawImage(toggleSprite.getOffHoveredRaster(), buttonX, buttonY, buttonSize.x(), buttonSize.y(), null);
+				else g.drawImage(toggleSprite.getOffRaster(), buttonX, buttonY, buttonSize.x(), buttonSize.y(), null);
+			}
+						
+			g.setFont(textFont);
+			g.drawString(buttonNames.get(i), buttonX + textOffset.x(), buttonY + textOffset.y());	
 		}
 		
 		g.dispose();
-		setRaster(img);
+		pushGraphics();
 	}
 	
 	//--------
 	//---------------- Interaction --------
 	//--------
 	@Override
-	protected void mouseEntered() {return;}
-
-	@Override
-	protected void mouseExited() {return;}
-
-	@Override
-	protected void mouseMoved(WarpedMouseEvent mouseEvent) {return;}
-
-	@Override
-	protected void mouseDragged(WarpedMouseEvent mouseEvent) {return;}
-
-	@Override
-	protected void mousePressed(WarpedMouseEvent mouseEvent) {return;}
-
-	@Override
-	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
-		
+	protected void mouseMoved(WarpedMouseEvent mouseEvent) {
 		int index = -1;
 		
-		if(axis == AxisType.HORIZONTAL && mouseEvent.getPointRelativeToObject().getY() < buttonSize.y) index = UtilsMath.floor(mouseEvent.getPointRelativeToObject().getX() / (buttonSize.x + buttonPadding));
-		else index = UtilsMath.floor(mouseEvent.getPointRelativeToObject().getY() / (buttonSize.y + buttonPadding));
+		if(axis == AxisType.HORIZONTAL) index = (int) Math.floor(mouseEvent.getPointRelativeToObject().getX() / (buttonSize.x() + horizontalPadding));
+		else index = (int) Math.floor(mouseEvent.getPointRelativeToObject().getY() / (buttonSize.y() + verticalPadding));
 		
-		if(index < 0 || index >= buttons.size()) return;
-		for(int i = 0; i < buttons.size(); i++) buttons.set(i, false);
-		buttons.set(index, true);
+		if(index < 0 || index >= buttonActions.size()) return;
+		if(hoveredIndex != index) {			
+			hoveredIndex = index;
+			updateGraphics();
+			FrameworkAudio.defaultHover.play();
+		}
+	}
+	
+	@Override
+	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
+		int index = -1;
+		
+		if(axis == AxisType.HORIZONTAL) index = (int) Math.floor(mouseEvent.getPointRelativeToObject().getX() / (buttonSize.x() + horizontalPadding));
+		else index = (int) Math.floor(mouseEvent.getPointRelativeToObject().getY() / (buttonSize.y() + verticalPadding));
+		
+		if(index < 0 || index >= buttonActions.size()) return;
+		trueIndex = index;
 		buttonActions.get(index).action();
 		updateGraphics();
 		Console.ln("GUIRadioButtons -> mouseReleased() -> radio buttons set : " + index);
-		
 	}
-
+	
+	@Override
+	protected void mouseEntered() {return;}
+	@Override
+	protected void mouseExited() {FrameworkAudio.defaultUnhover.play();}
+	@Override
+	protected void mouseDragged(WarpedMouseEvent mouseEvent) {return;}
+	@Override
+	protected void mousePressed(WarpedMouseEvent mouseEvent) {return;}
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 

@@ -3,78 +3,331 @@
 package warped.graphics.sprite;
 
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import warped.utilities.math.vectors.Vec2i;
-import warped.utilities.utils.UtilsMath;
+import warped.WarpedProperties;
+import warped.functionalInterfaces.WarpedAction;
+import warped.utilities.enums.generalised.Colour;
+import warped.utilities.math.vectors.VectorI;
+import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsImage;
 
-public abstract class WarpedSprite {
+public class WarpedSprite {
 
-	private Graphics2D g2d;
-	private Graphics g;
-
-	private Vec2i size = new Vec2i();
-
-	protected BufferedImage raster;
+	/**Definitions
+	 * BackBuffer - refers to the which ever is the current inactive raster in the rasterBuffer[]
+	 * FrontBuffer - refers to the which ever is the current active raster in the rasterBuffer[]
+	 * */
 	
-	public BufferedImage raster() {return raster;}
-	public abstract void update();  		
+	protected BufferedImage[] rasterBuffer = new BufferedImage[2];
+	private int bufferIndex = 0;
+	private BufferedImage raster; //Graphic output - points to the active raster in the rasterBuffer
+	private BufferedImage buffer; //Graphic input - points to the inactive raster in the rasterBuffer -> safe to edit 
+	private VectorI size = new VectorI(1, 1);
 	
-	public void setRaster(BufferedImage raster) {
+	private WarpedAction deltaAction = () -> {return;};
+	
+	public WarpedSprite(int width, int height) {
+		if(width < 1) {
+			Console.err("WarpedSprite -> WarpedSprite() -> width is too small : " + width + ", it will be set to 1");
+			width = 1;
+		}
+		if(height < 1) {
+			Console.err("WarpedSprite -> WarpedSprite() -> height is too small : " + height + ", it will be set to 1");
+			height = 1;
+		}
+		setSize(width, height);
+	}
+	
+	/**The graphic output for this sprite
+	 * @return raster - The sprite image
+	 * 				  - This is strictly the output and should not be edited
+	 * 				  - To edit the graphics for a warpedSprite you should call getGraphics() or getGraphics2D()
+	 * 				  - An alternative to edit the graphics is use on of the various paint() functions
+	 * @author SomeKid*/
+	public BufferedImage raster() {return raster;}	
+	
+	/**Set the raster without adjusting for size.
+	 * @param raster - the new raster to point to.
+	 * @apiNote  - Will trigger the delta action once after the graphics output has changed.
+	 * @apiNote  - This method is mainly used for animating a series of frames that are all the same size.
+	 * @apiNote  - Use setRasterSized() if the rasters being used are of varying size.
+	 * @implNote - This method assumes that all images will be the same size. Graphically it will still work with different sized images but mouse events will not work correctly.
+	 * @implNote - Using paint() and pushGraphics() subsequent to setRasterPointer() will reset the raster pointer to the sprites buffer.
+	 * @author 5som3*/
+	public void setRasterFast(BufferedImage raster) {
 		this.raster = raster;
-		size.x = raster.getWidth();
-		size.y = raster.getHeight();
+		deltaAction.action();
 	}
 	
-	public Graphics getRasterGraphics() {return raster.getGraphics();}
-	public Graphics2D getRasterGraphics2D() {return raster.createGraphics();}
-	
-	public Vec2i getSize() {return size;}
-	public int getWidth() {return size.x;}
-	public int getHeight() {return size.y;}
-	
-	public void clearRaster() {
-		g2d = raster.createGraphics();
-		g2d.setComposite(UtilsMath.clearComposite);
-		g2d.fillRect(0, 0, size.x, size.y);
-		g2d.dispose();
+	/**Set the graphic output of the sprite new image. 
+	 * @param raster - the new raster to point to. The Sprite size will be adjusted to fit the size of the new raster.
+	 * @apiNote  - Will trigger the delta action once after the graphics output has changed.
+	 * @apiNote - paint() and pushGraphics() are not compatible with setRasterPointer(). 
+	 * @implNote - Will set the size to match the WarpedSprite.
+	 * @implNote - Using paint() and pushGraphics() subsequent to setRasterPointer() will reset the raster pointer to the sprites buffer.
+	 * @author SomeKid*/
+	public void setRasterSized(BufferedImage raster) {
+		size.set(raster.getWidth(), raster.getHeight());
+		this.raster = raster;
+		deltaAction.action();
 	}
 	
-	public void fillRaster() {
-		g = raster.getGraphics();
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, size.x, size.y);
+	
+	/**Any action set here will trigger (once) every time the raster changes.
+	 * @param WarpedAction - any action set here will trigger when ever this objects raster changes. 
+	 * @author 5som3*/
+	public final void setDeltaAction(WarpedAction deltaAction) {this.deltaAction = deltaAction;}
+	
+	/**Clears any action that triggers when this raster changes
+	 * @author 5som3*/
+	public final void clearDeltaAction() {deltaAction = () -> {return;};}
+	
+	
+	/**Edit the Graphics for this sprite with more advance features (slower).
+	 * @return Graphics2D - editable graphics2D context for the back buffer in the rasterBuffer.
+	 * @apiNote - remember to call dispose() on the graphics object when fished editing.
+	 * @apiNote - remember to call pushGraphics() after disposing to make the changes visible.	  
+	 * @author SomeKid*/
+	public final Graphics2D getGraphics() {
+		Graphics2D g2d = buffer.createGraphics();
+		g2d.setComposite(UtilsImage.clearComposite);
+		g2d.fillRect(0, 0, getWidth(), getHeight());
+		g2d.setComposite(UtilsImage.drawComposite);
+		return g2d;
+		
+	}
+	
+	/**This will make any changes made to the graphics visible.
+	 * @apiNote This should only be called after dispose() has been called on the graphics context.
+	 * @apiNote This will trigger the delta action once after the graphics output has changed.
+	 * @author SomeKid*/
+	public final void pushGraphics() {
+		if(bufferIndex == 0) {
+			bufferIndex = 1;
+			buffer = rasterBuffer[1];
+			raster = rasterBuffer[0];
+		} else {
+			bufferIndex = 0;
+			buffer = rasterBuffer[0];
+			raster = rasterBuffer[1];
+		}
+		deltaAction.action();
+	}
+	
+	/**The current BackBuffer in the rasterBuffer array.
+	 * @apiNote This is very case specific and shouldn't normally need to be used.
+	 * @return BufferedImage - BackBuffer.
+	 * @author SomeKid*/
+	protected final BufferedImage getBackBuffer() {return rasterBuffer[bufferIndex];}
+	
+	/**Swaps the buffers without pushing any changes.
+	 * @apiNote This is very case specific and should'nt normally need to be used.
+	 * @author SomeKid*/
+	protected final void swapBuffers() {if(bufferIndex == 0) bufferIndex = 1; else bufferIndex = 0;}
+	
+	/**The size of the BufferedImages in the rasterBuffer
+	 * @return VectorI - size
+	 * @author SomeKid*/
+	public VectorI getSize() {return size;}
+	
+	/**The width of the BufferedImages in the rasterBuffer
+	 * @return int - width
+	 * @author SomeKid*/
+	public int getWidth() {return size.x();}
+	
+	/**The height of the BuffferdImages in the rasterBuffer
+	 * @return int - height
+	 * @author SomeKid*/
+	public int getHeight() {return size.y();}
+	
+	/**Set the size of the sprite
+	 * This will clear the rasterBuffer so any graphical data will be lost and need to be painted again
+	 * If you want to change the size of a gameObject at runtime you should change the renderScale in the gameObject
+	 * @param width  - the new width for the sprite
+	 * @param height - the new height for the sprite
+	 * @author 5som3*/
+	public void setSize(int width, int height) {
+		size.set(width, height);
+		resizeRasterBuffer();		
+	}
+	
+	/**Set the size of the sprite
+	 * This will clear the rasterBuffer so any graphical data will be lost and need to be painted again
+	 * If you want to change the size of a gameObject at runtime you should change the renderScale in the gameObject
+	 * @param width  - the new width for the sprite
+	 * @param height - the new height for the sprite
+	 * */
+	public void setSize(VectorI size) {
+		this.size.set(size);
+		resizeRasterBuffer();		
+	}
+	
+	/**Generates new buffered images the size of the sprite to replace the old rasterBuffer images. Any old image data will be deleted.
+	 * @author SomeKid*/
+	protected void resizeRasterBuffer() {
+		rasterBuffer[0] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer[1] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		pushGraphics();
+	}
+	
+	/**Makes the BackBuffer completely transparent
+	 * @author SomeKid*/
+	public void clearBackBuffer() {
+		Graphics2D g2d = getGraphics();
+		g2d.setComposite(UtilsImage.clearComposite);
+		g2d.fillRect(0, 0, size.x(), size.y());
+		g2d.dispose();		
+	}
+	
+	/**Makes the BackBuffer and FrontBuffer transparent 
+	 * @author SomeKid*/
+	public void clearBuffers() {
+		clearBackBuffer();
+		pushGraphics();
+		clearBackBuffer();
+	}
+	
+	/**Paint over the sprite with the input image
+	 * @param image - the image to be drawn over the sprite
+	 * 				- the input image will be scaled to fit the current size of the sprite
+	 * @author SomeKid*/
+	public final void paint(BufferedImage image) {
+		Graphics g = getGraphics();
+		g.drawImage(image, 0, 0, (int)size.x(), (int)size.y(), null);
 		g.dispose();
+		pushGraphics();;
 	}
 	
-	public void fillRaster(Color color) {
-		g = raster.getGraphics();
+	/**Paint over the sprite with the input image
+	 * @param image - the image to be drawn over the sprite
+	 * @param scale - if true the image will be scaled to the current size else the image will determine the new size.
+	 * @author SomeKid*/
+	public final void paint(BufferedImage image, boolean scale) {
+		Graphics g = getGraphics();
+		if(scale) setSize(image.getWidth(), image.getHeight());
+		g.drawImage(image, 0, 0, (int)size.x(), (int)size.y(), null);
+		g.dispose();
+		pushGraphics();
+	}
+	
+	
+	/**Paint over the sprite with the input image
+	 * @param image - the image to be drawn over the sprite.
+	 * @param width - the width for this sprite in pixels (image will be scaled to fit).
+	 * @param height - the height for this sprite in pixels (image will be scaled to fit).
+	 * @author SomeKid*/
+	public final void paint(BufferedImage image, int width, int height) {
+		Graphics g = getGraphics();
+		g.drawImage(image, 0, 0, width, height, null);
+		g.dispose();
+		pushGraphics();
+	}
+	
+
+	/**Paint over the sprite with the input image
+	 * @param image 		- the image to be drawn over the sprite ( will be scaled to fit the specified width and height).
+	 * @param x - x offset measured in pixels
+	 * @param y - y offset measured in pixels  
+	 * @param width- the width for this sprite in pixels.
+	 * @param height - the height for this sprite in pixels.
+	 * @author SomeKid*/ 
+	public final void paint(BufferedImage image, int x, int y, int width, int height) {
+		Graphics g = getGraphics();
+		g.drawImage(image, x, y, width, height, null);
+		g.dispose();
+		pushGraphics();
+	}
+	
+	/**Paint over the sprite with the input color
+	 * @param color 		- the color to fill the sprite with
+	 * @param x, y  		- the offset for the image 
+	 * @param width, height - the input image will be scaled to fit the specified width and height 
+	 * @author SomeKid*/
+	public void paint(Color color) {
+		Graphics g = getGraphics();
 		g.setColor(color);
-		g.fillRect(0, 0, size.x, size.y);
+		g.fillRect(bufferIndex, bufferIndex, bufferIndex, bufferIndex);
 		g.dispose();
+		pushGraphics();
 	}
 	
-	public void fillRect(Color color, int x, int y, int width, int height) {
-		g = raster.getGraphics();
+	/**Paint a rectangle over the sprite with the specified parameters
+	 * @param color 		- the color to fill the sprite with
+	 * @param x, y  		- the offset for the image 
+	 * @param width, height - the input image will be scaled to fit the specified width and height 
+	 * @author SomeKid*/
+	public void paint(Color color, int x, int y, int width, int height) {
+		Graphics g = getGraphics();
 		g.setColor(color);
 		g.fillRect(x, y, width, height);
 		g.dispose();
+		pushGraphics();
 	}
 	
-	public void drawRaster(BufferedImage image, boolean scale) {
-		g = raster.getGraphics();
-		if(scale) g.drawImage(image, 0, 0, size.x, size.y, null);
-		else g.drawImage(image, 0, 0, image.getWidth(), image.getHeight(), null);
-		g.dispose();	
+	/**Paint text over the sprite
+	 * @param text 		- the text to paint over the sprite 
+	 * @author SomeKid*/
+	public void paint(String text) {
+		Graphics g = getGraphics();
+		g.drawString(text, 0, 0);
+		g.dispose();
+		pushGraphics();
 	}
 	
-	public void drawRaster(WarpedSprite sprite, boolean scale) {
-		g = raster.getGraphics();
-		if(scale) g.drawImage(sprite.raster, 0, 0, size.x, size.y, null);
-		else g.drawImage(sprite.raster, 0, 0, sprite.raster.getWidth(), sprite.raster.getHeight(), null);
-		g.dispose();	
+	/**Paint text over the sprite
+	 * @param text 		- the text to paint over the sprite 
+	 * @param x, y 		- the text offset relative to the top left corner of the sprite
+	 * @author SomeKid*/
+	public void paint(String text, int x, int y) {
+		Graphics g = getGraphics();
+		g.drawString(text, x, y);
+		g.dispose();
+		pushGraphics();
 	}
 	
+	/**Paint text over the sprite
+	 * @param text 		- the text to paint over the sprite 
+	 * @param x, y 		- the text offset relative to the top left corner of the sprite
+	 * @param colour 	- the text colour
+	 * @author SomeKid*/
+	public void paint(String text, int x, int y, Colour colour) {
+		Graphics g = getGraphics();
+		g.setColor(colour.getColor());
+		g.drawString(text, x, y);
+		g.dispose();
+		pushGraphics();
+	}
+	
+	/**Paint text over the sprite
+	 * @param text 		- the text to paint over the sprite 
+	 * @param x, y 		- the text offset relative to the top left corner of the sprite
+	 * @param Font		- the text font
+	 * @author SomeKid*/
+	public void paint(String text, int x, int y, Font font) {
+		Graphics g = getGraphics();
+		g.setFont(font);
+		g.drawString(text, x, y);
+		g.dispose();
+		pushGraphics();
+	}
+	
+	/**Paint text over the sprite
+	 * @param text 		- the text to paint over the sprite 
+	 * @param x, y 		- the text offset relative to the top left corner of the sprite
+	 * @param colour 	- the text colour
+	 * @param Font		- the text font
+	 * @author SomeKid*/
+	public void paint(String text, int x, int y, Colour colour, Font font) {
+		Graphics g = getGraphics();
+		g.setColor(colour.getColor());
+		g.setFont(font);
+		g.drawString(text, x, y);
+		g.dispose();
+		pushGraphics();
+	}
+		
 }

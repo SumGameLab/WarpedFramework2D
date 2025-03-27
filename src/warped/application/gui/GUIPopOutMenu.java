@@ -4,322 +4,451 @@ package warped.application.gui;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Arrays;
 
-import warped.WarpedProperties;
-import warped.application.object.WarpedOption;
-import warped.graphics.sprite.spriteSheets.FrameworkSprites;
-import warped.graphics.sprite.spriteSheets.FrameworkSprites.KeyboardIcons;
-import warped.user.actions.WarpedAction;
+import warped.application.actionWrappers.ActionOption;
+import warped.application.gui.GUIButton.ButtonStateType;
 import warped.user.mouse.WarpedMouseEvent;
-import warped.utilities.enums.generalised.ButtonStateType;
+import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsString;
 
 public class GUIPopOutMenu extends WarpedGUI {
+	
+	/*GUIPopOutMenu provides these functionalities
+	 * 			
+	 * 		- A permanently visible button that controls the visibility of a menu.
+	 * 		- Has a menu of buttons that can be shown / hidden by the main button. 
+	 * 		- Menu options can be set during runtime.
+	 * 		- Options have a single action that will trigger once each time the option is selected.
+	 * 		- Buttons can have the colour set for their background, text and hover effect.
+	 * 		
+	 */
 
 	private boolean isPoppedOut = false;
-	private boolean isExtended = false;
-	private DirectionType popDirection = DirectionType.DOWN;
 
+	private DirectionType popDirection = DirectionType.DOWN;
 	private ButtonStateType buttonState = ButtonStateType.HOVERED;
-	private int hoverIndex = 0;
-	
-	private Vec2i buttonSize = new Vec2i(120, 30);
+
+	private int hoveredIndex = -1;
+	private VectorI buttonSize = new VectorI(90, 30);
 	
 	private String menuLabel = "default";
-	private ArrayList<String> actionLabels = new ArrayList<>();
-	private HashMap<String, WarpedAction> selectActions   = new HashMap<>(); 
+	private ArrayList<ActionOption> options = new ArrayList<>(); 
+		
+	private int borderThickness 	= 2;
 	
-	private WarpedAction enterAction = null;
-	private WarpedAction exitAction = null;
+	private VectorI labelTextOffset = new VectorI(20, 16);
+	private VectorI optionTextOffset= new VectorI(10, 16);
 	
-	private int borderThickness = 2;
-	private Vec2i textOffset = new Vec2i(1,1);
+	private Color borderColor 		= Colour.BLACK.getColor();
+	private Color optionColor 		= Colour.GREY_DARK.getColor();
+	private Color optionTextColor	= Color.WHITE;
+	private Color labelTextColor  	= Color.YELLOW;
+	private Color labelColor      	= Colour.GREY_LIGHT.getColor();
+	private Color hoverColor 	= Colour.RED_DARK.getColor(100); 
+	private Color pressColor 	= Colour.RED.getColor(100);
 	
-	private Color borderColor = Color.BLACK;
-	private Color buttonColor = Color.DARK_GRAY;
-	private Color buttonHoverColor = new Color(110,60,60); 
-	private Color buttonPressColor = Color.RED;
-	
-	private int textSize 	= 12;
-	private Color textColor = Color.YELLOW;
-	private int textStyle 	= Font.PLAIN;
-	private Font font 		= new Font("DropDownToggleFont", textStyle, textSize);
-	
-	private BufferedImage pulledInRaster;   //The raster that displays only the first button
-	private BufferedImage popedOutRaster; //The raster that displays all the buttons
-
-	private int stdIconSize = 20;
-	private static BufferedImage popUpArrowGraphic    = FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_UP);
-	private static BufferedImage popLeftArrowGraphic  = FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_LEFT);
-	private static BufferedImage popDownArrowGraphic  = FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_DOWN);
-	private static BufferedImage popRightArrowGraphic = FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_RIGHT);
-	
-	public GUIPopOutMenu() {
+	private Font optionFont 		= new Font("ButtonFont", Font.PLAIN, 12);
+	private Font labelFont 			= new Font("DropDownToggleFont", Font.PLAIN, 12);
+		
+	/**A menu with the specified label and no options.
+	 * @param menuLabel - the label for the button that will show/hide the options.
+	 * @author 5som3*/
+	public GUIPopOutMenu(String menuLabel) {
+		this.menuLabel = menuLabel;
 		initializeRasters();
 		updateGraphics();
 	}
 	
-	public GUIPopOutMenu(String menuLabel, List<String> actionLabels, List<WarpedAction> selectActions) {setButtons(menuLabel, actionLabels, selectActions);}
-	public <T extends Enum<T>> GUIPopOutMenu(String menuLabel, T[] actionLabels, List<WarpedAction> selectActions) {setButtons(menuLabel, UtilsString.convertEnumToStringArray(actionLabels), selectActions);}
+	/**A menu with the specified label and options
+	 * @param menuLabel - the label for the button that will show/hide the options. 
+	 * @param options - the options to show when the menu open.
+	 * @author 5som3*/
+	public GUIPopOutMenu(String menuLabel, ActionOption... options) {
+		this.menuLabel = menuLabel;
+		this.options = new ArrayList<>(Arrays.asList(options));
+		initializeRasters();
+		updateGraphics();
+	}
 	
-	public GUIPopOutMenu(String menuLabel, List<String> actionLabels, List<WarpedAction> selectActions, DirectionType popDirection) {
+	/**A menu that pops in the specified direction with the specified label and options.
+	 * @param menuLabel - the label for the button that will show/hide the options.
+	 * @param popDirection - the direction that the menu will pop open. 
+	 * @param options - the options to show when the menu open.
+	 * @author 5som3*/
+	public GUIPopOutMenu(String menuLabel, DirectionType popDirection, ActionOption... options) {
 		if(popDirection != DirectionType.UP && popDirection != DirectionType.DOWN && popDirection != DirectionType.LEFT && popDirection != DirectionType.RIGHT) {
 			Console.err("GUIPopOutToggle -> constructor () -> pop out direction is not a valid direction : " + popDirection);
-			return;
+			popDirection = DirectionType.DOWN;
 		}
-		this.popDirection = popDirection;
-		setButtons(menuLabel, actionLabels, selectActions);
-	}
-	
-	public void setButtons(String menuLabel, List<String> actionLabels, List<WarpedAction> selectActions) {
-		this.actionLabels.clear();
-		this.selectActions.clear();
-		if(menuLabel == null || menuLabel.equals("")) {
-			Console.err("GUIPopOutMen -> constructor() -> your pop out menu must have a label");
-			return;
-		}
-		
-		if(actionLabels.size() != selectActions.size()) {
-			Console.err("GUIDropDownToggle -> constructor() -> number of actions does not match number of options : " + actionLabels.size() + ", " + selectActions.size());
-			return;
-		}
-		
 		this.menuLabel = menuLabel;
-		for(int i = 0; i < actionLabels.size(); i++) {
-			this.actionLabels.add(actionLabels.get(i));
-			this.selectActions.put(actionLabels.get(i), selectActions.get(i));
-		}
-		
+		this.options = new ArrayList<>(Arrays.asList(options));
 		initializeRasters();
 		updateGraphics();
 	}
 	
-	public synchronized void setEnterAction(WarpedAction enterAction) {this.enterAction = enterAction;}
-	public synchronized void setExitAction(WarpedAction exitAction) {this.exitAction = exitAction;}
-	
-	public void setButtons(String menuLabel, ArrayList<WarpedOption> options) {
-		actionLabels.clear();
-		selectActions.clear();
-	
-		if(options.size() <= 0 || options == null) {
-			Console.err("GUIDPopOutMen -> setButtons() -> number of options is <= 0 or null");
-			return;
-		}
-		
-		
-		
-		this.menuLabel = menuLabel;
-		for(int i = 0; i < options.size(); i++) {
-			this.actionLabels.add(options.get(i).getName());
-			this.selectActions.put(options.get(i).getName(), options.get(i).getAction());
-		}
-		
+	/**Set the options for this menu to display when popped out.
+	 * @param options - a list of the options to display.
+	 * @author 5som3*/
+	public void setOptions(ActionOption... options) {
+		this.options = new ArrayList<>(Arrays.asList(options));
 		initializeRasters();
 		updateGraphics();
 	}
 	
+	/**Set the options for this menu to display when popped out.
+	 * @param options - an ArrayList of the options to display.
+	 * @author 5som3*/
+	public void setOptions(ArrayList<ActionOption> options) {
+		this.options = options;
+		initializeRasters();
+		updateGraphics();
+	}
+	
+	/**Set the offset for this GUI.
+	 * Use in conjunction with offset() to position elements within an assembly.
+	 * @param x - the x offset in pixels.
+	 * @param y - the y offset in pixels.
+	 * @implNote - will adjust for the LEFT and UP popDirection cases.
+	 * @author 5som3*/
+	public void setOffset(double x, double y) {
+		if(popDirection == DirectionType.LEFT) offset.set(x - buttonSize.x() * options.size(), y);
+		else if(popDirection == DirectionType.UP) offset.set(x, y - buttonSize.y() * options.size());
+		else offset.set(x, y);
+	}
+	
+	/**Set the size of the raster to be the maximum needed size.
+	 * @author 5som3*/
 	private void initializeRasters() {
-		pulledInRaster = new BufferedImage(buttonSize.x, buttonSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
-		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN) 			
-			popedOutRaster = new BufferedImage(buttonSize.x, (buttonSize.y * this.actionLabels.size()) + buttonSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
-		else if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) 
-			popedOutRaster = new BufferedImage((buttonSize.x * this.actionLabels.size()) + buttonSize.x, buttonSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN) setSize(buttonSize.x(), (buttonSize.y() * (this.options.size() + 1)));
+		else if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) setSize((buttonSize.x() * (this.options.size() + 1)), buttonSize.y());
 		else {Console.err("GUIPopOutMenu -> initializeRasters() -> invalid case : " + popDirection); return;}
-		setRaster(pulledInRaster);
 	}
 	
-	public boolean containsOption(String option) {if(selectActions.containsKey(option)) return true; else return false;}
-	public Vec2i getButtonSize() {return buttonSize;}
+	/**Set the font for the options.
+	 * @param optionFont - the font to use.
+	 * @author 5som3*/
+	public void setOptionFont(Font optionFont) {
+		this.optionFont = optionFont;
+		updateGraphics();
+	}
+	
+	/**Set the font for the label. 
+	 * (The button that hides / shows the menu options).
+	 * @param labelFont - the font to use.
+	 * @author 5som3*/
+	public void setLabelFont(Font labelFont) {
+		this.labelFont = labelFont;
+		updateGraphics();
+	}
+	
+	/**Set the text size for the options.
+	 * @param textSize - the size of the text.
+	 * @author 5som3*/
+	public void setOptionTextSize(int textSize) {
+		this.optionFont = new Font(optionFont.getFontName(), optionFont.getStyle(), textSize);
+		updateGraphics();
+	}
+
+	/**Set the text size for the label.
+	 * (The button that hides / shows the menu options).
+	 * @param textSize - the size of the text.
+	 * @author 5som3*/
+	public void setLabelTextSize(int textSize) {
+		this.labelFont = new Font(labelFont.getFontName(), labelFont.getStyle(), textSize);
+		updateGraphics();
+	}
+	
+	/**Set the background color for the label.
+	 * (The button that hides / shows the menu options).
+	 * @param labelColor - the color behind the label text.
+	 * @author 5som3*/
+	public void setLabelColor(Color labelColor) {
+		this.labelColor = labelColor;
+		updateGraphics();
+	}
+	
+	/**Set the background color for the options.
+	 * (The button that hides / shows the menu options).
+	 * @param optionColor - the color behind the option text.
+	 * @author 5som3*/
+	public void setOptionColor(Color optionColor) {
+		this.optionColor = optionColor;
+		updateGraphics();
+	}
+	
+	/**Set the text color of the options.
+	 * @param optionTextColor - the text color.
+	 * @author 5som3*/
+	public void setOptionTextColor(Color optionTextColor) {
+		this.optionTextColor = optionTextColor;
+		updateGraphics();
+	}
+	
+	/**Set the color of the label text.
+	 * (The button that hides / shows the menu options).
+	 * @param labelTextColor - the color for the label text.
+	 * @author 5som3*/
+	public void setLabelTextColor(Color labelTextColor) {
+		this.labelTextColor = labelTextColor;
+		updateGraphics();
+	}
+	
+	/**Set the colour for the borders.
+	 * @param borderColor - the color for borders.
+	 * @apiNote For no border color setBorderThickness(0);
+	 * @author 5som3*/
+	public void setBorderColor(Color borderColor) {
+		this.borderColor = borderColor;
+		updateGraphics();
+	}
+	
+	/**Set the color of buttons when they are pressed.
+	 * @param pressColor - the color to overlay buttons when they are pressed.
+ 	 * @apiNote You should use a hover color with an alpha of about 100, using a full color will obscure the text.
+	 * @author 5som3*/
+	public void setPressColor(Color pressColor) {
+		this.pressColor = pressColor;
+		updateGraphics();
+	}
+	
+	/**The color of buttons when they are hovered by the mouse
+	 * @param hoverColor - the color to draw over the button when hovered
+	 * @apiNote You should use a hover color with an alpha of about 100, using a full color will obscure the text
+	 * @author 5som3*/
+	public void setHoverColor(Color hoverColor) {
+		this.hoverColor = hoverColor;
+		updateGraphics();
+	}
+	
+	/**Set the thickness of the borders.
+	 * @param borderThickness - the thickness of borders in pixels.
+	 * @apiNote set 0 borderThickness for no borders.
+	 * @author 5som3*/
+	public void setBorderThickness(int borderThickness) {
+		if(borderThickness < 0 || borderThickness > getHeight() / 4 || borderThickness > getWidth() / 4) {
+			Console.err("GUIPopOutMenu -> setBorderThickness() -> borderThickness out of bounds : " + borderThickness);
+			borderThickness = 2;
+		}
+		updateGraphics();
+	}
+	
+	/**Set the offset for the label text
+	 * (The button that hides / shows the menu options).
+	 * @param xOffset - the xOffset in pixels.
+	 * @param yOffset - the yOffset in pixels.
+	 * @author 5som3*/
+	public void setLabelTextOffset(int xOffset, int yOffset) {
+		this.labelTextOffset.set(xOffset, yOffset);
+		updateGraphics();
+	}
+	
+	/**Set the offset for the option text
+	 * @param xOffset - the xOffset in pixels.
+	 * @param yOffset - the yOffset in pixels.
+	 * @author 5som3*/
+	public void setOptionTextOffset(int xOffset, int yOffset) {
+		this.optionTextOffset.set(xOffset, yOffset);
+		updateGraphics();
+	}
+	
+	/**Set the size for each of the buttons in the menu. (including the label).
+	 * @param width - the width of a button in pixels.
+	 * @param height - the height of a button in pixels.
+	 * @author 5som3*/
+	public void setButtonSize(int width, int height) {
+		buttonSize.set(width, height);
+		updateGraphics();
+	}
+	
+	/**Set the direction for the button to pop out.
+	 * @param popDirection - the direction to pop out, possible directions : up, down, left, right.
+	 * @apiNote If using offset with the PopoutMenu you will need to call offset() after changing the popDirection.
+	 * @author 5som3*/
 	public void setPopDirection(DirectionType popDirection) {
-		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN || popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) this.popDirection = popDirection;
-		else Console.err("GUIPopOutMenu -> SetPopDirection() -> invalid pop Direction : " + popDirection); return;
+		if(popDirection != DirectionType.UP && popDirection != DirectionType.DOWN && popDirection != DirectionType.LEFT && popDirection != DirectionType.RIGHT) {
+			Console.err("GUIPopOutMenu -> SetPopDirection() -> invalid pop Direction : " + popDirection); 
+			return;
+		}		
+		
+		if(this.popDirection != popDirection) {
+			if(this.popDirection == DirectionType.UP)   super.setOffset(getOffsetX(), getOffsetY() + options.size() * buttonSize.y());
+			if(this.popDirection == DirectionType.LEFT) super.setOffset(getOffsetX() + options.size() * buttonSize.x(), getOffsetY());
+			
+			if(popDirection == DirectionType.UP)   super.setOffset(getOffsetX(), getOffsetY() - options.size() * buttonSize.y());
+			if(popDirection == DirectionType.LEFT) super.setOffset(getOffsetX() - options.size() * buttonSize.x(), getOffsetY());
+		}
+		
+		this.popDirection = popDirection;
+		initializeRasters();
+		updateGraphics();
 	}
 	
+	/**Shows the options for this menu
+	 * @author 5som3*/
 	public void popOut() {
 		if(!isPoppedOut) {			
 			isPoppedOut = true;
-			extend();
 			updateGraphics();
 			Console.ln("GUIPopOutMenu -> popOut()");
 		}
 	}
 	
+	/**Hides the options for this menu
+	 * @author 5som3*/
 	public void pullIn() {
-		if(isPoppedOut) {			
+		if(isPoppedOut) {		
 			isPoppedOut = false;
-			retract();
 			updateGraphics();
 			Console.ln("GUIPopOutMenu -> pullIn()");
 		}
 	}
 	
+	/**Toggle the visibility of the menu options. 
+	 * If hidden the menu will be visible. 
+	 * If visible the menu will be hidden.
+	 * @author 5som3*/
+	public void togglePop() {if(isPoppedOut) pullIn(); else popOut();}
 	
-	private void extend() {
-		if(popDirection == DirectionType.UP) {			
-			if(!isExtended) {
-				isExtended = true;
-				position.y -= (buttonSize.y * (actionLabels.size()));
-				hoverIndex = actionLabels.size() - 1;
-				hoverIndex = actionLabels.size();
-			}
-		}
-		if(popDirection == DirectionType.LEFT) {
-			if(!isExtended) {
-				isExtended = true;
-				position.x -= (buttonSize.x * (actionLabels.size()));
-				hoverIndex = actionLabels.size();
-			}
-		}
-		buttonState = ButtonStateType.HOVERED;
-	}
 	
-	private void retract() {
-		if(popDirection == DirectionType.UP) {			
-			if(isExtended) {
-				isExtended = false;
-				position.y += (buttonSize.y * (actionLabels.size()));
-			}
-		}
-		if(popDirection == DirectionType.LEFT) {
-			if(isExtended) {
-				isExtended = false;
-				position.x += (buttonSize.x * (actionLabels.size()));
-			}
-		}
-	}
-	
-	private void select() {		  
-		int actionIndex = -1;
-		actionIndex = hoverIndex - 1;
-		
-		if(hoverIndex == 0) {
-			if(isPoppedOut) pullIn();
-			else popOut();
-		} else {
-			if(!selectActions.containsKey(actionLabels.get(actionIndex))) {   //The selected action - the new index passed in from the users selection 
-				Console.ln("GUIDropDownToggle -> selectAction() -> drop down toggle has no action for : " + actionIndex);
-			} else {			
-				WarpedAction action = selectActions.get(actionLabels.get(actionIndex));
-				if(action == null) {
-					Console.err("GUIDropDownToggle -> selectAction() -> action is null");
-				} else action.action();
-			}
-			pullIn();
-		}		
-	}
 	
 	private void updateGraphics() {		
-		int buttonIndex = hoverIndex - 1;
-		if(!isPoppedOut) {
-			setRaster(pulledInRaster);
-			Graphics2D g = raster.createGraphics();
-			drawMenuLabelButton(g);
-			g.dispose();
-			
-		} else {
-			setRaster(popedOutRaster);
-			Graphics2D g = raster.createGraphics();
-			drawMenuLabelButton(g);
-			if(hoverIndex > 0 && hoverIndex < actionLabels.size() + 1) {				
-				
-				if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN) {
-					switch(buttonState) {
-					case HOVERED: drawButton(g, buttonIndex, 0, hoverIndex * buttonSize.y, buttonHoverColor); break;
-					case PRESSED: drawButton(g, buttonIndex, 0, hoverIndex * buttonSize.y, buttonPressColor); break;
-					case PLAIN  : drawButton(g, buttonIndex, 0, hoverIndex * buttonSize.y, buttonColor); break;
-					default:
-						Console.err("GUIPopOutMenu -> updateGraphics() -> invalid button state : " + buttonState); 
-						break;
-					}					
-				} else {
-					switch(buttonState) {
-					case HOVERED: drawButton(g, buttonIndex, hoverIndex * buttonSize.x, 0, buttonHoverColor); break;
-					case PRESSED: drawButton(g, buttonIndex, hoverIndex * buttonSize.x, 0, buttonPressColor); break;
-					case PLAIN  : drawButton(g, buttonIndex, hoverIndex * buttonSize.x, 0, buttonColor); break;
-					default:
-						Console.err("GUIPopOutMenu -> updateGraphics() -> invalid button state : " + buttonState); 
-						break;
-					}			
-				}
-				
-			}
-			
-			if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN) {				
-				for(int i = 0; i < actionLabels.size(); i++) {
-					if( i == hoverIndex - 1) continue;
-					drawButton(g, i, 0, buttonSize.y + buttonSize.y * i, buttonColor);
-				}
-			} else {
-				for(int i = 0; i < actionLabels.size(); i++) {
-					if( i == hoverIndex - 1) continue;
-					drawButton(g, i, buttonSize.x + buttonSize.x * i, 0, buttonColor);
-				}
-			}
-			
-			g.dispose();
-		}
-	}
-
-
-	
-	private void drawMenuLabelButton(Graphics2D g) {
-		Color col = null;
-		if(buttonState == ButtonStateType.HOVERED && hoverIndex == 0) col = buttonHoverColor;
-		else col = buttonColor;
+		Graphics g = getGraphics();
 		
-		g.setColor(borderColor);
-		g.fillRect(0, 0, buttonSize.x, buttonSize.y);
-		
-		g.setColor(col);	
-		g.fillRect(borderThickness, borderThickness, buttonSize.x - borderThickness * 2, buttonSize.y - borderThickness * 2);
-		
-		g.setColor(textColor);
-		g.setFont(font);
-		g.drawString(menuLabel, borderThickness * 2 + textOffset.x, (borderThickness * 2) + textSize + textOffset.y);	
-			
 		switch(popDirection) {
-		case DOWN:  g.drawImage(popDownArrowGraphic,  buttonSize.x - (stdIconSize + borderThickness * 2), (buttonSize.y / 2) - (stdIconSize / 2), stdIconSize, stdIconSize, null); break;
-		case UP:    g.drawImage(popUpArrowGraphic,  buttonSize.x - (stdIconSize + borderThickness * 2), (buttonSize.y / 2) - (stdIconSize / 2), stdIconSize, stdIconSize, null); break;
-		case RIGHT: g.drawImage(popRightArrowGraphic,  buttonSize.x - (stdIconSize + borderThickness * 2), (buttonSize.y / 2) - (stdIconSize / 2), stdIconSize, stdIconSize, null); break;
-		case LEFT:  g.drawImage(popLeftArrowGraphic,  buttonSize.x - (stdIconSize + borderThickness * 2), (buttonSize.y / 2) - (stdIconSize / 2), stdIconSize, stdIconSize, null); break;
+		case DOWN:
+			for(int i = 0; i < options.size() + 1; i++) {
+				if(i == 0) {
+					g.setColor(borderColor);
+					g.fillRect(0, 0, buttonSize.x(), buttonSize.y());
+					g.setColor(labelColor);
+					g.fillRect(borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setFont(labelFont);
+					g.setColor(labelTextColor);
+					g.drawString(menuLabel, labelTextOffset.x(), labelTextOffset.y());
+				} else if(isPoppedOut) {
+					g.setColor(borderColor);
+					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
+					g.setColor(optionColor);
+					g.fillRect(borderThickness, i * buttonSize.y() + borderThickness,  buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(optionTextColor);
+					g.setFont(optionFont);
+					g.drawString(options.get(i - 1).getName(), optionTextOffset.x(), i * buttonSize.y() + optionTextOffset.y());
+				}
+				
+				if(hoveredIndex >= 0 && i == hoveredIndex) {
+					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
+					else g.setColor(hoverColor);
+					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
+				}
+			}			
+			break;
+		case RIGHT:
+			for(int i = 0; i < options.size() + 1; i++) {
+				if(i == 0) {
+					g.setColor(borderColor);
+					g.fillRect(0, 0, buttonSize.x(), buttonSize.y());
+					g.setColor(labelColor);
+					g.fillRect(borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setFont(labelFont);
+					g.setColor(labelTextColor);
+					g.drawString(menuLabel, labelTextOffset.x(), labelTextOffset.y());
+				} else if(isPoppedOut) {
+					g.setColor(borderColor);
+					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+					g.setColor(optionColor);
+					g.fillRect(i * buttonSize.x() + borderThickness, borderThickness,  buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(optionTextColor);
+					g.setFont(optionFont);
+					g.drawString(options.get(i - 1).getName(),  i * buttonSize.x() + optionTextOffset.x(), optionTextOffset.y());
+				}
+				if(hoveredIndex >= 0 && i == hoveredIndex) {
+					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
+					else g.setColor(hoverColor);
+					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+				}
+			}
+			break;
+		case UP:
+			for(int i = 0; i < options.size() + 1; i++) {
+				if(i == options.size()) {
+					g.setColor(borderColor);
+					g.fillRect(0, options.size() * buttonSize.y(), buttonSize.x(), buttonSize.y());
+					g.setColor(labelColor);
+					g.fillRect(borderThickness, options.size() * buttonSize.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(labelTextColor);
+					g.setFont(labelFont);
+					g.drawString(menuLabel, labelTextOffset.x(), options.size() * buttonSize.y() + labelTextOffset.y());
+				} else if(isPoppedOut) {
+					g.setColor(borderColor);
+					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
+					g.setColor(optionColor);
+					g.fillRect(borderThickness, i * buttonSize.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(optionTextColor);
+					g.setFont(optionFont);
+					g.drawString(options.get(i).getName(), optionTextOffset.x(), i * buttonSize.y() + optionTextOffset.y());
+				}
+				if(hoveredIndex >= 0 && i == hoveredIndex) {
+					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
+					else g.setColor(hoverColor);
+					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
+				} 
+			}
+			break;
+		case LEFT:
+			for(int i = 0; i < options.size() + 1; i++) {
+				if(i == options.size()) {
+					g.setColor(borderColor);
+					g.fillRect(options.size() * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+					g.setColor(labelColor);
+					g.fillRect(options.size() * buttonSize.x() + borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(labelTextColor);
+					g.setFont(labelFont);
+					g.drawString(menuLabel, options.size() * buttonSize.x() + labelTextOffset.x(), labelTextOffset.y());
+				} else if(isPoppedOut) {
+					g.setColor(borderColor);
+					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+					g.setColor(optionColor);
+					g.fillRect(i * buttonSize.x() + borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(optionTextColor);
+					g.setFont(optionFont);
+					g.drawString(options.get(i).getName(), i * buttonSize.x() + optionTextOffset.x(), optionTextOffset.y());
+				}
+				if(hoveredIndex >= 0 && i == hoveredIndex) {
+					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
+					else g.setColor(hoverColor);
+					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+				}
+			}
+			break;
 		default:
+			Console.ln("GUIPopOutMenu -> updateGraphics() -> invalid popDirection : " + popDirection);
 			break;
 		}
+		
+		g.dispose();
+		pushGraphics();
 	}
+
 	
-	private void drawButton(Graphics2D g, int labelIndex, int x, int y, Color buttonColor) {
-		g.setColor(borderColor);
-		g.fillRect(x, y, buttonSize.x, buttonSize.y);
-		
-		g.setColor(buttonColor);	
-		g.fillRect(borderThickness + x, borderThickness + y, buttonSize.x - borderThickness * 2, buttonSize.y - borderThickness * 2);
-		
-		g.setColor(textColor);
-		g.setFont(font);
-		g.drawString(actionLabels.get(labelIndex), x + borderThickness * 2 + textOffset.x, y + (borderThickness * 2) + textSize + textOffset.y);
-	}
+	
 	
 	@Override
 	protected void mouseEntered() {
-		if(enterAction!= null) enterAction.action();
-		buttonState = ButtonStateType.HOVERED;
-		hoverIndex = 0;
+		buttonState = ButtonStateType.HOVERED;	
 	}
 
 	@Override
 	protected void mouseExited() {
-		if(exitAction != null) exitAction.action();
+		Console.ln("GUIPopOutMenu -> mouseExited()");
 		buttonState = ButtonStateType.PLAIN;
-		hoverIndex = 0;
-		pullIn();
+		hoveredIndex = -1;
+		if(isPoppedOut)	pullIn();
+		else updateGraphics();
 	}
 
 	@Override
@@ -327,11 +456,11 @@ public class GUIPopOutMenu extends WarpedGUI {
 		int index = -1;
 		buttonState = ButtonStateType.HOVERED;
 		
-		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y);		
-		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x);
+		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());		
+		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
 
-		if(index != hoverIndex) {
-			hoverIndex = index;
+		if(index != hoveredIndex) {
+			hoveredIndex = index;
 			updateGraphics();
 		}
 		
@@ -343,13 +472,15 @@ public class GUIPopOutMenu extends WarpedGUI {
 		int index = -1;
 		buttonState = ButtonStateType.PRESSED;
 		
-		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y);		
-		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x);
+		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());		
+		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
 		
-		if(index != hoverIndex) {
-			hoverIndex = index;
+		if(index != hoveredIndex) {
+			hoveredIndex = index;
 			updateGraphics();
 		}
+		
+	
 	}
 
 	@Override
@@ -357,15 +488,45 @@ public class GUIPopOutMenu extends WarpedGUI {
 		int index = -1;
 		buttonState = ButtonStateType.PLAIN;
 		
-		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y);		
-		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x);
-		
-		if(index != hoverIndex) {
-			hoverIndex = index;
-			updateGraphics();
+		if(popDirection == DirectionType.UP)    {
+			index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());
+			if(index == options.size()) togglePop();	
+			else {
+				options.get(index).action();
+				hoveredIndex = -1;
+				pullIn();
+			}
 		}
-
-		select();
+		
+		if(popDirection == DirectionType.DOWN)    {
+			index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());
+			if(index == 0) togglePop();
+			else {
+				options.get(index - 1).action();
+				hoveredIndex = -1;
+				pullIn();
+			}
+		}
+		
+		if(popDirection == DirectionType.LEFT) {
+			index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
+			if(index == options.size())togglePop();
+			else {
+				options.get(index).action();
+				hoveredIndex = -1;
+				pullIn();
+			}
+		}
+		
+		if(popDirection == DirectionType.RIGHT) {
+			index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
+			if(index == 0) togglePop();
+			else {
+				options.get(index - 1).action();
+				hoveredIndex = -1;
+				pullIn();
+			}
+		}		
 	}
 
 	@Override
@@ -373,19 +534,17 @@ public class GUIPopOutMenu extends WarpedGUI {
 		int index = -1;
 		buttonState = ButtonStateType.HOVERED;
 		
-		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y);		
-		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x);
+		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());		
+		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
 		
-		if(index != hoverIndex) {
-			hoverIndex = index;
+		if(index != hoveredIndex) {
+			hoveredIndex = index;
 			updateGraphics();
-		}}
+		}
+	}
+	
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
-	@Override
-	protected void updateRaster() {return;}
-	@Override
-	protected void updateObject() {return;}
-	@Override
-	protected void updatePosition() {return;}
+
+	
 }

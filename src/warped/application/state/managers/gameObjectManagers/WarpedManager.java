@@ -10,7 +10,6 @@ import warped.application.entities.item.WarpedItem;
 import warped.application.gui.WarpedGUI;
 import warped.application.object.WarpedObject;
 import warped.application.object.WarpedObjectIdentity;
-import warped.application.prop.WarpedProp;
 import warped.application.state.groups.WarpedGroup;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.application.tile.WarpedTile;
@@ -39,12 +38,7 @@ public class WarpedManager<T extends WarpedObject> {
 	public static ManagerEntitie<WarpedEntitie> generateEntitieManager(){return new ManagerEntitie<WarpedEntitie>();}
 	public static ManagerDepthField<WarpedDepthField> generateDepthFieldManager(){return new ManagerDepthField<WarpedDepthField>();}
 	public static ManagerGUI<WarpedGUI> generateGUIManager(){return new ManagerGUI<WarpedGUI>();}
-	public static ManagerTile<WarpedTile<?>> generateTileManager(){return new ManagerTile<WarpedTile<?>>();}
-	public static ManagerVisualEffect<WarpedProp> generateVisualEffectManager(){
-		ManagerVisualEffect<WarpedProp> manager = new ManagerVisualEffect<WarpedProp>(); 
-		manager.init();
-		return manager;
-	}
+	public static ManagerTile<WarpedTile> generateTileManager(){return new ManagerTile<WarpedTile>();}
 	
 	public  ArrayList<WarpedGroup<T>> getActiveGroups(){return activeGroups;}
 	public static ManagerItem<WarpedItem<?>> generateItemManager(){return new ManagerItem<WarpedItem<?>>();}
@@ -155,11 +149,14 @@ public class WarpedManager<T extends WarpedObject> {
 
 	/**Applied to the objects within the group no the groups*/
 	public void forEachGroup(WarpedObjectAction<T> method) {groups.forEach((g) ->{g.forEach(method);});}
-	public void forEachActiveGroup(WarpedObjectAction<T> method) {
-		for(int i = 0; i < activeGroups.size(); i++) activeGroups.get(i).forEach(method);
-	}
-
 	
+	/** Executes the supplied ObjectAction for each WarpedObject in each active group.
+	 * @param WarpedObjectAction - Will be applied to each object in each active group.
+	 * @implNote The order of execution will be from 0 -> n - 1 where n is the length of activeGroups array.
+	 * @implNote Each group will execute in the order 0 -> m - 1 where m is the length of members array for the corresponding group.
+	 * @author SomeKid*/
+	public void forEachActiveGroup(WarpedObjectAction<T> method) {for(int i = 0; i < activeGroups.size(); i++) activeGroups.get(i).forEach(method);}
+
 	
 	public void clearGroups() {
 		activeGroups.clear();

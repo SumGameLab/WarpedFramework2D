@@ -2,332 +2,286 @@
 
 package warped.application.gui;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
-import java.util.List;
 
-import warped.WarpedProperties;
 import warped.audio.FrameworkAudio;
 import warped.audio.WarpedAudioClip;
+import warped.functionalInterfaces.WarpedAction;
+import warped.functionalInterfaces.WarpedButtonAction;
 import warped.graphics.sprite.ButtonSprite;
 import warped.graphics.window.WarpedWindow;
-import warped.user.actions.WarpedAction;
 import warped.user.mouse.WarpedMouse;
 import warped.user.mouse.WarpedMouseEvent;
-import warped.utilities.enums.generalised.ButtonStateType;
-import warped.utilities.enums.generalised.ButtonType;
 import warped.utilities.enums.generalised.Colour;
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsImage;
 
 public class GUIButton extends WarpedGUI {
 	
-	public static final Colour DEFAULT_BUTTON_COLOR = Colour.GREY_DARK;
-	public static final int DEFAULT_BUTTON_WIDTH = 150;
-	public static final int DEFAULT_BUTTON_HEIGHT = 30;
-
-	private ButtonType type = ButtonType.COLOR;
-	
-	private Color backgroundColor = Color.BLACK;
-	private Byte backgroundAlpha  = (byte) 256;
-	private Color buttonColor 	  = DEFAULT_BUTTON_COLOR.getColor();
-	private int borderThickness   = 3;
-	
-	
-	private boolean repeatPressAction = false;
-	private boolean isPressing = false;
-	
-	private Vec2d buttonSize = new Vec2d(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT);
-	
-	private Boolean hasText  = false;
-	private List<String> text;
-	private Color textColor  = Color.YELLOW;
-	private Font textFont 	 = UtilsFont.getPreferred();
-	private Vec2i textOffset = new Vec2i(6, 6);
+	/*GUIButton provides these functions
+	 * 		- set graphics and text inside the button that automatically respond to mouse interaction
+	 * 		- set sound effects that trigger automatically with mouse interactions
+	 * 		- set programmable actions that trigger automatically with mouse interaction
+	 */
 	
 	private boolean isDragging = false;
 	private boolean isEnteredDragging = false;
 	
-	private Vec2d dragOffset = new Vec2d();
+	private VectorD dragOffset = new VectorD();
 	
-	private Vec2d c2 = new Vec2d(1920, 1080); //Max x / y position of the button
+	//private VectorD c2 = new VectorD(1920, 1080); //Max x / y position of the button
 	
-	private ButtonSprite sprite = new ButtonSprite((int)buttonSize.x, (int)buttonSize.y, Colour.GREY_DARK);
-		
+	public enum ButtonStateType {
+		/**The default state of the button*/
+		PLAIN,
+		/**When the mouse position is contained within the bounds of the button in screen space*/
+		HOVERED,
+		/**When a mouse button is pressed while the button state is HOVERED*/
+		PRESSED,
+		/**When the button is not usable*/
+		LOCKED;		
+	}
+	
 	private WarpedAudioClip enteredSFX  = FrameworkAudio.defaultHover;
 	private WarpedAudioClip exitedSFX   = FrameworkAudio.defaultUnhover;
 	private WarpedAudioClip pressedSFX  = FrameworkAudio.defaultPress;
 	private WarpedAudioClip releasedSFX = FrameworkAudio.defaultRelease;
 	
-	private WarpedAction pressedAction;                                                                 
-	private WarpedAction releasedAction;
+	private WarpedButtonAction pressedAction;                                                                 
+	private WarpedButtonAction releasedAction;
+	              
 	private WarpedAction enteredAction;
 	private WarpedAction exitedAction;
+	              
 	private WarpedAction draggedAction;
-	private WarpedAction movedAction = () -> {return;};
+	private WarpedAction movedAction;
 	
-	public GUIButton(BufferedImage rawSprite) {
-		this.sprite = new ButtonSprite(rawSprite);
-		setRaster(this.sprite.raster());
+	private ButtonSprite sprite;
+	
+	/**A button painted with the input image. Will be the same size as the input image.
+	 * @param image - the image to base this button on.
+	 * @author 5som3*/
+	public GUIButton(BufferedImage image) {
+		sprite = new ButtonSprite(image);
+		setSprite(sprite);
+		setButtonState(ButtonStateType.PLAIN);
 	}
 	
-	public GUIButton() {
-		setGameObjectSize(buttonSize);
-		setText(Arrays.asList("default"));
-		setType(ButtonType.COLOR);
+	/**A button of the size specified. Will have default button graphics which can be changed later.
+	 * @param width - the width of the button in pixels.
+	 * @param height - the height of the button in pixels.
+	 * @author 5som3*/
+	public GUIButton(int width, int height) {
+		if(width < 0 || height < 0 || width > WarpedWindow.getWindowWidth() || height > WarpedWindow.getWindowHeight()) {
+			Console.err("GUIButton -> constructor() -> button proportions are invalid (x, y) : ( " + width + ", " + height + ")");
+			width = 120;
+			height = 30;
+		} 
+		
+		sprite = new ButtonSprite(width, height);
+		sprite.setText("default");
+		setSprite(sprite);
+		setButtonState(ButtonStateType.PLAIN);
 	}
 	
-	public GUIButton(int x, int y) {
-		if(x < 0 || y < 0 || x > WarpedWindow.width || y > WarpedWindow.height) {
-			Console.err("GUIButton -> constructor() -> button proportions are invalid (x, y) : ( " + x + ", " + y + ")");
-			setGameObjectSize(buttonSize);
-		} else setGameObjectSize(new Vec2d(x, y));
-		setText(Arrays.asList("default"));
-		setType(ButtonType.COLOR);
-	}
-	
+	/**A button with the specified text displayed.
+	 * @param text - the text to draw over the button
+	 * @author 5som3*/
 	public GUIButton(String text) {
-		setGameObjectSize(buttonSize);
-		setText(Arrays.asList(text));
-		setType(ButtonType.COLOR);
+		sprite = new ButtonSprite();
+		sprite.paint(Colour.GREY_DARK.getColor());
+		sprite.setText(text);
+		setSprite(sprite);
+		setButtonState(ButtonStateType.PLAIN);
 	}
 	
-	public GUIButton(String text, ButtonType type) {
-		setGameObjectSize(buttonSize);
-		setText(Arrays.asList(text));
-		setType(type);
+	/**A button of the specified parameters.
+	 * @param width - the width of the button in pixels.
+	 * @param height - the height of the button in pixels.
+	 * @param color - the background color of the button.
+	 * @author 5som3 */
+	public GUIButton(int width, int height, Colour color) {
+		sprite = new ButtonSprite(width, height, color);
+		sprite.setButtonColour(color);
+		setSprite(sprite);
+		setButtonState(ButtonStateType.PLAIN);
 	}
 	
-	public GUIButton(Color color, Vec2d size) {
-		setGameObjectSize(size);
-		setBackgroundColor(color);
-		setType(ButtonType.COLOR);
+	/**A button of the specified parameters.
+	 * @param width - the width of the button in pixels.
+	 * @param height - the height of the button in pixels.
+	 * @param text - the text to draw over the button
+	 * @author 5som3 */
+	public GUIButton(int width, int height, String text) {
+		sprite = new ButtonSprite(width, height);
+		sprite.setText(text);
+		setSprite(sprite);
+		setButtonState(ButtonStateType.PLAIN);
 	}
 	
-	public GUIButton(Color color, Vec2d size, String text) {
-		setGameObjectSize(size);
-		setBackgroundColor(color);
-		setText(Arrays.asList(text));
-		setType(ButtonType.COLOR);
+	/**A button of the specified parameters.
+	 * @param width - the width of the button in pixels.
+	 * @param height - the height of the button in pixels.
+	 * @param color - the background color of the button.
+	 * @param text - the text to draw over the button.
+	 * @author 5som3 */
+	public GUIButton(int width, int height, Colour color, String text) {
+		sprite = new ButtonSprite();
+		setSprite(sprite);
+		sprite.setBorderColour(color);
+		sprite.setText(text);
+		setButtonState(ButtonStateType.PLAIN);
 	}
 	
-	public GUIButton(ButtonSprite sprite, Vec2d position) {
-		this.position = position;
+	/**A button of the specified parameters.
+	 * @Param sprite - a ButtonSprite object to use for this GUIButton.
+	 * @param position - a VectorD to set as PositionPointer
+	 * */
+	public GUIButton(ButtonSprite sprite, VectorD position) {
+		setPositionPointer(position);
 		this.sprite = sprite;
-		setRaster(this.sprite.raster());
+		setSprite(sprite);
+		setButtonState(ButtonStateType.PLAIN);
 	}
 
-	//--------
-	//---------------------- Access ---------------------- 
-	//--------
+
+	/**Set button sound effect
+	 * @param enteredSFX - The sound effect will trigger (once) when the mouse enters the button
+	 * @author SomeKid*/
+	public void setEnteredSFX(WarpedAudioClip enteredSFX) {this.enteredSFX = enteredSFX;}
+	
+	/**Set button sound effect
+	 * The sound effect will trigger (once) when the mouse leaves the button
+	 * @author SomeKid*/
+	public void setExitedSFX(WarpedAudioClip exitedSFX) {this.exitedSFX = exitedSFX;}
+	
+	/**Set button sound effect
+	 * The sound effect will trigger (once) when a mouse button is pressed on the button
+	 * @author SomeKid*/
+	public void setPressedSFX(WarpedAudioClip pressedSFX) {this.pressedSFX = pressedSFX;}
+	
+	/**Set button sound effect
+	 * The sound effect will trigger (once) when a mouse button is released on the button
+	 * @author SomeKid*/
+	public void setReleasedSFX(WarpedAudioClip releasedSFX) {this.releasedSFX = releasedSFX;}
+	
+	
+	/**Set button action
+	 * @param pressedAction - this action will trigger (once) when a mouse button is pressed in the button
+	 * @author SomeKid*/
+	public void setPressedAction(WarpedButtonAction pressedAction) {this.pressedAction = pressedAction;}
+	
+	/**Set button action
+	 * @param releasedAction - this action will trigger (once) when a mouse button is pressed in the button
+	 * @author SomeKid*/
+	public void setReleasedAction(WarpedButtonAction releasedAction) {this.releasedAction = releasedAction;}
+	
+	/**Set button action
+	 * @param enteredAction - this action will trigger (once) when the mouse enters the button
+	 * @author SomeKid*/
+	public void setEnteredAction(WarpedAction enteredAction) {this.enteredAction = enteredAction;}
+	
+	/**Set button action
+	 * @param exitedAction - this action will trigger (once) when the mouse exits the button
+	 * @author SomeKid*/
+	public void setExitedAction(WarpedAction exitedAction) {this.exitedAction = exitedAction;}
+	
+	/**Set button action
+	 * @param exitedAction - this action will trigger (every tick) when the mouse is dragging the button
+	 * @author SomeKid*/
+	public void setDraggedAction(WarpedAction draggedAction) {this.draggedAction = draggedAction;}
+	
+	
+	/**Set button action
+	 * @param exitedAction - this action will trigger (multiple times) when ever the mouse moves over the button
+	 * @author SomeKid*/
+	public void setMouseMovedAction(WarpedAction moveAction) {this.movedAction = moveAction;}
+	
+	/**Set the text to draw over the button.
+	 * @param text - If you pass multiple text lines they will be drawn with an offset of font size 
+	 * @author SomeKid*/
+	public void setText(String... text) {sprite.setText(text);}
+	
+	/**Set the text offset
+	 * @param textOffset - Measured in pixels from the top left corner
+	 * @author SomeKid*/
+	public void setTextOffset(int x, int y) {sprite.setTextOffset(x, y);}
+	
+	/**Set the current state of the button.
+	 * @param type - the state to apply.
+	 * 			   - see ButtonStateType (above) for documentation on the different states.
+	 * @author SomeKid*/
 	public void setButtonState(ButtonStateType type) {
 		switch(type) {
 		case HOVERED: sprite.hover(); 	 break;
 		case PLAIN: sprite.plain(); 	 break;
 		case PRESSED: sprite.press();	 break;
-		case RELEASED: sprite.plain(); break;
+		case LOCKED: sprite.lock();	 	 break;
 		default: Console.err("GUIButton -> setButtonState() -> button type is not supported : " + type); break;
 		}
-		setRaster(sprite.raster());
 	}
 	
-	public void setRepeatPress(boolean repeatPress) {this.repeatPressAction = repeatPress;}
-	public void repeatPress() {repeatPressAction = true;}
-	public void noRepeatPress() {repeatPressAction = false;};
-	
-	public void lockUnseen() {isLocked = true;}
-	public void unlockUnseen() {isLocked = false;}
-	public void mseExited() {mouseExited();}
-	
-	public void setMouseMovedAction(WarpedAction moveAction) {this.movedAction = moveAction;}
-	
+	/**Lock the button.
+	 * @apiNote While locked the button will not interact with the users mouse.
+	 * @author SomeKid*/
 	public void lock() {
 		isLocked = true;
 		sprite.lock();
-		setRaster(sprite.raster());
 	}
 	
+	/**Unlock the button(){
+	 * @apiNote While locked the button will not interact with the users mouse. 
+	 * @author SomeKid*/
+	public void unlock() {
+		isLocked = false;
+		sprite.plain();
+	}
+	
+	/**Set the lock state of the button.
+	 * @param lock - the locked state.
+	 * @apiNote While locked the button will not interact with the users mouse.
+	 * @author SomeKid*/
 	public void setLock(boolean lock) {
 		if(lock)lock();
 		else unlock();
 	}
 	
-	public void unlock() {
-		isLocked = false;
-		sprite.plain();
-		setRaster(sprite.raster());
-	}
+	/**Swap the lock state to the opposite of what it just was
+	 * @author SomeKid*/
 	public void toggleLock() {
 		if(isLocked) unlock();
 		else lock();
 	}
 	
-	public void setButtonSize(int width, int height) {
-		setGameObjectSize(width, height);
-		updateGraphics();
-	}
 	
-	public void setType(ButtonType type) {
-		this.type = type;
-		updateGraphics();
-	}
-	
-	public ButtonSprite getSprite() {return sprite;}
-	public void setBackgroundClear() {
-		type = ButtonType.CLEAR;
-		updateGraphics();
-	}
-	
-	public void setBackgroundColor(Color backgroundColor) {
-		this.backgroundColor = backgroundColor;
-		updateGraphics();
-	}
-	public void setButtonColor(Color buttonColor){
-		this.buttonColor = buttonColor;
-		updateGraphics();
-	}
-	
-	public void setEnteredSFX(WarpedAudioClip enteredSFX) {this.enteredSFX = enteredSFX;}
-	public void setExitedSFX(WarpedAudioClip exitedSFX) {this.exitedSFX = exitedSFX;}
-	public void setPressedSFX(WarpedAudioClip pressedSFX) {this.pressedSFX = pressedSFX;}
-	public void setReleasedSFX(WarpedAudioClip releasedSFX) {this.releasedSFX = releasedSFX;}
 
-	
-	public void setPressedAction(WarpedAction pressedAction) {this.pressedAction = pressedAction;}
-	public void setReleasedAction(WarpedAction releasedAction) {this.releasedAction = releasedAction;}
-	public void setEnteredAction(WarpedAction enteredAction) {this.enteredAction = enteredAction;}
-	public void setExitedAction(WarpedAction exitedAction) {this.exitedAction = exitedAction;}
-	public void setDraggedAction(WarpedAction draggedAction) {this.draggedAction = draggedAction;}
-
-	
-	//--------
-	//---------------------- Graphics ----------------------
-	//--------
-	public void updateGraphics() {
-		switch(type) {
-		case CLEAR: updateClearButtonGraphics(); break;
-		case COLOR:	updateColorButtonGraphics(); break;
-		case IMAGE:	setRaster(sprite.raster());	break;
-		default: Console.err("GUIButton -> updateGraphics() -> inavlid buton type : " + type); break;
-		}
-	}
-	
-	private void updateClearButtonGraphics() {
-		BufferedImage img = new BufferedImage((int)size.x,(int)size.y,WarpedProperties.BUFFERED_IMAGE_TYPE);
-		sprite.setRaster(img);
-		if(hasText) setText(text);
-		setRaster(sprite.raster());		
-	}
-	
-	private void updateColorButtonGraphics() {
-		BufferedImage img = new BufferedImage((int)size.x,(int)size.y,WarpedProperties.BUFFERED_IMAGE_TYPE);
-		Graphics g = img.getGraphics();
-		g.setColor(backgroundColor);
-		g.fillRect(0, 0, (int)size.x, (int)size.y);
-		
-		g.setColor(buttonColor);
-		g.fillRect(borderThickness, borderThickness,  (int)(size.x - borderThickness * 2), (int)(size.y - borderThickness * 2));
-		sprite.setRaster(img);
-		if(hasText) setText(text);
-		setRaster(sprite.raster());
-	}
-	
-	public void setBackgroundAlpha(byte alpha) {
-		this.backgroundAlpha = alpha;
-		switch(type) {
-		case CLEAR:
-		case COLOR:
-			Color col = new Color(backgroundColor.getRed(), backgroundColor.getGreen(), backgroundColor.getBlue(), (int)backgroundAlpha);
-			setBackgroundColor(col);
-			break;
-		case IMAGE:
-			sprite.setRaster(UtilsImage.generateAlphaClone(sprite.raster(), alpha));
-			break;
-		default: Console.err("GUIButton -> setButtonAlpha() -> invalid case : " + type); return;		
-		}
-	}
-	
-	
-	//--------
-	//---------------------- Button Text ----------------------
-	//--------
-	public void setText(String text) {setText(Arrays.asList(text));}
-	
-	public void setText(List<String> text) {
-		if(text == null) {
-			Console.err("GUIButton -> setText() -> invalid text is null or no text");
-			hasText = false;
-			return;
-		}
-		this.text = text;
-		hasText = true;
-		sprite.setButtonText(textOffset.x, textOffset.y, text, textFont, textColor);
-		setRaster(sprite.raster());
-		
-	}
-	
-	public void setTextOffset(Vec2i textOffset) {
-		this.textOffset = textOffset;
-		setText(text);
-	}
-	
-	public void setTextOffset(int x, int y) {
-		textOffset.set(x, y);
-		setText(text);
-	}
-	
-	public void setFont(Font textFont) {
-		this.textFont = textFont;
-		setText(text);
-	}
-	
-	public void setTextColor(Color textColor) {
-		this.textColor = textColor;
-		setText(text);
-	}
-	
-	/**The maximum x,y position of the button - Typically you would want to set this to the size of the viewport you intend to render it in
-	 * By default c2 = (1920, 1080)*/
-	public void setC2(Vec2d c2) {this.c2 = c2;}
-	
-	
 	//--------
 	//---------------------- Update ----------------------
 	//--------
-	protected void updateRaster()  {return;}
-	protected void updatePosition(){
+	@Override
+	public void updateObject()  {		
 		if(isLocked) return;
 		if(!WarpedMouse.isDragging()) {				
 			isDragging = false;
 			WarpedMouse.unfocus();
 		}
 		if(isDragging) {
-			if(dragOffset.isEqualTo(0.0)){
+			if(dragOffset.isEqual(0.0, 0.0)){
 				Console.err("GUIButton -> dragOffset not set");
 			} else {
-				position.x = WarpedMouse.getPoint().x - dragOffset.x;
-				position.y = WarpedMouse.getPoint().y - dragOffset.y;
 				
-				if(position.x < 0) position.x = 0;
-				if(position.y < 0) position.y = 0;
-				if(position.x + size.x > c2.x) position.x = c2.x - size.x;
-				if(position.y + size.y > c2.y) position.x = c2.y - size.y;				
+				double px = WarpedMouse.getPoint().x - dragOffset.x();
+				double py = WarpedMouse.getPoint().y - dragOffset.y();
+				
+				if(px < 0) px = 0;
+				if(py < 0) py = 0;
+				if(px + sprite.getSize().x() > WarpedWindow.getWindowWidth()) px = WarpedWindow.getWindowWidth() - sprite.getSize().x();
+				if(py + sprite.getSize().y() > WarpedWindow.getWindowHeight()) px = WarpedWindow.getWindowHeight() - sprite.getSize().y();	
+				
+				setPosition(px, py);
 			}
 			
 			if(draggedAction != null) draggedAction.action();
-		}
-	}
-	protected void updateObject()  {
-		if(repeatPressAction && isPressing) {
-			if(WarpedMouse.isPressed()) {
-				pressedAction.action();				
-			} else isPressing = false;
 		}
 	}
 
@@ -341,7 +295,6 @@ public class GUIButton extends WarpedGUI {
 		if(WarpedMouse.isDragging()) isEnteredDragging = true;
 		if(!isDragging && !isEnteredDragging) {			
 			sprite.hover();
-			setRaster(sprite.raster());
 			enteredSFX.play();
 			
 			if(enteredAction != null) enteredAction.action();
@@ -350,11 +303,9 @@ public class GUIButton extends WarpedGUI {
 	
 	protected void mouseExited() {
 		Console.ln("GUIButton -> mouseExited()");
-		isPressing = false;
 		if(isLocked) return;
 		if(!isDragging && !isEnteredDragging) {
 			sprite.plain();
-			setRaster(sprite.raster());
 			exitedSFX.play();
 			
 			if(exitedAction != null) exitedAction.action();
@@ -366,13 +317,9 @@ public class GUIButton extends WarpedGUI {
 		if(isLocked) return;
 		if(!isDragging && !isEnteredDragging) {			
 			sprite.press();
-			setRaster(sprite.raster());
 			pressedSFX.play();		
+			if(pressedAction!= null) pressedAction.action(mouseEvent);
 			
-			if(pressedAction!= null) {
-				isPressing = true;
-				pressedAction.action();
-			}
 		}
 	} 
 	
@@ -381,14 +328,11 @@ public class GUIButton extends WarpedGUI {
 		if(isLocked) return;
 		if(!isDragging && !isEnteredDragging) {		
 			sprite.hover();
-			setRaster(sprite.raster());
 			releasedSFX.play();
-			
-			if(releasedAction != null) releasedAction.action();
+			if(releasedAction != null) releasedAction.action(mouseEvent);
 		}
 		if(isEnteredDragging) {
 			sprite.hover();
-			setRaster(sprite.raster());
 			isEnteredDragging = false;
 		}
 	}	
@@ -398,7 +342,6 @@ public class GUIButton extends WarpedGUI {
 		if(isDraggable && !isEnteredDragging) {
 			if(!isDragging && !WarpedMouse.isFocused()) {
 				sprite.press();
-				setRaster(sprite.raster());
 				WarpedMouse.focus();
 				
 				isDragging = true;
@@ -413,13 +356,13 @@ public class GUIButton extends WarpedGUI {
 				Console.err("GUIButton -> mouseMoved() -> warpedmouseevent.getPointRelativeToObject() returned null");
 				return; 
 			}
-			dragOffset.x = mouseEvent.getPointRelativeToObject().x;
-			dragOffset.y = mouseEvent.getPointRelativeToObject().y;
-			movedAction.action();
+			dragOffset.set(mouseEvent.getPointRelativeToObject().x, mouseEvent.getPointRelativeToObject().y);
+			if(movedAction != null) movedAction.action();
 		}
 	}
 	
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
+
 
 
 }

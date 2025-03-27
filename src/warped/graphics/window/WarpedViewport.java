@@ -10,25 +10,24 @@ import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import warped.WarpedProperties;
 import warped.application.object.WarpedObject;
-import warped.application.object.WarpedVoidObject;
 import warped.application.state.WarpedState;
 import warped.application.state.managers.gameObjectManagers.WarpedManager;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
+import warped.functionalInterfaces.WarpedAction;
 import warped.graphics.camera.WarpedCamera;
 import warped.user.mouse.WarpedMouse;
 import warped.user.mouse.WarpedMouseEvent;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 public class WarpedViewport {
 
-	/**Notes : 
-	 * 
-	 * 
+	/*Notes : 
 	 * ---ViewPort---  
 	 * Each ViewPort has its own thread that is responsible for drawing
 	 * 
@@ -40,11 +39,14 @@ public class WarpedViewport {
 	 * 
 	 * The other function is dispatchMouseEvent().
 	 * This function is called periodically from the WarpedScreen thread. 
+	 * 
+	 * It would be ideal to separate mouse events from the drawing the viewport objects but it is a convenient time to check them as all the data should be in the cache at that time 
 	 * */
+	
 	private String name;	
 	private long updateDuration;
 	
-	private WarpedManager<? extends WarpedObject> target; // graphic input	
+	private WarpedManager<?> target; // graphic input	
 	public  WarpedCamera camera = WarpedState.cameraManager.getDefaultEntitieCamera();
 	
 	private ArrayList<Integer> targetGroups = new ArrayList<>();
@@ -54,25 +56,22 @@ public class WarpedViewport {
 	private boolean visible = true;
 	private boolean interactive = true;
 	
-	private Vec2i size = new Vec2i(); 
-	private Vec2i position = new Vec2i();
+	private VectorI size = new VectorI(); 
+	private VectorI position = new VectorI();
 	
 	private BufferedImage raster;    //graphic output
 	private BufferedImage[] rasterBuffer;
 	private static int bufferSize;
 	private int rasterIndex = 0;
-	
-	
-	   
 
 	public WarpedMouseEvent mouseEvent;
 
 	public ArrayList<WarpedObject> eventObjects = new ArrayList<>();
-	public WarpedObject eventObject  = new WarpedVoidObject(); 
-	public WarpedObject renderObject = new WarpedVoidObject(); //The object currently being rendered	
 	
-	protected Object[] renderHints = new Object[9];
+	protected Object[] renderHints = new Object[8];
+	
 	private RenderType renderType = RenderType.ACTIVE;
+	private WarpedAction renderMethod;
 	
 	AffineTransform at = new AffineTransform();
 	
@@ -84,17 +83,25 @@ public class WarpedViewport {
 	public static final int ALPHA_INTERPOLATION    = 5;
 	public static final int STROKE                 = 6;
 	public static final int DITHERING              = 7;
-	public static final int OVERALL				   = 8;
-	
-	public static final Integer PRIMITIVE = 0;
-	public static final Integer ADVANCE   = 1;
-	
+		
 	private static final Composite clearComposite = AlphaComposite.getInstance(AlphaComposite.CLEAR);
 	private static final Composite drawComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+	
+	public enum RenderType {
+		PRIMITIVE,
+		PRIMITIVE_TRANSFORMED_SCALED,
+		ACTIVE,
+		ACTIVE_TRANSFORMED_SCALED,
+		BAKED, 
+		BAKED_TRANSFORMED_SCALED,
+		TARGET_GROUPS,
+		TARGET_GROUPS_TRANSFORMED_SCALED,
+	}
+	
 	//--------
 	//---------------- Constructors -------
 	//--------
-	public WarpedViewport(String name, WarpedManager<? extends WarpedObject> target, WarpedCamera camera, Vec2i frameSize, Vec2i framePosition) { /*GameContext must be defined at this point*/
+	public WarpedViewport(String name, WarpedManager<? extends WarpedObject> target, WarpedCamera camera, VectorI frameSize, VectorI framePosition) { /*GameContext must be defined at this point*/
 		this.name = name;
 		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
 		//viewportTimer = new Timer("WarpedViewport : " + name);
@@ -102,25 +109,26 @@ public class WarpedViewport {
 		this.position = framePosition; 
 		this.target = target;
 		this.camera = camera;
-		camera.setCornerPins(0, 0, framePosition.x + frameSize.x, framePosition.y + frameSize.y);
+		camera.setCornerPins(0, 0, framePosition.x() + frameSize.x(), framePosition.y() + frameSize.y());
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
 		rasterBuffer = new BufferedImage[bufferSize];
-		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x, size.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		raster = rasterBuffer[0];
 		setDefaultRenderHints();
+		setRenderMethod(RenderType.ACTIVE);
 		
-		//Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::update, 0, 16666666, TimeUnit.NANOSECONDS);
+		
 	}
 	
-	@SuppressWarnings("unchecked")
+	
 	public WarpedViewport(String name, WarpedManagerType target, int x, int y, int width, int height) {
 		this.name = name;
 		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
 		//viewportTimer = new Timer("WarpedViewport : " + name);
-		this.size = new Vec2i(width, height);
-		this.position = new Vec2i(x, y); 
+		this.size = new VectorI(width, height);
+		this.position = new VectorI(x, y); 
 		this.target = WarpedState.getManager(target);;
 		this.camera = WarpedState.cameraManager.getDefaultCamera(target);
 		camera.setCornerPins(0, 0, x + width, y + height);
@@ -128,43 +136,53 @@ public class WarpedViewport {
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
 		rasterBuffer = new BufferedImage[bufferSize];
-		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x, size.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		raster = rasterBuffer[0];
 		setDefaultRenderHints();
+		setRenderMethod(RenderType.ACTIVE);
 		
 	}
 	
-	@SuppressWarnings("unchecked")
+	
 	public WarpedViewport(String name, WarpedManagerType target) {
 		this.name = name;
 		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
 		//viewportTimer = new Timer("WarpedViewport : " + name);
-		this.size = new Vec2i(WarpedWindow.width, WarpedWindow.height);
-		this.position = new Vec2i(); 
+		this.size = new VectorI(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight());
+		this.position = new VectorI(); 
 		this.target = WarpedState.getManager(target);;
 		this.camera = WarpedState.cameraManager.getDefaultCamera(target);
-		camera.setCornerPins(0, 0, size.x, size.y);
+		camera.setCornerPins(0, 0, size.x(), size.y());
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
 		rasterBuffer = new BufferedImage[bufferSize];
-		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x, size.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		raster = rasterBuffer[0];
 		setDefaultRenderHints();
+		setRenderMethod(RenderType.ACTIVE);
 		
 	}
 
-	public void update() {
+	/**DO NOT CALL - this method is scheduled for automatic execution by the WarpedWindow.
+	 * @implNote redraws the viewport based on the current target / targets.
+	 * @author SomeKid*/
+	public final void update() {
 		long cycleStartTime = System.nanoTime();
+		camera.update();
 		render();
 		updateDuration = System.nanoTime() - cycleStartTime;		
 	}
 	
+	/**For the currently targeted manager, set which groups should be viewed by this viewport.
+	 * @param groups - a list of the groups within the current targeted manager to draw.
+	 * @author SomeKid*/
+	public final void setTargetGroups(Integer... groups) {setTargetGroups(Arrays.asList(groups));}
 	
-	//--------
-	//---------------------- Access ----------------------
-	//--------	
-	public void setTargetGroups(List<Integer> groups) {
+	/**For the currently targeted manager, set which groups should be viewed by this viewport.
+	 * @param groups - a list of the groups within the current targeted manager to draw.
+	 * @author SomeKid*/
+	public final void setTargetGroups(List<Integer> groups) {
 		targetGroups.clear();
 		for(int i = 0; i < groups.size(); i++) {
 			int index = groups.get(i);
@@ -175,68 +193,202 @@ public class WarpedViewport {
 			targetGroups.add(index);
 		}
 	}
-	public void bakeTargetGroups(List<Integer> groups) {
+	
+	/**Sets the render method to Baked and renders the the currently targeted groups (if any).
+	 * @param isScaledAndTransformed - if true the render method will scale and transform the image according to the current camera 2.
+	 * @param groups - a list of the groups within the current targeted manager to bake.
+	 * @apiNote baked viewports will only draw groups that have been targeted, it is independent if which groups are open / closed.
+	 * @author SomeKid*/
+	public void bakeGroups(boolean isBakedAndTransformed, Integer... groups) {
 		setTargetGroups(groups);
-		
-		BufferedImage baked = new BufferedImage(size.x, size.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		bakeGroups(isBakedAndTransformed);
+	}
+	
+	/**Sets the render method to Baked and renders the the currently targeted groups (if any).
+	 * @param isScaledAndTransformed - if true the render method will scale and transform the image according to the current camera 2.
+	 * @apiNote baked viewports will only draw groups that have been targeted, it is independent if which groups are open / closed.
+	 * @author SomeKid*/
+	public void bakeGroups(boolean isScaledAndTransformed) {		
+		setRenderMethod(RenderType.BAKED);
+		BufferedImage baked = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		Graphics2D g = baked.createGraphics();
-
 		setRenderHints(g);
-		for(int i = 0; i < targetGroups.size(); i++) {
+		
+		if(isScaledAndTransformed) {	
+			for(int i = 0; i < targetGroups.size(); i++) {
+				getTarget().getGroup(targetGroups.get(i)).forEach((obj) -> {
+					obj.setRenderTransformations(camera);
+					if(obj.isVisible() && !camera.isClipped(obj)) {			
+						at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
+						g.drawRenderedImage(obj.raster(), at);	
+					}
+				});
+			}
+		} else for(int i = 0; i < targetGroups.size(); i++) {
 			getTarget().getGroup(targetGroups.get(i)).forEach((obj) -> {
-	 			if(obj.isVisible()) {			
-	 				obj.renderSize.set(obj.getSize());
-	 				obj.renderPosition.set(obj.getPosition());	
-	 				if(!camera.isClipped(obj)) {							
-	 					if(renderHints[OVERALL] == PRIMITIVE) {
-							g.drawImage(obj.raster(), (int)(obj.renderPosition.x),(int)(obj.renderPosition.y), (int)(obj.renderSize.x),(int)(obj.renderSize.y), null); // draw the object
-						} else {						
-							at.setTransform(1.0, 0.0, 0.0, 1.0, obj.renderPosition.x, obj.renderPosition.y);
-							g.drawRenderedImage(obj.raster(), at);	
-						}
-	 				}
-	 			}
-	 		});
-			
+				if(obj.isVisible() && !camera.isClipped(obj)) {			
+					at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
+					g.drawRenderedImage(obj.raster(), at);	
+				}
+			});
 		}
+		
 		g.dispose();
-		if(eventObjects.size() > 0 && eventObject == null) eventObject = eventObjects.get(eventObjects.size() - 1);
 		raster = baked;		
 	}
+	
+	/**The manager that this viewport is targeting.
+	 * @return WarpedManager<?> - the current manager.
+	 * @author SomeKid*/
 	public WarpedManager<? extends WarpedObject> getTarget() {return target;}
+	
+	/**The camera this viewport is using to calculate render translation and scale. 
+	 * @return WarpedCamera - the current camera.
+	 * @author SomeKid*/
 	public WarpedCamera getCamera() {return camera;}
+
 	
-	public Graphics2D getGraphics2D() {
-		rasterIndex++;
-		if(rasterIndex >= bufferSize) rasterIndex = 0;
-		return rasterBuffer[rasterIndex].createGraphics();		
-	}
+	/**Is the viewport visible in the window
+	 * @returns boolean - If true the viewport will be drawn in the window.
+	 * @author SomeKid */
+	public boolean isVisible() {return visible;}
 	
-	public void clearBake() {
-		if(renderType != RenderType.BAKED) {
-			Console.err("WarpedViewport -> clearBake() -> renderType is not baked");
-			return;
+	/**Can the mouse interact with the viewport.
+	 * @return boolean - If true the mouse will be able to interact with objects displayed in the viewport
+	 * @author SomeKid */
+	public boolean isInteractive() {return interactive;}
+	
+	/**Set type of rendering that this viewport should use.
+	 * All viewports will draw groups from their respective targeted managers.
+	 * @param renderType - the type of rendering to use.
+	 * @apiNote PRIMITIVE 
+	 * @apiNote    - This is the simplest and fastest render method. 
+	 * @apiNote    - Only groups which are 'open' will be rendered.
+	 * @apiNote    - Camera scale and translation will be ignored.
+	 * @apiNote    - Actively produces new frames at target 60fps.
+	 * @apiNote    - Render Hints will not be applied. 
+	 * @apiNote PRIMITIVE_TRANSFOREMD_SCALED
+	 * @apiNote    - Only groups which are 'open' will be rendered.
+	 * @apiNote    - Camera scale and translation is applied.
+	 * @apiNote    - Actively produces new frames at target 60fps.
+	 * @apiNote    - Render hints will not be applied. 
+	 * @apiNote ACTIVE 
+	 * @apiNote    - Only groups which are 'open' will be rendered.
+	 * @apiNote    - Camera scale and translation will be ignored.
+	 * @apiNote    - Actively produces new frames at target 60fps.
+	 * @apiNote    - Render hints will be applied.
+	 * @apiNote ACTIVE_TRANSFORMED_SCALED
+	 * @apiNote    - Only groups which are 'open' will be rendered.
+	 * @apiNote    - Camera scale and translation is applied.
+	 * @apiNote    - Actively produces new frames at target 60fps.
+	 * @apiNote    - Render hints will be applied.
+	 * @apiNote BAKED
+	 * @apiNote    - Only groups which are targeted by this viewport will be rendered.
+	 * @apiNote    - Camera scale and translation will be ignored.
+	 * @apiNote    - Produces one frame at the time this function is called, does not update actively.
+	 * @apiNote    - Render hints will be applied.
+	 * @apiNote BAKED_TRANSFORMED_SCALED
+	 * @apiNote    - Only groups which are targeted by this viewport will be rendered.
+	 * @apiNote    - Camera scale and translation is applied.
+	 * @apiNote    - Produces one frame at the time this function is called, does not update actively.
+	 * @apiNote    - Render hints will be applied.
+	 * @apiNote TARGET_GROUPS
+	 * @apiNote    - Only groups which are targeted by this viewport will be rendered.
+	 * @apiNote    - Camera scale and translation will be ignored.
+	 * @apiNote    - Actively produces new frames at target 60fps.
+	 * @apiNote    - Render hints will be applied.
+	 * @apiNote TARGET_GROUPS_TRANSFORMED_SCALED
+	 * @apiNote    - Only groups which are targeted by this viewport will be rendered.
+	 * @apiNote    - Camera scale and translation is applied.
+	 * @apiNote    - Actively produces new frames at target 60fps.
+	 * @apiNote    - Render hints will be applied.
+	 * */
+	public void setRenderMethod(RenderType renderType) {
+		this.renderType = renderType;
+		switch(renderType) {
+		case PRIMITIVE:
+			renderMethod = primitive;
+			break;
+		case PRIMITIVE_TRANSFORMED_SCALED:
+			renderMethod = primitiveTransformedScaled;
+			break;
+		case ACTIVE: 
+			renderMethod = render;				
+			break;
+		case ACTIVE_TRANSFORMED_SCALED:
+			renderMethod = renderTransformedScaled;	
+			break;
+		case BAKED:
+			bakeGroups(false);
+			renderMethod = renderBaked;				
+			break;
+		case BAKED_TRANSFORMED_SCALED:
+			bakeGroups(true);
+			renderMethod = renderBaked;
+			break;
+		case TARGET_GROUPS:			
+			renderMethod = renderTargets; 
+			break;
+		case TARGET_GROUPS_TRANSFORMED_SCALED:
+			renderMethod = renderTargetsTransformedScaled;
+			break;
+		default:
+			Console.err("WarpedViewport -> setRenderMethod() -> invalid case :" + renderType);
+			return;		
 		}
-		
-		raster = new BufferedImage(size.x, size.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
 	}
 	
-	public void setRenderMethod(RenderType renderType) {this.renderType = renderType;}
-	public boolean isVisible() {if(visible)return true; return false;}
-	public boolean isInteractive() {if(interactive)return true; return false;}
-	public void interactive() {interactive = true;}
-	public void ateractive() {interactive = false;}
-	public void visible()   {visible = true;}
-	public void invisible() {visible = false;}
+	/**Set if the mouse can interactive with objects drawn by this viewport
+	 * @param isInteractive  - If true the mouse will be able to interact with objects displayed in the viewport
+	 * @apiNote If the viewport doesn't need mouse I/O you should set this false.
+	 * @impNote A viewport that is not visible will not be able to interact with the mouse even if isInteractve is true
+	 * @author SomeKid */
+	public void setInteractive(boolean isInteractive) {this.interactive = isInteractive;}
+		
+	/**Set if the viewport is visible in window
+	 * @param isVisible - If true the viewport will be drawn in the window
+	 * @impNote A viewport that is not visible will not be able to interact with the mouse even if isInteractve is true
+	 * @author SomeKid*/
+	public void setVisible(boolean isVisible) {this.visible = isVisible;}
+
+	/**Get the name of the viewport
+	 * @return String - the name
+	 * @apiNote The name of the viewport is mainly for debug purposes. It is not important for the operation of the viewport.
+	 * @author SomeKid*/
 	public String getName() {return name;}
-	public Vec2i getPosition() {return position;}
-	public Vec2i getSize() {return size;}
+	
+	/**Get the X position of the viewport relative to the window
+	 * @return int - the top left corner of this viewport X coordinate measured in pixels.
+	 * @implNote The origin of the window is the top left corner of the window.
+	 * @author SomeKid*/
+	public int getX() {return position.x();}
+	
+	/**Get the Y position of the viewport relative to the window
+	 * @return int - the top left corner of this viewport Y coordinate measured in pixels.
+	 * @implNote The origin of the window is the top left corner of the window.
+	 * @author SomeKid*/
+	public int getY() {return position.y();}
+	
+	/**Get the width of this viewport
+	 * @return int - the width of the viewport measured in pixels 
+	 * @author SomeKid*/
+	public int getWidth() {return size.x();}
+	
+	/**Get the height of this viewport
+	 * @return int - the height of the viewport measured in pixels
+	 * @author SomeKid*/
+	public int getHeight() {return size.y();}
+	
+	/**The graphic output for this viewport
+	 * @return BufferedImage - this image is the current frame of viewport at the time this function is called.
+	 * @implNote You should not try to edit the viewport raster manually. 
+	 * @implNote Editing this image will possibly cause momentary graphical artifacts.
+	 * @author SomeKid*/
 	public BufferedImage raster() {return raster;}
 	
-	
-	//--------
-	//-------- Graphics Options --------
-	//--------
+	/**Sets the rendering parameters for this viewport to the default.
+	 * @apiNote Call this function if you have changed the render settings and want to reset them.
+	 * @author SomeKid*/
 	public void setDefaultRenderHints() {
 		renderHints[RENDERING] 			 = RenderingHints.VALUE_RENDER_QUALITY;
 		renderHints[COLOR] 				 = RenderingHints.VALUE_COLOR_RENDER_QUALITY;
@@ -246,57 +398,103 @@ public class WarpedViewport {
 		renderHints[ALPHA_INTERPOLATION] = RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;
 		renderHints[STROKE] 			 = RenderingHints.VALUE_STROKE_PURE;
 		renderHints[DITHERING] 		     = RenderingHints.VALUE_DITHER_ENABLE;
-		renderHints[OVERALL] 		     = ADVANCE;
 	}
 	
+	/**Better render quality but slower.
+	 * @apiNote primitive render methods will ignore these hints. 
+	 * @author SomeKid*/
 	public void hintRenderingQuality() {renderHints[RENDERING] = RenderingHints.VALUE_RENDER_QUALITY;}
+	/**Reduced render quality but faster.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/
 	public void hintRenderingSpeed()   {renderHints[RENDERING] = RenderingHints.VALUE_RENDER_SPEED;}
-                
+	/**Better colour quality but slower.
+	 * @apiNote primitive render methods will ignore these hints. 
+	 * @author SomeKid*/
 	public void hintColorQuality() {renderHints[COLOR] = RenderingHints.VALUE_COLOR_RENDER_QUALITY;}
+	/**Reduced colour quality but faster.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/
 	public void hintColorSpeed() {renderHints[COLOR] = RenderingHints.VALUE_COLOR_RENDER_SPEED;}
-	            
+	/**Turn on antialiasing for images.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/            
 	public void hintAntialiasingOn() {renderHints[ANTIALIASING] = RenderingHints.VALUE_ANTIALIAS_ON;}
+	/**Turn off antialiasing for images.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/      
 	public void hintAntialiasingOff() {renderHints[ANTIALIASING] = RenderingHints.VALUE_ANTIALIAS_OFF;}
-	            
+	/**Turn on antialiasing for text.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/      
 	public void hintTextAntialiasingOn() {renderHints[TEXT_ANTIALIASING] = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;}
+	/**Turn off antialiasing for text.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/      
 	public void hintTextAntialiasingOff() {renderHints[TEXT_ANTIALIASING] = RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;}
-	            
+	
+	/**Scale images using NearestNeighbour algorithm - fast but low quality.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/      
 	public void hintInterpolationNearestNeighbour() {renderHints[INTERPOLATION] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;}
+	/**Scale images using Bilinear algorithm - better quality than NearestNeighbour but slower.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/      
 	public void hintInterpolationBilinear() {renderHints[INTERPOLATION] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;}
+	/**Scale images using Bicubic algorithm - slow but accurate scaling.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/      
 	public void hintInterpolationBicubic() {renderHints[INTERPOLATION] = RenderingHints.VALUE_INTERPOLATION_BICUBIC;}
 	            
+	/**Best quality alpha blending, slowest
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/
 	public void hintAlphaInterpolationQuality() {renderHints[ALPHA_INTERPOLATION] = RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;}
+	/**Fast, reduced fidelity 
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/
 	public void hintAlphaInterpolationSpeed() {renderHints[ALPHA_INTERPOLATION] = RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;}
 	            
+	/**Not sure what this does, lol.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/
 	public void hintStrokeNormalise() {renderHints[STROKE] = RenderingHints.VALUE_STROKE_NORMALIZE;}
+	/**Not sure what this does, lol.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/
 	public void hintStrokePure() {renderHints[STROKE] = RenderingHints.VALUE_STROKE_PURE;}
 	            
+	/**Improves the quality of edges of rotated images, increases render time.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/
 	public void hintDitheringOn() {renderHints[DITHERING] = RenderingHints.VALUE_DITHER_ENABLE;}
+	/**Skip dithering, increase render time.
+	 * @apiNote primitive render methods will ignore these hints.
+	 * @author SomeKid*/
 	public void hintDitheringOff() {renderHints[DITHERING] = RenderingHints.VALUE_DITHER_DISABLE;}
 	
-	public void hintOverallAdvance() {renderHints[OVERALL] = ADVANCE;}
-	public void hintOverallPrimitive() {renderHints[OVERALL] = PRIMITIVE;}
 		
 	//--------
 	//-------------- Mouse Event ----------------------
 	//--------
+	/** DO NOT CALL.
+	 * @implNote This function is called from the WarpedWindow class automatically when a mouse event occurs over it.
+	 * @implNote This function may be called multiple times per frame, only the last mouse event of each frame is considered; all other events will be trashed.
+	 * @author SomeKid */
 	public void MouseEvent(WarpedMouseEvent mouseEvent) {
 		mouseEvent.updateTrace(this);
-		this.mouseEvent = mouseEvent;				
+		this.mouseEvent = mouseEvent;
 	}
 	
-	public boolean isHit(Point trace) { // check if click is contained within the bounds of the view port
-		if(trace.x > position.x && trace.x < (position.x + size.x)
-		&& trace.y > position.y && trace.y < (position.y + size.y)) return true;
-		else return false;
-	}
-	
-	
+	/** DO NOT CALL. 
+	 * @implNote This function is called automatically from the WarpedWindow once at the end of each render cycle.
+	 * @author SomeKid*/
 	public void dispatchMouseEvents() {
-		if(!isEventObject()) return;
+		if(eventObjects.size() == 0 || !isEvent()) return;
+		WarpedObject eventObject = eventObjects.get(eventObjects.size() - 1);
+		eventObjects.clear();
 		
-		if(!isEvent()) return;
-		else if(mouseEvent.isHandled()) {
+		if(mouseEvent.isHandled()) {
 			mouseEvent = null;
 			return;		
 		}
@@ -304,33 +502,33 @@ public class WarpedViewport {
 		eventObject.hovered();		
 		eventObject.mouseEvent(mouseEvent);
 		mouseEvent.handle();
-		mouseEvent = null;
+		mouseEvent  = null;
 		eventObject = null;
+		
 	}
 	
-	protected void handleMouse() {
-		if(!isEvent()  || !renderObject.isVisible() || !renderObject.isInteractive() || mouseEvent.isHandled()) return;		
-		
-		if(!isOverObject()) renderObject.unhovered();
-		else {
-			eventObjects.forEach(obj -> {obj.unhovered();});
-			eventObjects.add(renderObject);		
-		}
+	/**Checks if the renderObject interacts with the mouseEvent, if the renderObject is added to the eventObjects shortList.
+	 * The last object in eventObjects will be the object that actually receives a mouse event when dispactMouseEvent() triggers. 
+	 * 	@author 5som3*/
+	protected void handleMouse(WarpedObject renderObject) {
+		if(!isEvent()  || !renderObject.isVisible() || !renderObject.isInteractive()) return;		
+		if(isOverObject(renderObject)) eventObjects.add(renderObject);
+		else renderObject.unhovered();
 	}
 		
 	private boolean isEvent() {if(mouseEvent == null) return false; else return true;}
-	private boolean isEventObject() {if(eventObject == null) return false; else return true;}
+
 	
-	private boolean isOverObject(){
+	private boolean isOverObject(WarpedObject renderObject){
 		WarpedMouseEvent mEvent = mouseEvent;
 		if(mEvent == null) return false; 
 		Point point = mEvent.getPointRelativeToViewPort();
 		
-		int traceX = (int)(point.x - renderObject.renderPosition.x);
-		int traceY = (int)(point.y - renderObject.renderPosition.y);
+		int traceX = (int)(point.x - renderObject.getRenderPosition().x());
+		int traceY = (int)(point.y - renderObject.getRenderPosition().y());
 		
-		if(traceX > 0 && traceX < renderObject.renderSize.x
-		&& traceY > 0 && traceY < renderObject.renderSize.y) {
+		if(traceX > 0 && traceX < renderObject.getRenderSize().x()
+		&& traceY > 0 && traceY < renderObject.getRenderSize().y()) {
 			
 			int pixelX = (int)(traceX / camera.getZoom());
 			int pixelY = (int)(traceY / camera.getZoom());
@@ -339,7 +537,9 @@ public class WarpedViewport {
 			&& pixelY > 0 && pixelY < renderObject.raster().getHeight()) {
 				int col = renderObject.raster().getRGB(pixelX, pixelY);
 				int alpha = 0xFF & (col >> 24);
-				if(alpha > WarpedMouse.ALPHA_THRESHHOLD) return true;
+				if(alpha > WarpedMouse.ALPHA_THRESHHOLD) {
+					return true;
+				}
 				else return false;				
 			} else return false;
 		}else return false;
@@ -349,29 +549,29 @@ public class WarpedViewport {
 	//--------
 	//---------------- Graphics --------
 	//--------	
-	public enum RenderType {
-		ACTIVE,
-		ACTIVE_TRANSFORMED_SCALED,
-		TARGET_GROUPS,
-		BAKED,
-		
+	
+	/**Get the graphics for this viewport.
+	 * @return Graphics2D - a graphics interface with next buffer in the viewport.
+	 * @implNote any changes made to the graphics will not not be visible raster is set to the new buffer.
+	 * @author SomeKid*/
+	private Graphics2D getGraphics() {
+		rasterIndex++;
+		if(rasterIndex >= bufferSize) rasterIndex = 0;
+		Graphics2D g = rasterBuffer[rasterIndex].createGraphics();
+		clear(g);
+		return g; 		
 	}
 	
-	
-	public void render() {	
-		switch(renderType) {
-		case ACTIVE: renderActive();									 break;
-		case ACTIVE_TRANSFORMED_SCALED: renderTransformedScaledActive(); break;
-		case TARGET_GROUPS: renderTargetGroup(); 						 break;
-		case BAKED: return;
-		default:
-			Console.err("WarpedViewPort -> render() -> invalid case : + renderType");
-			break;
-		}
+	/** Renders the viewport based on the set method and set's the output raster to the new buffer
+	 * @author SomeKid*/
+	private void render() {	
+		renderMethod.action();
 		raster = rasterBuffer[rasterIndex];
 	}
 	
-	protected void setRenderHints(Graphics2D g) {
+	/**Sets the render hints for a graphical context to the render hint parameters of this Viewport.
+	 * @author SomeKid*/
+	private void setRenderHints(Graphics2D g) {
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, 		   renderHints[RENDERING]);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 	   renderHints[ANTIALIASING]); 
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,   renderHints[TEXT_ANTIALIASING]); 
@@ -382,6 +582,7 @@ public class WarpedViewport {
 		g.setRenderingHint(RenderingHints.KEY_DITHERING, 		   renderHints[DITHERING]); 
 	}
 	
+	/*
 	protected void renderTargetGroup() {
 		eventObjects.clear();
 		camera.update();
@@ -391,15 +592,13 @@ public class WarpedViewport {
 			getTarget().getGroup(targetGroups.get(i)).forEach((obj) -> {
 	 			renderObject = obj;
 	 			if(obj.isVisible()) {			
-	 				obj.renderSize.set(obj.getSize());
-	 				obj.renderPosition.set(obj.getPosition());
 	 				if(camera.isTracking() && obj.isEqualTo(camera.getTarget()))	camera.updateTracking(obj);		
 	 				if(!camera.isClipped(obj)) {							
 	 					
 	 					if(renderHints[OVERALL] == PRIMITIVE) {
-							g.drawImage(obj.raster(), (int)(obj.renderPosition.x),(int)(obj.renderPosition.y), (int)(obj.renderSize.x),(int)(obj.renderSize.y), null); // draw the object
+							g.drawImage(obj.raster(), (int)(obj.getRenderPosition().x),(int)(obj.getRenderPosition().y), (int)(obj.getRenderSize().x),(int)(obj.getRenderSize().y), null); // draw the object
 						} else {						
-							at.setTransform(1.0, 0.0, 0.0, 1.0, obj.renderPosition.x, obj.renderPosition.y);
+							at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getRenderPosition().x, obj.getRenderPosition().y);
 							g.drawRenderedImage(obj.raster(), at);	
 						}
 						handleMouse();
@@ -446,13 +645,6 @@ public class WarpedViewport {
 		if(eventObjects.size() > 0 && eventObject == null) eventObject = eventObjects.get(eventObjects.size() - 1);
 	}
 
-	public void clear(Graphics2D g) {
-		g = rasterBuffer[rasterIndex].createGraphics();
-		g.setComposite(clearComposite);
-		g.fillRect(0,0, size.x, size.y);
-		g.setComposite(drawComposite);		
-	}
-	
 	protected void renderActive() {
 		eventObjects.clear();
 		camera.update();
@@ -462,35 +654,184 @@ public class WarpedViewport {
 		//<WarpedGroup<WarpedObject>> activeGroups = target.getActiveGroups();
 		
 		//getTarget().getActiveGroups().forEach(group -> {
-			
+		
 		//});
-		/*
-		 */
- 		getTarget().forEachActiveGroup((obj) -> {
- 			renderObject = obj;
- 			if(obj.isVisible()) {			
- 				obj.renderSize.set(obj.getSize());
- 				obj.renderPosition.set(obj.getPosition());
- 				if(camera.isTracking() && obj.isEqualTo(camera.getTarget()))	camera.updateTracking(obj);		
- 				if(!camera.isClipped(obj)) {							
- 					
- 					if(renderHints[OVERALL] == PRIMITIVE) {
+		
+		getTarget().forEachActiveGroup((obj) -> {
+			renderObject = obj;
+			if(obj.isVisible()) {			
+				obj.renderSize.set(obj.getSize());
+				obj.renderPosition.set(obj.getPosition());
+				if(camera.isTracking() && obj.isEqualTo(camera.getTarget()))	camera.updateTracking(obj);		
+				if(!camera.isClipped(obj)) {							
+					
+					if(renderHints[OVERALL] == PRIMITIVE) {
 						g.drawImage(obj.raster(), (int)(obj.renderPosition.x),(int)(obj.renderPosition.y), (int)(obj.renderSize.x),(int)(obj.renderSize.y), null); // draw the object
 					} else {						
 						at.setTransform(1.0, 0.0, 0.0, 1.0, obj.renderPosition.x, obj.renderPosition.y);
 						g.drawRenderedImage(obj.raster(), at);	
 					}
 					handleMouse();
- 				}
- 			}
- 		});
- 		
+				}
+			}
+		});
+		
 		g.dispose();
 		if(eventObjects.size() > 0) eventObject = eventObjects.get(eventObjects.size() - 1);
 	}
+	*/
+
+	/**Fills a graphical context with 100% transparent pixels. 
+	 * @author SomeKid */
+	private void clear(Graphics2D g) {
+		g = rasterBuffer[rasterIndex].createGraphics();
+		g.setComposite(clearComposite);
+		g.fillRect(0,0, size.x(), size.y());
+		g.setComposite(drawComposite);		
+	}
 	
+	/**PRIMITIVE                                                                             
+   	 * - This is the simplest and fastest render method.                                  
+   	 * - Only groups which are 'open' will be rendered.                                   
+   	 * - Camera scale and translation will be ignored.                                    
+   	 * - Actively produces new frames at target 60fps.                                    
+   	 * - Render Hints will not be applied.                                                                                        
+	 * @author 5som3*/
+	private final WarpedAction primitive = () -> {
+		Graphics2D g = getGraphics();
+		target.forEachActiveGroup(obj -> {
+			obj.setRenderTransformations();
+			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
+			if(obj.isVisible() && !camera.isClipped(obj)) {			
+				g.drawImage(obj.raster(), (int)(obj.getRenderPosition().x()),(int)(obj.getRenderPosition().y()), (int)(obj.getRenderSize().x()),(int)(obj.getRenderSize().y()), null); 
+			}
+			handleMouse(obj);
+		});		
+		g.dispose();
+	};
+	
+	/**PRIMITIVE_TRANSFOREMD_SCALED                                                          
+	 *   - Only groups which are 'open' will be rendered.                                   
+	 *   - Camera scale and translation is applied.                                         
+     *   - Actively produces new frames at target 60fps.                                    
+     *   - Render hints will not be applied.                 
+     * @author 5som3*/
+	private final WarpedAction primitiveTransformedScaled = () -> {
+		Graphics2D g = getGraphics();
+		target.forEachActiveGroup(obj -> {
+			obj.setRenderTransformations(camera);
+			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
+			if(obj.isVisible() && !camera.isClipped(obj)) {			
+				g.drawImage(obj.raster(), (int)(obj.getRenderPosition().x()),(int)(obj.getRenderPosition().y()), (int)(obj.getRenderSize().x()),(int)(obj.getRenderSize().y()), null); 
+			}
+			handleMouse(obj);
+		});		
+		g.dispose();	
+	};
+	
+	/**ACTIVE                                                                                
+     *  - Only groups which are 'open' will be rendered.                                   
+     *  - Camera scale and translation will be ignored.                                    
+     *  - Actively produces new frames at target 60fps.                                    
+     *  - Render hints will be applied.               
+	 * @author 5som3 */
+	private final WarpedAction render = () -> {
+		Graphics2D g = getGraphics();
+		setRenderHints(g);
+		target.forEachActiveGroup(obj -> {
+			obj.setRenderTransformations();
+			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
+			if(obj.isVisible() && !camera.isClipped(obj)) {			
+				at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
+				g.drawRenderedImage(obj.raster(), at);	
+			}
+			handleMouse(obj);
+		});		
+		g.dispose();	
+	};
+	
+	/**ACTIVE_TRANSFORMED_SCALED                                                             
+     *  - Only groups which are 'open' will be rendered.                                   
+     *  - Camera scale and translation is applied.                                         
+     *  - Actively produces new frames at target 60fps.                                    
+     *  - Render hints will be applied.         
+	 * @author 5som3*/
+	private final WarpedAction renderTransformedScaled = () -> {
+		Graphics2D g = getGraphics();
+		setRenderHints(g);
+		target.forEachActiveGroup(obj -> {
+			obj.setRenderTransformations(camera);
+			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
+			if(obj.isVisible() && !camera.isClipped(obj)) {			
+				at.setTransform(camera.getZoom() * obj.getRenderScale(), 0.0, 0.0, camera.getZoom() * obj.getRenderScale(), obj.getRenderPosition().x(), obj.getRenderPosition().y());
+				g.drawRenderedImage(obj.raster(), at);	
+			}
+			handleMouse(obj);
+		});		
+		g.dispose();		
+	};
+	
+	/**TARGET_GROUPS                                                                         
+     *  - Only groups which are targeted by this viewport will be rendered.                
+     *  - Camera scale and translation will be ignored.                                    
+     *  - Actively produces new frames at target 60fps.                                    
+     *  - Render hints will be applied.                
+	 * @author 5som3*/
+	private final WarpedAction renderTargets = () -> {
+		Graphics2D g = getGraphics();
+		setRenderHints(g);
+		for(int i = 0; i < targetGroups.size(); i++) {
+			target.getGroup(targetGroups.get(i)).forEach(obj -> {
+				obj.setRenderTransformations();
+				if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
+				if(obj.isVisible() && !camera.isClipped(obj)) {			
+					at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
+					g.drawRenderedImage(obj.raster(), at);	
+				}
+				handleMouse(obj);
+			});
+		}
+		g.dispose();	
+	};
+	
+	/**TARGET_GROUPS_TRANSFORMED_SCALED                                                      
+     *  - Only groups which are targeted by this viewport will be rendered.                
+     *  - Camera scale and translation is applied.                                         
+     *  - Actively produces new frames at target 60fps.                                    
+     *  - Render hints will be applied.            
+	 * @author 5som3*/
+	private final WarpedAction renderTargetsTransformedScaled = () -> {
+		Graphics2D g = getGraphics();
+		setRenderHints(g);
+		for(int i = 0; i < targetGroups.size(); i++) {
+			target.getGroup(targetGroups.get(i)).forEach(obj -> {
+				obj.setRenderTransformations(camera);
+				if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
+				if(obj.isVisible() && !camera.isClipped(obj)) {			
+					at.setTransform(camera.getZoom() * obj.getRenderScale(), 0.0, 0.0, camera.getZoom() * obj.getRenderScale(), obj.getRenderPosition().x(), obj.getRenderPosition().y());
+					g.drawRenderedImage(obj.raster(), at);	
+				}
+				handleMouse(obj);
+			});
+		}
+		g.dispose();	
 		
-	
+	};
+
+	/**BAKED                                                                                 
+     *  - Only groups which are targeted by this viewport will be rendered.                
+     *  - Camera scale and translation will be ignored.                                    
+     *  - Produces one frame at the time this function is called, does not update actively.
+     *  - Render hints will be applied.   
+     *   
+     *BAKED_TRANSFORMED_SCALED                                                              
+     *  - Only groups which are targeted by this viewport will be rendered.                
+     *  - Camera scale and translation is applied.                                         
+     *  - Produces one frame at the time this function is called, does not update actively.
+     *  - Render hints will be applied.                
+     * @author 5som3*/
+	private final WarpedAction renderBaked = () -> {return;};
+
 	
 	
 

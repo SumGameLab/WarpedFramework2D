@@ -143,28 +143,34 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	//--------
 	//---------------- Overrides --------
 	//--------
+	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
 		if(isLocked) return;
 		else WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.WHEEL_ROTATION));
 	}
 	
+	@Override
 	public void mouseDragged(MouseEvent e) {
 		if(isLocked) return;
 		else {			
 			if(inWindow)isDragging = true;
-			mouseController.setPoint(new Point((int)(e.getPoint().x / WarpedWindow.getWindowScale().x), (int)(e.getPoint().y / WarpedWindow.getWindowScale().y)));
+			mouseController.setPoint(new Point((int)(e.getPoint().x / WarpedWindow.getWindowScale().x()), (int)(e.getPoint().y / WarpedWindow.getWindowScale().y())));
 			WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.DRAG));
 		}
 	}
 	
+	@Override
 	public void mouseMoved(MouseEvent e) {
+
 		if(isLocked) return;
 		else {			
 			mouseController.setPoint(e.getPoint());
 			WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.MOVE));
 		}
+		
 	}
 	
+	@Override
 	public void mousePressed(MouseEvent e) {
 		if(isLocked) return;
 		dropItem();		
@@ -176,6 +182,8 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.BUTTON_PRESS));
 
 	}
+	
+	@Override
 	public void mouseReleased(MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON3) {
 			resetCursor();
@@ -191,9 +199,13 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.BUTTON_RELEASE));
 			
 	}
+	
+	@Override
 	public void mouseEntered(MouseEvent e) {
 		inWindow = true;
 	}
+	
+	@Override
 	public void mouseExited(MouseEvent e) {
 		inWindow = false;
 		isDragging = false;
@@ -204,21 +216,22 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 			int ex = e.getX();
 			int ey = e.getY();
 			if(ex <= 0) x = 2;
-			else if(ex >= WarpedWindow.width) x = WarpedWindow.width - 2;
+			else if(ex >= WarpedWindow.getWindowWidth()) x = WarpedWindow.getWindowWidth() - 2;
 			else x = ex;
 			
 			if(ey <= 0) y = 2;
-			else if (ey >= WarpedWindow.height) y = WarpedWindow.height - 2;
+			else if (ey >= WarpedWindow.getWindowHeight()) y = WarpedWindow.getWindowHeight() - 2;
 			else y = ey;
 			lastPoint.setLocation(x, y);
 		}
 	}
 	
 	private boolean isOutOfBounds(Point point) {
-		if(point.x == 2 || point.y == WarpedWindow.width - 2 || point.y == 2 || point.y == WarpedWindow.height - 2) return true; else return false;
+		if(point.x == 2 || point.y == WarpedWindow.getWindowWidth() - 2 || point.y == 2 || point.y == WarpedWindow.getWindowHeight() - 2) return true; else return false;
 	}
 	
 	/** 6/6/23 -> Don't use -> is invalidated by mouse moving while clicking*/
-	public synchronized void mouseClicked(MouseEvent e) {}	
+	@Override
+	public synchronized void mouseClicked(MouseEvent e) {}
 	
 }

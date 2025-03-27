@@ -9,16 +9,16 @@ import warped.utilities.utils.UtilsMath;
 
 public enum DirectionType {
 	
-	UP,
-	DOWN,
-	LEFT,
 	RIGHT,
-	
-	UP_LEFT,
-	UP_RIGHT,
-	
+	DOWN_RIGHT,
+	DOWN,
 	DOWN_LEFT,
-	DOWN_RIGHT;
+	LEFT,
+	UP_LEFT,
+	UP,
+	UP_RIGHT;
+	
+	
 	
 	private static Map<Integer, DirectionType> map = new HashMap<>();
 	static {

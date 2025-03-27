@@ -2,225 +2,320 @@
 
 package warped.application.gui;
 
-import java.awt.AlphaComposite;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 
-import warped.WarpedProperties;
+import warped.functionalInterfaces.WarpedGraphicAction;
 import warped.user.mouse.WarpedMouseEvent;
-import warped.utilities.enums.generalised.ValueType;
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
-import warped.utilities.math.vectors.Vec3d;
-import warped.utilities.math.vectors.Vec3i;
+import warped.utilities.enums.generalised.Colour;
+import warped.utilities.math.Winteger;
+import warped.utilities.math.Woolean;
+import warped.utilities.math.Wouble;
+import warped.utilities.math.vectors.VectorD;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
 
 public class GUIValue extends WarpedGUI {
 
-	private ValueType valueType = ValueType.NULL;
+	/*GUIValue provides these functions
+	 * 
+	 * 		- display a value as text on the screen.
+	 * 		- set and forget, automatically queues updating of the graphics when ever the set value changes
+	 * 		- set a specific size for the value to be displayed.
+	 * 		- set a color for the border, background and value
+	 * 		- set the font of the value displayed
+	 * 		- set visibility of background
+	 * */
 	
-	private int tick = 0;
-	private int refreshRate = WarpedProperties.WARPED_GAME_REFRESH_RATE;
-	
-	private Color valueColor  = Color.WHITE;
-	private int   valueSize   = 12;
-	private int   valueStyle  = Font.PLAIN;
-	private Font  valueFont   = new Font("valueFont", valueStyle, valueSize);
-	private Vec2i valueOffset = new Vec2i(0, valueSize); //the position that the value will be drawn in the raster
-	private String preText = "";
-	private String postText = "";
-	
-	private Integer   integerValue = 0;
-	private Double    doubleValue = 0.0;
-	private String    stringValue = "0";
-	private Vec2d     vec2dValue = new Vec2d();
-	private Vec3d     vec3dValue = new Vec3d();
-	private Vec2i     vec2iValue = new Vec2i();
-	private Vec3i     vec3iValue = new Vec3i();
-	
-	public GUIValue(Integer value) {setValue(value);}
-	public GUIValue(Double  value) {setValue(value);}
-	public GUIValue(Vec2d   value) {setValue(value);}
-	public GUIValue(Vec3d   value) {setValue(value);}
-	public GUIValue(Vec2i   value) {setValue(value);}
-	public GUIValue(Vec3i   value) {setValue(value);}
-	
-
-	public GUIValue(Vec2d position, Vec2d size) {
-		this.position = position;
-		setRaster(new BufferedImage((int)size.x, (int)size.y, WarpedProperties.BUFFERED_IMAGE_TYPE));
+	public enum ValueType{
+		INTEGER,
+		DOUBLE,
+		BOOLEAN,
+		VECTOR_D,
+		VECTOR_I,
 	}
 	
-	public GUIValue(Integer value, Vec2d position) {
-		this.position = position;
-		setRaster(new BufferedImage((int)150, (int)30, WarpedProperties.BUFFERED_IMAGE_TYPE));
-		setValue(value);
-	}
-	public GUIValue(Double  value, Vec2d position) {
-		this.position = position;
-		setRaster(new BufferedImage((int)150, (int)30, WarpedProperties.BUFFERED_IMAGE_TYPE));
-		setValue(value);
-	}
-	public GUIValue(Vec2d value, Vec2d size, Vec2d position) {
-		this.position = position;
-		this.size = size;
-		setRaster(new BufferedImage((int)150, (int)30, WarpedProperties.BUFFERED_IMAGE_TYPE));
-		setValue(value);
+	private ValueType valueType = ValueType.INTEGER;
+	private int borderThickness = 2;
+	
+	private Color borderColor = Color.BLACK;
+	private Color backgroundColor = Colour.GREY_DARK.getColor();
+	private Color fontColor = Color.WHITE;
+	
+	private int decimals = 0;
+	
+	private boolean isBackground = true;
+	
+	private Font font = UtilsFont.getPreferred();
+	private VectorI textOffset = new VectorI(borderThickness, borderThickness + font.getSize()); 
+	
+	private Winteger  winteger;
+	private Wouble    wouble;
+	private Woolean   woolean;
+	private VectorD   vectorD;
+	private VectorI   vectorI;
+	
+	private boolean isGraphicsQueued 	= false;
+	
+	private WarpedGraphicAction updateGraphicsAction = g -> {return;};
+	
+	/**A new value with the specified size.
+	 * @param width - the width in pixels.
+	 * @param height -the height in pixels.
+	 * @author 5som3*/
+	public GUIValue(int width, int height) {
+		setSize(width, height);
+		updateGraphics();
 	}
 	
-	public GUIValue(Vec2i   value, Vec2d position) {
-		this.position = position;
-		setRaster(new BufferedImage((int)150, (int)30, WarpedProperties.BUFFERED_IMAGE_TYPE));
-		setValue(value);
-	}
-	
-	public GUIValue(Vec3i   value, Vec2d position) {
-		this.position = position;
-		setRaster(new BufferedImage((int)150, (int)30, WarpedProperties.BUFFERED_IMAGE_TYPE));
-		setValue(value);
-	}
-	
+	/**queues graphics to be updated at the next updateObject cycle*/
+	public final void queueUpdateGraphics() {isGraphicsQueued = true;}
 		
-	protected void updateObject()   {return;}
-	protected void updatePosition() {return;}
-	protected void updateRaster()   {
-		tick++;
-		if(tick > refreshRate){
-			tick = 0;
+	@Override
+	public void updateObject() {
+		if(isGraphicsQueued) {
 			updateGraphics();
+			isGraphicsQueued = false;
 		}
 	}
 	
-	/**Lower is faster, higher is slower   -> a refresh rate of 0 will update with no delay */
-	public void setRefreshRate(int refreshRate) {this.refreshRate = refreshRate;}
-	private void setFont() { valueFont = new Font("valueFont", valueStyle, valueSize);}
-	public void setValueColor(Color valueColor) {this.valueColor = valueColor;}
-	public void setValueSize(int valueSize) {
-		this.valueSize = valueSize;
-		setFont();
-		valueOffset.y = valueSize;
-	}
-	public void setValueStyle(int valueStyle) {
-		this.valueStyle = valueStyle;
-		setFont();
+	/**Set the font for the text
+	 * @param font - the new font to render the text with
+	 * @author 5som3*/
+	public void setFont(Font font) {
+		this.font = font;
+		updateGraphics();
 	}
 	
-	public <T> void setValue(T value){
-		if(value instanceof Integer) {setValue((Integer)value); return;}
-		if(value instanceof Double)  {setValue((Double) value); return;}
-		if(value instanceof String)  {setValue((String) value); return;}
-		if(value instanceof Vec2d)   {setValue((Vec2d)  value); return;}
-		if(value instanceof Vec3d)   {setValue((Vec3d)  value); return;}
-		if(value instanceof Vec2i)   {setValue((Vec2i)  value); return;}
-		if(value instanceof Vec3i)   {setValue((Vec3i)  value); return;}
+	/**Get the type of value
+	 * @return type - possible types - Integer, Double, Boolean, Vector_D, Vector_I
+	 * @author 5som3*/
+	public ValueType getType() {return valueType;}
+	
+	/**Set the size of the font ( the text size)
+	 * @param size - the new text size;
+	 * @author 5som3*/
+	public void setFontSize(int size) {
+		this.font = new Font(font.getFontName(), font.getStyle(), size);
+		updateGraphics();
+	}
+	
+	/**Set the number of decimal places when displaying a vectorD or wouble.
+	 * @param decimals - the number of decimal places to show.
+	 * @apiNote setDecimals(0) will display the full number of decimal places.
+	 * @apiNote Only visibly different when displaying a wouble or VectorD.
+	 * @author 5som3*/
+	public void setDecimals(int decimals) {
+		if(decimals < 0 || decimals > 9) {
+			Console.ln("GUIValue -> setDecimals() -> decimals is out of bounds 0 <= decimals < 6. decimals value : " + decimals);
+			if(decimals < 0) decimals = 1;
+			else decimals = 9;
+		}
+		this.decimals = decimals;
+	}
+
+	/**Set the thickness of the border color.
+	 * @param borderThickness - the new thickness for the borderColor
+	 * @apiNote Set border thickness to 0 for no border.
+	 * @apiNote The border will not be visible if setBackgroundVisible(false);
+	 * @author 5som3 */
+	public void setBorderThickness(int borderThickness) {
+		this.borderThickness = borderThickness;
+		updateGraphics();
+	}
+	
+	/**Set the colour of the border that surrounds the GUIValue
+	 * @param borderColor - the color of the border to draw
+	 * @apiNote If the setBackgroundVisible(false) the border will also be invisible
+	 * @apiNote To have a colour background with no border setBorderThickness(0)
+	 * @author 5som3*/
+	public void setBorderColor(Color borderColor) {
+		this.borderColor = borderColor;
+		updateGraphics();
+	}
+	
+	/**Set if the background behind the text will be visible
+	 * @param isBackground - if true the background will be rendered, if false the background will be 100% transparent.
+	 * @author 5som3*/
+	public void setBackgroundVisible(boolean isBackground) {
+		this.isBackground = isBackground;
+		updateGraphics();
+	}
+	
+	/**Set the color of the background
+	 * @param backgroundColor - the colour of the background behind the text
+	 * @author 5som3
+	 * */
+	public void setBackgroundColor(Color backgroundColor) {
+		this.backgroundColor = backgroundColor;
+		updateGraphics();
+	}
+	
+	/**Set the color to draw the text
+	 * @param Color - the colour of the text value
+	 * @author 5som3*/
+	public void setFontColor(Color fontColor) {
+		this.fontColor = fontColor;
+		updateGraphics();
+	}
+	
+	/**Set the offset to draw the text value at.
+	 * @param xOffset - the xOffset measured in pixels from the top left corner of the raster
+	 * @param yOffset - the yOffset measured in pixels from the top left corner of the raster.
+	 * @author 5som3*/
+	public void setTextOffset(int xOffset, int yOffset) {
+		textOffset.set(xOffset, yOffset);
+		updateGraphics();
+	}
 		
-		Console.err("GUIValue -> setValue(T value) -> tried to set unsuported value type : " + value.getClass().getSimpleName());
+	/**Clears all data and updates the graphics the specified parameters.
+	 * 
+	 * */
+	public void clearTarget() {
+		woolean  = null;
+		winteger = null;
+		wouble 	 = null;
+		vectorI  = null;
+		vectorD  = null;
+		clearGraphics();
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T> T getValue(){
-		switch(valueType) {
-		case DOUBLE:  return (T) doubleValue;
-		case INTEGER: return (T) integerValue;
-		case STRING:  return (T) stringValue;
-		case VEC2I:   return (T) vec2iValue;
-		case VEC3I:   return (T) vec3iValue;
-		case VEC_2D:  return (T) vec2dValue;
-		case VEC_3D:  return (T) vec3dValue;
-		default:
-			Console.err("GUIValue -> getValue() -> unsupported value type : " + valueType);
-			return null;
-		}
-	}
-	
-	protected void updateGraphics() {
-		if(valueType != ValueType.NULL) {
-			Graphics2D g2d = raster.createGraphics();
-			clear(g2d);
-			draw(g2d);
-			g2d.dispose();
-		}
-	}
-	
-	protected void clear(Graphics2D g2d) {
-		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR));
-		g2d.fillRect(0,0, (int)size.x, (int)size.y);
-		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER));
-	}
-	protected void draw(Graphics2D g2d) {
-		g2d.setFont(valueFont);
-		g2d.setColor(valueColor);
-		String text = "";
-		switch(valueType) {
-		case DOUBLE:  text += doubleValue.toString();  break;
-		case INTEGER: text += integerValue.toString(); break;
-		case STRING:  text += stringValue; 			   break;
-		case VEC2I:   text += vec2iValue.getString(); break; 
-		case VEC3I:   text += vec3iValue.getPrintln(); break;
-		case VEC_2D:  text += vec2dValue.getString(); break;	
-		case VEC_3D:  text += vec3dValue.getString(); break;
-		default:
-			Console.err("GUIValue -> updateGrpahics() -> unsupported switch value : " + valueType);
-			break;
-		}
-		String result = preText + text + postText;
-		g2d.setColor(valueColor);
-		g2d.drawString(result, valueOffset.x, valueOffset.y);
-	}
-	
-	protected void setValue(Integer value) {
+	/**Set a Integer value to display
+	 * @param val - An (object) Integer that this GUIValue should display 
+	 * @author 5som3*/
+	public void setTarget(Winteger winteger) {		
 		valueType = ValueType.INTEGER;
-		integerValue = value;
+		updateGraphicsAction = updateInteger;
+		if(this.winteger != null) this.winteger.clearDeltaAction();
+		this.winteger = winteger;
+		winteger.setDeltaAction(val -> {queueUpdateGraphics();});
 		updateGraphics();
 	}
-	public void setPreText(String preText) {
-		this.preText = preText;
-		updateGraphics();
-	}
-	public void setPostText(String postText) {
-		this.postText = postText;
-		updateGraphics();
-	}
-	protected void setValue(Double value) {
+	
+	/**Set a Double value to display
+	 * @param wouble - An (object) Integer that this GUIValue should display 
+	 * @author 5som3*/
+	public void setTarget(Wouble wouble) {
 		valueType = ValueType.DOUBLE;
-		doubleValue = value;
-		updateGraphics();
+		updateGraphicsAction = updateDouble;
+		if(this.wouble != null) this.wouble.clearDeltaAction();
+		this.wouble = wouble;
+		wouble.setDeltaAction(val -> {queueUpdateGraphics();});
+		updateGraphics();		
 	}
-	protected void setValue(String value) {
-		valueType = ValueType.STRING;
-		stringValue = value;
-		updateGraphics();
+	
+	/**Set a Boolean value to display
+	 * @param woolean - An (object) Boolean that this GUIValue should display 
+	 * @author 5som3*/
+	public void setTarget(Woolean woolean) {
+		valueType = ValueType.BOOLEAN;
+		updateGraphicsAction = updateBoolean;
+		if(this.woolean != null) this.woolean.clearDeltaAction();
+		this.woolean = woolean;
+		woolean.setDeltaAction(val -> {queueUpdateGraphics();});
+		updateGraphics();		
 	}
-	protected void setValue(Vec2d value) {
-		valueType = ValueType.VEC_2D;
-		vec2dValue = value;
-		updateGraphics();
+	
+	/**Set a VectorI value to display
+	 * @param vectorI - An (object) VectorI that this GUIValue should display 
+	 * @author 5som3*/
+	public void setTarget(VectorI vectorI) {
+		valueType = ValueType.VECTOR_I;
+		updateGraphicsAction = updateVectorI;
+		if(this.vectorI != null) this.vectorI.clearDeltaAction();		
+		this.vectorI = vectorI;
+		vectorI.setDeltaAction(val -> {queueUpdateGraphics();});
+		updateGraphics();		
 	}
-	protected void setValue(Vec3d value) {
-		valueType = ValueType.VEC_3D;
-		vec3dValue = value;
-		updateGraphics();
+	
+	/**Set a Vec2d value to display
+	 * @param vectorD - An (object) Vec2d that this GUIValue should display 
+	 * @author 5som3*/
+	public void setTarget(VectorD vectorD) {		
+		valueType = ValueType.VECTOR_D;
+		updateGraphicsAction = updateVectorD;
+		if(this.vectorD != null) this.vectorD.clearDeltaAction();
+		this.vectorD = vectorD;
+		vectorD.setDeltaAction(val -> {queueUpdateGraphics();});
+		updateGraphics();		
 	}
-	protected void setValue(Vec2i value) {
-		valueType = ValueType.VEC2I;
-		vec2iValue = value;
-		updateGraphics();
-	}
-	protected void setValue(Vec3i value) {
-		valueType = ValueType.VEC3I;
-		vec3iValue = value;
-		updateGraphics();
-	}
+	
+	/**Clear the graphics from this GUI.
+	 * @author 5som3*/
+	private void clearGraphics() {
+		Graphics2D g2d = getGraphics();
+		if(isBackground) {
+			g2d.setColor(borderColor);
+			g2d.fillRect(0, 0, getWidth(), getHeight());
+			
+			g2d.setColor(backgroundColor);
+			g2d.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);			
+		}
 		
-	protected void mouseEntered() {return;}
-	protected void mouseExited() {return;}
-	protected void mouseMoved(WarpedMouseEvent mouseEvent) {return;}
-	protected void mouseDragged(WarpedMouseEvent mouseEvent) {return;}
-	protected void mousePressed(WarpedMouseEvent mouseEvent) {return;}
-	protected void mouseReleased(WarpedMouseEvent mouseEvent) {return;}
-	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
+		g2d.dispose();
+		pushGraphics();
+	}
+	
+	/**Update the graphics by running the corresponding updateGraphicsAction.
+	 * @implNote The updateGraphicsAction is set automatically to be the corresponding action when the setValue() function is called
+	 * @author 5som3*/
+	private void updateGraphics() {
+		Graphics2D g2d = getGraphics();
+		
+		if(isBackground) {
+			g2d.setColor(borderColor);
+			g2d.fillRect(0, 0, getWidth(), getHeight());
+			
+			g2d.setColor(backgroundColor);
+			g2d.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);			
+		}
+		
+		g2d.setColor(fontColor);
+		g2d.setFont(font);
+		updateGraphicsAction.action(g2d);
+		
+		g2d.dispose();
+		pushGraphics();
+	}
+
+	private final WarpedGraphicAction updateInteger = g2d -> {g2d.drawString(winteger.getString(),textOffset.x(), textOffset.y());};
+	private final WarpedGraphicAction updateDouble  = g2d -> {
+		if(decimals == 0) g2d.drawString(wouble.getString(),  textOffset.x(), textOffset.y());
+		else g2d.drawString(wouble.getString(decimals),  textOffset.x(), textOffset.y());
+	};
+	private final WarpedGraphicAction updateBoolean = g2d -> {g2d.drawString(woolean.getString(), textOffset.x(), textOffset.y());};
+	private final WarpedGraphicAction updateVectorI = g2d -> {g2d.drawString(vectorI.getString(), textOffset.x(), textOffset.y());};
+	private final WarpedGraphicAction updateVectorD = g2d -> {
+		if(decimals == 0) g2d.drawString(vectorD.getString(), textOffset.x(), textOffset.y());
+		else g2d.drawString(vectorD.getString(decimals), textOffset.x(), textOffset.y());
+	};
+	
+	
+	@Override
+	protected void mouseEntered() {}
+
+	@Override
+	protected void mouseExited() {}
+
+	@Override
+	protected void mouseMoved(WarpedMouseEvent mouseEvent) {}
+
+	@Override
+	protected void mouseDragged(WarpedMouseEvent mouseEvent) {}
+
+	@Override
+	protected void mousePressed(WarpedMouseEvent mouseEvent) {}
+
+	@Override
+	protected void mouseReleased(WarpedMouseEvent mouseEvent) {}
+
+	@Override
+	protected void mouseRotation(WarpedMouseEvent mouseEvent) {}
+	
+		
+	
 
 
 

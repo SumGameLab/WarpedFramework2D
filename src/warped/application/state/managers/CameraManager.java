@@ -9,7 +9,7 @@ import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.camera.WarpedCamera;
 import warped.graphics.camera.WarpedCameraType;
 import warped.utilities.enums.generalised.DirectionType;
-import warped.utilities.math.vectors.Vec2d;
+import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
 
 public class CameraManager {
@@ -32,7 +32,6 @@ public class CameraManager {
 		case ITEM:          return cameras.get(WarpedCameraType.DEFAULT_ITEM);
 		case OBJECT:        return cameras.get(WarpedCameraType.DEFAULT_OBJECT);
 		case TILE:          return cameras.get(WarpedCameraType.DEFAULT_TILE);
-		case VFX:           return cameras.get(WarpedCameraType.DEFAULT_VFX);
 		default:
 			Console.err("CameraManager -> getDefaultCamera -> invalid case : " + managerType);
 			return cameras.get(WarpedCameraType.DEFAULT_ENTITIE); 
@@ -78,9 +77,9 @@ public class CameraManager {
 	}
 	
 	//Collective camera operations
-	public void setAllCameraPositions(Vec2d position) {cameras.forEach((e, c) -> {	c.setPosition(position);});}
+	public void setAllCameraPositions(VectorD position) {cameras.forEach((e, c) -> {	c.setPosition(position);});}
 	public void setAllCameraZooms(double zoom) {cameras.forEach((e, c) -> {c.setZoom(zoom);});}
-	public void moveAllCameras(Vec2d vec) {cameras.forEach((e, c) -> {c.move(vec);});}
+	public void moveAllCameras(VectorD vec) {cameras.forEach((e, c) -> {c.move(vec);});}
 	public void zoomInAllCameras() {cameras.forEach((e, c) -> {c.zoomIn();});}
 	public void panAllCameras(DirectionType dir) {
 		switch(dir) {

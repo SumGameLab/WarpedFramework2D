@@ -2,37 +2,35 @@
 
 package warped.utilities.math.matrices;
 
-import warped.utilities.math.vectors.Vec2i;
-import warped.utilities.math.vectors.Vec3i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 public class MatrixI {
 
 	private int[][] matrix;
-	private Vec2i matSize = new Vec2i();
+	private VectorI matSize = new VectorI();
 	
 	public MatrixI(int size) {
-		matSize = new Vec2i(size,size);
+		matSize = new VectorI(size,size);
 		matrix = new int[size][size];
 	}
 	public MatrixI(int m, int n) {
-		matSize = new Vec2i(m,n);
+		matSize = new VectorI(m,n);
 		matrix = new int[m][n];		
 	}
-	public MatrixI(Vec2i size) {
-		matSize = new Vec2i(size.x,size.y);
-		matrix = new int[size.x][size.y];
+	public MatrixI(VectorI size) {
+		matSize = new VectorI(size.x(),size.y());
+		matrix = new int[size.x()][size.y()];
 	}
 	
 	// Getters and Setters
 	public void setMatrix(int[][] matrix) {
 		this.matrix = matrix;
-		matSize.x = matrix.length;
-		matSize.y = matrix[0].length;
+		matSize.set(matrix.length, matrix[0].length);
 	}
-	public Vec2i getSize() {Vec2i result = new Vec2i(); result.x = matSize.x; result.y = matSize.y; return result;}
-	public int getM() {return matSize.x;}	// get number of rows
-	public int getN() {return matSize.y;}	// get number of columns
+	public VectorI getSize() {return matSize;}
+	public int getM() {return matSize.x();}	// get number of rows
+	public int getN() {return matSize.y();}	// get number of columns
 	public void setValue(int m, int n, int value) {matrix[m][n] = value;} // set specific value in matrix
 	public int getValue(int m, int n) {return matrix[m][n];} // get specific value from matrix
 	public void zero() {	// sets entire matrix to zero
@@ -71,8 +69,8 @@ public class MatrixI {
 	public void add(MatrixI mat) {
 		if(!getSize().isEqual(mat.getSize())) {
 			Console.err("MatrixInt -> tried to add matricies of inconsistent size :"); 
-			mat.getSize().println();
-			mat.getSize().println();
+			Console.ln(this.getSize().getString());
+			Console.ln(mat.getSize().getString());
 			return;
 		}
 		for(int m = 0; m < mat.getM(); m++) {
@@ -84,8 +82,8 @@ public class MatrixI {
 	public void subtract(MatrixI mat) {
 		if(!getSize().isEqual(mat.getSize())) {
 			Console.err("MatrixInt -> tried to add matricies of inconsistent size :"); 
-			mat.getSize().println();
-			mat.getSize().println();
+			Console.ln(this.getSize().getString());
+			Console.ln(mat.getSize().getString());
 			return;
 		}
 		for(int m = 0; m < mat.getM(); m++) {
@@ -98,8 +96,8 @@ public class MatrixI {
 	public void multiply(MatrixI mat) {
 		if(!canMultiply(this,mat)) {
 			Console.err("MatrixInt -> can't multiply matricies because they are incompatible -> Matrix Size : ");
-			this.getSize().println();
-			mat.getSize().println();
+			Console.ln(this.getSize().getString());
+			Console.ln(mat.getSize().getString());
 			return;
 		}
 		matrix = MatrixI.multiplicationRaw(this, mat);		
@@ -111,13 +109,13 @@ public class MatrixI {
 	public static MatrixI addition(MatrixI mat1, MatrixI mat2) { // Matrix 1 + matrix 2
 		if(!mat1.getSize().isEqual(mat2.getSize())) {
 			Console.err("MatrixInt -> tried to add matricies of inconsistent size :"); 
-			mat1.getSize().println();
-			mat2.getSize().println();
+			Console.ln(mat1.getSize().getString());
+			Console.ln(mat2.getSize().getString());
 			return null;
 		}
 		MatrixI result = new MatrixI(mat1.getSize());
-		for(int m = 0; m < mat1.getSize().x; m++) {
-			for(int n = 0; n < mat1.getSize().y; n++) {
+		for(int m = 0; m < mat1.getSize().x(); m++) {
+			for(int n = 0; n < mat1.getSize().y(); n++) {
 				result.setValue(m, n, mat1.getValue(m, n) + mat2.getValue(m, n)) ;
 			}
 		}
@@ -126,8 +124,8 @@ public class MatrixI {
 	public static MatrixI subtraction(MatrixI mat1, MatrixI mat2) { //Matrix 1 - Matrix 2 NOTE Matrix 1 - Matrix 2 != Matrix 2 - Matrix 1
 		if(!mat1.getSize().isEqual(mat2.getSize())) {
 			Console.err("MatrixInt -> tried to add matricies of inconsistent size :"); 
-			mat1.getSize().println();
-			mat2.getSize().println();
+			Console.ln(mat1.getSize().getString());
+			Console.ln(mat2.getSize().getString());
 			return null;
 		}
 		MatrixI result = new MatrixI(mat1.getSize());
@@ -136,41 +134,28 @@ public class MatrixI {
 		return result;
 	}
 	
-	public static MatrixI multiplication(Vec2i vec, MatrixI mat) {
-		if(Vec2i.getN() != mat.getM()) {
-			Console.err("MatrixInt -> can't multiply Vec2i with matrix because they are incompatible -> Matrix Size : ");
-			mat.getSize().println();
+	public static MatrixI multiplication(VectorI vec, MatrixI mat) {
+		if(vec.length() != mat.getM()) {
+			Console.err("MatrixInt -> can't multiply VectorI with matrix because they are incompatible -> Matrix Size : ");
+			Console.ln(mat.getSize().getString()); 
 			return null;
 		}
-		MatrixI result = new MatrixI(Vec2i.getM(), mat.getN());
+		MatrixI result = new MatrixI(vec.length(), mat.getN());
 		for(int m = 0; m < result.getM(); m++) {
 			for(int n = 0; n < result.getN(); n++) {
-				result.setValue(m, n, productVec2iN(vec, mat, n));
+				result.setValue(m, n, productVectorIN(vec, mat, n));
 			}
 		}
 		return result;
 	}
-	public static MatrixI multiplication(Vec3i vec, MatrixI mat) {
-		if(Vec3i.getN() != mat.getM()) {
-			Console.err("MatrixInt -> can't multiply Vec2i with matrix because they are incompatible -> Matrix Size : ");
-			mat.getSize().println();
-			return null;
-		}
-		MatrixI result = new MatrixI(Vec3i.getM(), mat.getN());
-		for(int m = 0; m < result.getM(); m++) {
-			for(int n = 0; n < result.getN(); n++) {
-				result.setValue(m, n, productVec3iN(vec,mat,n));
-			}
-		}
-		return result;
-	}
+
 	
 	
 	public static MatrixI multiplication(MatrixI mat1, MatrixI mat2) {
 		if(!canMultiply(mat1,mat2)) {
 			Console.err("MatrixInt -> can't multiply matricies because they are incompatible");
-			mat1.getSize().println();
-			mat2.getSize().println();
+			Console.ln(mat1.getSize().getString());
+			Console.ln(mat2.getSize().getString());
 			return null;
 		}
 		MatrixI result = new MatrixI(mat1.getM(), mat2.getN()); // create matrix of resulting matrix size to return
@@ -217,8 +202,8 @@ public class MatrixI {
 	private static int[][] multiplicationRaw(MatrixI mat1, MatrixI mat2){ // returns actual matrix rather than matrix class object
 		if(!canMultiply(mat1,mat2)) {
 			Console.err("MatrixInt -> can't multiply matricies because they are incompatible");
-			mat1.getSize().println();
-			mat2.getSize().println();
+			Console.ln(mat1.getSize().getString());
+			Console.ln(mat2.getSize().getString());
 			return null;
 		}
 		int[][] result = new int[mat1.getM()][mat2.getN()];
@@ -238,20 +223,14 @@ public class MatrixI {
 		return result;
 	}
 	
-	private static int productVec2iN(Vec2i vec, MatrixI mat, int n) {
+	private static int productVectorIN(VectorI vec, MatrixI mat, int n) {
 		int result = 0;
-		for(int p = 0; p < Vec2i.getN(); p++) {
-			result += vec.getValue(p) * mat.getValue(p, n);
+		for(int p = 0; p < vec.length(); p++) {
+			result += vec.get(p) * mat.getValue(p, n);
 		}
 		return result;
 	}
-	private static int productVec3iN(Vec3i vec, MatrixI mat, int n) {
-		int result = 0;
-		for(int p = 0; p < Vec3i.getN(); p++) {
-			result += vec.getValue(p) * mat.getValue(p, n);
-		}
-		return result;
-	}
+
 	
 	
 	

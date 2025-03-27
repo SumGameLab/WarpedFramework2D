@@ -43,9 +43,9 @@ import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import warped.WarpedFramework2D;
+import warped.functionalInterfaces.WarpedAction;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
-import warped.user.actions.WarpedAction;
-import warped.utilities.math.vectors.Vec2d;
+import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
 
 public class WarpedMediaPane extends BorderPane {
@@ -61,7 +61,7 @@ public class WarpedMediaPane extends BorderPane {
 	private Slider volumeSlider;
 	private HBox mediaBar;
 	private Media media;
-	//private Vec2d frameSize = new Vec2d(1280, 540);
+	//private VectorD frameSize = new VectorD(1280, 540);
 	private WarpedMediaPlayer parent;
 	
 	private Button playButton;
@@ -82,43 +82,43 @@ public class WarpedMediaPane extends BorderPane {
 	private static Background stretchBackground;
 	private static Background noStretchBackground;
 	private static Background hideBackground;
-	private static Vec2d buttonSize = new Vec2d(30.0, 30.0); 
+	private static VectorD buttonSize = new VectorD(30.0, 30.0); 
 	
 	static {
 		Image playImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(0), null);
-		BackgroundImage playbImage  = new BackgroundImage(playImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+		BackgroundImage playbImage  = new BackgroundImage(playImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 		playBackground = new Background(playbImage);                                                                                                                      
 		                                                                                                                                                                  
 		Image pImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(1), null);                                                                            
-		BackgroundImage pbImage  = new BackgroundImage(pImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, 		new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+		BackgroundImage pbImage  = new BackgroundImage(pImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, 		new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 		pauseBackground = new Background(pbImage);                                                                                                                       
 		                                                                                                                                                                 
 		Image fsImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(2), null);                                                                          
-	    BackgroundImage fsbImage  = new BackgroundImage(fsImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, 	new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+	    BackgroundImage fsbImage  = new BackgroundImage(fsImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, 	new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 	    fullscreenBackground = new Background(fsbImage);                                                                                                                 
 	                                                                                                                                                                     
 	    Image wImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(3), null);                                                                           
-		BackgroundImage wbImage  = new BackgroundImage(wImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,		new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+		BackgroundImage wbImage  = new BackgroundImage(wImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,		new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 		windowedBackground = new Background(wbImage);                                                                                                                     
 		                                                                                                                                                                  
 		Image jsImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(4), null);                                                                           
-		BackgroundImage jsbImage  = new BackgroundImage(jsImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,		new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+		BackgroundImage jsbImage  = new BackgroundImage(jsImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,		new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 		jumpStartBackground = new Background(jsbImage);                                                                                                                  
 		                                                                                                                                                                 
 		Image jeImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(5), null);                                                                          
-		BackgroundImage jebImage  = new BackgroundImage(jeImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, 	new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+		BackgroundImage jebImage  = new BackgroundImage(jeImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, 	new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 		jumpEndBackground = new Background(jebImage);                                                                                                                    
 		                                                                                                                                                                 
 		Image sImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(6), null);                                                                           
-		BackgroundImage sbImage  = new BackgroundImage(sImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,		new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+		BackgroundImage sbImage  = new BackgroundImage(sImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,		new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 		stretchBackground = new Background(sbImage);	                                                                                                                  
 	                                                                                                                                                                      
 		Image nsImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(7), null);                                                                           
-		BackgroundImage nsbImage  = new BackgroundImage(nsImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,		new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+		BackgroundImage nsbImage  = new BackgroundImage(nsImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER,		new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 		noStretchBackground = new Background(nsbImage);                                                                                                                   
 	    	                                                                                                                                                              
 		Image hideImage = SwingFXUtils.toFXImage(FrameworkSprites.mediaIcons.getSprite(8), null);                                                                         
-		BackgroundImage hidebImage  = new BackgroundImage(hideImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(buttonSize.x, buttonSize.y, true, true, true, false));
+		BackgroundImage hidebImage  = new BackgroundImage(hideImage, BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(buttonSize.x(), buttonSize.y(), true, true, true, false));
 		hideBackground = new Background(hidebImage);	
 	}
 	
@@ -258,7 +258,7 @@ public class WarpedMediaPane extends BorderPane {
 	    });
 	    
 	    Button jumpStart = new Button();
-	    jumpStart.setPrefSize(buttonSize.x, buttonSize.y);
+	    jumpStart.setPrefSize(buttonSize.x(), buttonSize.y());
 	    jumpStart.setBackground(jumpStartBackground);
 	    jumpStart.setOnMouseReleased(new EventHandler<MouseEvent>() {
 			@Override
@@ -270,7 +270,7 @@ public class WarpedMediaPane extends BorderPane {
 	    });
 	    
 	    Button jumpEnd = new Button();
-	    jumpEnd.setPrefSize(buttonSize.x, buttonSize.y);
+	    jumpEnd.setPrefSize(buttonSize.x(), buttonSize.y());
 	    jumpEnd.setBackground(jumpEndBackground);
 	    jumpEnd.setOnMouseReleased(new EventHandler<MouseEvent>() {
 	 			@Override
@@ -312,7 +312,7 @@ public class WarpedMediaPane extends BorderPane {
 
 	    Button toggleFullscreen = new Button();
 	    toggleFullscreen.setBackground(fullscreenBackground);  
-	    toggleFullscreen.setPrefSize(buttonSize.x, buttonSize.y);
+	    toggleFullscreen.setPrefSize(buttonSize.x(), buttonSize.y());
 	    toggleFullscreen.setOnMouseReleased(new EventHandler<MouseEvent>() {
 	    	public void handle(MouseEvent e) {
 	    		if(!isBarVisible) return;
@@ -324,7 +324,7 @@ public class WarpedMediaPane extends BorderPane {
 	    });
 	    
 	    Button toggleStretch = new Button();
-	    toggleStretch.setPrefSize(buttonSize.x, buttonSize.y);
+	    toggleStretch.setPrefSize(buttonSize.x(), buttonSize.y());
 	    toggleStretch.setBackground(stretchBackground);
 	    toggleStretch.setOnMouseReleased(new EventHandler<MouseEvent>() {
 	    	public void handle(MouseEvent e) {
@@ -336,7 +336,7 @@ public class WarpedMediaPane extends BorderPane {
 	    });
 	    
 	    Button toggleBar = new Button();
-	    toggleBar.setPrefSize(buttonSize.x, buttonSize.y);
+	    toggleBar.setPrefSize(buttonSize.x(), buttonSize.y());
 	    toggleBar.setBackground(hideBackground);
 	    toggleBar.setOnMouseReleased(new EventHandler<MouseEvent>() {
 	    	public void handle(MouseEvent e) {

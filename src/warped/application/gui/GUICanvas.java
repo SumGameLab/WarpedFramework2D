@@ -9,10 +9,10 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import warped.WarpedProperties;
-import warped.user.actions.WarpedAction;
+import warped.functionalInterfaces.WarpedAction;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 public class GUICanvas<T extends GUIDrawable> extends WarpedGUI {
@@ -27,33 +27,28 @@ public class GUICanvas<T extends GUIDrawable> extends WarpedGUI {
 	
 	protected boolean fixedIconSize = true;
 	
-	protected Vec2i mapSize = new Vec2i(1);
-	protected Vec2i iconSize = new Vec2i(32);
+	protected VectorI mapSize = new VectorI(1);
+	protected VectorI iconSize = new VectorI(32);
 	protected double scale = 1.0;			//Scales size and position of drawObjects in the canvas 
 	
-	protected Vec2i offset = new Vec2i(); // Offset in pixel precision
+	protected VectorI offset = new VectorI(); // Offset in pixel precision
 	
-	protected Vec2i c1 = new Vec2i(); //Clip bounds
-	protected Vec2i c2 = new Vec2i(1);
+	protected VectorI c1 = new VectorI(); //Clip bounds
+	protected VectorI c2 = new VectorI(1);
 	
 	protected T selectObject;
-	protected Vec2i selectPosition;
+	protected VectorI selectPosition;
 	
 	protected WarpedAction altClickAction = () -> {Console.ln("GUICanvas -> devault right click action");};
 	
 	public GUICanvas(int mapWidth, int mapHeight) {
-		mapSize.x = mapWidth;
-		mapSize.y = mapHeight;
-		
+		mapSize.set(mapWidth, mapHeight);		
 		updateGraphics();
 	}
 	
 	public GUICanvas(int mapWidth, int mapHeight, int iconWidth, int iconHeight) {
-		mapSize.x  = mapWidth;
-		mapSize.y  = mapHeight;
-		iconSize.x = iconWidth;
-		iconSize.y = iconHeight;
-		
+		mapSize.set(mapWidth, mapHeight);
+		iconSize.set(iconWidth, iconHeight);		
 		updateGraphics();
 	}
 	
@@ -62,11 +57,11 @@ public class GUICanvas<T extends GUIDrawable> extends WarpedGUI {
 	//--------
 	public void flexibleIconSize() {fixedIconSize = false;}
 	public void fixedIconSize() {fixedIconSize = true;}
-	public void setIconSize(Vec2i iconSize) {this.iconSize = iconSize;}
-	public Vec2i getSelectPosition() {return selectPosition;}
+	public void setIconSize(VectorI iconSize) {this.iconSize = iconSize;}
+	public VectorI getSelectPosition() {return selectPosition;}
 	public void setScale(double scale) {this.scale = scale;}
 	/***/
-	public void setOffset(Vec2i vec) {setOffset(vec.x, vec.y);}
+	public void setOffset(VectorI vec) {setOffset(vec.x(), vec.y());}
 	public void setOffset(int xPixels, int yPixels) {offset.set(xPixels, yPixels);}
 	public void offset(int xPixels, int yPixels) {offset.add(xPixels, yPixels);}
 	public T getSelectObject() {return selectObject;}
@@ -100,28 +95,27 @@ public class GUICanvas<T extends GUIDrawable> extends WarpedGUI {
 	
 	public void clear() {
 		drawObjects.clear();
-		BufferedImage img = new BufferedImage(mapSize.x, mapSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		BufferedImage img = new BufferedImage(mapSize.x(), mapSize.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		setRaster(img);					
 	}
 	
 	public void updateGraphics() {
-		BufferedImage img = new BufferedImage(mapSize.x, mapSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		BufferedImage img = new BufferedImage(mapSize.x(), mapSize.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		Graphics g = img.getGraphics();
-		
 		
 		
 		if(backgroundImage == null) {	//set draw bounds, draw background
 			c1.set(0, 0);
-			c2.set(mapSize.x, mapSize.y);
-			g.drawImage(backgroundImage, c1.x, c1.y, c2.x, c2.y, null);
+			c2.set(mapSize.x(), mapSize.y());
+			g.drawImage(backgroundImage, c1.x(), c1.y(), c2.x(), c2.y(), null);
 		} else {
 			c1.set(borderThickness, borderThickness);
-			c2.set(mapSize.x - borderThickness * 2, mapSize.y - borderThickness * 2);
+			c2.set(mapSize.x() - borderThickness * 2, mapSize.y() - borderThickness * 2);
 
 			g.setColor(borderColor);
-			g.fillRect(0, 0, mapSize.x, mapSize.y);
+			g.fillRect(0, 0, mapSize.x(), mapSize.y());
 			g.setColor(backgroundColor);
-			g.fillRect(c1.x, c1.y, c2.x, c2.y);
+			g.fillRect(c1.x(), c1.y(), c2.x(), c2.y());
 		}
 
 		for(int i = 0; i < drawObjects.size(); i++) { // draw mapped objects
@@ -135,21 +129,21 @@ public class GUICanvas<T extends GUIDrawable> extends WarpedGUI {
 			int x, y, sx, sy;
 			
 			if(fixedIconSize) {				
-				x = (int)((mapObject.getMapPosition().x + offset.x - (iconSize.x / 2)) * scale);
-				y = (int)((mapObject.getMapPosition().y + offset.y - (iconSize.y / 2)) * scale);
+				x = (int)((mapObject.getMapPosition().x() + offset.x() - (iconSize.x() / 2)) * scale);
+				y = (int)((mapObject.getMapPosition().y() + offset.y() - (iconSize.y() / 2)) * scale);
 
-				sx = (int)(iconSize.x * scale);
-				sy = (int)(iconSize.x * scale);
+				sx = (int)(iconSize.x() * scale);
+				sy = (int)(iconSize.x() * scale);
 			} else {
 				sx = (int)(mapObject.getMapIcon().getWidth() * scale);
 				sy = (int)(mapObject.getMapIcon().getHeight() * scale);
 	
-				x = (int)((mapObject.getMapPosition().x + offset.x - (mapObject.getMapIcon().getWidth() / 2)) * scale);
-				y = (int)((mapObject.getMapPosition().y + offset.y - (mapObject.getMapIcon().getHeight() / 2)) * scale);
+				x = (int)((mapObject.getMapPosition().x() + offset.x() - (mapObject.getMapIcon().getWidth() / 2)) * scale);
+				y = (int)((mapObject.getMapPosition().y() + offset.y() - (mapObject.getMapIcon().getHeight() / 2)) * scale);
 				
 			}
 			
-			if(x + sx < c1.x || y + sy < c1.y || x > c2.x || y > c2.y) continue;
+			if(x + sx < c1.x() || y + sy < c1.y() || x > c2.x() || y > c2.y()) continue;
 			if(selectObject != null && selectObject.equals(mapObject)) g.drawImage(mapObject.getMapIconSelected(), x, y, sx, sy, null);
 			else g.drawImage(mapObject.getMapIcon(), x, y, sx, sy, null);
 		}			
@@ -177,20 +171,20 @@ public class GUICanvas<T extends GUIDrawable> extends WarpedGUI {
 
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
-		int x = (int)((mouseEvent.getPointRelativeToObject().x) / scale - offset.x + (iconSize.x / 2)); 
-		int y = (int)((mouseEvent.getPointRelativeToObject().y) / scale - offset.y + (iconSize.y / 2));
+		int x = (int)((mouseEvent.getPointRelativeToObject().x) / scale - offset.x() + (iconSize.x() / 2)); 
+		int y = (int)((mouseEvent.getPointRelativeToObject().y) / scale - offset.y() + (iconSize.y() / 2));
 		Console.ln("GUICanvas -> mouseReleased() -> mouse coords : " + x + ", " + y);
 		
 		
 		MouseEvent mouseE = mouseEvent.getMouseEvent();
 		if(mouseE.getButton() == MouseEvent.BUTTON3) {
-			if(selectPosition == null) selectPosition = new Vec2i();
+			if(selectPosition == null) selectPosition = new VectorI();
 			selectPosition.set(x, y);
 			altClickAction.action();
 		}else {			
 			for(int i = 0; i < drawObjects.size(); i++) {
 				T mapObject = drawObjects.get(i);
-				if(mapObject.selectIfHit(x, y, iconSize.x, iconSize.y)) {
+				if(mapObject.selectIfHit(x, y, iconSize.x(), iconSize.y())) {
 					selectObject = mapObject;
 					return;
 				}
@@ -203,14 +197,14 @@ public class GUICanvas<T extends GUIDrawable> extends WarpedGUI {
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
-	@Override
-	protected void updateRaster() {updateGraphics();}
+	
 
 	@Override
-	protected void updateObject() {return;}
+	public void updateObject() {
+		updateGraphics();
+	}
 
-	@Override
-	protected void updatePosition() {return;}
+
 	
 	
 }

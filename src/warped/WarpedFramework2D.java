@@ -44,11 +44,12 @@ public abstract class WarpedFramework2D {
 	
 	/**Call This function on the first line of your main function.
 	 * It will prepare and start the framework to run your application.
-	 * 
 	 *@param windowName - The name you want to be displayed at the top of the window (when application is in window)
-	 *@param gameWidth, gameHeight - The native resolution for your game (note: the game width/height can be scaled which is the windowWidth/windowHeight. gameWidth/height is the native resolution)
+	 *@param gameWidth - the native resolution width in pixels.
+	 *@param gameHeight - the native resolution height in pixels.
 	 *@param iconPath - the path relative to src folder for the icon you want to be displayed in the top left corner of the window. If path is null or invalid the window will have default java application icon
-	 **/
+	 *@apiNote (gameWidth / gameHeight) - The native resolution for your game (note: the game width/height can be scaled which is the windowWidth/windowHeight. gameWidth/height is the native resolution)
+	 *@author 5som3*/
 	public static final void startFramework(String windowName, int gameWidth, int gameHeight, String iconPath) {
 		Console.ln("WarpedFramework2D -> startFramework() -> starting : ");
 		Console.startLogging();
@@ -80,7 +81,7 @@ public abstract class WarpedFramework2D {
 		window    = new WarpedWindow(windowName, gameWidth, gameHeight, iconPath); 
 		state 	  = new WarpedState();
 		
-		robot.mouseMove((int)WarpedWindow.center.x, (int)WarpedWindow.center.y);
+		robot.mouseMove((int)WarpedWindow.getCenterX(), (int)WarpedWindow.getCenterY());
 		robot.mousePress(0);
 		
 		WarpedMouse.isTrapMouse = false;
@@ -129,9 +130,8 @@ public abstract class WarpedFramework2D {
 	
 	/**Call this function on the second line of your main function.
 	 * It will prepare and start your application.
-	 * 
-	 * @param input a new instance of your application. This can be any class that extends WarpedApplication.
-	 * */
+	 * @param application -  input a new instance of your application. This can be any class that extends WarpedApplication.
+	 * @author 5som3*/
 	public static final void startApplication(WarpedApplication application) {		
 		app = application;
 		app.load();
@@ -145,6 +145,8 @@ public abstract class WarpedFramework2D {
 		WarpedState.play();
 	}
 	
+	/**Stop the application and close the framework.
+	 * @author 5som3*/
 	public static final void stop() {
 		Console.ln("WarpedFramework2D -> stop() -> stopping...");
 		isRunning = false;
@@ -165,7 +167,14 @@ public abstract class WarpedFramework2D {
 	//---------------- Access --------
 	//--------
 	
+	/**Is the framework running.
+	 * @return boolean - true if the framework is running else false.
+	 * @author 5som3*/
 	public final static boolean isRunning() {return isRunning;}
+	
+	/**Is the framework loading.
+	 * @return boolean - true if the initial framework loading is still loading else false.
+	 * @author 5som3*/
 	public final static boolean isLoading() {return isLoading;}
 	
 	/*
@@ -183,10 +192,30 @@ public abstract class WarpedFramework2D {
 	public static final void setLoadProgress(double progress) {loadProgress = UtilsMath.clamp(progress, 0.0, 1.0);}
 	
 	public final static Robot getRobot() {return robot;}
+	
+	/**Get the application state
+	 * @return WarpedState - the state containing the different managers.
+	 * @author 5som3*/
 	public final static WarpedState getState() {return state;}
+	
+	/**Get the user input.
+	 * @return WarpedUserInput - the user input contains the WarpedMouse and WarpedKeyboard.
+	 * @author 5som3*/
 	public final static WarpedUserInput getUserInput() {return userInput;}
+	
+	/**Get the application window.
+	 * @return WarpedWindow - the window contains all the viewports that render the objects in the WarpedState.
+	 * @author 5som3*/
 	public final static WarpedWindow getWindow() {return window;}
+	
+	/**Get the application.
+	 * @return WarpedApplication - the application that the framework is running.
+	 * @author 5som3*/
 	public final static WarpedApplication getApp() {return app;}
+	
+	/**Get the media player.
+	 * @return WarpedMediaPlayer - can be used to display mp4's.
+	 * @author 5som3*/
 	public final static WarpedMediaPlayer getMediaPlayer() {return mediaPlayer;}
 	
 }

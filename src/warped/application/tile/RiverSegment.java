@@ -3,26 +3,26 @@
 package warped.application.tile;
 
 import warped.utilities.enums.generalised.DirectionType;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 public class RiverSegment {
 
 	
-	private Vec2i coords;
+	private VectorI coords;
 	private DirectionType previousSegmentDir;
 	private DirectionType nextSegmentDir;
 	private RiverSegmentType segmentType;
 	private boolean isInMap = true;
 	
-	public RiverSegment(Vec2i coords, DirectionType previousSegmentDir) {
+	public RiverSegment(VectorI coords, DirectionType previousSegmentDir) {
 		this.coords = coords;
 		this.previousSegmentDir = previousSegmentDir;
 	}
 	
 	public boolean isInMap() {return isInMap;}
 	public RiverSegmentType getSegmentType() {return segmentType;}
-	public Vec2i getCoords() {return coords;}
+	public VectorI getCoords() {return coords;}
 
 	public void setSegmentType(RiverSegmentType segmentType) {this.segmentType = segmentType;}
 	public void setNextSegment(DirectionType nextSegmentDir) {this.nextSegmentDir = nextSegmentDir;}

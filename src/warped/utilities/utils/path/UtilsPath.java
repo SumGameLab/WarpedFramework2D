@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 public class UtilsPath {	
@@ -20,19 +20,19 @@ public class UtilsPath {
 		}
 	};
 	
-	public static boolean isPathPossible(boolean[] map, Vec2i mapDim, Vec2i start, Vec2i goal) {if(findPath(map, mapDim, start, goal) == null) return false; else return true;}
-	public static boolean isPathPossibleNoDiagonal(boolean[] map, Vec2i mapDim, Vec2i start, Vec2i goal) {if(findPathNoDiagonal(map, mapDim, start, goal) == null) return false; else return true;}
+	public static boolean isPathPossible(boolean[] map, VectorI mapDim, VectorI start, VectorI goal) {if(findPath(map, mapDim, start, goal) == null) return false; else return true;}
+	public static boolean isPathPossibleNoDiagonal(boolean[] map, VectorI mapDim, VectorI start, VectorI goal) {if(findPathNoDiagonal(map, mapDim, start, goal) == null) return false; else return true;}
 	
 	
-	public static WarpedPath findPath(double[] map, Vec2i mapDim, Vec2i start, Vec2i goal) {
+	public static WarpedPath findPath(double[] map, VectorI mapDim, VectorI start, VectorI goal) {
 		List<WarpedPathNode> openList = new ArrayList<>();
 		List<WarpedPathNode> closeList = new ArrayList<>();
 		
-		WarpedPathNode current = new WarpedPathNode(start, null, 0, getDistance(start, goal), map[start.x + start.y * mapDim.x]);
+		WarpedPathNode current = new WarpedPathNode(start, null, 0, getDistance(start, goal), map[start.x() + start.y() * mapDim.x()]);
 		openList.add(current);
 
 		
-		if(map[goal.x + goal.y * mapDim.x] < 0.0) {
+		if(map[goal.x() + goal.y() * mapDim.x()] < 0.0) {
 			Console.err("UtilsPath -> findPath() -> goal coord is invalid : " + goal.getString());
 			return null;
 		}
@@ -59,17 +59,17 @@ public class UtilsPath {
 			for(int i = 0; i < 9; i++) {
 				if(i == 4) continue;
 
-				int x = current.coord.x;
-				int y = current.coord.y;
+				int x = current.coord.x();
+				int y = current.coord.y();
 				
 				int xi = (i % 3) -1;
 				int yi = (i / 3) -1;
 				
-				Vec2i checkCoord = new Vec2i(x + xi, y + yi);
-				if(checkCoord.x >= mapDim.x || checkCoord.y >= mapDim.y) continue; 
-				else if(map[checkCoord.x + checkCoord.y * mapDim.x] == 0.0) continue;				
+				VectorI checkCoord = new VectorI(x + xi, y + yi);
+				if(checkCoord.x() >= mapDim.x() || checkCoord.y() >= mapDim.y()) continue; 
+				else if(map[checkCoord.x() + checkCoord.y() * mapDim.x()] == 0.0) continue;				
 				
-				double smoothness = map[checkCoord.x + checkCoord.y * mapDim.x];
+				double smoothness = map[checkCoord.x() + checkCoord.y() * mapDim.x()];
 				double gCost = current.gCost + getDistance(current.coord, checkCoord, smoothness);
 				double hCost = getDistance(checkCoord, goal, smoothness);
 				
@@ -86,14 +86,14 @@ public class UtilsPath {
 	}
 	
 	
-	public static WarpedPath findPath(boolean[] map, Vec2i mapDim, Vec2i start, Vec2i goal){
+	public static WarpedPath findPath(boolean[] map, VectorI mapDim, VectorI start, VectorI goal){
 		List<WarpedPathNode> openList = new ArrayList<>();
 		List<WarpedPathNode> closeList = new ArrayList<>();
 		
 		WarpedPathNode current = new WarpedPathNode(start, null, 0, getDistance(start, goal));
 		openList.add(current);
 
-		if(map[goal.x + goal.y * mapDim.x] == false) {
+		if(map[goal.x() + goal.y() * mapDim.x()] == false) {
 			Console.err("UtilsPath -> findPath() -> goal coord is invalid : " + goal.getString());
 			return null;
 		}
@@ -120,14 +120,14 @@ public class UtilsPath {
 			for(int i = 0; i < 9; i++) {
 				if(i == 4) continue;
 
-				int x = current.coord.x;
-				int y = current.coord.y;
+				int x = current.coord.x();
+				int y = current.coord.y();
 				
 				int xi = (i % 3) -1;
 				int yi = (i / 3) -1;
 				
-				Vec2i checkCoord = new Vec2i(x + xi, y + yi);
-				if(map[checkCoord.x + checkCoord.y * mapDim.x] == false) continue;				
+				VectorI checkCoord = new VectorI(x + xi, y + yi);
+				if(map[checkCoord.x() + checkCoord.y() * mapDim.x()] == false) continue;				
 				
 				double gCost = current.gCost + getDistance(current.coord, checkCoord);
 				double hCost = getDistance(checkCoord, goal);
@@ -142,21 +142,21 @@ public class UtilsPath {
 		return null;
 	}
 	
-	public static WarpedPath findPathNoDiagonal(boolean[] map, Vec2i mapDim, Vec2i start, Vec2i goal){
+	public static WarpedPath findPathNoDiagonal(boolean[] map, VectorI mapDim, VectorI start, VectorI goal){
 		List<WarpedPathNode> openList = new ArrayList<>();
 		List<WarpedPathNode> closeList = new ArrayList<>();
 		
 		//Console.ln("UtilsPath -> findPathNoDiagonal -> looking for path from " + start.getString() + ", to " + goal.getString());
 		
-		if(start.x < -1 || start.y < -1 || start.x >= mapDim.x || start.y >= mapDim.y) {
+		if(start.x() < -1 || start.y() < -1 || start.x() >= mapDim.x() || start.y() >= mapDim.y()) {
 			Console.err("UtilsPath -> findPath() -> start coord is invalid : " + start.getString());
 			return null;
 		}
 		
-		if(goal.x < -1 || goal.y < -1 || goal.x >= mapDim.x || goal.y >= mapDim.y) {
+		if(goal.x() < -1 || goal.y() < -1 || goal.x() >= mapDim.x() || goal.y() >= mapDim.y()) {
 			Console.err("UtilsPath -> findPath() -> goal coord is invalid : " + goal.getString());
 			return null;
-		} else if(map[goal.x + goal.y * mapDim.x] == false) {
+		} else if(map[goal.x() + goal.y() * mapDim.x()] == false) {
 			Console.err("UtilsPath -> findPath() -> goal coord is invalid : " + goal.getString());
 			return null;
 		}
@@ -185,8 +185,8 @@ public class UtilsPath {
 			openList.remove(current);
 			closeList.add(current);
 			
-			int x = current.coord.x;
-			int y = current.coord.y;
+			int x = current.coord.x();
+			int y = current.coord.y();
 
 			for(int i = 0; i < 4; i++) {
 				
@@ -210,9 +210,9 @@ public class UtilsPath {
 					break;
 				}
 				
-				Vec2i checkCoord = new Vec2i(x + xi, y + yi);
-				if(checkCoord.x < 0 || checkCoord.y < 0 || checkCoord.x >= mapDim.x || checkCoord.y >= mapDim.y) continue; 
-				else if(map[checkCoord.x + checkCoord.y * mapDim.x] == false) continue;				
+				VectorI checkCoord = new VectorI(x + xi, y + yi);
+				if(checkCoord.x() < 0 || checkCoord.y() < 0 || checkCoord.x() >= mapDim.x() || checkCoord.y() >= mapDim.y()) continue; 
+				else if(map[checkCoord.x() + checkCoord.y() * mapDim.x()] == false) continue;				
 				
 				double gCost = current.gCost + (getDistance(current.coord, checkCoord) == 1 ? 1 : 0.95);
 				double hCost = getDistance(checkCoord, goal);
@@ -228,21 +228,21 @@ public class UtilsPath {
 		return null;
 	}
 	
-	public static WarpedPath findPathNoDiagonal(double[] map, Vec2i mapDim, Vec2i start, Vec2i goal){
+	public static WarpedPath findPathNoDiagonal(double[] map, VectorI mapDim, VectorI start, VectorI goal){
 		List<WarpedPathNode> openList = new ArrayList<>();
 		List<WarpedPathNode> closeList = new ArrayList<>();
 		
 		//Console.ln("UtilsPath -> findPathNoDiagonal -> looking for path from " + start.getString() + ", to " + goal.getString());
 		
-		if(start.x < -1 || start.y < -1 || start.x >= mapDim.x || start.y >= mapDim.y) {
+		if(start.x() < -1 || start.y() < -1 || start.x() >= mapDim.x() || start.y() >= mapDim.y()) {
 			Console.err("UtilsPath -> findPath() -> start coord is invalid : " + start.getString());
 			return null;
 		}
 		
-		if(goal.x < -1 || goal.y < -1 || goal.x >= mapDim.x || goal.y >= mapDim.y) {
+		if(goal.x() < -1 || goal.y() < -1 || goal.x() >= mapDim.x() || goal.y() >= mapDim.y()) {
 			Console.err("UtilsPath -> findPath() -> goal coord is invalid : " + goal.getString());
 			return null;
-		} else if(map[goal.x + goal.y * mapDim.x] <= 0.0) {
+		} else if(map[goal.x() + goal.y() * mapDim.x()] <= 0.0) {
 			Console.err("UtilsPath -> findPath() -> goal coord is invalid : " + goal.getString());
 			return null;
 		}
@@ -271,8 +271,8 @@ public class UtilsPath {
 			openList.remove(current);
 			closeList.add(current);
 			
-			int x = current.coord.x;
-			int y = current.coord.y;
+			int x = current.coord.x();
+			int y = current.coord.y();
 
 			for(int i = 0; i < 4; i++) {
 				
@@ -296,9 +296,9 @@ public class UtilsPath {
 					break;
 				}
 				
-				Vec2i checkCoord = new Vec2i(x + xi, y + yi);
-				if(checkCoord.x < 0 || checkCoord.y < 0 || checkCoord.x >= mapDim.x || checkCoord.y >= mapDim.y) continue; 
-				double roughness = map[checkCoord.x + checkCoord.y * mapDim.x];
+				VectorI checkCoord = new VectorI(x + xi, y + yi);
+				if(checkCoord.x() < 0 || checkCoord.y() < 0 || checkCoord.x() >= mapDim.x() || checkCoord.y() >= mapDim.y()) continue; 
+				double roughness = map[checkCoord.x() + checkCoord.y() * mapDim.x()];
 				if(roughness <= 0.0) continue;				
 				
 				double gCost = current.gCost + (getDistance(current.coord, checkCoord)) * roughness;
@@ -316,20 +316,20 @@ public class UtilsPath {
 	}
 	
 	
-	private static boolean isNodeInList(List<WarpedPathNode> list, Vec2i vec) {
+	private static boolean isNodeInList(List<WarpedPathNode> list, VectorI vec) {
 		for(WarpedPathNode node : list) if(node.coord.isEqual(vec)) return true;
 		return false;
 	}
 	
-	private static double getDistance(Vec2i v1, Vec2i v2) {
- 		double dx = v1.x - v2.x;
-		double dy = v1.y - v2.y;
+	private static double getDistance(VectorI v1, VectorI v2) {
+ 		double dx = v1.x() - v2.x();
+		double dy = v1.y() - v2.y();
 		return Math.sqrt(dx * dx + dy * dy);
 	}
 	
-	private static double getDistance(Vec2i v1, Vec2i v2, double scale) {
- 		double dx = v1.x - v2.x;
-		double dy = v1.y - v2.y;
+	private static double getDistance(VectorI v1, VectorI v2, double scale) {
+ 		double dx = v1.x() - v2.x();
+		double dy = v1.y() - v2.y();
 		return (Math.sqrt(dx * dx + dy * dy) / scale);
 	}
 }

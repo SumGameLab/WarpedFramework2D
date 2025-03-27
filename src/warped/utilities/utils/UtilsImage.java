@@ -2,7 +2,9 @@
 
 package warped.utilities.utils;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
@@ -21,10 +23,12 @@ import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.utilities.enums.generalised.ColorComponentType;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 
 public class UtilsImage {
 
+	public static final Composite clearComposite = AlphaComposite.getInstance(AlphaComposite.CLEAR);
+	public static final Composite drawComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
 	
 	//--------
 	//---------------- Loading ---------------
@@ -67,36 +71,6 @@ public class UtilsImage {
 			url = WarpedFramework2D.class.getResource(path.substring(3));
 			Console.blueln("UtilsImage -> loadBufferedImage() -> url Framework Class : " + url.toString());
 		}
-
-		/*
-		if(WarpedFramework2D.getApp() == null) {
-			if(WarpedFramework2D.class.getResource(path.substring(3)) == null){
-				Console.err("UtilsImage -> loadBufferedImage -> couldn't find resource at: " + path.substring(3));
-			} else {
-				url = WarpedFramework2D.class.getResource(path.substring(3));
-				Console.blueln("UtilsImage -> loadBufferedImage() -> url Framework Class : " + url.toString());
-			}
-		} else {
-			Console.ln("UtilsImage -> loadBufferedImage() -> url set to game class path");
-			Console.ln("UtilsImage -> loadBufferedImage -> class Name : " + WarpedFramework2D.getApp().getClass().getSimpleName());
-			Console.ln("UtilsImage -> loadBufferedImage -> class : " + WarpedFramework2D.getApp().getClass());
-			Console.ln("UtilsImage -> loadBufferedImage -> class package : " + WarpedFramework2D.getApp().getClass().getPackage());
-			Console.ln("UtilsImage -> loadBufferedImage -> super : " + WarpedFramework2D.getApp().getClass().getSuperclass());
-			if(WarpedFramework2D.class.getResource(path.substring(3)) == null){
-				Console.err("UtilsImage -> loadBufferedImage -> couldn't find resource at: " + path.substring(3));
-			} else {
-				url = WarpedFramework2D.class.getResource(path.substring(3));
-				Console.blueln("UtilsImage -> loadBufferedImage() -> url Game Class : " + url.toString());
-			}
-		}
-		*/
-		
-		
-		/*
-		if(url == null && WarpedFramework2D.class.getResource(path) == null) {
-			Console.err("UtilsImage -> loadBufferedImage -> couldn't find resource at: " + path);
-		}
-		*/
 		
 		if(url == null) {
 			Console.err("UtilsImage -> loadBufferedImage -> couldn't find resource :( ");
@@ -317,8 +291,8 @@ public class UtilsImage {
 	public static BufferedImage generateSizedClone(BufferedImage image, int size) {
 		BufferedImage result = new BufferedImage(size, size, WarpedProperties.BUFFERED_IMAGE_TYPE);
 		
-		Vec2i drawSize = new Vec2i();
-		Vec2i drawOffset = new Vec2i();
+		VectorI drawSize = new VectorI();
+		VectorI drawOffset = new VectorI();
 		
 		int width = image.getWidth();
 		int height = image.getHeight();
@@ -326,27 +300,18 @@ public class UtilsImage {
 		double aspectRatio = width / height;
 		
 		if(width == height) {
-			drawSize.y = size;
-			drawSize.x = size;				
-			
-			drawOffset.x = 0;
-			drawOffset.y = 0;
+			drawSize.set(size, size);				
+			drawOffset.set(0,0);
 		} else if(width > height) {
-			drawSize.x = size;
-			drawSize.y = (int)(width / aspectRatio);
-			
-			drawOffset.x = 0;
-			drawOffset.y = (height - drawSize.y) / 2;				
+			drawSize.scale(size, (int)(width / aspectRatio)); 
+			drawOffset.set(0, (height - drawSize.y()) / 2);
 		} else {
-			drawSize.y = size;
-			drawSize.x = (int)(height * aspectRatio);
-			
-			drawOffset.y = 0;
-			drawOffset.x = (width - drawSize.y) / 2; 
+			drawSize.set(size, (int)(height * aspectRatio));
+			drawOffset.set(0, (width - drawSize.y()) / 2);  
 		}
 
 		Graphics g = result.getGraphics();
-		g.drawImage(image, drawOffset.x, drawOffset.y, drawSize.x, drawSize.y, null);
+		g.drawImage(image, drawOffset.x(), drawOffset.y(), drawSize.x(), drawSize.y(), null);
 		g.dispose();
 
 		return result;

@@ -7,179 +7,365 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
-import warped.WarpedProperties;
 import warped.application.state.WarpedState;
-import warped.user.actions.WarpedAction;
+import warped.audio.FrameworkAudio;
+import warped.functionalInterfaces.StringAction;
 import warped.user.keyboard.WarpedKeyboard;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 public class GUITextInputLine extends WarpedGUI {
+	
+	/*GUITextInputLine provides these functions : 
+	 * 		
+	 * 		- Allows the user to input a string.
+	 * 		- Has a button to trigger an action.
+	 * 		- Programmable action that occurs when the return key or the button is pressed.
+	 * 		- Set the color of text, border, background, hover and input.
+	 * 		- Customize the size and position of the button.
+	 * */
+	
+	private String inputString = "";
+	private String prompt = "|";
+	private String blankText = "Click here...";
+	private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 24);
 
-	private Color borderColor = Color.BLACK;
-	private Color backgroundColor = Colour.GREY_DARK.getColor();
+	private int borderThickness   	= 2;
+	private int maxCharacters 		= 25;
 	
-	private int borderThickness = 2;
+	private boolean isPrompt = true;
+	private int tick = 0;
+	private static int delay = 40;
 	
-	private boolean isInput = false;
-	
+	private boolean isPressed 		= false;
+	private boolean isInput 		= false;
+	private boolean isLineHovered   = false;
 	private boolean isButtonHovered = false;
-	private Color hoverColor = new Color(120, 120, 120, 120);
-	private Color inputColor = new Color(100, 0, 0, 120);
 	
-	private static final int MAX_CHARACTERS = 25;
+	private BufferedImage buttonImage;
+	private BufferedImage backgroundImage;
 	
-	private Vec2i textLineSize = new Vec2i(250, 46);
-	private Vec2i textCompositeSize = new Vec2i();
-	private Vec2i buttonSize = new Vec2i();
-	private Vec2i symbolProportion = new Vec2i();
-	
-	private BufferedImage buttonComposite = new BufferedImage(1, 1, WarpedProperties.BUFFERED_IMAGE_TYPE);
-	private BufferedImage textComposite = new BufferedImage(1, 1, WarpedProperties.BUFFERED_IMAGE_TYPE);
-	
-	
-	private String inputString = "Click here..";
-	
-	private Color fontColor = Color.YELLOW;
-	private int fontSize = 24;
-	private int fontStyle = Font.PLAIN;
-	
-	private Vec2i textOffset = new Vec2i(fontSize, fontSize + fontSize / 2);
-	
-	private Font font = new Font(Font.SANS_SERIF, fontStyle, fontSize);
-	
+	private Color borderColor	  = Color.BLACK;
+	private Color backgroundColor = Colour.GREY_DARK.getColor();
+	private Color buttonColor 	  = Colour.GREY.getColor();
+	private Color hoverColor 	  = Colour.RED.getColor(60);
+	private Color pressColor      = Colour.RED_DARK.getColor(60);
+	private Color inputTextColor  = Color.WHITE;
+	private Color blankTextColor  = Color.YELLOW;
+		
+	private VectorI buttonSize	 	  = new VectorI( 40, 40);
+	private VectorI buttonOffset      = new VectorI(207,  3);
+	private VectorI textOffset 		  = new VectorI( 24, 28);
 
-	private WarpedAction action = () -> {Console.err("GUITextInputLine -> default action");}; 
+	private StringAction buttonAction = str -> {Console.ln("GUITextInputLine -> inputString :" + inputString);}; 	
 	
-	public GUITextInputLine() { 
-		setTextLineSize(textLineSize.x, textLineSize.y);
+	/**A text input line with the default parameters.
+	 * @author 5som3*/
+	public GUITextInputLine() {setTextLineSize(250, 46);}
+	
+	/**A text input line with the specified parameters.
+	 * @param width - the width of the text line in pixels.
+	 * @param height - the height of the text line in pixels.
+	 * @author 5som3*/
+	public GUITextInputLine(int width, int height) {setTextLineSize(width, height);}
+	
+	/**A text input line with the specified parameters.
+	 * @param width - the width of the text line in pixels.
+	 * @param height - the height of the text line in pixels.
+	 * @param blankText - the text to display in the line when their is no input text.
+	 * @author 5som3*/
+	public GUITextInputLine(int width, int height, String blankText) {
+		setTextLineSize(width, height);
+		setBlankText(blankText);
 	}
 	
+	/**Get the inputString.
+	 * @return String - the string that the user can edit.
+	 * @author 5som3*/
+	public String getLine() {return inputString;}
 	
-	public void setTextLineSize(int x, int y) {
-		textLineSize.set(x, y);
-		buttonSize.set(y, y);
-		textCompositeSize.set(textLineSize.x - buttonSize.x, textLineSize.y);
-		symbolProportion.set((int)buttonSize.x * 0.15, buttonSize.y - (int)buttonSize.x * 0.15);
-
+	/**Set the text to display when their is no input.
+	 * @param text - the text to display.
+	 * @author 5som3*/
+	public void setBlankText(String blankText) {
+		this.blankText = blankText;
 		updateGraphics();
 	}
 	
+	/**Set the size of the text line (the drawable area).
+	 * @param width - the width in pixels.
+	 * @param height - the height in pixels.
+	 * @author 5som3*/
+	public void setTextLineSize(int width, int height) {
+		if(width <= 0 || height <= 0) {
+			Console.err("GUITextInputLine -> setTextLineSize() -> width and height must be postive");
+			if(width <= 0) width = 250; 
+			else height = 46;
+		}
+		setSize(width, height);
+		updateGraphics();
+	}
+	
+	/**Set the size of the button that triggers the set buttonAction (if any).
+	 * @param width - the width of the button in pixels.
+	 * @param height - the height of the button in pixels.
+	 * @author 5som3*/
+	public void setButtonSize(int width, int height) {
+		if(width <= 0 || height <= 0) {
+			Console.err("GUITextInputLine -> setButtonSize() -> width and height must be postive");
+			if(width <= 0) width = 40; 
+			else height = 40;
+		}
+		buttonSize.set(width, height);
+		updateGraphics();
+	}
+	
+	/**Set the offset of the button. 
+	 * @param xOffset - the x Offset in pixels.
+	 * @param yOffset - the y offset in pixels.
+	 * @apiNote offset measured from top left corner of the text line to the top left corner of the button.
+	 * @author 5som3*/
+	public void setButtonOffset(int xOffset, int yOffset) {
+		buttonOffset.set(xOffset, yOffset);
+		updateGraphics();
+	}
+	
+	/**Set the offset of the text.
+	 * @param xOffset - the x offset in pixels.
+	 * @param yOffset - the y offset in pixels.
+	 * @apiNote offset measured from top left corner of the text line to the bottom left corner of the text.
+	 * @author 5som3*/
+	public void setTextOffset(int xOffset, int yOffset) {
+		textOffset.set(xOffset, yOffset);
+		updateGraphics();
+	}
+	
+	/**Set the border color
+	 * @param borderColor - the colour of the border
+	 * @apiNote set borderThickness(0) for no border color.
+	 * @author 5som3*/
+	public void setBorderColor(Color borderColor) {
+		this.borderColor = borderColor;
+		updateGraphics();
+	}
+	
+	/**Set the thickness of the border.
+	 * @param borderThickness - the thickness of the border color in pixels.
+	 * @apiNote set borderThickness(0) for no border color.
+	 * @author 5som3*/
+	public void setBorderThickness(int borderThickness) {
+		if(borderThickness < 0) {
+			Console.err("GUITextInputLine -> setBorderThickness() -> border thickness must be positive");
+			borderThickness = 0;
+		}
+		this.borderThickness = borderThickness;
+		updateGraphics();
+	}
+	
+	/**Set the color of the background.
+	 * @param backgroundColor - the colour behind the text.
+	 * @param will clear the background image (if any).
+	 * @author 5som3*/
+	public void setBackgroundColor(Color backgroundColor) {
+		this.backgroundColor = backgroundColor;
+		this.backgroundImage = null;
+		updateGraphics();
+	}
+	
+	/**Set the image behind the text and button.
+	 * @param backgroundImage - the image to draw behind the text and buttons.
+	 * @author 5som3*/
+	public void setBackgroundImage(BufferedImage backgroundImage) {
+		this.backgroundImage = backgroundImage;
+		updateGraphics();
+	}
+	
+	/**Set the image for the button.
+	 * @param buttonImage - the image to draw as the button.
+	 * @author 5som3*/
+	public void setButtonImage(BufferedImage buttonImage) {
+		this.buttonImage = buttonImage;
+		updateGraphics();
+	}
+	
+	/**Set the color of the button.
+	 * @param buttonColor - the colour of the button.
+	 * @apiNote will remove the button image (if any).
+	 * @author 5som3*/
+	public void setButtonColor(Color buttonColor) {
+		this.buttonColor = buttonColor;
+		this.buttonImage = null;
+		updateGraphics();
+	}
+	
+	/**Set the color to overlay the text line when it is hovered.
+	 * @param hoverColor - the color to overlay the text or button (depending which is hovered).
+	 * @author 5som3*/
+	public void setHoverColor(Color hoverColor) {
+		this.hoverColor = hoverColor;
+		updateGraphics();
+	}
+	
+	/**Set the action that will trigger when the button or return key is pressed.
+	 * @param buttonAction - the action.
+	 * @author 5som3*/
+	public void setButtonAction(StringAction buttonAction) {
+		this.buttonAction = buttonAction;
+		updateGraphics();		
+	}
+	
+	/**Set the maximum number of characters that the user can input.
+	 * @param maxCharacters - the maximum number of characters.
+	 * @author 5som3*/
+	public void setMaxCharacters(int maxCharacters) {this.maxCharacters = maxCharacters;}
+	
+	/**Set the font of the text.
+	 * @param font - the font.
+	 * @author 5som3*/
 	public void setFont(Font font) {
 		this.font = font;
 		updateGraphics();
 	}
 	
-	public void setButtonAction(WarpedAction action) {
-		this.action = action;
+	/**Set the size of the text.
+	 * @param textSize - the text size
+	 * @author 5som3*/
+	public void setTextSize(int textSize) {
+		if(textSize < 6) {
+			Console.err("GUITextInputLine -> setTextSize() -> text size too small ");
+			textSize = 6;
+		}
+		font = new Font(font.getFontName(), font.getStyle(), textSize);
+		updateGraphics();
 	}
+
 	
-	public String getLine() {return inputString;}
-	
-	
-	//--------
-	//---------------- Graphics --------
-	//--------
+	/**Set the user input string.
+	 * @param inputString - the string that the user will write into.
+	 * @author 5som3*/
 	public void setText(String inputString) {
 		this.inputString = inputString;
 		updateGraphics();
 	}
 	
+	
 	public void updateGraphics() {
-		updateComposites();
-		drawComposites();
-	}
-	
-	private void updateComposites() {
-		//Draw textLine composite
-		BufferedImage textComp = new BufferedImage(textCompositeSize.x, textCompositeSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
-		Graphics gt = textComp.getGraphics();
-		
-		gt.setColor(fontColor);
-		gt.setFont(font);
-		gt.drawString(inputString, textOffset.x, textOffset.y);
-		 
-		gt.dispose();
-		textComposite = textComp;
-		
-		
-		//Draw button image composite
-		BufferedImage buttonComp = new BufferedImage(buttonSize.x, buttonSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
-		Graphics gb = buttonComp.getGraphics();
-		gb.setColor(backgroundColor);
-		
-		gb.setColor(borderColor);
-		gb.fillRect(0, 0, buttonSize.x, buttonSize.y);
-		
-		gb.setColor(backgroundColor);
-		gb.fillRect(borderThickness,borderThickness, buttonSize.x - borderThickness * 2,buttonSize.y - borderThickness * 2);
-		
-		gb.setColor(fontColor);
-		gb.fillRect((buttonSize.x / 2) - (symbolProportion.x / 2), (buttonSize.y - symbolProportion.y) / 2, symbolProportion.x, symbolProportion.y);
-		gb.fillRect((buttonSize.x - symbolProportion.y) / 2, (buttonSize.y / 2) - (symbolProportion.x / 2), symbolProportion.y, symbolProportion.x);
-		
-		gb.dispose();
-		buttonComposite = buttonComp;
-	}
-	
-	private void drawComposites() {
-		BufferedImage img = new BufferedImage(textLineSize.x, textLineSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
-		Graphics g = img.getGraphics();
+		Graphics g = getGraphics();
 		
 		g.setColor(borderColor);
-		g.fillRect(0, 0, textLineSize.x, textLineSize.y);
-		 
+		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setColor(backgroundColor);
-		g.fillRect(borderThickness, borderThickness, textLineSize.x - borderThickness * 2, textLineSize.y - borderThickness * 2);
-		 
-		g.drawImage(textComposite, 0, 0, textCompositeSize.x, textCompositeSize.y, null);
-		g.drawImage(buttonComposite, textLineSize.x - buttonSize.x, 0, buttonSize.x, buttonSize.y, null);
-		
-		if(isButtonHovered) {
-			g.setColor(hoverColor);
-			g.fillRect(textLineSize.x - buttonSize.x, 0, buttonSize.x, buttonSize.y);
+		g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
+		if(backgroundImage != null) g.drawImage(backgroundImage, borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2, null);
+		if(isLineHovered) {
+			if(isPressed || isInput) g.setColor(pressColor);
+			else g.setColor(hoverColor);
+			g.fillRect(0, 0, getWidth(), getHeight());
 		}
 		
+		g.setFont(font);
 		if(isInput) {
-			g.setColor(inputColor);
-			g.fillRect(0, 0, textLineSize.x - buttonSize.x, textLineSize.y);
+			g.setColor(inputTextColor);
+			g.drawString(inputString, textOffset.x(), textOffset.y());
+			if(isPrompt) g.drawString(prompt, font.getSize() + g.getFontMetrics().stringWidth(inputString), font.getSize());
+		} else {
+			g.setColor(blankTextColor);
+			g.drawString(blankText, textOffset.x(), textOffset.y());
 		}
-	
-		g.dispose();
-		setRaster(img);
+				
+		g.setColor(borderColor);
+		g.fillRect(buttonOffset.x(), buttonOffset.y(), buttonSize.x(), buttonSize.y());
+		g.setColor(buttonColor);
+		g.fillRect(buttonOffset.x() + borderThickness, buttonOffset.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+		if(buttonImage != null) g.drawImage(buttonImage,buttonOffset.x() + borderThickness, buttonOffset.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2, null);
+		if(isButtonHovered) {
+			if(isPressed) g.setColor(pressColor);
+			else g.setColor(hoverColor);
+			g.fillRect(buttonOffset.x(), buttonOffset.y(), buttonSize.x(), buttonSize.y());
+		}
 		
+		g.dispose();
+		pushGraphics();
 	}
+	
+	@Override
+	public void updateObject() {
+		if(isInput) {
+			tick++;
+			if(tick > delay) {
+				tick = 0;
+				if(isPrompt) isPrompt = false;
+				else isPrompt = true;
+				
+				updateGraphics();
+			}
+			
+			if(!WarpedKeyboard.isKeyLogging()) {	// key logging has ended
+				isInput = false;
+				inputString = WarpedKeyboard.getKeyLog();
+				if(inputString.length() > maxCharacters) {		
+					WarpedState.notify.note("Label is too large");
+					inputString = inputString.substring(0, maxCharacters - 1);
+				}
+				if(isButtonHovered || isLineHovered) buttonAction.action(inputString);
+				WarpedKeyboard.clearKeyLog();
+				updateGraphics();
+				return;
+			}
+						
+			
+			if(!WarpedKeyboard.getKeyLog().equals(inputString)) { // string has changed
+				inputString = WarpedKeyboard.getKeyLog();
+				tick = 0;
+				if(inputString.length() > maxCharacters) {		
+					WarpedState.notify.note("Label is too large");
+					inputString = inputString.substring(0, maxCharacters - 1);
+					isPrompt = false;
+				} else isPrompt = true;
+				updateGraphics();
+			}
+			
+			
+		}
+	}
+	
 	
 	//--------
 	//---------------- Interaction --------
 	//--------	
 	@Override
-	protected void mouseEntered() {return;}
+	protected void mouseEntered() {
+		Console.ln("GUITextInputLine -> mouseEntered()");
+	}
 
 	@Override
 	protected void mouseExited() {
+		Console.ln("GUITextInputLine -> mouseExited()");
 		isButtonHovered = false;
-		isInput = false;
+		isLineHovered = false;
 		WarpedKeyboard.stopKeyLogging();
-		WarpedKeyboard.clearKeyLog();
-		drawComposites();
+		updateGraphics();
 	}
 
 	@Override
 	protected void mouseMoved(WarpedMouseEvent mouseEvent) {
-		if(mouseEvent.getPointRelativeToObject().x > textLineSize.x - buttonSize.x) {
-			if(isButtonHovered) return;
-			else {
+		int mx = mouseEvent.getPointRelativeToObject().x;
+		int my = mouseEvent.getPointRelativeToObject().y;
+		if(mx > buttonOffset.x() && mx < buttonOffset.x() + buttonSize.x() && my > buttonOffset.y() && my < buttonOffset.y() + buttonSize.y()) {
+			if(!isButtonHovered) {
 				isButtonHovered = true;
-				drawComposites();
+				isLineHovered = false;
+				updateGraphics();
+				FrameworkAudio.defaultHover.play();
 			}
 		} else {
-			if(!isButtonHovered) return;
-			else {
+			if(!isLineHovered) {
 				isButtonHovered = false;
-				drawComposites();
+				isLineHovered = true;
+				updateGraphics();
+				FrameworkAudio.defaultUnhover.play();
 			}
 		}
 			
@@ -189,55 +375,30 @@ public class GUITextInputLine extends WarpedGUI {
 	protected void mouseDragged(WarpedMouseEvent mouseEvent) {return;}
 
 	@Override
-	protected void mousePressed(WarpedMouseEvent mouseEvent) {return;}
+	protected void mousePressed(WarpedMouseEvent mouseEvent) {
+		if(!isPressed) {
+			isPressed = true;
+			updateGraphics();
+		}
+	}
 
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) { 
-		if(isButtonHovered) {action.action();}
-		else {
+		isPressed = false;
+		if(isButtonHovered) {
+			WarpedKeyboard.stopKeyLogging();
+		} else {
 			isInput = true;
 			WarpedKeyboard.startKeyLogging();
-			drawComposites();
+			updateGraphics();
 		}
 	}
 	
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
+
+
 	
-	//--------
-	//---------------- Update --------
-	//--------
-	@Override
-	protected void updateRaster() {return;}
-
-	@Override
-	protected void updateObject() {
-		if(isInput) {
-			if(!WarpedKeyboard.isKeyLogging()) {
-				isInput = false;
-				inputString = WarpedKeyboard.getKeyLog();
-				if(inputString.length() > MAX_CHARACTERS) {		
-					WarpedState.notify.addNotification("Label is too large");
-					inputString = inputString.substring(0, MAX_CHARACTERS - 1);
-				}
-				updateGraphics();
-				return;
-			}
-						
-			if(!WarpedKeyboard.getKeyLog().equals(inputString)) {
-				inputString = WarpedKeyboard.getKeyLog();
-				if(inputString.length() > MAX_CHARACTERS) {		
-					WarpedState.notify.addNotification("Label is too large");
-					inputString = inputString.substring(0, MAX_CHARACTERS - 1);
-				}
-				updateGraphics();
-			}
-			
-		}
-	}
-
-	@Override
-	protected void updatePosition() {return;}
 
 }

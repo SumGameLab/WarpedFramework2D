@@ -19,6 +19,7 @@ public enum Colour {
 	GREY_LIGHT_LIGHT,
 	SILVER,
 	WHITE,
+	CREAM,
 	SNOW,
 	CORAL,
 	BROWN,
@@ -62,6 +63,7 @@ public enum Colour {
 	BLUE_LIGHT,
 	ROYAL,
 	GREEN,
+	GREEN_DARK,
 	GREEN_PALE,
 	GREEN_YELLOW,
 	HOVER,
@@ -96,7 +98,8 @@ public enum Colour {
 	CRIMSON;
 	
 	
-	private static final Color black 	 		= new Color(  0,   0,   0, 255);          
+	private static final Color black 	 		= new Color(  0,   0,   0, 255);
+	private static final Color cream 	 		= new Color(252, 248, 244, 255);    
 	private static final Color grey      		= new Color(128, 128, 128, 255);           
 	private static final Color greyDark  		= new Color( 60,  60,  60, 255);
 	private static final Color greyEclipse		= new Color( 40,  40,  40, 255);   
@@ -146,7 +149,8 @@ public enum Colour {
 	private static final Color blueDark 		= new Color(  0,   0,  60, 255);      
 	private static final Color blueLight 		= new Color(110, 110, 255, 255);    
 	private static final Color royal 			= new Color( 65, 105, 225, 255);     
-	private static final Color green 			= new Color(  0, 200,   0, 255);          
+	private static final Color green 			= new Color(  0, 200,   0, 255);
+	private static final Color greenDark		= new Color(  0, 135,   0, 255);          
 	private static final Color greenPale 		= new Color(102, 255, 102, 255);     
 	private static final Color greenYellow 		= new Color(173, 255,  47, 255);  
 	private static final Color forest 			= new Color( 34, 139,  34, 255);         
@@ -235,6 +239,7 @@ public enum Colour {
 		case BLUE_LIGHT: return blueLight;
 		case BLUE_PALE: return bluePale;
 		case CHRISTMAS_RED: return christmasRed;
+		case CREAM: return cream;
 		case ROYAL: return royal;
 		case BROWN: return brown;
 		case CHOCOLATE: return chocolate;
@@ -247,6 +252,7 @@ public enum Colour {
 		case GOLD: return gold;
 		case GOLDENROD: return goldenRod;
 		case GREEN: return green;
+		case GREEN_DARK: return greenDark;
 		case GREEN_PALE: return greenPale;
 		case GREEN_YELLOW: return greenYellow;
 		case GREY: return grey;

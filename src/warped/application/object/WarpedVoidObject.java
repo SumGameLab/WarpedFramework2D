@@ -2,15 +2,13 @@
 
 package warped.application.object;
 
-import java.awt.image.BufferedImage;
-
-import warped.WarpedProperties;
+import warped.graphics.sprite.WarpedSprite;
 import warped.user.mouse.WarpedMouseEvent;
 
 public class WarpedVoidObject extends WarpedObject {
 
 	public WarpedVoidObject() {
-		raster = new BufferedImage(1,1, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		sprite = new WarpedSprite(1,1);
 	}
 	@Override
 	protected void mouseEntered() {return;}
@@ -30,21 +28,30 @@ public class WarpedVoidObject extends WarpedObject {
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
-	@Override
-	protected void updateRaster() {return;}
 
-	@Override
-	protected void updateObject() {return;}
-
-	@Override
-	protected void updatePosition() {return;}
 	
 	@Override
 	protected void mouseMoved(WarpedMouseEvent mouseEvent) {return;}
+	@Override
+	public void updateObject() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void updateMid() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void updateSlow() {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void updatePassive() {
+		// TODO Auto-generated method stub
+		
+	}
 
-protected void updateMid() {return;};
 	
-	protected void updateSlow() {return;}; 
-
-	protected void updatePassive() {return;};
 }

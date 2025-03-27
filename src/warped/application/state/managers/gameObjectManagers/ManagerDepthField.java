@@ -4,7 +4,6 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import warped.WarpedProperties;
-import warped.application.depthFields.DepthFieldPrimitive;
 import warped.application.depthFields.WarpedDepthField;
 import warped.application.object.WarpedObject;
 import warped.application.state.WarpedState;
@@ -71,16 +70,16 @@ public class ManagerDepthField <T extends WarpedObject> extends WarpedManager<T>
 		
 		WarpedGroup<T> group = getGroup(primaryGroupID);
 		
-		BufferedImage bakedImage = new BufferedImage(WarpedWindow.width, WarpedWindow.height, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		BufferedImage bakedImage = new BufferedImage(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		Graphics g = bakedImage.getGraphics();
 				
 		for(int i = 0; i < group.size(); i++) {
 			T t = group.getMember(i);
-			g.drawImage(t.raster(), (int)t.renderPosition.x, (int)t.renderPosition.y, (int)t.renderSize.x, (int)t.renderSize.y, null);
+			g.drawImage(t.raster(), (int)t.getRenderPosition().x(), (int)t.getRenderPosition().y(), (int)t.getRenderSize().x(), (int)t.getRenderSize().y(), null);
 		}
 		
 		getGroup(bakedGroupID).clearMembers();
-		WarpedState.depthFieldManager.getGroup(bakedGroupID).addMember(new DepthFieldPrimitive(bakedImage));
+		WarpedState.depthFieldManager.getGroup(bakedGroupID).addMember(new WarpedDepthField(bakedImage));
 		WarpedState.depthFieldManager.closeGroup(primaryGroupID);
 		WarpedState.depthFieldManager.openGroup(bakedGroupID);
 		Console.ln("ManagerDepthField -> bakeBackground() -> background was baked");

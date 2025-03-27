@@ -5,18 +5,17 @@ package warped.user.keyboard;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
+import warped.application.object.WarpedObject;
 import warped.application.state.WarpedState;
-import warped.graphics.sprite.PrimitiveSprite;
+import warped.functionalInterfaces.WarpedAction;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.KeyboardIcons;
-import warped.user.actions.WarpedAction;
 import warped.utilities.utils.Console;
 
-public class WarpedKeyBind<T> {
+public class WarpedKeyBind<T extends WarpedObject> {
 
 	protected T bound;
-	protected PrimitiveSprite sprite;
-	//protected BufferedImage raster;
+
 	protected int key = -1;
 	protected int defaultKey = -1;
 	protected String name = "defaultKeyBind";
@@ -29,9 +28,10 @@ public class WarpedKeyBind<T> {
 		this.key = key;
 		defaultKey = key;
 		
-		
-		this.pressAction = pressAction;
-		this.releaseAction = releaseAction;
+		if(pressAction == null) this.pressAction = () -> {return;};
+		else this.pressAction = pressAction;
+		if(releaseAction == null) this.releaseAction = () -> {return;};
+		else this.releaseAction = releaseAction;
 	}
 	
 	public WarpedKeyBind(String name, WarpedAction pressAction, WarpedAction releaseAction) {
@@ -50,15 +50,11 @@ public class WarpedKeyBind<T> {
 	}
 	
 	public T getBound() {return bound;}
-	//public void setBound(T bound) {this.bound = bound;}
+
 	public String getName() {return name;}
 	public int getKey() {return key;}
 	public String getKeyName() {return KeyEvent.getKeyText(key);}
-	
-	public void setSprite(PrimitiveSprite sprite) {this.sprite = sprite;}
-	public void setSprite(BufferedImage sprite) {this.sprite = new PrimitiveSprite(sprite);}
-	
-	//public void setRaster(BufferedImage raster) {this.raster = raster;}
+		
 	public void setKey(int key) {
 		stopListening();
 		this.key = key;
@@ -76,7 +72,7 @@ public class WarpedKeyBind<T> {
 	public void press() {if(pressAction != null) pressAction.action();}
 	public void release() {if(releaseAction != null) releaseAction.action();}
 		
-	public BufferedImage raster() {return sprite.raster();}
+	public BufferedImage raster() {return bound.raster();}
 	
 	public BufferedImage getKeyImage() {return getKeyImage(key);}
 	public static BufferedImage getKeyImage(int key) {

@@ -2,54 +2,55 @@
 
 package warped.application.entities;
 
+import java.util.ArrayList;
+
+import warped.application.actionWrappers.ActionOption;
 import warped.application.entities.projectile.EntitieProjectile;
 import warped.application.object.WarpedObject;
-import warped.application.object.WarpedOption;
 import warped.application.state.WarpedState;
 import warped.user.mouse.WarpedMouseEvent;
+import warped.utilities.utils.Console;
 
 public abstract class WarpedEntitie extends WarpedObject {
-	
-	/** ENTITIE
-	 * do not put pointers to other entities on entities
-	 * 		doing so will cause issues when the entitie pointed to (may / may not) be removed
-	 * 		then you are left with a null pointer
-	 * 
-	 * */
-	
-	//protected Sprite sprite;
-	//private ArrayList<EntitieEffect> affects = new ArrayList<>(); //apply to another entitie
-	//private ArrayList<EntitieEffect> effects = new ArrayList<>(); //applied to this entitie
+		
+	protected String name = "default Name";
+	private ArrayList<ActionOption> selectOptions = new ArrayList<>();
 	
 	
 	public WarpedEntitie() {
-		addSelectOption(new WarpedOption("Inspect", () -> {
+		addSelectOption(new ActionOption("Inspect", () -> {
 			WarpedState.selector.close();
-			WarpedState.gameObjectInspector.select(objectID); 
-			WarpedState.gameObjectInspector.toggle();
+			WarpedState.gameObjectInspector.select(this); 
+			WarpedState.gameObjectInspector.open();
 		}));
 	}
 	
+	public final String getName() {return name;}
 	
+	public final ActionOption getSelectOption(int index) {return selectOptions.get(index);}
+	public final ArrayList<ActionOption> getSelectOptions() {return selectOptions;}
+	
+	protected final void addSelectOption(ActionOption option) {selectOptions.add(option);}
+	protected final void clearSelectOptions() {selectOptions.clear();}
 	
 	public void projectileCollision(EntitieProjectile collider) {
 		System.out.println("WarpedEntitie -> projectileCollision() -> projectile hit entitie");
 	}
 	
-	//protected void updateRaster() {sprite.update();}
-	//protected void setSprite(Sprite sprite) {this.sprite = sprite; setRaster(sprite.raster());}
-	
 	
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
+		Console.ln("WarpedEntitie -> mouseReleased()");
 		//WarpedState.selectionManager.select(objectID);
 		WarpedState.selector.select(this);
 	};
 	
 	
-
-	protected void updateMid() {return;};
+	@Override
+	public void updateMid() {return;};
 	
-	protected void updateSlow() {return;}; 
+	@Override
+	public void updateSlow() {return;}; 
 
-	protected void updatePassive() {return;};
+	@Override
+	public void updatePassive() {return;};
 }

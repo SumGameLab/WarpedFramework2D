@@ -4,388 +4,571 @@ package warped.application.gui;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
+import java.awt.Graphics;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.Arrays;
 
-import warped.WarpedProperties;
-import warped.graphics.sprite.spriteSheets.FrameworkSprites;
-import warped.graphics.sprite.spriteSheets.FrameworkSprites.KeyboardIcons;
-import warped.user.actions.WarpedAction;
+import warped.application.actionWrappers.ActionToggle;
+import warped.application.gui.GUIButton.ButtonStateType;
 import warped.user.mouse.WarpedMouseEvent;
-import warped.utilities.enums.generalised.ButtonStateType;
+import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsString;
 
 public class GUIPopOutToggle extends WarpedGUI {
 
+	
+	/*GUIPopOutToggle has these functionalities:
+	 * 
+	* 		- A permanently visible button that controls the visibility of a menu.
+	 * 		- Has a menu of toggles that can be shown / hidden by the main button. 
+	 * 		- Each toggle can have unique toggleOn / toggleOff actions assigned.
+	 * 		- Toggles have persistent state that is visible when the menu is popped out.
+	 * 		- Toggles can have the colour set for their background, text and hover effect.
+	 * 
+	 * */
+	
 	private boolean isPoppedOut = false;
-	private boolean isExtended = false;
+
 	private DirectionType popDirection = DirectionType.DOWN;
+	private ButtonStateType buttonState = ButtonStateType.HOVERED;
 
-	private int selectIndex = 0;
-	//private int previousSelectIndex = 0;
-	private ButtonStateType buttonState = ButtonStateType.PLAIN;
-	private int hoveredIndex = 0;
+	private int hoveredIndex = -1;
+	private VectorI buttonSize = new VectorI(90, 30);
 	
-	private Vec2i buttonSize = new Vec2i(120, 30);
-	
-	private ArrayList<String> actionLabels = new ArrayList<>();
-	private HashMap<String, WarpedAction> selectActions   = new HashMap<>(); 
-	private HashMap<String, WarpedAction> deselectActions = new HashMap<>();
-	
-	private int borderThickness = 1;
-	private Vec2i textOffset = new Vec2i(1,1);
-	
-	private Color borderColor = Color.BLACK;
-	private Color buttonColor = Color.DARK_GRAY;
-	private Color buttonHoverColor = new Color(110,60,60); 
-	private Color buttonPressColor = Color.RED;
-	
-	private Color textColor = Color.YELLOW;
-	private Font font 		= UtilsFont.getPreferred();
-	
-	private BufferedImage pulledInRaster;   //The raster that displays only the first button
-	private BufferedImage popedOutRaster; //The raster that displays all the buttons
-	
-	private static int stdIconSize = 20;
-	private static BufferedImage popUpArrowGraphic   = FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_UP);
-	private static BufferedImage popDownArrowGraphic = FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_DOWN);
-
-	public int getToggleIndex() {return selectIndex;}
-	
-	public GUIPopOutToggle(List<String> actionLabels, List<WarpedAction> selectActions) {
-		if(actionLabels.size() != selectActions.size()) {
-			Console.err("GUIDropDownToggle -> constructor() -> number of actions does not match number of options : " + actionLabels.size() + ", " + selectActions.size());
-			return;
-		}
+	private String menuLabel = "default";
+	private ArrayList<ActionToggle> toggles = new ArrayList<>(); 
 		
-		for(int i = 0; i < actionLabels.size(); i++) {
-			this.actionLabels.add(actionLabels.get(i));
-			this.selectActions.put(actionLabels.get(i), selectActions.get(i));
-		}
+	private int borderThickness 	= 2;
+	
+	private VectorI labelTextOffset = new VectorI(20, 16);
+	private VectorI toggleTextOffset= new VectorI(10, 16);
+	
+	private Color borderColor 		= Colour.BLACK.getColor();
+	private Color toggleOffColor	= Colour.GREY_DARK.getColor();
+	private Color toggleOnColor		= Colour.GREEN.getColor();
+	private Color labelTextColor  	= Color.YELLOW;
+	private Color toggleTextColor	= Color.WHITE;
+	private Color labelColor      	= Colour.GREY_LIGHT.getColor();
+	private Color hoverColor 		= Colour.RED_DARK.getColor(100); 
+	private Color pressColor 		= Colour.RED.getColor(100);
+	
+	private Font toggleFont 		= new Font("ButtonFont", Font.PLAIN, 12);
+	private Font labelFont 			= new Font("DropDownToggleFont", Font.PLAIN, 12);
 		
+	/**A menu with the specified label and no options.
+	 * @param menuLabel - the label for the button that will show/hide the options.
+	 * @author 5som3*/
+	public GUIPopOutToggle(String menuLabel) {
+		this.menuLabel = menuLabel;
 		initializeRasters();
 		updateGraphics();
 	}
 	
-	public GUIPopOutToggle(List<String> actionLabels, List<WarpedAction> selectActions, DirectionType popDirection) {
-		if(actionLabels.size() != selectActions.size()) {
-			Console.err("GUIDropDownToggle -> constructor() -> number of actions does not match number of options : " + actionLabels.size() + ", " + selectActions.size());
-			return;
-		}
-		
-		if(popDirection != DirectionType.UP && popDirection != DirectionType.DOWN) {
+	/**A menu with the specified label and options
+	 * @param menuLabel - the label for the button that will show/hide the options. 
+	 * @param toggles - the options to show when the menu open.
+	 * @author 5som3*/
+	public GUIPopOutToggle(String menuLabel, ActionToggle... toggles) {
+		this.menuLabel = menuLabel;
+		this.toggles = new ArrayList<>(Arrays.asList(toggles));
+		initializeRasters();
+		updateGraphics();
+	}
+	
+	/**A menu that pops in the specified direction with the specified label and options.
+	 * @param menuLabel - the label for the button that will show/hide the options.
+	 * @param popDirection - the direction that the menu will pop open. 
+	 * @param toggles - the options to show when the menu open.
+	 * @author 5som3*/
+	public GUIPopOutToggle(String menuLabel, DirectionType popDirection, ActionToggle... toggles) {
+		if(popDirection != DirectionType.UP && popDirection != DirectionType.DOWN && popDirection != DirectionType.LEFT && popDirection != DirectionType.RIGHT) {
 			Console.err("GUIPopOutToggle -> constructor () -> pop out direction is not a valid direction : " + popDirection);
-			return;
+			popDirection = DirectionType.DOWN;
 		}
-		
-		this.popDirection = popDirection;
-		
-		for(int i = 0; i < actionLabels.size(); i++) {
-			this.actionLabels.add(actionLabels.get(i));
-			this.selectActions.put(actionLabels.get(i), selectActions.get(i));
-		}
-		
-		initializeRasters();
-		updateGraphics();
-	}
-
-	public GUIPopOutToggle(List<String> actionLabels, List<WarpedAction> selectActions, DirectionType popDirection, int width, int height) {
-		if(actionLabels.size() != selectActions.size()) {
-			Console.err("GUIDropDownToggle -> constructor() -> number of actions does not match number of options : " + actionLabels.size() + ", " + selectActions.size());
-			return;
-		}
-		
-		if(popDirection != DirectionType.UP && popDirection != DirectionType.DOWN) {
-			Console.err("GUIPopOutToggle -> constructor () -> pop out direction is not a valid direction : " + popDirection);
-			return;
-		}
-		
-		buttonSize.x = width;
-		buttonSize.y = height;
-		this.popDirection = popDirection;
-		
-		for(int i = 0; i < actionLabels.size(); i++) {
-			this.actionLabels.add(actionLabels.get(i));
-			this.selectActions.put(actionLabels.get(i), selectActions.get(i));
-		}
-		
+		this.menuLabel = menuLabel;
+		this.toggles = new ArrayList<>(Arrays.asList(toggles));
 		initializeRasters();
 		updateGraphics();
 	}
 	
-	public GUIPopOutToggle(List<String> actionLabels, List<WarpedAction> selectActions, List<WarpedAction> deselectActions) {
-		if(actionLabels.size() != selectActions.size() || selectActions.size() != deselectActions.size()) {
-			Console.err("GUIDropDownToggle -> constructor() -> number of actions does not match number of options : " + actionLabels.size() + ", " + selectActions.size());
-			return;
-		}
-		
-		for(int i = 0; i < actionLabels.size(); i++) {
-			actionLabels.add(actionLabels.get(i));
-			this.selectActions.put(actionLabels.get(i), selectActions.get(i));
-			this.deselectActions.put(actionLabels.get(i), deselectActions.get(i));
-		}
-		
+	/**Set the options for this menu to display when popped out.
+	 * @param toggles - a list of the options to display.
+	 * @author 5som3*/
+	public void setToggles(ActionToggle... toggles) {
+		this.toggles = new ArrayList<>(Arrays.asList(toggles));
 		initializeRasters();
 		updateGraphics();
 	}
 	
-	public GUIPopOutToggle(List<String> actionLabels, List<WarpedAction> selectActions, List<WarpedAction> deselectActions, DirectionType popDirection) {
-		if(actionLabels.size() != selectActions.size() || selectActions.size() != deselectActions.size()) {
-			Console.err("GUIDropDownToggle -> constructor() -> number of actions does not match number of options : " + actionLabels.size() + ", " + selectActions.size());
-			return;
-		}
-		
-		if(popDirection != DirectionType.UP && popDirection != DirectionType.DOWN) {
-			Console.err("GUIPopOutToggle -> constructor () -> pop out direction is not a valid direction : " + popDirection);
-			return;
-		}
-		
-		this.popDirection = popDirection;
-		
-		for(int i = 0; i < actionLabels.size(); i++) {
-			this.actionLabels.add(actionLabels.get(i));
-			this.selectActions.put(actionLabels.get(i), selectActions.get(i));
-			this.deselectActions.put(actionLabels.get(i), deselectActions.get(i));
-		}
-		
+	/**Set the options for this menu to display when popped out.
+	 * @param toggles - an ArrayList of the options to display.
+	 * @author 5som3*/
+	public void setToggles(ArrayList<ActionToggle> toggles) {
+		this.toggles = toggles;
 		initializeRasters();
 		updateGraphics();
 	}
 	
-	public GUIPopOutToggle(List<String> actionLabels, List<WarpedAction> selectActions, List<WarpedAction> deselectActions, DirectionType popDirection, int width, int height) {
-		if(actionLabels.size() != selectActions.size() || selectActions.size() != deselectActions.size()) {
-			Console.err("GUIDropDownToggle -> constructor() -> number of actions does not match number of options : " + actionLabels.size() + ", " + selectActions.size());
-			return;
-		}
-		
-		if(popDirection != DirectionType.UP && popDirection != DirectionType.DOWN) {
-			Console.err("GUIPopOutToggle -> constructor () -> pop out direction is not a valid direction : " + popDirection);
-			return;
-		}
-		
-		buttonSize.x = width;
-		buttonSize.y = height;
-		this.popDirection = popDirection;
-		
-		for(int i = 0; i < actionLabels.size(); i++) {
-			this.actionLabels.add(actionLabels.get(i));
-			this.selectActions.put(actionLabels.get(i), selectActions.get(i));
-			this.deselectActions.put(actionLabels.get(i), deselectActions.get(i));
-		}
-		
-		initializeRasters();
-		updateGraphics();
+	/**Set the offset for this GUI.
+	 * Use in conjunction with offset() to position elements within an assembly.
+	 * @param x - the x offset in pixels.
+	 * @param y - the y offset in pixels.
+	 * @implNote - will adjust for the LEFT and UP popDirection cases.
+	 * @author 5som3*/
+	public void setOffset(double x, double y) {
+		if(popDirection == DirectionType.LEFT) offset.set(x - buttonSize.x() * toggles.size(), y);
+		else if(popDirection == DirectionType.UP) offset.set(x, y - buttonSize.y() * toggles.size());
+		else offset.set(x, y);
 	}
 	
-	public <T extends Enum<T>> GUIPopOutToggle(T[] actionLabels, List<WarpedAction> selectActions) {
-		if(actionLabels.length != selectActions.size()) {
-			Console.err("GUIDropDownToggle -> constructor() -> number of actions does not match number of options : " + this.actionLabels.size() + ", " + selectActions.size());
-			return;
-		}
-		this.actionLabels = UtilsString.convertEnumToStringArray(actionLabels);
-		if(this.actionLabels == null || this.actionLabels.size() <= 0) {
-			Console.err("GUIDropDownToggle() -> constructor() -> actionLabels is invalid");
-			return;
-		}
-		
-		for(int i = 0; i < this.actionLabels.size(); i++) {
-			this.selectActions.put(this.actionLabels.get(i), selectActions.get(i));
-		}
-		
-		initializeRasters();
-		updateGraphics();
-	}
-	
+	/**Set the size of the raster to be the maximum needed size.
+	 * @author 5som3*/
 	private void initializeRasters() {
-		pulledInRaster   = new BufferedImage(buttonSize.x, buttonSize.y, WarpedProperties.BUFFERED_IMAGE_TYPE);
-		popedOutRaster = new BufferedImage(buttonSize.x, (buttonSize.y * this.actionLabels.size()), WarpedProperties.BUFFERED_IMAGE_TYPE);
-		setRaster(pulledInRaster);
+		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN) setSize(buttonSize.x(), (buttonSize.y() * (this.toggles.size() + 1)));
+		else if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) setSize((buttonSize.x() * (this.toggles.size() + 1)), buttonSize.y());
+		else {Console.err("GUIPopOutMenu -> initializeRasters() -> invalid case : " + popDirection); return;}
 	}
 	
-	private void popOut() {
-		isPoppedOut = true;
-		extend();
+	/**Set the font for the options.
+	 * @param optionFont - the font to use.
+	 * @author 5som3*/
+	public void setToggleFont(Font optionFont) {
+		this.toggleFont = optionFont;
 		updateGraphics();
 	}
 	
-	private void pullIn() {
-		isPoppedOut = false;
-		retract();
+	/**Set the font for the label. 
+	 * (The button that hides / shows the menu options).
+	 * @param labelFont - the font to use.
+	 * @author 5som3*/
+	public void setLabelFont(Font labelFont) {
+		this.labelFont = labelFont;
 		updateGraphics();
 	}
 	
-	
-	private void extend() {
-		if(popDirection == DirectionType.UP) {			
-			if(!isExtended) {
-				isExtended = true;
-				position.y -= (buttonSize.y * (actionLabels.size() - 1));
-			}
-		}
-		
-	}
-	
-	private void retract() {
-		if(popDirection == DirectionType.UP) {			
-			if(isExtended) {
-				isExtended = false;
-				position.y += (buttonSize.y * (actionLabels.size() - 1));
-			}
-		}
-	}
-	
-	
-	private void select(int selectIndex) {
-		if(selectIndex < 0 || selectIndex > actionLabels.size()) {
-			Console.err("GUIDropDownToggle -> selectAction() -> actionIndex is out of function domain 0 < actionIndex < " + actionLabels.size() + "  -> action index : " + selectIndex);
-			return;
-		}
-		
-		if(!deselectActions.containsKey(actionLabels.get(this.selectIndex))) {	//The deselect action - the index from the button that is to be overwritten with a new selection
-			Console.ln("GUIDropDownToggle -> selectAction() -> drop down toggle has no deselect action for : " + actionLabels.get(selectIndex));
-		} else {			
-			WarpedAction action = deselectActions.get(actionLabels.get(this.selectIndex));
-			if(action == null) {
-				Console.err("GUIDropDownToggle -> deselectAction() -> action is null : " + this.selectIndex);
-			} else action.action();
-		}
-
-		if(!selectActions.containsKey(actionLabels.get(selectIndex))) {   //The selected action - the new index passed in from the users selection 
-			Console.ln("GUIDropDownToggle -> selectAction() -> drop down toggle has no select action for : " + actionLabels.get(selectIndex));
-		} else {			
-			WarpedAction action = selectActions.get(actionLabels.get(selectIndex));
-			if(action == null) {
-				Console.err("GUIDropDownToggle -> selectAction() -> action is null : " + selectIndex);
-			} else action.action();
-		}
-		
-		
-		if(selectIndex == 0 && !isPoppedOut) {
-			popOut();
-			return;
-		} else {
-			this.selectIndex = selectIndex;
-			pullIn();
-		
-		}
-	}
-	
-	private void updateGraphics() {
-		if(!isPoppedOut) {
-			setRaster(pulledInRaster);
-			Graphics2D g = raster.createGraphics();
-			switch(buttonState) {
-			case PLAIN: drawButton(g, selectIndex, 0, 0, buttonColor); break;
-			case HOVERED: drawButton(g, selectIndex, 0, 0, buttonHoverColor); break;
-			case PRESSED : drawButton(g, selectIndex, 0, 0, buttonPressColor); break;
-			default: Console.err("GUIDropDownToggle -> updateGraphics -> invalid switch case : " + buttonState); break;
-			}
-		} else {
-			setRaster(popedOutRaster);
-			Graphics2D g = raster.createGraphics();
-			switch(buttonState) {
-			case HOVERED:
-				if(selectIndex == hoveredIndex)	drawButton(g, hoveredIndex, 0, hoveredIndex * buttonSize.y, buttonPressColor);
-				else drawButton(g, hoveredIndex, 0, hoveredIndex * buttonSize.y, buttonHoverColor);
-				for(int i = 0; i < actionLabels.size(); i++) {
-					if(i == selectIndex)  continue;
-					if(i == hoveredIndex) continue;
-					drawButton(g, i, 0, i * buttonSize.y, buttonColor);
-				}
-				break;
-			case PRESSED:
-				if(selectIndex != hoveredIndex) drawButton(g, selectIndex, 0, 0, buttonColor);
-				drawButton(g, hoveredIndex, 0, hoveredIndex * buttonSize.y, buttonPressColor);
-				for(int i = 0; i < actionLabels.size(); i++) {
-					if(i == selectIndex)  continue;
-					if(i == hoveredIndex) continue;
-					drawButton(g, i, 0, i * buttonSize.y, buttonColor);
-				}
-				break;
-			default:
-				Console.err("GUIPopOutToggle -> updateGraphics() -> invalid button state : " + buttonState);
-				break;
-			}
-		}
+	/**Set the text size for the options.
+	 * @param textSize - the size of the text.
+	 * @author 5som3*/
+	public void setToggleTextSize(int textSize) {
+		this.toggleFont = new Font(toggleFont.getFontName(), toggleFont.getStyle(), textSize);
+		updateGraphics();
 	}
 
-	private void drawButton(Graphics2D g, int labelIndex, int x, int y, Color buttonColor) {
-		g.setColor(borderColor);
-		g.fillRect(x, y, buttonSize.x, buttonSize.y);
-		
-		g.setColor(buttonColor);	
-		g.fillRect(borderThickness + x, borderThickness + y, buttonSize.x - borderThickness * 2, buttonSize.y - borderThickness * 2);
-		
-		g.setColor(textColor);
-		g.setFont(font);
-		g.drawString(actionLabels.get(labelIndex), x + borderThickness * 2 + textOffset.x, y + (borderThickness * 2) + font.getSize() + textOffset.y);
-		
-		
-		if(!isPoppedOut && popDirection == DirectionType.UP)   g.drawImage(popUpArrowGraphic, buttonSize.x - (stdIconSize + borderThickness * 2), (buttonSize.y / 2) - (stdIconSize / 2), stdIconSize, stdIconSize, null);
-		if(!isPoppedOut && popDirection == DirectionType.DOWN) g.drawImage(popDownArrowGraphic, buttonSize.x - (stdIconSize + borderThickness * 2), (buttonSize.y / 2) - (stdIconSize / 2), stdIconSize, stdIconSize, null);
+	/**Set the text size for the label.
+	 * (The button that hides / shows the menu options).
+	 * @param textSize - the size of the text.
+	 * @author 5som3*/
+	public void setLabelTextSize(int textSize) {
+		this.labelFont = new Font(labelFont.getFontName(), labelFont.getStyle(), textSize);
+		updateGraphics();
 	}
+	
+	/**Set the background color for the label.
+	 * (The button that hides / shows the menu options).
+	 * @param labelColor - the color behind the label text.
+	 * @author 5som3*/
+	public void setLabelColor(Color labelColor) {
+		this.labelColor = labelColor;
+		updateGraphics();
+	}
+	
+	/**Set the background color for the toggles when they are off.
+	 * @param toggleOffColor - the color behind the option text.
+	 * @author 5som3*/
+	public void setToggleOffColor(Color toggleOffColor) {
+		this.toggleOffColor = toggleOffColor;
+		updateGraphics();
+	}
+	
+	/**Set the background color for the toggles when they are off.
+	 * @param toggleOffColor - the color behind the option text.
+	 * @author 5som3*/
+	public void setToggleOnColor(Color toggleOnColor) {
+		this.toggleOffColor = toggleOnColor;
+		updateGraphics();
+	}
+	
+	/**Set the text color of the options.
+	 * @param optionTextColor - the text color.
+	 * @author 5som3*/
+	public void setOptionTextColor(Color optionTextColor) {
+		this.toggleTextColor = optionTextColor;
+		updateGraphics();
+	}
+	
+	/**Set the color of the label text.
+	 * (The button that hides / shows the menu options).
+	 * @param labelTextColor - the color for the label text.
+	 * @author 5som3*/
+	public void setLabelTextColor(Color labelTextColor) {
+		this.labelTextColor = labelTextColor;
+		updateGraphics();
+	}
+	
+	/**Set the colour for the borders.
+	 * @param borderColor - the color for borders.
+	 * @apiNote For no border color setBorderThickness(0);
+	 * @author 5som3*/
+	public void setBorderColor(Color borderColor) {
+		this.borderColor = borderColor;
+		updateGraphics();
+	}
+	
+	/**Set the color of buttons when they are pressed.
+	 * @param pressColor - the color to overlay buttons when they are pressed.
+ 	 * @apiNote You should use a hover color with an alpha of about 100, using a full color will obscure the text.
+	 * @author 5som3*/
+	public void setPressColor(Color pressColor) {
+		this.pressColor = pressColor;
+		updateGraphics();
+	}
+	
+	/**The color of buttons when they are hovered by the mouse
+	 * @param hoverColor - the color to draw over the button when hovered
+	 * @apiNote You should use a hover color with an alpha of about 100, using a full color will obscure the text
+	 * @author 5som3*/
+	public void setHoverColor(Color hoverColor) {
+		this.hoverColor = hoverColor;
+		updateGraphics();
+	}
+	
+	/**Set the thickness of the borders.
+	 * @param borderThickness - the thickness of borders in pixels.
+	 * @apiNote set 0 borderThickness for no borders.
+	 * @author 5som3*/
+	public void setBorderThickness(int borderThickness) {
+		if(borderThickness < 0 || borderThickness > getHeight() / 4 || borderThickness > getWidth() / 4) {
+			Console.err("GUIPopOutMenu -> setBorderThickness() -> borderThickness out of bounds : " + borderThickness);
+			borderThickness = 2;
+		}
+		updateGraphics();
+	}
+	
+	/**Set the offset for the label text
+	 * (The button that hides / shows the menu options).
+	 * @param xOffset - the xOffset in pixels.
+	 * @param yOffset - the yOffset in pixels.
+	 * @author 5som3*/
+	public void setLabelTextOffset(int xOffset, int yOffset) {
+		this.labelTextOffset.set(xOffset, yOffset);
+		updateGraphics();
+	}
+	
+	/**Set the offset for the option text
+	 * @param xOffset - the xOffset in pixels.
+	 * @param yOffset - the yOffset in pixels.
+	 * @author 5som3*/
+	public void setToggleTextOffset(int xOffset, int yOffset) {
+		this.toggleTextOffset.set(xOffset, yOffset);
+		updateGraphics();
+	}
+	
+	/**Set the size for each of the buttons in the menu. (including the label).
+	 * @param width - the width of a button in pixels.
+	 * @param height - the height of a button in pixels.
+	 * @author 5som3*/
+	public void setButtonSize(int width, int height) {
+		buttonSize.set(width, height);
+		updateGraphics();
+	}
+	
+	/**Set the direction for the button to pop out.
+	 * @param popDirection - the direction to pop out, possible directions : up, down, left, right.
+	 * @apiNote If using offset with the PopoutMenu you will need to call offset() after changing the popDirection.
+	 * @author 5som3*/
+	public void setPopDirection(DirectionType popDirection) {
+		if(popDirection != DirectionType.UP && popDirection != DirectionType.DOWN && popDirection != DirectionType.LEFT && popDirection != DirectionType.RIGHT) {
+			Console.err("GUIPopOutMenu -> SetPopDirection() -> invalid pop Direction : " + popDirection); 
+			return;
+		}		
+		
+		if(this.popDirection != popDirection) {
+			if(this.popDirection == DirectionType.UP)   super.setOffset(getOffsetX(), getOffsetY() + toggles.size() * buttonSize.y());
+			if(this.popDirection == DirectionType.LEFT) super.setOffset(getOffsetX() + toggles.size() * buttonSize.x(), getOffsetY());
+			
+			if(popDirection == DirectionType.UP)   super.setOffset(getOffsetX(), getOffsetY() - toggles.size() * buttonSize.y());
+			if(popDirection == DirectionType.LEFT) super.setOffset(getOffsetX() - toggles.size() * buttonSize.x(), getOffsetY());
+		}
+		
+		this.popDirection = popDirection;
+		initializeRasters();
+		updateGraphics();
+	}
+	
+	/**Shows the options for this menu
+	 * @author 5som3*/
+	public void popOut() {
+		if(!isPoppedOut) {			
+			isPoppedOut = true;
+			updateGraphics();
+			Console.ln("GUIPopOutMenu -> popOut()");
+		}
+	}
+	
+	/**Hides the options for this menu
+	 * @author 5som3*/
+	public void pullIn() {
+		if(isPoppedOut) {		
+			isPoppedOut = false;
+			updateGraphics();
+			Console.ln("GUIPopOutMenu -> pullIn()");
+		}
+	}
+	
+	/**Toggle the visibility of the menu options. 
+	 * If hidden the menu will be visible. 
+	 * If visible the menu will be hidden.
+	 * @author 5som3*/
+	public void togglePop() {if(isPoppedOut) pullIn(); else popOut();}
+	
+	/**Set the states for the toggles in this menu.
+	 * @param states - a list of the states for this menu.
+	 * @implNote will not trigger any of the toggleOn / toggleOff actions to occur.
+	 * @author 5som3*/
+	public void setToggleStates(boolean... states) {
+		for(int i = 0; i < states.length; i++) {
+			if(i >= toggles.size()) {
+				Console.err("GUIPopOutToggle -> setToggleStates() -> size of states exceeds number of toggles in the menu");
+				break;
+			}
+			toggles.get(i).setState(states[i]);
+		}
+		updateGraphics();
+	}
+	
+	private void updateGraphics() {		
+		Graphics g = getGraphics();
+		
+		switch(popDirection) {
+		case DOWN:
+			for(int i = 0; i < toggles.size() + 1; i++) {
+				if(i == 0) {
+					g.setColor(borderColor);
+					g.fillRect(0, 0, buttonSize.x(), buttonSize.y());
+					g.setColor(labelColor);
+					g.fillRect(borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setFont(labelFont);
+					g.setColor(labelTextColor);
+					g.drawString(menuLabel, labelTextOffset.x(), labelTextOffset.y());
+				} else if(isPoppedOut) {
+					g.setColor(borderColor);
+					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
+					if(toggles.get(i - 1).isToggled()) g.setColor(toggleOnColor);
+					else g.setColor(toggleOffColor);
+					g.fillRect(borderThickness, i * buttonSize.y() + borderThickness,  buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(toggleTextColor);
+					g.setFont(toggleFont);
+					g.drawString(toggles.get(i - 1).getName(), toggleTextOffset.x(), i * buttonSize.y() + toggleTextOffset.y());
+				}
+				
+				if(hoveredIndex >= 0 && i == hoveredIndex) {
+					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
+					else g.setColor(hoverColor);
+					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
+				}
+			}			
+			break;
+		case RIGHT:
+			for(int i = 0; i < toggles.size() + 1; i++) {
+				if(i == 0) {
+					g.setColor(borderColor);
+					g.fillRect(0, 0, buttonSize.x(), buttonSize.y());
+					g.setColor(labelColor);
+					g.fillRect(borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setFont(labelFont);
+					g.setColor(labelTextColor);
+					g.drawString(menuLabel, labelTextOffset.x(), labelTextOffset.y());
+				} else if(isPoppedOut) {
+					g.setColor(borderColor);
+					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+					if(toggles.get(i - 1).isToggled()) g.setColor(toggleOnColor);
+					else g.setColor(toggleOffColor);
+					g.fillRect(i * buttonSize.x() + borderThickness, borderThickness,  buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(toggleTextColor);
+					g.setFont(toggleFont);
+					g.drawString(toggles.get(i - 1).getName(),  i * buttonSize.x() + toggleTextOffset.x(), toggleTextOffset.y());
+				}
+				if(hoveredIndex >= 0 && i == hoveredIndex) {
+					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
+					else g.setColor(hoverColor);
+					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+				}
+			}
+			break;
+		case UP:
+			for(int i = 0; i < toggles.size() + 1; i++) {
+				if(i == toggles.size()) {
+					g.setColor(borderColor);
+					g.fillRect(0, toggles.size() * buttonSize.y(), buttonSize.x(), buttonSize.y());
+					g.setColor(labelColor);
+					g.fillRect(borderThickness, toggles.size() * buttonSize.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(labelTextColor);
+					g.setFont(labelFont);
+					g.drawString(menuLabel, labelTextOffset.x(), toggles.size() * buttonSize.y() + labelTextOffset.y());
+				} else if(isPoppedOut) {
+					g.setColor(borderColor);
+					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
+					if(toggles.get(i).isToggled()) g.setColor(toggleOnColor);
+					else g.setColor(toggleOffColor);
+					g.fillRect(borderThickness, i * buttonSize.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(toggleTextColor);
+					g.setFont(toggleFont);
+					g.drawString(toggles.get(i).getName(), toggleTextOffset.x(), i * buttonSize.y() + toggleTextOffset.y());
+				}
+				if(hoveredIndex >= 0 && i == hoveredIndex) {
+					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
+					else g.setColor(hoverColor);
+					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
+				} 
+			}
+			break;
+		case LEFT:
+			for(int i = 0; i < toggles.size() + 1; i++) {
+				if(i == toggles.size()) {
+					g.setColor(borderColor);
+					g.fillRect(toggles.size() * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+					g.setColor(labelColor);
+					g.fillRect(toggles.size() * buttonSize.x() + borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(labelTextColor);
+					g.setFont(labelFont);
+					g.drawString(menuLabel, toggles.size() * buttonSize.x() + labelTextOffset.x(), labelTextOffset.y());
+				} else if(isPoppedOut) {
+					g.setColor(borderColor);
+					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+					if(toggles.get(i).isToggled()) g.setColor(toggleOnColor);
+					else g.setColor(toggleOffColor);
+					g.fillRect(i * buttonSize.x() + borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+					g.setColor(toggleTextColor);
+					g.setFont(toggleFont);
+					g.drawString(toggles.get(i).getName(), i * buttonSize.x() + toggleTextOffset.x(), toggleTextOffset.y());
+				}
+				if(hoveredIndex >= 0 && i == hoveredIndex) {
+					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
+					else g.setColor(hoverColor);
+					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
+				}
+			}
+			break;
+		default:
+			Console.ln("GUIPopOutMenu -> updateGraphics() -> invalid popDirection : " + popDirection);
+			break;
+		}
+		
+		g.dispose();
+		pushGraphics();
+	}
+
+	
+	
 	
 	@Override
 	protected void mouseEntered() {
-		buttonState = ButtonStateType.HOVERED;
-		hoveredIndex = 0;
-		pullIn();
+		buttonState = ButtonStateType.HOVERED;	
 	}
 
 	@Override
 	protected void mouseExited() {
+		Console.ln("GUIPopOutMenu -> mouseExited()");
 		buttonState = ButtonStateType.PLAIN;
-		hoveredIndex = 0;
-		pullIn();
+		hoveredIndex = -1;
+		if(isPoppedOut)	pullIn();
+		else updateGraphics();
 	}
 
 	@Override
 	protected void mouseMoved(WarpedMouseEvent mouseEvent) {
+		int index = -1;
 		buttonState = ButtonStateType.HOVERED;
-		int index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y);
-		if(index >= actionLabels.size()) index = actionLabels.size() - 1;
+		
+		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());		
+		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
+
 		if(index != hoveredIndex) {
 			hoveredIndex = index;
 			updateGraphics();
 		}
+		
 	}
 
 
 	@Override
 	protected void mousePressed(WarpedMouseEvent mouseEvent) {
+		int index = -1;
 		buttonState = ButtonStateType.PRESSED;
-		updateGraphics();
+		
+		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());		
+		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
+		
+		if(index != hoveredIndex) {
+			hoveredIndex = index;
+			updateGraphics();
+		}
+		
+	
 	}
 
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
-		int selectIndex = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y); 
-		if(selectIndex == 0) buttonState = ButtonStateType.HOVERED;
-		else buttonState = ButtonStateType.PLAIN;
-		hoveredIndex = 0;
+		int index = -1;
+		buttonState = ButtonStateType.PLAIN;
 		
-		if(!isPoppedOut && selectIndex == 0) {
-			popOut();
-			return;
+		if(popDirection == DirectionType.UP)    {
+			index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());
+			if(index == toggles.size()) togglePop();	
+			else {
+				toggles.get(index).toggle();
+				hoveredIndex = -1;
+				pullIn();
+			}
 		}
-		select(selectIndex);
+		
+		if(popDirection == DirectionType.DOWN)    {
+			index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());
+			if(index == 0) togglePop();
+			else {
+				toggles.get(index - 1).toggle();
+				hoveredIndex = -1;
+				pullIn();
+			}
+		}
+		
+		if(popDirection == DirectionType.LEFT) {
+			index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
+			if(index == toggles.size())togglePop();
+			else {
+				toggles.get(index).toggle();
+				hoveredIndex = -1;
+				pullIn();
+			}
+		}
+		
+		if(popDirection == DirectionType.RIGHT) {
+			index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
+			if(index == 0) togglePop();
+			else {
+				toggles.get(index - 1).toggle();
+				hoveredIndex = -1;
+				pullIn();
+			}
+		}		
 	}
 
 	@Override
-	protected void mouseDragged(WarpedMouseEvent mouseEvent) {return;}
+	protected void mouseDragged(WarpedMouseEvent mouseEvent) {
+		int index = -1;
+		buttonState = ButtonStateType.HOVERED;
+		
+		if(popDirection == DirectionType.UP || popDirection == DirectionType.DOWN)    index = (int)Math.floor(mouseEvent.getPointRelativeToObject().y / buttonSize.y());		
+		if(popDirection == DirectionType.LEFT || popDirection == DirectionType.RIGHT) index = (int)Math.floor(mouseEvent.getPointRelativeToObject().x / buttonSize.x());
+		
+		if(index != hoveredIndex) {
+			hoveredIndex = index;
+			updateGraphics();
+		}
+	}
+	
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
-	@Override
-	protected void updateRaster() {return;}
-	@Override
-	protected void updateObject() {return;}
-	@Override
-	protected void updatePosition() {return;}	
 }

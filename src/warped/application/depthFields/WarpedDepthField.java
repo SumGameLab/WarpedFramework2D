@@ -2,20 +2,27 @@
 
 package warped.application.depthFields;
 
+import java.awt.image.BufferedImage;
+
 import warped.application.object.WarpedObject;
 import warped.application.state.managers.CameraManager;
 import warped.graphics.camera.WarpedCameraType;
 import warped.user.mouse.WarpedMouseEvent;
 
-public abstract class WarpedDepthField extends WarpedObject {
+public class WarpedDepthField extends WarpedObject {
 	
-	private double horizontalPanSpeed = 1.0;
+	private double horizontalPanSpeed  = 1.0;
 	private double verticalPanSpeed    = 1.0;
 	
-	public void panUp()    {position.y += verticalPanSpeed * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom());};
-	public void panDown()  {position.y -= verticalPanSpeed * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom());};
-	public void panLeft()  {position.x += horizontalPanSpeed * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom());};
-	public void panRight() {position.x -= horizontalPanSpeed * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom());};
+	public WarpedDepthField(BufferedImage image) {
+		setSize(image.getWidth(), image.getHeight());
+		sprite.paint(image);
+	}
+	
+	public void panUp()    {move(0.0, verticalPanSpeed   * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom()));};
+	public void panDown()  {move(0.0, -verticalPanSpeed   * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom()));};
+	public void panLeft()  {move(horizontalPanSpeed * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom()));};
+	public void panRight() {move(-horizontalPanSpeed * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom()));};
 	
 	public void setPanSpeed(double speed) {horizontalPanSpeed = verticalPanSpeed = speed;}
 	public void setHorizontalPanSpeed(double horizontalPanSpeed) { this.horizontalPanSpeed = horizontalPanSpeed;}
@@ -30,11 +37,16 @@ public abstract class WarpedDepthField extends WarpedObject {
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {return;}
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 	
+	@Override
+	public void updateMid() {return;};
 	
-protected void updateMid() {return;};
-	
-	protected void updateSlow() {return;}; 
+	@Override
+	public void updateSlow() {return;}; 
 
-	protected void updatePassive() {return;};
+	@Override
+	public void updatePassive() {return;}
+	
+	@Override
+	public void updateObject() {return;}
 }
 

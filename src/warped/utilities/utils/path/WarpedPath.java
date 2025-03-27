@@ -5,19 +5,18 @@ package warped.utilities.utils.path;
 import java.util.ArrayList;
 import java.util.List;
 
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorD;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsMath;
 
 public class WarpedPath {
 
 	private int currentNode = 0;
 	private List<WarpedPathNode> nodes;
-	private ArrayList<Vec2d>  positions  = new ArrayList<>();
+	private ArrayList<VectorD>  positions  = new ArrayList<>();
 	
 	private double scale = 0.0;
-	private Vec2d offset = new Vec2d();
+	private VectorD offset = new VectorD();
 	
 	private boolean isReverseDirection = false;
 	
@@ -27,7 +26,7 @@ public class WarpedPath {
 	
 	protected WarpedPath(List<WarpedPathNode> nodes) {
 		this.nodes = nodes;
-		for(int i = 0; i < nodes.size(); i++) positions.add(new Vec2d(nodes.get(i).coord));
+		for(int i = 0; i < nodes.size(); i++) positions.add(new VectorD(nodes.get(i).coord));
 		currentNode = nodes.size() -1;
 	}
 	
@@ -35,14 +34,14 @@ public class WarpedPath {
 	protected WarpedPath(List<WarpedPathNode> nodes, double moveSpeed) {
 		this.nodes = nodes;
 		this.moveSpeed = moveSpeed;
-		for(int i = 0; i < nodes.size(); i++) positions.add(new Vec2d(nodes.get(i).coord));	
+		for(int i = 0; i < nodes.size(); i++) positions.add(new VectorD(nodes.get(i).coord));	
 	}
 	*/
 	
 	public boolean isReverseDirection() {return isReverseDirection;}
 	public void setReverseDirection(boolean isReversedDirection) {this.isReverseDirection = isReversedDirection;}
 	
-	public Vec2i getNextCoordinate() {
+	public VectorI getNextCoordinate() {
 		if(currentNode < 0 || nodes.get(currentNode) == null) { 
 			Console.err("WarpedPath -> getNextCoordinate() -> nodes is empty or node is null");
 			return null;
@@ -50,7 +49,7 @@ public class WarpedPath {
 		return nodes.get(currentNode).coord;
 	}
 	
-	public Vec2i getCoordinateAfterNext() {
+	public VectorI getCoordinateAfterNext() {
 		if(currentNode < 1) {
 			Console.err("WarpedPath -> getCoordinateAfterNext() -> path does not have a node after next");
 			return null;
@@ -62,7 +61,7 @@ public class WarpedPath {
 		return nodes.get(currentNode - 1).coord;
 	}
 	
-	public Vec2d getNextPosition() {
+	public VectorD getNextPosition() {
 		if(currentNode < 0 || positions.get(currentNode) == null) {
 			Console.err("WarpedPath -> getNextPosition() -> coord is empty or null");
 			return null;
@@ -70,7 +69,7 @@ public class WarpedPath {
 		return positions.get(currentNode);
 	}
 	
-	public Vec2d getPositionAfterNext() {
+	public VectorD getPositionAfterNext() {
 		if(currentNode < 1) {
 			Console.err("WarpedPath -> getPositionAfterNext() -> path does not have a coordinate after next");
 			return null;
@@ -116,7 +115,7 @@ public class WarpedPath {
 	
 	
 	public List<WarpedPathNode> getNodes(){return nodes;}
-	public ArrayList<Vec2d> getCoordinates(){return positions;}
+	public ArrayList<VectorD> getCoordinates(){return positions;}
 	
 	public void scalePath(int scale) {scalePath((double)scale);}
 	public void scalePath(double scale){
@@ -127,13 +126,13 @@ public class WarpedPath {
 		this.scale = scale;
 		positions.forEach(c ->{c.scale(scale);});
 	}
-	public void offsetPath(Vec2i offset) {
+	public void offsetPath(VectorI offset) {
 		this.offset.set(offset);		
-		offsetPath(offset.x, offset.y);
+		offsetPath(offset.x(), offset.y());
 	}
-	public void offsetPath(Vec2d offset) {
+	public void offsetPath(VectorD offset) {
 		this.offset.set(offset);
-		offsetPath(offset.x, offset.y);
+		offsetPath(offset.x(), offset.y());
 	}
 	public void offsetPath(int v) {
 		this.offset.set(v);
@@ -149,38 +148,38 @@ public class WarpedPath {
 	public <T extends WarpedPathable> boolean follow(T pathable) {return follow(this, pathable, scale);}
 	public  <T extends WarpedPathable> boolean follow(WarpedPath path, T pathable, double scale) {
 		if(path.getCurrentNode() < 0) return true;
-		Vec2d target = path.getNextPosition();
+		VectorD target = path.getNextPosition();
 		if(target == null) return true;
 		
-		double px = pathable.getPosition().x;
-		double py = pathable.getPosition().y;
+		double px = pathable.getPosition().x();
+		double py = pathable.getPosition().y();
 
 		
-		if(px == target.x) passedX = true;
+		if(px == target.x()) passedX = true;
 		else if(!passedX){			
-			if(px < target.x) {
-				pathable.getPosition().addX( pathable.getMoveSpeed() * path.getNextNode().smoothness);
-				if(pathable.getPosition().x >= target.x) passedX = true; 
+			if(px < target.x()) {
+				pathable.getPosition().add( pathable.getMoveSpeed() * path.getNextNode().smoothness);
+				if(pathable.getPosition().x() >= target.x()) passedX = true; 
 			}
-			if(px > target.x) {
-				pathable.getPosition().addX(-pathable.getMoveSpeed() * path.getNextNode().smoothness);
-				if(pathable.getPosition().x <= target.x) passedX = true; 
+			if(px > target.x()) {
+				pathable.getPosition().add(-pathable.getMoveSpeed() * path.getNextNode().smoothness);
+				if(pathable.getPosition().x() <= target.x()) passedX = true; 
 			}
 		}
-		if(py == target.y) passedY = true;
+		if(py == target.y()) passedY = true;
 		else if(!passedY){			
-			if(py < target.y) {
-				pathable.getPosition().addY( pathable.getMoveSpeed() * path.getNextNode().smoothness);
-				if(pathable.getPosition().y >= target.y) passedY = true;
+			if(py < target.y()) {
+				pathable.getPosition().add(0.0, pathable.getMoveSpeed() * path.getNextNode().smoothness);
+				if(pathable.getPosition().y() >= target.y()) passedY = true;
 			}
-			if(py > target.y) {
-				pathable.getPosition().addY(-pathable.getMoveSpeed() * path.getNextNode().smoothness);
-				if(pathable.getPosition().y <= target.y) passedY = true;
+			if(py > target.y()) {
+				pathable.getPosition().add(0.0, -pathable.getMoveSpeed() * path.getNextNode().smoothness);
+				if(pathable.getPosition().y() <= target.y()) passedY = true;
 			}
 		}
 		
 						
-		if(UtilsMath.vectorDifference(target, pathable.getPosition()) < (scale / 2.0)) {
+		if(target.getDistanceBetweenVectors(pathable.getPosition()) < (scale / 2.0)) {
 			if(!pathable.getCurrentCoordinate().isEqual(path.getNextCoordinate())) {				
 				pathable.setCurrentCoordinate(path.getNextCoordinate()); //Set coordinate half way between each tile, otherwise crew will appear to be in the next tile while being effected by the previous tile
 			}

@@ -14,7 +14,7 @@ import warped.user.keyboard.WarpedKeyBind;
 import warped.user.keyboard.WarpedKeyboardController;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 public class GUIHotBar extends WarpedGUI {
@@ -27,8 +27,8 @@ public class GUIHotBar extends WarpedGUI {
 	private Color bindColor = new Color(120, 0, 0, 60);
 	private int borderThickness = 2;
 	
-	private Vec2i buttonSize = new Vec2i(50, 50);
-	private Vec2i keySize = new Vec2i(30, 30);
+	private VectorI buttonSize = new VectorI(50, 50);
+	private VectorI keySize = new VectorI(30, 30);
 	private int buttonPaddingX = 4;
 	private int innerPadding = 8;
 	private int buttonPaddingY = 4;
@@ -54,8 +54,8 @@ public class GUIHotBar extends WarpedGUI {
 		if(rows == 0) rows = 1;
 		Console.ln("GUIHotBar -> updateGraphics() -> hotBar size (row, column) : (" + rows + ", " + columns);
 		
-		int sx = buttonPaddingX + (hotBinds.size() + 1) * (buttonSize.x + keySize.x + innerPadding + buttonPaddingX);
-		int sy = buttonPaddingY + rows * (buttonSize.y + buttonPaddingY);
+		int sx = buttonPaddingX + (hotBinds.size() + 1) * (buttonSize.x() + keySize.x() + innerPadding + buttonPaddingX);
+		int sy = buttonPaddingY + rows * (buttonSize.y() + buttonPaddingY);
 		Console.ln("GUIHotBar -> updateGraphics() -> hotBar size (pixel width, pixel height) : (" + sx + ", " + sy);
 		
 		BufferedImage img = new BufferedImage(sx, sy, WarpedProperties.BUFFERED_IMAGE_TYPE);
@@ -72,29 +72,29 @@ public class GUIHotBar extends WarpedGUI {
 			int y = rows - 1;
 			int x = i - y;
 			
-			int rx =  buttonPaddingX + x * (buttonSize.x + keySize.x + innerPadding + buttonPaddingX);
-			int ry =  buttonPaddingY + y * (buttonSize.y + buttonPaddingY);
+			int rx =  buttonPaddingX + x * (buttonSize.x() + keySize.x() + innerPadding + buttonPaddingX);
+			int ry =  buttonPaddingY + y * (buttonSize.y() + buttonPaddingY);
 			Console.ln("GUIHotBar -> updateGraphics() -> drawing binds rx, ry : " + rx + ", " + ry);
 			
-			int bx = rx + keySize.x + innerPadding;
+			int bx = rx + keySize.x() + innerPadding;
 			
 			
 			if(i == hotBinds.size()) {
-				g.drawImage(WarpedKeyBind.getKeyImage(-1), rx, ry, rx + keySize.x, ry + keySize.y, null);
-				g.drawImage(FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_UP), rx, ry, buttonSize.x, buttonSize.y, null); 
+				g.drawImage(WarpedKeyBind.getKeyImage(-1), rx, ry, rx + keySize.x(), ry + keySize.y(), null);
+				g.drawImage(FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_UP), rx, ry, buttonSize.x(), buttonSize.y(), null); 
 			} else {
 				WarpedKeyBind<?> bind = hotBinds.get(i);
-				g.drawImage(WarpedKeyBind.getKeyImage(bind.getKey()), rx, ry, keySize.x, keySize.y, null);
+				g.drawImage(WarpedKeyBind.getKeyImage(bind.getKey()), rx, ry, keySize.x(), keySize.y(), null);
 				if(bind.isListening()) {
 					g.setColor(bindColor);
-					g.fillRect(rx, ry, keySize.x, keySize.y);
+					g.fillRect(rx, ry, keySize.x(), keySize.y());
 				}
-				g.drawImage(bind.raster(), bx, ry, buttonSize.x, buttonSize.y, null);
+				g.drawImage(bind.raster(), bx, ry, buttonSize.x(), buttonSize.y(), null);
 			}
 			
 			if(x == hoverX && y == hoverY) {
 				g.setColor(hoverColor);
-				g.fillRect(bx, ry,  bx + buttonSize.x, ry + buttonSize.y);
+				g.fillRect(bx, ry,  bx + buttonSize.x(), ry + buttonSize.y());
 			}	
 		}
 		
@@ -113,8 +113,8 @@ public class GUIHotBar extends WarpedGUI {
 
 	@Override
 	protected void mouseMoved(WarpedMouseEvent mouseEvent) {
-		int hx = Math.floorDiv(mouseEvent.getPointRelativeToObject().x, buttonSize.x + buttonPaddingX);
-		int hy = Math.floorDiv(mouseEvent.getPointRelativeToObject().y, buttonSize.y + buttonPaddingY);
+		int hx = Math.floorDiv(mouseEvent.getPointRelativeToObject().x, buttonSize.x() + buttonPaddingX);
+		int hy = Math.floorDiv(mouseEvent.getPointRelativeToObject().y, buttonSize.y() + buttonPaddingY);
 		
 		if(hx < 0 || hy < 0 || hx >= columns) return;
 		
@@ -153,14 +153,11 @@ public class GUIHotBar extends WarpedGUI {
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
-	@Override
-	protected void updateRaster() {return;}
 
 	@Override
-	protected void updateObject() {return;}
+	public void updateObject() {return;}
 
-	@Override
-	protected void updatePosition() {return;}	
+		
 	
 	
 	

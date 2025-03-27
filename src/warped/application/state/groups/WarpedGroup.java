@@ -8,7 +8,7 @@ import warped.application.object.WarpedObject;
 import warped.application.object.WarpedObjectIdentity;
 import warped.application.state.managers.gameObjectManagers.GameObjectAction;
 import warped.application.state.managers.gameObjectManagers.WarpedObjectAction;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
 public class WarpedGroup<T extends WarpedObject> {
@@ -25,9 +25,9 @@ public class WarpedGroup<T extends WarpedObject> {
 	 * Size was added here specifically for use with the tile manager
 	 * using size with other managers is optional but I haven't considered its implications fully*/
 	protected String name 			   = "default";
-	private Vec2i pixelSize 		   = new Vec2i();
-	private Vec2i mapGridSize		   = new Vec2i();
-	private Vec2i memberSize 		   = new Vec2i();
+	private VectorI pixelSize 		   = new VectorI();
+	private VectorI mapGridSize		   = new VectorI();
+	private VectorI memberSize 		   = new VectorI();
 	private int memberCapacity		   = 0;
 	protected ArrayList<T> members 	   = new ArrayList<>();
 	protected ArrayList<T> addQueue    = new ArrayList<>();
@@ -60,26 +60,26 @@ public class WarpedGroup<T extends WarpedObject> {
 	//--------
 	//Functions for the tile manager -> 
 	//TODO -> 4/2/24 should make an extension of the contextGroup for tiles and move these functions there as they are specificaly for the tile manager
-	public void setMemberSize(Vec2i memberSize) {this.memberSize = memberSize;}
-	public void setMemberSize(int width, int height) {memberSize.x = width; memberSize.y = height;}
-	public void setMapSize(int width, int height) {mapGridSize.x = width; mapGridSize.y = height;}
-	public void setMapSize(Vec2i mapSize) {this.mapGridSize = mapSize;}
-	public void setPixelSize(Vec2i size) {this.pixelSize = size;}
-	public void setPixelSize(int x, int y) {pixelSize.x = x; pixelSize.y = y;}
+	public void setMemberSize(VectorI memberSize) {this.memberSize = memberSize;}
+	public void setMemberSize(int width, int height) {memberSize.set(width, height);}
+	public void setMapSize(int width, int height) {mapGridSize.set(width, height);}
+	public void setMapSize(VectorI mapSize) {this.mapGridSize = mapSize;}
+	public void setPixelSize(VectorI size) {this.pixelSize = size;}
+	public void setPixelSize(int x, int y) {pixelSize.set(x, y);}
 	public GroupUpdatePriorityType getUpdatePriority() {return updatePriority;}
 	public void setUpdatePriority(GroupUpdatePriorityType updatePriority) {this.updatePriority = updatePriority;}
 	/**This was added to be used specifically for tiles and tile maps,
 	 * it may be useful if you wanted a context group to be clipped or contained within a specific bounds 
 	 * @return The size of the map in tile precision i.e. 10 x 10 tile map*/
-	public Vec2i getMapGridSize() {return mapGridSize;}
+	public VectorI getMapGridSize() {return mapGridSize;}
 	/**This was added to be used specifically for tiles and tile maps,
 	 * it may be useful if you wanted a context group to be clipped or contained within a specific bounds 
 	 * @return The size of the tile map in pixels*/
-	public Vec2i getMapPixelSize() {return pixelSize;}
+	public VectorI getMapPixelSize() {return pixelSize;}
 	/**This was added to be used specifically for tiles and tile maps,
 	 * it may be useful if you wanted a context group to be clipped or contained within a specific bounds 
 	 * @return The size of a single tile in pixels*/
-	public Vec2i getMemberSize() {return memberSize;}	
+	public VectorI getMemberSize() {return memberSize;}	
 	
 	public int size() {return members.size();}
 	public String getName() {return name;}
@@ -256,7 +256,7 @@ public class WarpedGroup<T extends WarpedObject> {
 		for(int i = 0; i < members.size(); i++) {
 			WarpedObject member = members.get(i);
 			member.updateActively();
-			member.updateMidly();
+			member.updateMid();
 		}
 	}
 	
@@ -265,8 +265,8 @@ public class WarpedGroup<T extends WarpedObject> {
 		for(int i = 0; i < members.size(); i++) {
 			WarpedObject member = members.get(i);
 			member.updateActively();
-			member.updateMidly();
-			member.updateSlowly();
+			member.updateMid();
+			member.updateSlow();
 		}
 	}
 	
@@ -274,9 +274,9 @@ public class WarpedGroup<T extends WarpedObject> {
 		for(int i = 0; i < members.size(); i++) {
 			WarpedObject member = members.get(i);
 			member.updateActively();
-			member.updateMidly();
-			member.updateSlowly();
-			member.updatePassively();
+			member.updateMid();
+			member.updateSlow();
+			member.updatePassive();
 		}
 	}
 	

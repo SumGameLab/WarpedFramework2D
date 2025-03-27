@@ -52,7 +52,7 @@ public class GUIInventoryItems extends WarpedGUI {
 	public GUIInventoryItems(int columns, int rows) {
 		this.columns = columns; 
 		this.rows = rows;
-		setRaster(new BufferedImage(1,1,WarpedProperties.BUFFERED_IMAGE_TYPE));
+		setSize(1,1);
 	}
 	
 	public void selectInventory(WarpedGroupIdentity inventoryID) {
@@ -62,8 +62,8 @@ public class GUIInventoryItems extends WarpedGUI {
 		}
 		this.inventoryID  = inventoryID;
 		invent = WarpedState.itemManager.getGroup(inventoryID);
-		iconWidth = invent.getMemberSize().x;
-		iconHeight = invent.getMemberSize().y;
+		iconWidth = invent.getMemberSize().x();
+		iconHeight = invent.getMemberSize().y();
 		itemSpacingX = iconWidth + columnMargin;
 		itemSpacingY = iconHeight + rowMargin;
 		iconOffsetX = columnMargin / 2;
@@ -223,13 +223,8 @@ public class GUIInventoryItems extends WarpedGUI {
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
-	@Override
-	protected void updateRaster() {return;}
 
 	@Override
-	protected void updateObject() {return;}
-
-	@Override
-	protected void updatePosition() {return;}
+	public void updateObject() {return;}
 
 }

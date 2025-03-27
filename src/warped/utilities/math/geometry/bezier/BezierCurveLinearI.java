@@ -2,11 +2,11 @@
 
 package warped.utilities.math.geometry.bezier;
 
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 
 public class BezierCurveLinearI {
 
-	protected Vec2i p0, p1, pf;
+	protected VectorI p0, p1, pf;
 	protected double t = 0.0;
 	protected double increment = 0.01;
 	protected boolean complete = false;
@@ -15,22 +15,22 @@ public class BezierCurveLinearI {
 	 * This exist only for use by subclasses of BezierCurveLinear*/
 	protected BezierCurveLinearI() {};
 	
-	public BezierCurveLinearI(Vec2i p0, Vec2i p1) {
+	public BezierCurveLinearI(VectorI p0, VectorI p1) {
 		this.p0 = p0;
 		this.p1 = p1;
-		pf = new Vec2i();
+		pf = new VectorI();
 	}
 	
-	public BezierCurveLinearI(Vec2i p0, Vec2i p1, Vec2i pf) {
+	public BezierCurveLinearI(VectorI p0, VectorI p1, VectorI pf) {
 		this.p0 = p0;
 		this.p1 = p1;
 		this.pf = pf;
 	}
 	
 	
-	public BezierCurveLinearI(Vec2i pf, Vec2i p1, double increment) {
+	public BezierCurveLinearI(VectorI pf, VectorI p1, double increment) {
 		this.pf = pf;
-		p0 = new Vec2i(pf);
+		p0 = new VectorI(pf);
 		this.p1 = p1;
 		this.increment = increment;
 	}
@@ -53,9 +53,8 @@ public class BezierCurveLinearI {
 			complete = true;
 		}
 		
-		pf.x = (int)(p0.x + (t * (p1.x - p0.x)));
-		pf.y = (int)(p0.y + (t * (p1.y - p0.y)));
-		
+		pf.set((int)(p0.x() + (t * (p1.x() - p0.x()))), (int)(p0.y() + (t * (p1.y() - p0.y()))));
+			
 		if(complete) return true;
 		else return false;
 	}

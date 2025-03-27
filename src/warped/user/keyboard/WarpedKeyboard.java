@@ -7,7 +7,6 @@ import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import warped.application.state.WarpedState;
 import warped.utilities.utils.Console;
 
 public class WarpedKeyboard implements KeyListener {
@@ -138,14 +137,15 @@ public class WarpedKeyboard implements KeyListener {
 					activeController.stopListening();
 				}
 				*/
+				/*
 				if(WarpedState.hotBar.isOpen()) {
 					for(int i = 0; i < activeController.hotBinds.size(); i++) {
 						if(activeController.hotBinds.get(i).isListening) {
 							activeController.hotBinds.get(i).setKey(key);
 						}
 					}
-					
 				}
+				*/
 				
 				
 				//if(WarpedState.keyboardOptions.isOpen()) WarpedState.keyboardOptions.keyBindings.setList(activeController);

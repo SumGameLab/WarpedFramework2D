@@ -2,23 +2,20 @@
 
 package warped.graphics.window;
 
-import java.awt.Graphics2D;
-import java.awt.geom.AffineTransform;
-
 import warped.application.object.WarpedObject;
 import warped.application.state.managers.gameObjectManagers.WarpedManager;
 import warped.graphics.camera.WarpedCamera;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 
 public class WarpTechGalaxyViewPort extends WarpedViewport {
 
 	public WarpTechGalaxyViewPort(String name, WarpedManager<? extends WarpedObject> target, WarpedCamera camera,
-			Vec2i frameSize, Vec2i framePosition) {
+			VectorI frameSize, VectorI framePosition) {
 		super(name, target, camera, frameSize, framePosition);
 		// TODO Auto-generated constructor stub
 	}
 
-	
+	/*
 	protected void renderTransformedScaledActive() {
 		eventObjects.clear();
 		camera.update();
@@ -53,5 +50,5 @@ public class WarpTechGalaxyViewPort extends WarpedViewport {
 		g.dispose();
 		if(eventObjects.size() > 0) eventObject = eventObjects.get(eventObjects.size() - 1);
 	}
-	
+	*/
 }

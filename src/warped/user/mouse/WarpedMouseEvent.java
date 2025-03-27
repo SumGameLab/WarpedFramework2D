@@ -8,7 +8,7 @@ import java.awt.event.MouseWheelEvent;
 
 import warped.graphics.window.WarpedViewport;
 import warped.graphics.window.WarpedWindow;
-import warped.utilities.math.vectors.Vec2d;
+import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
 
 public class WarpedMouseEvent {
@@ -73,19 +73,19 @@ public class WarpedMouseEvent {
 	
 	public void updateTrace(MouseEvent e) {
 		traceP  = new Point(e.getPoint().x, e.getPoint().y);
-		traceP.x /= WarpedWindow.getWindowScale().x;
-		traceP.y /= WarpedWindow.getWindowScale().y;
+		traceP.x /= WarpedWindow.getWindowScale().x();
+		traceP.y /= WarpedWindow.getWindowScale().y();
 		canvasP = (Point)traceP.clone();
 	}
 	
 	public void updateTrace(WarpedViewport viewPort) {
-		traceP.setLocation(traceP.x - viewPort.getPosition().x, traceP.y - viewPort.getPosition().y);
+		traceP.setLocation(traceP.x - viewPort.getX(), traceP.y - viewPort.getY());
 		viewPortP = (Point)traceP.clone();		
 	}
 	
 	
-	public void updateTrace(Vec2d object) {
-		traceP.setLocation(traceP.x - object.x, traceP.y - object.y);
+	public void updateTrace(VectorD object) {
+		traceP.setLocation(traceP.x - object.x(), traceP.y - object.y());
 		objectP = (Point)traceP.clone();
 	}
 	

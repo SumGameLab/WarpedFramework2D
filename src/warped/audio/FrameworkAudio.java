@@ -14,6 +14,8 @@ public class FrameworkAudio {
 	public static WarpedAudioClip error;
 	public static WarpedAudioClip alert;
 	
+	private static double volume;
+	
 	private FrameworkAudio() {};
 	
 	public static void loadFrameworkAudio() {
@@ -48,13 +50,15 @@ public class FrameworkAudio {
 			Console.err("FrameworkAudio -> setVolume -> volume out of bounds : " + volume);
 			volume = 1.0;
 		}
-		double v = volume;
+		FrameworkAudio.volume = volume;
 		defaultPress.setVolume(volume);
 		defaultRelease.setVolume(volume);
 		defaultHover.setVolume(volume);
 		defaultUnhover.setVolume(volume);
 		defaultClose.setVolume(volume);
 	}
+	
+	public static double getVolume() {return volume;}
 
 	
 	

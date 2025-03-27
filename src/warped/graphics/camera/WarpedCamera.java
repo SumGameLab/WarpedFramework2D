@@ -7,8 +7,8 @@ import warped.application.object.WarpedObjectIdentity;
 import warped.application.state.WarpedState;
 import warped.graphics.window.WarpedWindow;
 import warped.utilities.math.geometry.bezier.BezierCurveCamera;
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorD;
+import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsMath;
 
@@ -17,12 +17,12 @@ public class WarpedCamera {
 	protected WarpedObjectIdentity target;
 	protected WarpedCameraType id;
 	
-	protected Vec2d position = new Vec2d();
+	protected VectorD position = new VectorD();
 	protected double zoom = 1.0;
 	protected double rotation = 0.0;
 	
-	protected Vec2d c1 = new Vec2d(0, 0);
-	protected Vec2d c2 = new Vec2d(WarpedWindow.width, WarpedWindow.height);
+	protected VectorD cp1 = new VectorD(0, 0);
+	protected VectorD cp2 = new VectorD(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight());
 	
 	public final double DEFAULT_CAMERA_MOVE_SPEED  = 1.0;
 	public final double DEFAULT_CAMERA_ZOOM_D  	   = 100.0;
@@ -45,15 +45,19 @@ public class WarpedCamera {
 	
 	//--------------Coordinate Transformations
 	//To be used by view port when rendering
+	/*
 	public void positionTransformation(WarpedObject obj) {
-		obj.renderPosition.add(position);
-		obj.renderPosition.scale(zoom);
+		obj.getRenderPosition().set(obj.getPosition().x + position.x, obj.getPosition().y + obj.getPosition().y);
+		obj.getRenderPosition().scale(zoom);
+		//obj.renderPosition.add(position);
+		//obj.renderPosition.scale(zoom);
 	}
 	
-	public void sizeTransformation(WarpedObject obj) {obj.renderSize.set(obj.getSize().x * zoom, obj.getSize().y * zoom);}
+	public void sizeTransformation(WarpedObject obj) {obj.getRenderSize().set(obj.getWidth() * obj.getRenderScale(), obj.getHeight() * obj.getRenderScale());}
+	*/
 	
-	public Vec2d getC1() {return c1;}
-	public Vec2d getC2() {return c2;}
+//	public VectorD getCornerPins() {return cornerPins;}
+	
 	public WarpedCameraType getID() {return id;}
 	public void setID(WarpedCameraType id) {this.id = id;}
 	public void setTarget(WarpedObjectIdentity target) {this.target = target;}
@@ -65,11 +69,13 @@ public class WarpedCamera {
 		if(this.target.isEqualTo(target)) return true; else return false;
 	}
 	
+	public VectorD getC1() {return cp1;}
+	public VectorD getC2() {return cp2;}
+	
+	
 	public void setCornerPins(int c1x, int c1y, int c2x, int c2y) {
-		c1.x = c1x;
-		c1.y = c1y;
-		c2.x = c2x;
-		c2.y = c2y;
+		cp1.set(c1x, c1y);
+		cp2.set(c2x, c2y);
 	}
 	
 	//--------------------------Tracking
@@ -100,7 +106,7 @@ public class WarpedCamera {
 		}
 		this.target = target;
 		isTrackingQued = true;
-		path = new BezierCurveCamera(position, WarpedState.getGameObject(target).getRenderCenter(), 0.001);
+		path = new BezierCurveCamera(position, WarpedState.getGameObject(target).getRenderCentre(), 0.001);
 	}
 	
 	public void togglePanZoomTrackTarget(WarpedObjectIdentity target) {
@@ -114,14 +120,14 @@ public class WarpedCamera {
 		}
 		this.target = target;
 		isTrackingQued = true;
-		path = new BezierCurveCamera(position, WarpedState.getGameObject(target).getRenderCenter(), 0.001, true);
+		path = new BezierCurveCamera(position, WarpedState.getGameObject(target).getRenderCentre(), 0.001, true);
 	}
 	
 	public void focusOnTarget(WarpedObjectIdentity target) {
 		this.target = target;
 		if(isTracking) stopTracking();
 		isTrackingQued = true;
-		path = new BezierCurveCamera(position, WarpedState.getGameObject(target).getRenderCenter(), 0.0004, 0.3, 1.0, 3); 
+		path = new BezierCurveCamera(position, WarpedState.getGameObject(target).getRenderCentre(), 0.0004, 0.3, 1.0, 3); 
 		
 	}
 	/*
@@ -154,34 +160,29 @@ public class WarpedCamera {
 		isTracking = true;
 	}
 	public void stopTracking() {isTracking = false;}
-
-	
-	public void updateTracking(WarpedObject obj) {		
-		position.x = -obj.getPosition().x - (obj.renderSize.x / 2);
-		position.y = -obj.getPosition().y - (obj.renderSize.x / 2);	
-	}
+	public void updateTracking(WarpedObject obj) {position.set(obj.getRenderCentre());}
 	
 	
 	//-------------------- Camera Controls
 
 	public void setRotation(double rotation) {this.rotation = rotation;}
-	public Vec2d getPosition(){return position;}
+	public VectorD getPosition(){return position;}
 	public double getZoom() {return zoom;}
 	public double getMoveSpeed() {return moveSpeed;}
 	public double getZoomSpeed() {return zoomSpeed;}
 	public double getRotation() {return rotation;}
 	public WarpedObjectIdentity getTarget() {return target;}
 	
-	public void setPosition(Vec2d position) {this.position = position;}
-	public void setPosition(Vec2i position) {this.position.x = position.x; this.position.y = position.y;}
+	public void setPosition(VectorD position) {this.position.set(position);}
+	public void setPosition(VectorI position) {this.position.set(position);}
 	public void setPosition(double x, double y) {position.set(x,y);}
 	public void setZoom(double zoom) {this.zoom = zoom;}
-	public void move(Vec2d vec) {position.x += vec.x; position.y += vec.y;}
-	public void move(double x, double y) {position.x += x; position.y += y;}
-	public void panUp()    {position.y += moveSpeed;}
-	public void panDown()  {position.y -= moveSpeed;}
-	public void panLeft()  {position.x += moveSpeed;}	
-	public void panRight() {position.x -= moveSpeed;}
+	public void move(VectorD vec) {this.position.add(vec);}
+	public void move(double x, double y) {this.position.add(x, y);}
+	public void panUp()    {position.add(0.0, moveSpeed);}
+	public void panDown()  {position.add(0.0, -moveSpeed);}
+	public void panLeft()  {position.add(moveSpeed);}	
+	public void panRight() {position.add(-moveSpeed);}
 	public void zoomIn()   {
 		zoom += zoomSpeed;
 		if(zoom > zoomMax) zoom = zoomMax;
@@ -225,10 +226,10 @@ public class WarpedCamera {
 	}
 	
 	public boolean isClipped(WarpedObject obj) {
-		if(obj.renderPosition.x + obj.renderSize.x < c1.x) return true; // outside left bound
-		if(obj.renderPosition.y + obj.renderSize.y < c1.y) return true; // outside top bound
-		if(obj.renderPosition.x > c2.x) return true; // outside right bound
-		if(obj.renderPosition.y > c2.y) return true; // outside bottom bound
+		if(obj.getRenderPosition().x() + obj.getRenderSize().x() < cp1.x()) return true; // outside left bound
+		if(obj.getRenderPosition().y() + obj.getRenderSize().y() < cp1.y()) return true; // outside top bound
+		if(obj.getRenderPosition().x() > cp2.x()) return true; // outside right bound
+		if(obj.getRenderPosition().y() > cp2.y()) return true; // outside bottom bound
 		return false;
 	}
 	

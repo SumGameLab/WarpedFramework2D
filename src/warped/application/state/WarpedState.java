@@ -7,21 +7,21 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import warped.WarpedFramework2D;
-import warped.application.assemblys.AssemblyFrameworkInspector;
-import warped.application.assemblys.AssemblyGameObjectInspector;
+import warped.application.assemblys.AssemblyFileInspector;
 import warped.application.assemblys.AssemblyHotBar;
 import warped.application.assemblys.AssemblyItemInspector;
-import warped.application.assemblys.AssemblyNotify;
 import warped.application.assemblys.AssemblyPopUpDialogueBox;
-import warped.application.assemblys.AssemblyToolTip;
-import warped.application.assemblys.AssemblyWarpedSelector;
+import warped.application.assemblys.InspectorFramework;
+import warped.application.assemblys.InspectorObject;
+import warped.application.assemblys.Notify;
+import warped.application.assemblys.Selector;
+import warped.application.assemblys.ToolTip;
 import warped.application.depthFields.WarpedDepthField;
 import warped.application.entities.WarpedEntitie;
 import warped.application.entities.item.WarpedItem;
 import warped.application.gui.WarpedGUI;
 import warped.application.object.WarpedObject;
 import warped.application.object.WarpedObjectIdentity;
-import warped.application.prop.WarpedProp;
 import warped.application.state.groups.WarpedGroup;
 import warped.application.state.groups.WarpedGroupIdentity;
 import warped.application.state.managers.CameraManager;
@@ -30,7 +30,6 @@ import warped.application.state.managers.gameObjectManagers.ManagerEntitie;
 import warped.application.state.managers.gameObjectManagers.ManagerGUI;
 import warped.application.state.managers.gameObjectManagers.ManagerItem;
 import warped.application.state.managers.gameObjectManagers.ManagerTile;
-import warped.application.state.managers.gameObjectManagers.ManagerVisualEffect;
 import warped.application.state.managers.gameObjectManagers.WarpedManager;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.application.tile.WarpedTile;
@@ -56,14 +55,13 @@ public class WarpedState {
 	//Context managers - contains game objects for the declared type
 	//These fields will need to be serialized for save / load
 	
-	private static final WarpedManager<?>[] managers = new WarpedManager[7];
+	private static final WarpedManager<?>[] managers = new WarpedManager[6];
 	static {
 		managers[WarpedManagerType.OBJECT.ordinal()] 	 = WarpedManager.generateObjectManager();
 		managers[WarpedManagerType.ENTITIE.ordinal()] 	 = WarpedManager.generateEntitieManager();
 		managers[WarpedManagerType.DEPTH_FIELD.ordinal()]= WarpedManager.generateDepthFieldManager();
 		managers[WarpedManagerType.GUI.ordinal()]  		 = WarpedManager.generateGUIManager();
 		managers[WarpedManagerType.TILE.ordinal()] 		 = WarpedManager.generateTileManager();
-		managers[WarpedManagerType.VFX.ordinal()]  		 = WarpedManager.generateVisualEffectManager();
 		managers[WarpedManagerType.ITEM.ordinal()] 		 = WarpedManager.generateItemManager();;
 	}
 	
@@ -77,25 +75,24 @@ public class WarpedState {
 	@SuppressWarnings("unchecked")
 	public static final ManagerGUI<WarpedGUI>        		guiManager        =  (ManagerGUI<WarpedGUI>) managers[WarpedManagerType.GUI.ordinal()];
 	@SuppressWarnings("unchecked")
-	public static final ManagerTile<WarpedTile<?>>			tileManager 	  =  (ManagerTile<WarpedTile<?>>) managers[WarpedManagerType.TILE.ordinal()];
+	public static final ManagerTile<WarpedTile>		    	tileManager 	  =  (ManagerTile<WarpedTile>) managers[WarpedManagerType.TILE.ordinal()];
 	@SuppressWarnings("unchecked")
-	public static final ManagerVisualEffect<WarpedProp>   	vfxManager     	  =  (ManagerVisualEffect<WarpedProp>) managers[WarpedManagerType.VFX.ordinal()];
-	@SuppressWarnings("unchecked")
-	public static final ManagerItem<WarpedItem<?>>				itemManager	  =  (ManagerItem<WarpedItem<?>>) managers[WarpedManagerType.ITEM.ordinal()];
+	public static final ManagerItem<WarpedItem<?>>			itemManager	  	  =  (ManagerItem<WarpedItem<?>>) managers[WarpedManagerType.ITEM.ordinal()];
 	
 	protected static ArrayList<WarpedAudioFolder<?>> audioFolders = new ArrayList<>();
 	protected static ArrayList<WarpedAssembly> assemblys = new ArrayList<>();
 	
 
-	public static AssemblyGameObjectInspector 	gameObjectInspector;
-	public static AssemblyFrameworkInspector 	frameworkInspector;
+	public static InspectorObject 				gameObjectInspector;
+	public static InspectorFramework 			frameworkInspector;
 	public static AssemblyItemInspector 		itemInspector;
 
-	public static AssemblyWarpedSelector 		selector;
-	public static AssemblyToolTip 				toolTip;
-	public static AssemblyNotify 				notify;
+	public static Selector 				selector;
+	public static ToolTip 						toolTip;
+	public static Notify 						notify;
 	public static AssemblyHotBar 				hotBar;	
 	public static AssemblyPopUpDialogueBox 		dialogue;
+	public static AssemblyFileInspector 		fileInspector;
 	
 	public static long getActiveCycleDuration()  {return activeCycleDuration;}
 	public static long getMidCycleDuration()     {return midCycleDuration;}
@@ -103,17 +100,18 @@ public class WarpedState {
 	public static long getPassiveCycleDuration() {return passiveCycleDuration;}
 	public static int getCycleCount() {return cycleCount;}
 	
+	/*
 	public static void closeAssemblys() {
 		selector.close();
 		gameObjectInspector.close();
 		toolTip.close();
 		dialogue.close();
-		itemInspector.close();
-		hotBar.close();
+		//itemInspector.close();
+		//hotBar.close();
 	}
-	
+	*/
 	public WarpedState() {
-		stateTimer.scheduleAtFixedRate(updateActive,  0,      17); //40 updates per second
+		stateTimer.scheduleAtFixedRate(updateActive,  0,      17); //58 updates per second
 		stateTimer.scheduleAtFixedRate(updateMid,     0,    1000); //1 update per second
 		stateTimer.scheduleAtFixedRate(updateSlow,    0,   60000); //1 update per minute
 		stateTimer.scheduleAtFixedRate(updatePassive, 0, 3600000); //1 update per hour
@@ -139,7 +137,7 @@ public class WarpedState {
 				managers[i].remove();
 			}
 			
-			for(WarpedAssembly assembly : assemblys) assembly.update();
+			for(WarpedAssembly assembly : assemblys) assembly.updateAssembly();
 			for(WarpedAudioFolder<?> folder : audioFolders) folder.update();
 			FrameworkAudio.update();
 			WarpedFramework2D.getApp().persistentLogic();
@@ -153,12 +151,13 @@ public class WarpedState {
 			if(pause) return; 
 			long cycleStartTime = System.nanoTime();
 			for(int i = 0; i < managers.length; i++) managers[i].updateMid();
-			midCycleDuration = System.nanoTime() - cycleStartTime;			
+			midCycleDuration = System.nanoTime() - cycleStartTime;		
 		}
 	};
 	
 	private static TimerTask updateSlow = new TimerTask() {
 		public void run() {
+			System.gc();
 			if(pause) return; 
 			long cycleStartTime = System.nanoTime();
 			for(int i = 0; i < managers.length; i++) managers[i].updateSlow();
@@ -183,30 +182,34 @@ public class WarpedState {
 		}
 		isInitialized = true;
 		
-		toolTip = new AssemblyToolTip(WarpedManagerType.GUI);
+		toolTip = new ToolTip(WarpedManagerType.GUI);
 		toolTip.assemble();
 		
-		selector = new AssemblyWarpedSelector(WarpedManagerType.GUI);
+		selector = new Selector(WarpedManagerType.GUI);
 		selector.assemble();
 		
-		gameObjectInspector = new AssemblyGameObjectInspector(WarpedManagerType.GUI);
+		gameObjectInspector = new InspectorObject(WarpedManagerType.GUI);
 		gameObjectInspector.assemble();
 		
-		frameworkInspector = new AssemblyFrameworkInspector(WarpedManagerType.GUI);
+		frameworkInspector = new InspectorFramework(WarpedManagerType.GUI);
 		frameworkInspector.assemble();
 		
 		dialogue = new AssemblyPopUpDialogueBox(WarpedManagerType.GUI);
 		dialogue.assemble();
 		
-		notify = new AssemblyNotify(WarpedManagerType.GUI);
+		notify = new Notify(WarpedManagerType.GUI);
 		notify.assemble();
-		
+		notify.open();
+
 		
 		itemInspector = new AssemblyItemInspector(WarpedManagerType.GUI);
 		itemInspector.assemble();
 		
 		hotBar = new AssemblyHotBar(WarpedManagerType.GUI);
 		hotBar.assemble();
+		
+		fileInspector = new AssemblyFileInspector(WarpedManagerType.GUI);
+		fileInspector.assemble();
 	}
 		
 	public static int getGameObjectCount() {
@@ -216,7 +219,6 @@ public class WarpedState {
 		gameObjectCount += depthFieldManager.getGameObjectCount();
 		gameObjectCount += guiManager.getGameObjectCount();
 		gameObjectCount += tileManager.getGameObjectCount();
-		gameObjectCount += vfxManager.getGameObjectCount();
 		
 		return gameObjectCount;
 	}
@@ -227,7 +229,6 @@ public class WarpedState {
 		activeGameObjectCount += depthFieldManager.getActiveGameObjectCount();
 		activeGameObjectCount += guiManager.getActiveGameObjectCount();
 		activeGameObjectCount += tileManager.getActiveGameObjectCount();
-		activeGameObjectCount += vfxManager.getActiveGameObjectCount();
 		
 		return activeGameObjectCount;
 	}
@@ -247,7 +248,6 @@ public class WarpedState {
 		case ENTITIE: 		return entitieManager;
 		case GUI: 			return guiManager;
 		case TILE: 			return tileManager;
-		case VFX:			return vfxManager;
 		case ITEM:			return itemManager;
 		case OBJECT:		return objectManager;
 		default:

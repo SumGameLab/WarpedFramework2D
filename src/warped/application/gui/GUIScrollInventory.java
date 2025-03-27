@@ -85,14 +85,12 @@ public class GUIScrollInventory extends WarpedGUI {
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
-	@Override
-	protected void updateRaster() {return;}
+	
 
 	@Override
-	protected void updateObject() {return;	}
+	public void updateObject() {return;	}
 
-	@Override
-	protected void updatePosition() {return;}
+	
 	
 	
 }

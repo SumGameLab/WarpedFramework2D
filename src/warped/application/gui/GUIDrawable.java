@@ -4,13 +4,13 @@ package warped.application.gui;
 
 import java.awt.image.BufferedImage;
 
-import warped.user.actions.WarpedAction;
-import warped.utilities.math.vectors.Vec2d;
+import warped.functionalInterfaces.WarpedAction;
+import warped.utilities.math.vectors.VectorD;
 
 public interface GUIDrawable {
 
 	boolean isAlive();
-	Vec2d getMapPosition();
+	VectorD getMapPosition();
 	BufferedImage getMapIcon();
 	BufferedImage getMapIconSelected();
 	WarpedAction selectAction();
@@ -23,8 +23,8 @@ public interface GUIDrawable {
 	}
 	
 	default boolean isHit(int x, int y, int sx, int sy) {
-		double mx = getMapPosition().x;
-		double my = getMapPosition().y;
+		double mx = getMapPosition().x();
+		double my = getMapPosition().y();
 
 		if(x > mx && y > my && x < mx + sx && y < my + sy) return true; else return false;
 	}

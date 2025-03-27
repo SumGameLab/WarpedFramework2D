@@ -3,8 +3,7 @@
 package warped.utilities.math.geometry.bezier;
 
 import warped.graphics.camera.WarpedCamera;
-import warped.utilities.math.vectors.Vec2d;
-import warped.utilities.math.vectors.Vec3d;
+import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
 
 public class BezierCurveCamera extends BezierCurveLinearD {
@@ -15,30 +14,33 @@ public class BezierCurveCamera extends BezierCurveLinearD {
 	private double zoomCap = 0.33;
 	private int zoomMultiplyer = 1;
 	
-	private Vec3d p1;
+	private VectorD p1;
 	
 	private double acceleration;
 	
-	public BezierCurveCamera(Vec2d pf, Vec3d p1, double increment) { 
+	public BezierCurveCamera(VectorD pf, VectorD p1, double increment) { 
 		this.pf = pf;
-		this.p0 = Vec2d.generateScaledClone(pf, -1);
+		this.p0 = new VectorD(pf);
+		this.p0.scale(-1);
 		this.p1 = p1;
 		this.increment = increment;
 		acceleration = increment * 0.10;
 	}
 	
-	public BezierCurveCamera(Vec2d pf, Vec3d p1, double increment, boolean zoom) { 
+	public BezierCurveCamera(VectorD pf, VectorD p1, double increment, boolean zoom) { 
 		this.pf = pf;
-		this.p0 = Vec2d.generateScaledClone(pf, -1);
+		this.p0 = new VectorD(pf);
+		this.p0.scale(-1);
 		this.p1 = p1;
 		this.increment = increment;
 		this.zoom = zoom;
 		acceleration = increment * 0.10;
 	}
 	
-	public BezierCurveCamera(Vec2d pf, Vec3d p1, double increment, double zoomStartT, double  zoomEndT, double zoomCap) { 
+	public BezierCurveCamera(VectorD pf, VectorD p1, double increment, double zoomStartT, double  zoomEndT, double zoomCap) { 
 		this.pf = pf;
-		this.p0 = Vec2d.generateScaledClone(pf, -1);
+		this.p0 = new VectorD(pf);
+		this.p0.scale(-1);
 		this.p1 = p1;
 		this.increment = increment;
 		acceleration = increment * 0.10;
@@ -62,9 +64,10 @@ public class BezierCurveCamera extends BezierCurveLinearD {
 		}
 	}
 	
-	public BezierCurveCamera(Vec2d pf, Vec3d p1, double increment, double zoomStartT, double  zoomEndT, int zoomMultiplyer) { 
+	public BezierCurveCamera(VectorD pf, VectorD p1, double increment, double zoomStartT, double  zoomEndT, int zoomMultiplyer) { 
 		this.pf = pf;
-		this.p0 = Vec2d.generateScaledClone(pf, -1);
+		this.p0 = new VectorD(pf);
+		this.p0.inverse();
 		this.p1 = p1;
 		this.increment = increment;
 		acceleration = increment * 0.10;
@@ -113,8 +116,8 @@ public class BezierCurveCamera extends BezierCurveLinearD {
 			complete = true;
 		}
 		
-		pf.x = -(p0.x + (t * (p1.x - p0.x)));
-		pf.y = -(p0.y + (t * (p1.y - p0.y)));
+		pf.set(-(p0.x() + (t * (p1.x() - p0.x()))), -(p0.y() + (t * (p1.y() - p0.y()))));
+		
 		
 		if(complete) return true;
 		else return false;

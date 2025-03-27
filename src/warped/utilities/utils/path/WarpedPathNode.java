@@ -2,16 +2,16 @@
 
 package warped.utilities.utils.path;
 
-import warped.utilities.math.vectors.Vec2i;
+import warped.utilities.math.vectors.VectorI;
 
 public class WarpedPathNode {
 
-	public Vec2i coord;
+	public VectorI coord;
 	public WarpedPathNode parent;
 	public double fCost, gCost, hCost;
 	public double smoothness = 1.0;  //Domain 0.0(exclusive) -> 1.0(inclusive) : values closer to 1.0 will have faster movement, values closer to 0.0 will have slower movement 
 	
-	public WarpedPathNode(Vec2i coord, WarpedPathNode parent, double gCost, double hCost, double smoothness) {
+	public WarpedPathNode(VectorI coord, WarpedPathNode parent, double gCost, double hCost, double smoothness) {
 		this.coord = coord;
 		this.parent = parent; //node prior to this one in the path
 		this.smoothness = smoothness;//moment speed
@@ -20,7 +20,7 @@ public class WarpedPathNode {
 		this.fCost = gCost + hCost; //sum cost
 	}
 	
-	public WarpedPathNode(Vec2i coord, WarpedPathNode parent, double gCost, double hCost) {
+	public WarpedPathNode(VectorI coord, WarpedPathNode parent, double gCost, double hCost) {
 		this.coord = coord;
 		this.parent = parent; 
 		this.smoothness = 1.0;
