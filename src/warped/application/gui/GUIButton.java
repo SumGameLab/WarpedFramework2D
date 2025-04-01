@@ -1,7 +1,7 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
-
 package warped.application.gui;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 
 import warped.audio.FrameworkAudio;
@@ -144,7 +144,14 @@ public class GUIButton extends WarpedGUI {
 		setButtonState(ButtonStateType.PLAIN);
 	}
 
-
+	/**Set the size of the button.
+	 * @param width -the width of the button in pixels
+	 * @param height - the height of the button in pixels.
+	 * @author 5som3*/
+	public void setButtonSize(int width, int height) {
+		sprite.setButtonSize(width, height);
+	}
+	
 	/**Set button sound effect
 	 * @param enteredSFX - The sound effect will trigger (once) when the mouse enters the button
 	 * @author SomeKid*/
@@ -196,6 +203,11 @@ public class GUIButton extends WarpedGUI {
 	 * @param exitedAction - this action will trigger (multiple times) when ever the mouse moves over the button
 	 * @author SomeKid*/
 	public void setMouseMovedAction(WarpedAction moveAction) {this.movedAction = moveAction;}
+	
+	/**Set the color of the button text.
+	 * @param textColor - the color to render the text.
+	 * @author 5som3*/
+	public void setTextColor(Color textColor) {sprite.setTextColor(textColor);}
 	
 	/**Set the text to draw over the button.
 	 * @param text - If you pass multiple text lines they will be drawn with an offset of font size 

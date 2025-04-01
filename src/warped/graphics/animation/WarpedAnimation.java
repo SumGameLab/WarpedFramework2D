@@ -4,142 +4,82 @@ package warped.graphics.animation;
 
 import java.awt.image.BufferedImage;
 
-import warped.functionalInterfaces.WarpedAction;
+import warped.graphics.sprite.AnimatedSprite;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsImage;
 
-public class WarpedAnimation {
+public class WarpedAnimation extends AnimatedSprite {
 
-	
 	private static final int MIN_FRAMES = 4;
 	private static final int MAX_FRAMES = 360;
 	
 	private static final double MIN_ROTATION_STEP = 0.0001;
 	private static final double MAX_ROTATION_STEP = 0.25;
-		
+	
 	private static final double MIN_SCALE_STEP 	  = 0.001;
 	private static final double MAX_SCALE_STEP    = 10.0;
-	
-	private BufferedImage raster;
-	private static BufferedImage[] frames;
 
-	private int frame;
+	private boolean isAlive = true;
+	public VectorI position = new VectorI(0, 0);
 	
-	private int tick = 0;
-	private int frameDuration = 10; //duration in ticks
-	
-	private boolean loop = true;
-	private boolean reverse = false;
-	private boolean isComplete = false;
-	
-	private VectorI size = new VectorI();
-	
-	private WarpedAction completeAction = () -> {Console.ln("WarpedAnimation -> default completionAction()");};
-	private WarpedAction completeReverseAction = () -> {Console.ln("WarpedAnimation -> default completionReverseAction()");};
-	
-	public WarpedAnimation(boolean loop) {
-		this.loop = loop;
+	public WarpedAnimation(BufferedImage[] frames, int x, int y) {
+		super(frames);
+		position.set(x, y);
 	}
 	
-	/*
-	public WarpedAnimation(String folderPath) {
-		if(frames == null) frames = UtilsFiles.getPNGArray(folderPath);	
-		raster = frames[UtilsMath.randomInt(frames.length)];
+	public WarpedAnimation(BufferedImage[] frames, double x, double y) {
+		super(frames);
+		position.set((int)x, (int)y);
 	}
-	*/
-	
 	
 	public WarpedAnimation(BufferedImage image, int frameCount) {
-		generateFrames(image, frameCount);
+		super(generateFrames(image, frameCount));		
 	}
 	
-	public void setReverse(boolean reverse) {this.reverse = reverse;}
-	public void reverseOff() {reverse = false;}
-	public void reverseOn() {reverse = true;}
-	public VectorI getSize() {return size;}
-	public void setCompletionAction(WarpedAction completionAction) {this.completeAction = completionAction;}
+	/**The x position
+	 * @return int - the x position in pixels.
+	 * @author 5som3 */
+	public int x() {return position.x();}
 	
-	public void setFrameDuration(int frameDuration) {
-		if(frameDuration < 0) {
-			Console.err("WarpedAnimation -> setFrameDuration() -> frameDuration can't be less than 0");
-			frameDuration = 0;
-		}
-		this.frameDuration = frameDuration;
-	}
+	/**The y position.
+	 * @return int - the y position in pixels 
+	 * @author 5som3 */
+	public int y() {return position.y();}
 	
-	/**@return if true raster has changed and should set new graphics*/
-	public boolean update() {
-		if(!loop && isComplete) return false;
-		
-		tick++;
-		if(tick > frameDuration) {
-			tick = 0;
-			
-			if(reverse) frame--; else frame++;
-
-			if(frame >= frames.length) {
-				if(loop) frame = 0;
-				else {
-					frame = frames.length - 1;
-					isComplete = true;
-					completeAction.action();
-				}
-			}
-			
-			if(frame < 0) {
-				if(loop) frame = frames.length - 1;
-				else {
-					frame = 0;
-					isComplete = true;
-					completeReverseAction.action();
-				}
-			}
-
-			raster = frames[frame];
-			return true;
-		}
-		return false;
-	}
+	/**The animation will be removed from the viewport it was added to (if any).
+	 * @author 5som3*/
+	public void kill() {isAlive = false;}
 	
-	public boolean isComplete() {return isComplete;}
+	/**Is the animation scheduled to be removed.
+	 * @return isAlive - if true the animation will be removed on the next cycle.
+	 * @author 5som3*/
+	public boolean isAlive() {return isAlive;}
 	
-	public BufferedImage raster() {return raster;}
-	
-	public void reset() {
-		tick = 0;
-		isComplete = false;
-		if(reverse) frame = frames.length - 1;
-		else frame = 0;
-		if(frames == null || raster == null) return;
-		raster = frames[frame];
-	}
-	
-	
-	
-	public void generateFrames(BufferedImage image, int frameCount) {
-		if(frames != null) {
-			Console.err("WarpedAnimation -> generateFramesFromImage() -> frames already exist, they will be cleared for the new animation");
-			frames = null;
-		}
+	/**Generate an array of buffered images. Each entry in the array is a clone of the specified image.
+	 * @param image - the image to clone into each frame.
+	 * @param frameCount - the number of frames in the array.
+	 * @author 5som3*/
+	public static BufferedImage[] generateFrames(BufferedImage image, int frameCount) {
 		if(frameCount < MIN_FRAMES) {
 			Console.ln("WarpedAnimation -> generateFramesFromImage() -> frameCount must be at least " + MIN_FRAMES);
-			return;
+			frameCount = MIN_FRAMES;
 		}
 		
 		if(frameCount > MAX_FRAMES) {
 			Console.ln("WarpedAnimation -> generateFramesFromImage() -> frameCount must be less than " + MAX_FRAMES);
-			return;
+			frameCount = MAX_FRAMES;
 		}
-
-		frames = new BufferedImage[frameCount];
-		size.set(image.getWidth(), image.getHeight());
+		BufferedImage[] frames = new BufferedImage[frameCount];
 		
-		for(int i = 0; i < frameCount; i++) {frames[i] = UtilsImage.generateClone(image);}
-		
+		for(int i = 0; i < frameCount; i++) frames[i] = UtilsImage.generateClone(image);
+		return frames;
 	}
 	
-	
+	/**Add rotation to the animation.
+	 * @param radianStep - the amount to rotate each image incrementally i.e. image 1 rotates radianStep * 1, image 2 rotates radianStep * 2 etc
+	 * @param antiClockwise- the direction of rotation, if true the frames will be rotated anticlockwise, else they are rotated clockwise.
+	 * @author 5som3*/
 	public void addFrameRotation(double radianStep, boolean antiClockwise) {
 		if(frames == null) {
 			Console.err("WarpedAnimation -> addFrameScale() -> must generate frames first");
@@ -161,6 +101,10 @@ public class WarpedAnimation {
 		}
 	}
 	
+	/**Add scale to the animation.
+	 *  @param scaleStep - the amount to scale each image incrementally i.e. image 1 scales by scaleStep * 1, image 2 scales by ScaleStep * 2 etc
+	 *  @param scaleDown - if true the image will be scaledDown, else it will be scaled up.
+	 *  @author 5som3;*/
 	public void addFrameScale(int scaleStep, boolean scaleDown) {
 		if(frames == null) {
 			Console.err("WarpedAnimation -> addFrameScale() -> must generate frames first");
@@ -183,6 +127,10 @@ public class WarpedAnimation {
 		}
 	}
 	
+	/**Add translation to the animation.
+	 * @param translationStepX - the amount to translate each image incrementally in the x axis. i.e. image 1 translates by translationStepX * 1, image 2 translates by translationStepX * 2 etc
+	 * @param translationStepY - the amount to translate each image incrementally in the y axis. i.e. image 1 translates by translationStepY * 1, image 2 translates by translationStepY * 2 etc
+	 * @author 5som3*/
 	public void addFrameTranslation(double translationStepX, double translationStepY) {
 		if(frames == null) {
 			Console.err("WarpedAnimation -> addFrameScale() -> must generate frames first");

@@ -1,5 +1,4 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
-
 package test;
 
 import java.awt.event.KeyEvent;
@@ -144,6 +143,10 @@ public class ExampleApplication extends WarpedApplication {
 		hud.assemble();
 		
 		WarpedKeyboard.getActiveController().addKeyBind(new WarpedKeyBind<>("Toggle Framework Inspector", KeyEvent.VK_F1, null, () -> {hud.toggle();}));
+		
+		Console.addCommand("/addHealth", () -> {WarpedState.notify.note("Cheat health");});
+		Console.addCommand("/addStamina", () -> {WarpedState.notify.note("Cheat stamina");});
+		
 	}
 
 	/*This function is run once when the framework has finished initializing and has prepared the application.

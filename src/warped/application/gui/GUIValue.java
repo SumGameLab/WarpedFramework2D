@@ -1,5 +1,4 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
-
 package warped.application.gui;
 
 import java.awt.Color;
@@ -45,9 +44,7 @@ public class GUIValue extends WarpedGUI {
 	private Color fontColor = Color.WHITE;
 	
 	private int decimals = 0;
-	
-	private boolean isBackground = true;
-	
+		
 	private Font font = UtilsFont.getPreferred();
 	private VectorI textOffset = new VectorI(borderThickness, borderThickness + font.getSize()); 
 	
@@ -57,8 +54,9 @@ public class GUIValue extends WarpedGUI {
 	private VectorD   vectorD;
 	private VectorI   vectorI;
 	
+	private boolean isBackgroundVisible = true;
 	private boolean isGraphicsQueued 	= false;
-	
+
 	private WarpedGraphicAction updateGraphicsAction = g -> {return;};
 	
 	/**A new value with the specified size.
@@ -140,7 +138,7 @@ public class GUIValue extends WarpedGUI {
 	 * @param isBackground - if true the background will be rendered, if false the background will be 100% transparent.
 	 * @author 5som3*/
 	public void setBackgroundVisible(boolean isBackground) {
-		this.isBackground = isBackground;
+		this.isBackgroundVisible = isBackground;
 		updateGraphics();
 	}
 	
@@ -246,7 +244,7 @@ public class GUIValue extends WarpedGUI {
 	 * @author 5som3*/
 	private void clearGraphics() {
 		Graphics2D g2d = getGraphics();
-		if(isBackground) {
+		if(isBackgroundVisible) {
 			g2d.setColor(borderColor);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
 			
@@ -264,7 +262,7 @@ public class GUIValue extends WarpedGUI {
 	private void updateGraphics() {
 		Graphics2D g2d = getGraphics();
 		
-		if(isBackground) {
+		if(isBackgroundVisible) {
 			g2d.setColor(borderColor);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
 			

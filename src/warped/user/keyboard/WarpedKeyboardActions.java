@@ -6,9 +6,12 @@ import warped.WarpedFramework2D;
 import warped.WarpedProperties;
 import warped.application.state.WarpedState;
 import warped.functionalInterfaces.WarpedAction;
+import warped.utilities.utils.Console;
 
 public interface WarpedKeyboardActions {
 
+	WarpedAction toggleConsoleInput = () -> {WarpedState.consoleInput.toggle();};
+	
 	WarpedAction toggleFrameworkInspector = () -> {WarpedState.frameworkInspector.toggle();};
 	WarpedAction toggleObjectInspector    = () -> {WarpedState.gameObjectInspector.toggle();};
 	WarpedAction toggleFullscreen 		  = () -> {WarpedFramework2D.getWindow().toggleFullscreen();};

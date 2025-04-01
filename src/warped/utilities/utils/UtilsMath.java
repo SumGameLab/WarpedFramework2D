@@ -229,8 +229,9 @@ public class UtilsMath {
 	//--------
 	//---------------- Angular Math -------- 
 	//--------	
+	public static VectorD getUnitVector(double rotation) {return new VectorD(Math.cos(rotation), Math.sin(rotation));}
 	
-	
+	public static VectorD getUnitVector(double rotation, double scale) {return new VectorD(Math.cos(rotation) * scale, Math.sin(rotation) * scale);}
 	/**The shortest angular distance from r1 to r2
 	 * The r1 and r2 are defined as positive rotations from the positive x axis*/
 	public static RotationType findShortestRotation(double r1, double r2) {
@@ -252,7 +253,7 @@ public class UtilsMath {
 		else return RotationType.ANTICLOCKWISE;
 	}
 
-
+	
 	public static double angleBetweenVectors(Point p1, Point p2){
 		double result =	angleBetweenVectors(p1.x, p1.y, p2.x, p2.y);
 		if(Double.isNaN(result)) return 0.0;
@@ -275,9 +276,21 @@ public class UtilsMath {
 						/ (magnitude(vec1X, vec1Y) * magnitude(vec2X, vec2Y)) );
 	}
 	
+	//--------
+	//---------------- Vector Math --------
+	//--------
 	public static double dotProduct(double x1, double y1, double x2, double y2) {return ( (x1 * x2) + (y1 * y2) );}
 	public static double determinant(double x1, double y1, double x2, double y2) {return ( (x1 * y2) - (y1 * x2));}
 	public static double magnitude(double x, double y) {return Math.sqrt( square(x) + square(y));}
+	public static double distanceBetweenVectors(int x1, int y1, int x2, int y2) {
+		double result = Math.sqrt(square(x2 - x1) + square(y2 - y1) );
+		return result;
+	}
+	
+	public static double distanceBetweenVectors(double x1, double y1, double x2, double y2) {
+		double result = Math.sqrt( square(x2 - x1) + square(y2 - y1) );
+		return result;
+	}
 	
 	//
 	//------------------ Math to String ----------------------------

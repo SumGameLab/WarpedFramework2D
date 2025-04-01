@@ -12,7 +12,7 @@ public class WarpedUserInput {
 	
 	private static long updateDuration;
 	
-	private static Timer userTimer = new Timer("WarpedUserInput");
+	private static Timer userTimer = new Timer("Timer Thread : UserInput");
 	private static TimerTask updateInput = new TimerTask() {
 		public void run() {
 			long cycleStartTime = System.nanoTime();
@@ -21,6 +21,7 @@ public class WarpedUserInput {
 			updateDuration = System.nanoTime() - cycleStartTime;
 		}
 	};
+	
 	
 	public static long getUpdateDuration() {return updateDuration;}
 	public static WarpedKeyboard keyboard = new WarpedKeyboard();

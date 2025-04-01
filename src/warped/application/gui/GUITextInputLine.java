@@ -1,5 +1,4 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
-
 package warped.application.gui;
 
 import java.awt.Color;
@@ -43,6 +42,7 @@ public class GUITextInputLine extends WarpedGUI {
 	private boolean isInput 		= false;
 	private boolean isLineHovered   = false;
 	private boolean isButtonHovered = false;
+	private boolean isButtonVisible = true;
 	
 	private BufferedImage buttonImage;
 	private BufferedImage backgroundImage;
@@ -216,6 +216,17 @@ public class GUITextInputLine extends WarpedGUI {
 		updateGraphics();		
 	}
 	
+	/**Set if the action button will be visible
+	 * @param isButtonVisible - if true the button will be visible and interactive else it will not be rendered and not interactive.
+	 * @apiNote If the button is not visible the only way to execute the buttonAction will be with the return key (enter key).
+	 * @author 5som3 */
+	public void setButtonVisible(boolean isButtonVisible) {
+		if(this.isButtonVisible != isButtonVisible) {
+			this.isButtonVisible = isButtonVisible;
+			updateGraphics();
+		}
+	}
+	
 	/**Set the maximum number of characters that the user can input.
 	 * @param maxCharacters - the maximum number of characters.
 	 * @author 5som3*/
@@ -241,6 +252,19 @@ public class GUITextInputLine extends WarpedGUI {
 		updateGraphics();
 	}
 
+
+	
+	public void setInputState(boolean isInput) {		
+		if(this.isInput != isInput) {
+			this.isInput = isInput;			
+			if(isInput) {
+				WarpedKeyboard.startKeyLogging();
+				updateGraphics();				
+			} else WarpedKeyboard.stopKeyLogging();
+			
+		}
+
+	}
 	
 	/**Set the user input string.
 	 * @param inputString - the string that the user will write into.
@@ -275,15 +299,17 @@ public class GUITextInputLine extends WarpedGUI {
 			g.drawString(blankText, textOffset.x(), textOffset.y());
 		}
 				
-		g.setColor(borderColor);
-		g.fillRect(buttonOffset.x(), buttonOffset.y(), buttonSize.x(), buttonSize.y());
-		g.setColor(buttonColor);
-		g.fillRect(buttonOffset.x() + borderThickness, buttonOffset.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
-		if(buttonImage != null) g.drawImage(buttonImage,buttonOffset.x() + borderThickness, buttonOffset.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2, null);
-		if(isButtonHovered) {
-			if(isPressed) g.setColor(pressColor);
-			else g.setColor(hoverColor);
+		if(isButtonVisible) {			
+			g.setColor(borderColor);
 			g.fillRect(buttonOffset.x(), buttonOffset.y(), buttonSize.x(), buttonSize.y());
+			g.setColor(buttonColor);
+			g.fillRect(buttonOffset.x() + borderThickness, buttonOffset.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
+			if(buttonImage != null) g.drawImage(buttonImage,buttonOffset.x() + borderThickness, buttonOffset.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2, null);
+			if(isButtonHovered) {
+				if(isPressed) g.setColor(pressColor);
+				else g.setColor(hoverColor);
+				g.fillRect(buttonOffset.x(), buttonOffset.y(), buttonSize.x(), buttonSize.y());
+			}
 		}
 		
 		g.dispose();
@@ -309,8 +335,10 @@ public class GUITextInputLine extends WarpedGUI {
 					WarpedState.notify.note("Label is too large");
 					inputString = inputString.substring(0, maxCharacters - 1);
 				}
-				if(isButtonHovered || isLineHovered) buttonAction.action(inputString);
-				WarpedKeyboard.clearKeyLog();
+				if(!inputString.equals("")) {
+					buttonAction.action(inputString);
+					WarpedKeyboard.clearKeyLog();
+				}
 				updateGraphics();
 				return;
 			}
@@ -345,12 +373,15 @@ public class GUITextInputLine extends WarpedGUI {
 		Console.ln("GUITextInputLine -> mouseExited()");
 		isButtonHovered = false;
 		isLineHovered = false;
-		WarpedKeyboard.stopKeyLogging();
 		updateGraphics();
 	}
 
 	@Override
 	protected void mouseMoved(WarpedMouseEvent mouseEvent) {
+		if(!isButtonVisible) {
+			isLineHovered = true;
+			return;
+		}
 		int mx = mouseEvent.getPointRelativeToObject().x;
 		int my = mouseEvent.getPointRelativeToObject().y;
 		if(mx > buttonOffset.x() && mx < buttonOffset.x() + buttonSize.x() && my > buttonOffset.y() && my < buttonOffset.y() + buttonSize.y()) {
@@ -382,15 +413,14 @@ public class GUITextInputLine extends WarpedGUI {
 		}
 	}
 
+
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) { 
 		isPressed = false;
 		if(isButtonHovered) {
-			WarpedKeyboard.stopKeyLogging();
+			if(isButtonVisible) WarpedKeyboard.stopKeyLogging();
 		} else {
-			isInput = true;
-			WarpedKeyboard.startKeyLogging();
-			updateGraphics();
+			setInputState(true);
 		}
 	}
 	

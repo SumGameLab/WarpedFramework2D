@@ -11,6 +11,7 @@ import warped.application.assemblys.AssemblyFileInspector;
 import warped.application.assemblys.AssemblyHotBar;
 import warped.application.assemblys.AssemblyItemInspector;
 import warped.application.assemblys.AssemblyPopUpDialogueBox;
+import warped.application.assemblys.ConsoleInput;
 import warped.application.assemblys.InspectorFramework;
 import warped.application.assemblys.InspectorObject;
 import warped.application.assemblys.Notify;
@@ -45,7 +46,7 @@ public class WarpedState {
 	
 	public static int cycleCount = 0;
 	
-	private static Timer stateTimer = new Timer("WarpedState");
+	private static Timer stateTimer = new Timer("Timer Thread : WarpedState");
 	
 	private static boolean pause = true;
 	private static boolean isInitialized = false;
@@ -93,6 +94,7 @@ public class WarpedState {
 	public static AssemblyHotBar 				hotBar;	
 	public static AssemblyPopUpDialogueBox 		dialogue;
 	public static AssemblyFileInspector 		fileInspector;
+	public static ConsoleInput 					consoleInput;
 	
 	public static long getActiveCycleDuration()  {return activeCycleDuration;}
 	public static long getMidCycleDuration()     {return midCycleDuration;}
@@ -201,6 +203,8 @@ public class WarpedState {
 		notify.assemble();
 		notify.open();
 
+		consoleInput = new ConsoleInput(WarpedManagerType.GUI);
+		consoleInput.assemble();
 		
 		itemInspector = new AssemblyItemInspector(WarpedManagerType.GUI);
 		itemInspector.assemble();

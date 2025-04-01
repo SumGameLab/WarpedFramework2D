@@ -59,6 +59,8 @@ public class GUITextBoxLined extends WarpedGUI {
 	private Color borderColor 			 = Colour.BLACK.getColor();			// will be modified by the set alpha 
 	private Color backgroundColor 		 = Colour.GREY_DARK.getColor();		// will be modified by the set alpha
 
+	private boolean isBackgroundVisible = true;
+	
 	private Color defaultTextColor		 = Colour.WHITE.getColor();				//will have constant alpha
 	private Color scrollBarColor 		 = Colour.GREY_DARK_DARK.getColor();	//will have constant alpha
 	private Color scrollButtonColor 	 = Colour.GREY.getColor();				//will have constant alpha
@@ -70,6 +72,12 @@ public class GUITextBoxLined extends WarpedGUI {
 		
 	private boolean isButtonHovered = false;
 	private boolean isButtonDragged = false;
+	
+	/**A text box with the default parameters.
+	 * @author 5som3*/
+	public GUITextBoxLined() {
+		setTextBoxSize(100, 50);
+	}
 	
 	/**A text box with the specified width and height.
 	 * @param width - the width of the text box in pixels.
@@ -94,6 +102,16 @@ public class GUITextBoxLined extends WarpedGUI {
 	public void setTextOffset(int x, int y) {
 		this.textOffset.set(x, y);
 		updateGraphics();
+	}
+	
+	/**Set the visibility of the background.
+	 * @param isBackgroundVisible - if true the background will be visible else it will not be rendered.
+	 * @author 5som3*/
+	public void setBackgroundVisible(boolean isBackgroundVisible) {
+		if(this.isBackgroundVisible != isBackgroundVisible) {
+			this.isBackgroundVisible = isBackgroundVisible;
+			updateGraphics();
+		}
 	}
 	
 	/**Should the line numbers be displayed
@@ -285,6 +303,19 @@ public class GUITextBoxLined extends WarpedGUI {
 	
 	/**Set multiple lines of text at once.
 	 * @param textLines - a list of the text lines to add, these will be added consecutively starting with line 0;
+	 * @apiNote It is faster to set multiple lines at once than to call setTextLine() multiple times with individual lines
+	 * @author SomeKid*/
+	public void setTextLine(List<String> textLines) {
+		clearTextLines();
+		for(int i = 0; i < textLines.size(); i++) {			
+			this.textLines.put(i, textLines.get(i));
+			this.lineColor.put(i, Colour.WHITE.getColor());
+		}
+		updateGraphics();
+	}
+	
+	/**Set multiple lines of text at once.
+	 * @param textLines - a list of the text lines to add, these will be added consecutively starting with line 0;
 	 * @param colour - the colour for each line of text.
 	 * @apiNote It is faster to set multiple lines at once than to call setTextLine() multiple times with individual lines
 	 * @author SomeKid*/
@@ -358,13 +389,12 @@ public class GUITextBoxLined extends WarpedGUI {
 	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
-		if(borderThickness > 0) {	// draw border if one exist
+		if(isBackgroundVisible) {			
 			g.setColor(borderColor);
 			g.fillRect(0, 0, getWidth(), getHeight());
+			g.setColor(backgroundColor);	// draw background
+			g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
 		}
-		
-		g.setColor(backgroundColor);	// draw background
-		g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
 		
 		if(isScrollBarVisible) { //draw scroll bar
 			g.setColor(scrollBarColor);	

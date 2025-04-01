@@ -16,7 +16,7 @@ import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsMath;
 
-public class GUIListButton extends WarpedGUI {
+public class GUIListVertical extends WarpedGUI {
 	
 	private int hoverIndex = 0;
 	
@@ -53,11 +53,11 @@ public class GUIListButton extends WarpedGUI {
 	private Color textColor = Color.YELLOW;
 	private Font font 		= UtilsFont.getPreferred();
 	
-	public GUIListButton() {
+	public GUIListVertical() {
 		updateGraphics();
 	}
 	
-	public GUIListButton(int width, int height) {
+	public GUIListVertical(int width, int height) {
 		menuMaxSize.set(width, height);
 		buttonSize.set(width, buttonSize.y());
 	}

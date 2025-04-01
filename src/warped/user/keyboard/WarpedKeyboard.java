@@ -78,6 +78,7 @@ public class WarpedKeyboard implements KeyListener {
 	public static synchronized WarpedKeyboardController getActiveController() {return activeController;}
 	public static synchronized WarpedKeyboardController getController(WarpedControllerType controllerType) {return controllers.get(controllerType);}
 	
+	
 	public static void speak() {isSpeaking = true;}	
 	public static void lock() {isLocked = true;}
 	public static void unlock() {isLocked = false;}
@@ -188,7 +189,7 @@ public class WarpedKeyboard implements KeyListener {
 			int key = e.getKeyCode();
 			if(key == KeyEvent.VK_ESCAPE || key == KeyEvent.VK_ENTER) {isKeyLogging = false; return;}
 			if(key == KeyEvent.VK_BACK_SPACE && keyLog.size() > 0) {keyLog.remove(keyLog.size() - 1); return;}
-			if(e.getKeyCode() == KeyEvent.VK_SPACE || isLetterEvent(e) || isNumberEvent(e)) addKeyToLog(e.getKeyChar());
+			if(e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyChar() == KeyEvent.VK_SLASH || isLetterEvent(e) || isNumberEvent(e)) addKeyToLog(e.getKeyChar());
 		}
 	}
 	
@@ -208,6 +209,8 @@ public class WarpedKeyboard implements KeyListener {
 		if(key == KeyEvent.VK_0 || key == KeyEvent.VK_1 || key == KeyEvent.VK_2 || key == KeyEvent.VK_3 || key == KeyEvent.VK_4 || key == KeyEvent.VK_5 ||
 		   key == KeyEvent.VK_6 || key == KeyEvent.VK_7 || key == KeyEvent.VK_8 || key == KeyEvent.VK_9) return true; else return false;
 	}
+	
+	
 	//--------
 	//------------ Controllers  ----------------------
 	//--------

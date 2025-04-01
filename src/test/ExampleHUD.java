@@ -1,3 +1,4 @@
+/* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 package test;
 
 import java.awt.Color;
@@ -80,6 +81,7 @@ public class ExampleHUD extends WarpedAssembly {
 
 		paragraph.setTitle("A Story");
 		paragraph.setParagraph("There once was a man named bob. Who had a very big job. One day rained and so he refrained from working out in the bog./n/The quick brown fox jumps over the lazy dog. Last month I had a broken finger.. it wasn't very fun. I wonder how long this line can be. This is a new paragraph. I need to write at least a couple more sentences in order to fill up this area. We want to overflow the field with text in order to test out the fancy new scroll bars.");
+		paragraph.setParagraphTextSize(18);
 		
 		funny.setReleasedAction(mouseE -> {WarpedState.notify.note(UtilsString.getFunnyString());});
 

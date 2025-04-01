@@ -8,60 +8,12 @@ import java.util.TimerTask;
 
 import warped.WarpedProperties;
 import warped.functionalInterfaces.WarpedAction;
+import warped.utilities.enums.generalised.AnimationModeType;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsMath;
 
 public class AnimatedSprite extends WarpedSprite {
 
-	public enum AnimationModeType {
-		/**The animation will play once. 
-		 * The first frame will be frame[0].
-		 * The last frame will be frame[length].
-		 * When frame[length] is reached the completeAction will be triggered once
-		 * @author SomeKid*/
-		PLAY,			
-		
-		/**The animation will repeat indefinitely. 
-		 * The first frame will be frame[0].
-		 * The last frame will be frame[length].
-		 * When frame[length] is reached the completeAction will be triggered once
-		 * If repeatAction() function is called the completeAction will trigger every time the animation completes
-		 * @author SomeKid*/
-		REPEAT,			
-		
-		/**The animation will play once. 
-		 * The first frame will be frame[length].
-		 * The last frame will be frame[0].
-		 * When frame[length] is reached the completeAction will be triggered once
-		 * @author SomeKid*/
-		PLAY_REVERSE,
-		
-		/**The animation will repeat indefinitely. 
-		 * The first frame shown will be frame[length].
-		 * The last frame shown will be frame[0].
-		 * When frame[length] is reached the completeAction will be triggered once
-		 * If repeatAction() function is called the completeAction will trigger every time the animation completes
-		 * @author SomeKid*/
-		REPEAT_REVERSE,
-		
-		/**The animation will play once.
-		 * The animation will play forward and then play in reverse
-		 * The first frame shown will be frame[0].
-		 * The last frame shown will be frame[0].
-		 * When Frame[0] is reached the completeAction will be triggered once.
-		 * @author SomeKid */
-		PLAY_MIRROR,
-		
-		/**The animation will repeat indefinitely.
-		 * The animation will play forward and then play in reverse
-		 * The first frame shown will be frame[0].
-		 * The last frame shown will be frame[0].
-		 * When frame[0] is reached the completeAction will be triggered once
-		 * If repeatAction() function is called the completeAction will trigger every time the animation completes
-		 * @author SomeKid*/
-		REPEAT_MIRROR;
-	}
-	
 	private AnimationModeType mode = AnimationModeType.REPEAT;
 	private boolean isComplete = false;
 	private boolean isRepeatAction = false;
@@ -69,16 +21,16 @@ public class AnimatedSprite extends WarpedSprite {
 		
 	private int frame = 0;
 	private int frameRate = 24; //frames per second
-	private BufferedImage[] frames;
+	protected BufferedImage[] frames;
 	private boolean mirror = false;
 
-	private static Timer animationTimer = new Timer();
+	private static Timer animationTimer = new Timer("Animation Timer Thread");
 	private TimerTask updateTask;
 	
 	/**An animation from a single series of frames.
 	 * The animation is scheduled as a task for the animation timer to execute.
 	 * The animation timer is shared across all AnimatedSprites.
-	 * @param frames - The frames for the animation. Frames must be in their sequental order.
+	 * @param frames - The frames for the animation. Frames must be in their sequential order.
 	 * @apiNote Animation can be set to different AnimationModeTypes described in this class. 
 	 * */
 	public AnimatedSprite(BufferedImage[] frames) {
@@ -120,6 +72,11 @@ public class AnimatedSprite extends WarpedSprite {
 		this.frame = frame;
 		setRasterFast(frames[frame]);
 	}
+	
+	/**Get the index of the frame that is currently the raster.
+	 * @return int - the index of the raster frame.
+	 * @author 5som3*/
+	public int getFrame() {return frame;}
 	
 	/**Pause the animation
 	 * @author SomeKid*/
@@ -177,7 +134,10 @@ public class AnimatedSprite extends WarpedSprite {
 		animationTimer.scheduleAtFixedRate(updateTask, 0, UtilsMath.convertHzToMillis(frameRate));
 	}
 
-	
+	/**Is the animation currently playing in any mode.
+	 * @return boolean - true if the animation is being updated currently else false.
+	 * @author 5som3*/
+	public boolean isPlaying() {if(updateTask == null) return false; else return true;}
 	
 	private final void complete() {
 		isComplete = true;

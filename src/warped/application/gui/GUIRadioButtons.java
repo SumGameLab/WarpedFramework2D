@@ -116,14 +116,7 @@ public class GUIRadioButtons extends WarpedGUI {
 		updateRadioSize();
 		updateGraphics();
 	}
-	
-	/**Set the state of the radio buttons.
-	 * @param radioStates - a list of the states that the radio buttons will have.
-	 * @author 5som3*/
-	public void setRadioState(boolean... radioStates){
 		
-	}
-	
 	/**Set the currently selected radio button.
 	 * @param index - the index of the button to set.
 	 * @apiNote This will not cause the button action to trigger, you should use this function if you want to set the default value for the radio buttons

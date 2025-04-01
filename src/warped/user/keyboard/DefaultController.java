@@ -10,6 +10,7 @@ public class DefaultController extends WarpedKeyboardController {
 		type = WarpedControllerType.DEFAULT;
 		name = "Default Controller";
 		
+		addKeyBind(new WarpedKeyBind<>("Toggle Framework Inspector", KeyEvent.VK_BACK_QUOTE, null, toggleConsoleInput));
 		addKeyBind(new WarpedKeyBind<>("Toggle Framework Inspector", KeyEvent.VK_F5, null, toggleFrameworkInspector));
 		addKeyBind(new WarpedKeyBind<>("Toggle Framework Inspector", KeyEvent.VK_F6, null, toggleObjectInspector));
 		addKeyBind(new WarpedKeyBind<>("Toggle Cap Render Size", KeyEvent.VK_F2, null, toggleCapRenderSize));

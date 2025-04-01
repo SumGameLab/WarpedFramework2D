@@ -1,3 +1,4 @@
+/* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 package warped.application.gui;
 
 import java.awt.Color;
@@ -30,7 +31,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	private String paragraph = "";
 	private ArrayList<String> textLines = new ArrayList<>();
 	
-	private Font paragraphFont  = new Font("TextBox", Font.PLAIN, 16);
+	private Font paragraphFont  = new Font("TextBox", Font.PLAIN, 14);
 	private Font titleFont		= new Font("Title", Font.BOLD, 18);
 	
 	private VectorI titleOffset = new VectorI(30, 10);
@@ -286,8 +287,9 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		FontMetrics metrics = g.getFontMetrics();
 		lineHeight = metrics.getHeight() + linePadding;
 		
-		drawableWidth = getWidth() - borderThickness * 2 - marginPadding * 2;
-		drawableHeight = getHeight() - borderThickness * 2 - titlePadding * 3;
+		drawableWidth = getWidth() - borderThickness * 3 - marginPadding * 2 - scrollBarWidth;
+		if(title == null) drawableHeight = getHeight() - borderThickness * 2;
+		else drawableHeight = getHeight() - borderThickness * 2 - titlePadding * 3;
 		
 		Console.blueln("GUITextBoxWrapped -> updateParagraphLines() -> drawableWidth : " + drawableWidth);
 		
@@ -302,7 +304,16 @@ public class GUITextBoxWrapped extends WarpedGUI {
 			if(characterIndex >= paragraph.length()) {
 				//Console.ln("GUITextBoxWrapped -> updateParagraphLines() -> index exceeded paragraph length, " + textLines.size() + " text lines were added");
 				finished = true;
-				textLines.add(paragraph.substring(lastLineIndex, characterIndex));
+				String line = paragraph.substring(lastLineIndex, characterIndex);
+				if(metrics.stringWidth(line) >= drawableWidth) { // need to start new line
+					textLines.add(paragraph.substring(lastLineIndex, lastWordIndex));
+					lastLineIndex = lastWordIndex + 1;
+					lastWordIndex++;
+					textLines.add(paragraph.substring(lastLineIndex, paragraph.length()));
+					
+				} else { //up to this word still fits, check if another word will fit
+					textLines.add(line);
+				}
 				break;
 			}
 
@@ -311,7 +322,6 @@ public class GUITextBoxWrapped extends WarpedGUI {
 				String line = paragraph.substring(lastLineIndex, characterIndex);
 				if(metrics.stringWidth(line) >= drawableWidth) { // need to start new line
 					textLines.add(paragraph.substring(lastLineIndex, lastWordIndex));
-				//	Console.err("GUITextBoxWrapped -> updateParagraphLines() -> line width : " + metrics.stringWidth(paragraph.substring(lastLineIndex, lastWordIndex)));
 					lastLineIndex = lastWordIndex + 1;
 					lastWordIndex++;
 					characterIndex = lastWordIndex;
@@ -321,9 +331,19 @@ public class GUITextBoxWrapped extends WarpedGUI {
 				}
 			}
 			
-			if(character.equals("/") && paragraph.subSequence(characterIndex, characterIndex + 3).equals("/n/")) {
+			if(character.equals("/") && characterIndex + 3 < paragraph.length() && paragraph.subSequence(characterIndex, characterIndex + 3).equals("/n/")) { // check if user input the new line key
 				String dropLine = paragraph.substring(lastLineIndex, characterIndex);
-				if(!dropLine.equals(" ")) textLines.add(dropLine);
+				if(!dropLine.equals(" ")) {
+					if(metrics.stringWidth(dropLine) >= drawableWidth) { // need to start new line
+						textLines.add(paragraph.substring(lastLineIndex, lastWordIndex));
+						lastLineIndex = lastWordIndex + 1;
+						lastWordIndex++;
+						textLines.add(paragraph.substring(lastLineIndex, characterIndex));
+					} else { //up to this word still fits, check if another word will fit
+						textLines.add(dropLine);
+					}
+					
+				}
 				textLines.add("");
 				lastLineIndex = characterIndex + 3;
 				lastWordIndex = lastLineIndex;
@@ -334,7 +354,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		int paragraphHeight = lineHeight * (textLines.size() + 1); 
 		if(paragraphHeight > drawableHeight) {
 			isScrollBarVisible = true;
-			scrollMax = paragraphHeight - drawableHeight + titlePadding + borderThickness;
+			scrollMax = paragraphHeight - drawableHeight;
 			scrollButtonHeight = drawableHeight - scrollMax;
 			if(scrollButtonHeight < 20) scrollButtonHeight = 20;
 		} else isScrollBarVisible = false;
@@ -344,38 +364,53 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	private void updateGraphics() {
 		Graphics g = getGraphics();
 		
-		g.setColor(borderColor);
-		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setColor(backgroundColor);
-		g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);		
+		g.fillRect(0, 0, getWidth(), getHeight());		
 		
 		g.setFont(paragraphFont);
 		g.setColor(paragraphColor);
 		int x = borderThickness + marginPadding;
-		int y = borderThickness + titlePadding * 2 + titleHeight + lineHeight - linePadding;		
+		int y = borderThickness + titlePadding + titleHeight + lineHeight;		
+		if(title == null) y = borderThickness +  lineHeight;
 		for(int i = 0; i < textLines.size(); i++) {
 			int yr =  y + i * lineHeight - (int)(scrollMax * scroll);
-			if(yr < titleHeight + titlePadding) continue;
+			if(yr < - titleHeight - titlePadding) continue;
 			g.drawString(textLines.get(i), x, yr);
 		}
 		
-		g.setColor(backgroundColor);
-		g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, titleHeight + titlePadding);
-		g.fillRect(borderThickness, getHeight() - titlePadding - borderThickness, getWidth() - borderThickness * 2, titlePadding);
 		
 		if(title != null) {			
+			g.setColor(backgroundColor);
+			g.fillRect(0, 0, getWidth(), titleHeight + titlePadding);
+			
 			g.setFont(titleFont);
 			g.setColor(titleColor);
 			g.drawString(title, borderThickness + marginPadding + titleOffset.x(), borderThickness + titlePadding + titleOffset.y());			
 		}
 		
+		g.setColor(borderColor);
+		g.fillRect(0, 0, getWidth(), borderThickness);
+		g.fillRect(0, getHeight() - borderThickness, getWidth(), borderThickness);
+		g.fillRect(0, 0, borderThickness, getHeight());
+		g.fillRect(getWidth() - borderThickness, 0, borderThickness, getHeight());
+		
+		
 		if(isScrollBarVisible) {
-			g.setColor(scrollBarColor);
-			g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness + titlePadding * 2, scrollBarWidth, drawableHeight);
-			g.setColor(scrollButtonColor);
-			g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness + titlePadding * 2 + (int)((drawableHeight - scrollButtonHeight) * scroll), scrollBarWidth, scrollButtonHeight);
-			g.setColor(borderColor);
-			g.fillRect(0, getHeight() - borderThickness, getWidth(), borderThickness);
+			if(title == null) {
+				g.setColor(scrollBarColor);
+				g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness * 2, scrollBarWidth, drawableHeight - borderThickness * 2);
+				g.setColor(scrollButtonColor);
+				g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness * 2 + (int)((drawableHeight - scrollButtonHeight) * scroll), scrollBarWidth, scrollButtonHeight);
+				g.setColor(borderColor);
+				g.fillRect(0, getHeight() - borderThickness, getWidth(), borderThickness);
+			} else {
+				g.setColor(scrollBarColor);
+				g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness + titlePadding * 2, scrollBarWidth, drawableHeight);
+				g.setColor(scrollButtonColor);
+				g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness + titlePadding * 2 + (int)((drawableHeight - scrollButtonHeight) * scroll), scrollBarWidth, scrollButtonHeight);
+				g.setColor(borderColor);
+				g.fillRect(0, getHeight() - borderThickness, getWidth(), borderThickness);
+			}
 		}
 		
 		g.dispose();

@@ -187,38 +187,59 @@ public class VectorD {
 	/**Calculate the length of the vector
 	 * @return double - the length of the vector also known as the Modulus.
 	 * @author 5som3*/
-	public final double getMagnitude() {
+	public final double getMagnitude() {return getMagnitude(this);}
+	
+	/**Calculate the length of the vector
+	 * @return double - the length of the vector also known as the Modulus.
+	 * @author 5som3*/
+	public static final double getMagnitude(VectorD vec) {
 		double val = 0;
-		for(int i = 0; i < length(); i++) val += UtilsMath.square(vec[i]);
+		for(int i = 0; i < vec.length(); i++) val += UtilsMath.square(vec.vec[i]);
 		return Math.sqrt(val);
 	}
 	
 	/**Calculate the dot product of this with the input vec.
+	 * @param vec - the vector to dot with this one
 	 * @return double - the dot product of these two vectors.
-	 * @apiNote Consider this vector as A and input vector as B then the result is A * B.
 	 * @author 5som3*/
-	public final double getDotProduct(VectorD vec) {
-		if(vec.length() != length()) {
-			Console.err("VectorD -> getDotProduct() -> number of components in each vector must match, (this.length(), vec.length()) : ( " + this.length() + ", " + vec.length() + ")");
+	public final double getDotProduct(VectorD vec) {return getDotProduct(this, vec);}
+	
+	/**Calculate the dot product the two vectors
+	 * @param vec1 - a vector of the same size as vec2.
+	 * @param vec2 - a vector of the same size as vec1.
+	 * @return double - the dot product of these two vectors.
+	 * @author 5som3*/
+	public static final double getDotProduct(VectorD vec1, VectorD vec2) {
+		if(vec1.length() != vec2.length()) {
+			Console.err("VectorD -> getDotProduct() -> number of components in each vector must match, (this.length(), vec.length()) : ( " + vec1.length() + ", " + vec2.length() + ")");
 			return -1.0;
 		}
 		double val = 0;
-		for(int i = 0; i < length(); i++) val += this.vec[i] * vec.get(i);
+		for(int i = 0; i < vec1.length(); i++) val += vec1.vec[i] * vec2.vec[i];
 		return val;
 	}
 	
 	/**Calculate the angle between this vector and another vec.
+	 * @param vec - the vector to measure the angle against.
 	 * @return double - the angle between vectors in radians. 
 	 * @apiNote Consider this vector as A and input vector as B then the result theta = acos(A * B / |A||B|).
 	 * @author 5som3*/
-	public final double getAngleBetweenVectors(VectorD vec) {
-		if(vec.length() != length()) {
-			Console.err("VectorD -> getAngleBetweenVectors() -> number of components in each vector must match, (this.length(), vec.length()) : ( " + this.length() + ", " + vec.length() + ")");
+	public final double getAngleBetweenVectors(VectorD vec) {return getAngleBetweenVectors(this, vec);}
+	
+	/**Calculate the angle between two vectors
+	 * @param vec1 - a vector of the same size as vec2.
+	 * @param vec2 - a vector of the same size as vec1.
+	 * @return double - the angle between vectors in radians. 
+	 * @apiNote Consider this vector as A and input vector as B then the result theta = acos(A * B / |A||B|).
+	 * @author 5som3*/
+	public final static double getAngleBetweenVectors(VectorD vec1, VectorD vec2) {
+		if(vec1.length() != vec2.length()) {
+			Console.err("VectorD -> getAngleBetweenVectors() -> number of components in each vector must match, (this.length(), vec.length()) : ( " + vec1.length() + ", " + vec2.length() + ")");
 			return -1.0;
 		}
-		
-		return Math.acos(getDotProduct(vec) / (getMagnitude() * vec.getMagnitude()));
+		return Math.acos(getDotProduct(vec1, vec2) / (vec1.getMagnitude() * vec2.getMagnitude()));
 	}
+
 	
 	/**Calculate the distance between this vector and another vector.
 	 * @param vec - the vector to measure the distance against.
@@ -258,6 +279,19 @@ public class VectorD {
 	 * @author 5som3*/
 	public final void zero() {
 		for(int i = 0; i < length(); i++) vec[i] = 0.0;
+		deltaAction.action(this);
+	}
+	
+	/**Zeros the component and the specified index
+	 * @param index - the index of the component to zero.
+	 * @apiNote if the index is valid the deltaAction will trigger once after zeroing the specified component.
+	 * @author 5som3*/
+	public final void zero(int index) {
+		if(index < 0 || index >= length()) {
+			Console.err("VectorD -> zero(int) -> vector doesn't have a component at index : " + index);
+			return;
+		} 
+		vec[index] = 0.0;
 		deltaAction.action(this);
 	}
 	

@@ -52,7 +52,7 @@ public abstract class WarpedFramework2D {
 	 *@author 5som3*/
 	public static final void startFramework(String windowName, int gameWidth, int gameHeight, String iconPath) {
 		Console.ln("WarpedFramework2D -> startFramework() -> starting : ");
-		Console.startLogging();
+		Console.setLogging(true);
 		FrameworkSprites.loadMediaPlayerSprites();
 		mediaPlayer = new WarpedMediaPlayer(false);
 		mediaPlayer.setFixedSize(1920, 1080);

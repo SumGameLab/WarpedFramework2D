@@ -5,6 +5,7 @@ package warped.application.gui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
@@ -30,14 +31,24 @@ public class GUILabel  extends WarpedGUI {
 	private Color textColor = Color.WHITE;
 	private Font textFont = UtilsFont.getPreferred();
 	
+	private BufferedImage backgroundImage;  
+	private boolean isBackgroundVisible = false;
+	
 	private VectorI textOffset = new VectorI(8, textFont.getSize() + 6);
+	
+	/**A label with the default parameters.
+	 * @author 5som3*/
+	public GUILabel() {
+		setSize(120, 40);
+		updateGraphics();
+	}
 	
 	/**A label with the specified parameters.
 	 * @param width - the width of the label in pixels.
 	 * @param height - the height of the label in pixels.
 	 * @author 5som3*/
 	public GUILabel(int width, int height) {
-		sprite.setSize(width, height);
+		setSize(width, height);
 		updateGraphics();
 	}
 	
@@ -47,6 +58,33 @@ public class GUILabel  extends WarpedGUI {
 	public GUILabel(String text) {
 		this.text = text;
 		sprite.setSize(200, 30);
+		updateGraphics();
+	}
+	
+	/**Set the visibility of the background and border color.
+	 * @param isBackgroundVisible - if true the background will be visible else it will not be rendered.
+	 * @apiNote Will also make the background visible. 
+	 * @author 5som3*/
+	public void setBackgroundVisible(boolean isBackgroundVisible) {
+		if(this.isBackgroundVisible != isBackgroundVisible) {
+			this.isBackgroundVisible = isBackgroundVisible;
+			updateGraphics();
+		}
+	}
+	
+	/**Set the background to be an image.
+	 * @param backgroundImage - a buffered image to render behind the label text.
+	 * @author 5som3 */
+	public void setBackgroundImage(BufferedImage backgroundImage) {
+		isBackgroundVisible = true;
+		this.backgroundImage = backgroundImage;
+		updateGraphics();
+	}
+	
+	/**Clear the background image.
+	 * @author 5som3 */
+	public void clearBackgroundImage() {
+		this.backgroundImage = null;
 		updateGraphics();
 	}
 	
@@ -66,20 +104,24 @@ public class GUILabel  extends WarpedGUI {
 	
 	/**The thickness of the border
 	 * @param - the thickness in pixels, 0 thickness is no border
+	 * @apiNote Will also make the background visible.
 	 * @author SomeKid*/
 	public void setBorderThickness(int borderThickness) {
 		if(borderThickness < 0 || borderThickness > getWidth() / 4 || borderThickness > getHeight() / 4) {
 			Console.err("GUILabel -> setBorderThickness() -> thickness is invalid : " + borderThickness);
 			return;
 		} 
+		isBackgroundVisible = true;
 		this.borderThickness = borderThickness;
 		updateGraphics();
 	}
 	
 	/**The colour of the border
 	 *@param borderColor - the color to use
+	 *@apiNote Will also make the background visible.
 	 *@author SomeKid */
 	public void setBorderColor(Color borderColor) {
+		isBackgroundVisible = true;
 		this.borderColor = borderColor;
 		updateGraphics();
 	}
@@ -130,8 +172,10 @@ public class GUILabel  extends WarpedGUI {
 
 	/**Set the colour of the label behind the text
 	 * @param backgroundColor - the color to draw behind the text
+	 * @apiNote Will also make the background visible. 
 	 * @author SomeKid*/
 	public void setBackgroundColor(Color backgroundColor) {
+		isBackgroundVisible = true;
 		this.backgroundColour = backgroundColor;
 		updateGraphics();
 	}
@@ -167,15 +211,14 @@ public class GUILabel  extends WarpedGUI {
 	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
-		if(borderThickness > 0) {			
+		if(isBackgroundVisible) {
 			g.setColor(borderColor);
 			g.fillRect(0, 0, getWidth(), getHeight());
-			
 			g.setColor(backgroundColour);
 			g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
-		} else {
-			g.setColor(backgroundColour);
-			g.fillRect(0, 0, getWidth(), getHeight());
+			if(backgroundImage != null) {
+				g.drawImage(backgroundImage, borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2, null);
+			}
 		}
 		
 		g.setColor(textColor);

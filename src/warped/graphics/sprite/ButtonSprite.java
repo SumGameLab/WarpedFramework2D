@@ -49,7 +49,6 @@ public class ButtonSprite extends WarpedSprite {
 		setButtonColour(DEFAULT_BUTTON_COLOR);
 		updateGraphics();
 		setRasterFast(plainRaster);
-		
 	}
 	
 	/**A button sprite of the specified width and height.
@@ -84,6 +83,16 @@ public class ButtonSprite extends WarpedSprite {
 		setRasterFast(plainRaster);	
 	}
 	
+	/**Set the size of the button.
+	 * @param width - the width of the button in pixels.
+	 * @param height - the height of the button in pixels.
+	 * @apiNote If using an image that image will be scaled to the new width and height.
+	 * @author 5som3*/
+	public void setButtonSize(int width, int height) {
+		setSize(width, height);
+		updateGraphics();
+	}
+	
 	/**Generates the coloured variants for the button sprite (plain, hovered, pressed, locked).
 	 * @author 5som3*/
 	private void generateRasterClones() {
@@ -92,8 +101,6 @@ public class ButtonSprite extends WarpedSprite {
 		pressedRaster  = UtilsImage.generateTintedClone(plainRaster, 60, Colour.RED);
 		lockedRaster   = UtilsImage.generateTintedClone(plainRaster, 90, Colour.BLACK);
 	}
-	
-	
 	
 	private void updateGraphics() {
 		Graphics g = getGraphics();

@@ -204,11 +204,11 @@ public class WarpedSprite {
 	
 	/**Paint over the sprite with the input image
 	 * @param image - the image to be drawn over the sprite
-	 * @param scale - if true the image will be scaled to the current size else the image will determine the new size.
+	 * @param scale - if true the sprite will be resized to the image param size else the image will be painted at the current sprite size.
 	 * @author SomeKid*/
 	public final void paint(BufferedImage image, boolean scale) {
-		Graphics g = getGraphics();
 		if(scale) setSize(image.getWidth(), image.getHeight());
+		Graphics g = getGraphics();
 		g.drawImage(image, 0, 0, (int)size.x(), (int)size.y(), null);
 		g.dispose();
 		pushGraphics();

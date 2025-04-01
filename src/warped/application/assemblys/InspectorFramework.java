@@ -1,5 +1,4 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
-
 package warped.application.assemblys;
 
 import java.awt.Color;
@@ -235,6 +234,13 @@ public class InspectorFramework extends WarpedAssembly {
 		refresh.setRepeatingAction(() -> {updatePage();});		
 	}
 
+	public void inspectTimers() {
+		page = FrameworkInspectorPage.WARPED_FRAMEWORK;
+		updatePage();
+		refresh.setToggle(true);
+		open();
+	}
+	
 	private void showButtons() {
 		resolution.setVisible(true);
 		exit.setVisible(true);

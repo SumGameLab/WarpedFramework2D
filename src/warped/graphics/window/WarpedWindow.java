@@ -20,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
@@ -556,7 +557,21 @@ public class WarpedWindow extends Canvas {
 			Console.err("WarpedWindow -> startExecutor() -> the load screen is still being rendered, ");
 			return;
 		}
-		executor = Executors.newScheduledThreadPool(viewPorts.length + 2);
+		// Creating a custom ThreadFactory to name the threads
+	    ThreadFactory windowThread = new ThreadFactory() {
+	    private static int count = 0;
+	    
+	      @Override
+	      public Thread newThread(Runnable r) {
+	    	Thread thread = new Thread(r);
+	    	if(count == 0) thread.setName("Window Thread");
+	    	else thread.setName("Viewport Thread : " + count);
+	        count++;
+	        return thread;
+	      }
+	    };
+	      
+		executor = Executors.newScheduledThreadPool(viewPorts.length + 2, windowThread);
 		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
 		for(int i = 0; i < viewPorts.length; i++) {			
 			executor.scheduleAtFixedRate(viewPorts[i]::update, 0, 16666666, TimeUnit.NANOSECONDS);

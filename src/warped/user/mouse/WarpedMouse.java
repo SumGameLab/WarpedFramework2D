@@ -16,6 +16,7 @@ import warped.application.object.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.audio.FrameworkAudio;
 import warped.graphics.window.WarpedWindow;
+import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.utils.Console;
 
 public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWheelListener {
@@ -197,6 +198,11 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		isDragging = false;
 		if(WarpedState.isPaused()) FrameworkAudio.error.play();
 		WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.BUTTON_RELEASE));
+		
+		if(WarpedKeyboard.isKeyLogging()) {
+			WarpedKeyboard.clearKeyLog();
+			WarpedKeyboard.stopKeyLogging();
+		}
 			
 	}
 	

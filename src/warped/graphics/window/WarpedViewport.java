@@ -2,8 +2,7 @@
 
 package warped.graphics.window;
 
-import java.awt.AlphaComposite;
-import java.awt.Composite;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
@@ -19,11 +18,13 @@ import warped.application.state.WarpedState;
 import warped.application.state.managers.gameObjectManagers.WarpedManager;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.functionalInterfaces.WarpedAction;
+import warped.graphics.animation.WarpedAnimation;
 import warped.graphics.camera.WarpedCamera;
 import warped.user.mouse.WarpedMouse;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsImage;
 
 public class WarpedViewport {
 
@@ -46,7 +47,7 @@ public class WarpedViewport {
 	private String name;	
 	private long updateDuration;
 	
-	private WarpedManager<?> target; // graphic input	
+	private WarpedManager<?> target; 	
 	public  WarpedCamera camera = WarpedState.cameraManager.getDefaultEntitieCamera();
 	
 	private ArrayList<Integer> targetGroups = new ArrayList<>();
@@ -59,15 +60,17 @@ public class WarpedViewport {
 	private VectorI size = new VectorI(); 
 	private VectorI position = new VectorI();
 	
+	private BufferedImage buffer; //graphic input
 	private BufferedImage raster;    //graphic output
 	private BufferedImage[] rasterBuffer;
 	private static int bufferSize;
-	private int rasterIndex = 0;
+	private int bufferIndex = 0;
 
 	public WarpedMouseEvent mouseEvent;
+	
+	private ArrayList<WarpedAnimation> animations = new ArrayList<>();
 
 	public ArrayList<WarpedObject> eventObjects = new ArrayList<>();
-	
 	protected Object[] renderHints = new Object[8];
 	
 	private RenderType renderType = RenderType.ACTIVE;
@@ -83,11 +86,9 @@ public class WarpedViewport {
 	public static final int ALPHA_INTERPOLATION    = 5;
 	public static final int STROKE                 = 6;
 	public static final int DITHERING              = 7;
-		
-	private static final Composite clearComposite = AlphaComposite.getInstance(AlphaComposite.CLEAR);
-	private static final Composite drawComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
 	
 	public enum RenderType {
+		ANIMATION,
 		PRIMITIVE,
 		PRIMITIVE_TRANSFORMED_SCALED,
 		ACTIVE,
@@ -115,7 +116,7 @@ public class WarpedViewport {
 		
 		rasterBuffer = new BufferedImage[bufferSize];
 		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
-		raster = rasterBuffer[0];
+		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
 		
@@ -137,7 +138,7 @@ public class WarpedViewport {
 		
 		rasterBuffer = new BufferedImage[bufferSize];
 		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
-		raster = rasterBuffer[0];
+		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
 		
@@ -158,7 +159,7 @@ public class WarpedViewport {
 		
 		rasterBuffer = new BufferedImage[bufferSize];
 		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
-		raster = rasterBuffer[0];
+		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
 		
@@ -194,14 +195,28 @@ public class WarpedViewport {
 		}
 	}
 	
+	/**If the viewport has been baked with graphics they will be cleared.
+	 * @implNote the viewport raster will be made completely transparent.
+	 * @author 5som3*/
+	public void clearBake() {
+		if(renderType != RenderType.BAKED) {
+			Console.err("WarpedViewport -> " + name + " -> viewport isn't baked, clearing bake is pointless");
+			return;
+		} else {
+			Graphics g = getGraphics();
+			g.dispose();
+			pushGraphics();
+		}
+	}
+	
 	/**Sets the render method to Baked and renders the the currently targeted groups (if any).
 	 * @param isScaledAndTransformed - if true the render method will scale and transform the image according to the current camera 2.
 	 * @param groups - a list of the groups within the current targeted manager to bake.
 	 * @apiNote baked viewports will only draw groups that have been targeted, it is independent if which groups are open / closed.
 	 * @author SomeKid*/
-	public void bakeGroups(boolean isBakedAndTransformed, Integer... groups) {
+	public void bakeGroups(boolean isScaledAndTransformed, Integer... groups) {
 		setTargetGroups(groups);
-		bakeGroups(isBakedAndTransformed);
+		bakeGroups(isScaledAndTransformed);
 	}
 	
 	/**Sets the render method to Baked and renders the the currently targeted groups (if any).
@@ -209,7 +224,7 @@ public class WarpedViewport {
 	 * @apiNote baked viewports will only draw groups that have been targeted, it is independent if which groups are open / closed.
 	 * @author SomeKid*/
 	public void bakeGroups(boolean isScaledAndTransformed) {		
-		setRenderMethod(RenderType.BAKED);
+		renderType = RenderType.BAKED;
 		BufferedImage baked = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		Graphics2D g = baked.createGraphics();
 		setRenderHints(g);
@@ -249,7 +264,7 @@ public class WarpedViewport {
 
 	
 	/**Is the viewport visible in the window
-	 * @returns boolean - If true the viewport will be drawn in the window.
+	 * @returns boolean - If true the viewport will be rendered in the window.
 	 * @author SomeKid */
 	public boolean isVisible() {return visible;}
 	
@@ -267,45 +282,62 @@ public class WarpedViewport {
 	 * @apiNote    - Camera scale and translation will be ignored.
 	 * @apiNote    - Actively produces new frames at target 60fps.
 	 * @apiNote    - Render Hints will not be applied. 
+	 * @apiNote    - Has mouse I/O
 	 * @apiNote PRIMITIVE_TRANSFOREMD_SCALED
 	 * @apiNote    - Only groups which are 'open' will be rendered.
 	 * @apiNote    - Camera scale and translation is applied.
 	 * @apiNote    - Actively produces new frames at target 60fps.
 	 * @apiNote    - Render hints will not be applied. 
+	 * @apiNote    - Has mouse I/O
 	 * @apiNote ACTIVE 
 	 * @apiNote    - Only groups which are 'open' will be rendered.
 	 * @apiNote    - Camera scale and translation will be ignored.
 	 * @apiNote    - Actively produces new frames at target 60fps.
 	 * @apiNote    - Render hints will be applied.
+	 * @apiNote    - Has mouse I/O
 	 * @apiNote ACTIVE_TRANSFORMED_SCALED
 	 * @apiNote    - Only groups which are 'open' will be rendered.
 	 * @apiNote    - Camera scale and translation is applied.
 	 * @apiNote    - Actively produces new frames at target 60fps.
 	 * @apiNote    - Render hints will be applied.
+	 * @apiNote    - Has mouse I/O
 	 * @apiNote BAKED
 	 * @apiNote    - Only groups which are targeted by this viewport will be rendered.
 	 * @apiNote    - Camera scale and translation will be ignored.
 	 * @apiNote    - Produces one frame at the time this function is called, does not update actively.
 	 * @apiNote    - Render hints will be applied.
+	 * @apiNote    - Has mouse I/O
 	 * @apiNote BAKED_TRANSFORMED_SCALED
 	 * @apiNote    - Only groups which are targeted by this viewport will be rendered.
 	 * @apiNote    - Camera scale and translation is applied.
 	 * @apiNote    - Produces one frame at the time this function is called, does not update actively.
 	 * @apiNote    - Render hints will be applied.
+	 * @apiNote    - Has mouse I/O
 	 * @apiNote TARGET_GROUPS
 	 * @apiNote    - Only groups which are targeted by this viewport will be rendered.
 	 * @apiNote    - Camera scale and translation will be ignored.
 	 * @apiNote    - Actively produces new frames at target 60fps.
 	 * @apiNote    - Render hints will be applied.
+	 * @apiNote    - Has mouse I/O
 	 * @apiNote TARGET_GROUPS_TRANSFORMED_SCALED
 	 * @apiNote    - Only groups which are targeted by this viewport will be rendered.
 	 * @apiNote    - Camera scale and translation is applied.
 	 * @apiNote    - Actively produces new frames at target 60fps.
 	 * @apiNote    - Render hints will be applied.
-	 * */
+	 * @apiNote    - Has mouse I/O
+	 * @apiNote ANIMATION                                                                             
+   	 * @apiNote    - This render method will not draw warpedObjects
+   	 * @apiNote    - Renders from a separate arrayList of WarpedAnimation.
+   	 * @apiNote    - Use this mode for a VFX viewport that will just display animations. 
+   	 * @apiNote    - Warped Animations are removed when complete.  
+   	 * @apiNote    - Does not have mouse I/O                                                                                
+	 * @author 5som3*/
 	public void setRenderMethod(RenderType renderType) {
 		this.renderType = renderType;
 		switch(renderType) {
+		case ANIMATION:
+			renderMethod = animation;
+			break;
 		case PRIMITIVE:
 			renderMethod = primitive;
 			break;
@@ -338,6 +370,28 @@ public class WarpedViewport {
 		}
 	}
 	
+	/**Add an animation to be rendered in the viewport.
+	 * @param animation - the animation to render.
+	 * @apiNote The Viewport must be in animation mode. use setRenderMode(RenderType.ANIMATION);
+	 * @apiNote Animations will be removed automatically from the viewport as they complete.
+	 * @apiNote Animations will begin playing when they are added (if not playing already).
+	 * @author 5som3*/
+	public void addAnimation(WarpedAnimation animation) {
+		if(renderType != RenderType.ANIMATION) {
+			Console.err("WarpedViewport -> " + name + " -> addAnimation() -> this viewport is not set to render animations, change render method before adding animations");
+			return;
+		} else animations.add(animation);
+	}
+	
+	/**Remove all the animations (if any).
+	 * @author 5som3*/
+	public void clearAnimations() {
+		if(renderType != RenderType.ANIMATION) {
+			Console.err("WarpedViewport -> " + name + " -> clearAnimations() -> this viewport is not set to render animations, change render method before clearing animations");
+			return;
+		} else animations.clear();
+	}
+	
 	/**Set if the mouse can interactive with objects drawn by this viewport
 	 * @param isInteractive  - If true the mouse will be able to interact with objects displayed in the viewport
 	 * @apiNote If the viewport doesn't need mouse I/O you should set this false.
@@ -351,6 +405,13 @@ public class WarpedViewport {
 	 * @author SomeKid*/
 	public void setVisible(boolean isVisible) {this.visible = isVisible;}
 
+	/**Set the position of this viewport in the window.
+	 * @param x - the x position in pixels.
+	 * @param y - the y position in pixels.
+	 * @apiNote The position is measured from the top left corner of the window to the top left corner of the viewport.
+	 * @author 5som3*/
+	public void setPosition(int x, int y) {this.position.set(x, y);}
+	
 	/**Get the name of the viewport
 	 * @return String - the name
 	 * @apiNote The name of the viewport is mainly for debug purposes. It is not important for the operation of the viewport.
@@ -554,20 +615,29 @@ public class WarpedViewport {
 	 * @return Graphics2D - a graphics interface with next buffer in the viewport.
 	 * @implNote any changes made to the graphics will not not be visible raster is set to the new buffer.
 	 * @author SomeKid*/
-	private Graphics2D getGraphics() {
-		rasterIndex++;
-		if(rasterIndex >= bufferSize) rasterIndex = 0;
-		Graphics2D g = rasterBuffer[rasterIndex].createGraphics();
-		clear(g);
-		return g; 		
+	private final Graphics2D getGraphics() {
+		Graphics2D g2d = buffer.createGraphics();
+		g2d.setComposite(UtilsImage.clearComposite);
+		g2d.fillRect(0, 0, getWidth(), getHeight());
+		g2d.setComposite(UtilsImage.drawComposite);
+		return g2d;
+	}
+	
+	private final void pushGraphics() {
+		if(bufferIndex == 0) {
+			bufferIndex = 1;
+			buffer = rasterBuffer[1];
+			raster = rasterBuffer[0];
+		} else {
+			bufferIndex = 0;
+			buffer = rasterBuffer[0];
+			raster = rasterBuffer[1];
+		}
 	}
 	
 	/** Renders the viewport based on the set method and set's the output raster to the new buffer
 	 * @author SomeKid*/
-	private void render() {	
-		renderMethod.action();
-		raster = rasterBuffer[rasterIndex];
-	}
+	private void render() {renderMethod.action();}
 	
 	/**Sets the render hints for a graphical context to the render hint parameters of this Viewport.
 	 * @author SomeKid*/
@@ -581,121 +651,37 @@ public class WarpedViewport {
 		g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, 	   renderHints[STROKE]); 
 		g.setRenderingHint(RenderingHints.KEY_DITHERING, 		   renderHints[DITHERING]); 
 	}
+
 	
-	/*
-	protected void renderTargetGroup() {
-		eventObjects.clear();
-		camera.update();
-		Graphics2D g = getGraphics2D();
-		setRenderHints(g);
-		for(int i = 0; i < targetGroups.size(); i++) {
-			getTarget().getGroup(targetGroups.get(i)).forEach((obj) -> {
-	 			renderObject = obj;
-	 			if(obj.isVisible()) {			
-	 				if(camera.isTracking() && obj.isEqualTo(camera.getTarget()))	camera.updateTracking(obj);		
-	 				if(!camera.isClipped(obj)) {							
-	 					
-	 					if(renderHints[OVERALL] == PRIMITIVE) {
-							g.drawImage(obj.raster(), (int)(obj.getRenderPosition().x),(int)(obj.getRenderPosition().y), (int)(obj.getRenderSize().x),(int)(obj.getRenderSize().y), null); // draw the object
-						} else {						
-							at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getRenderPosition().x, obj.getRenderPosition().y);
-							g.drawRenderedImage(obj.raster(), at);	
-						}
-						handleMouse();
-	 				}
-	 			}
-			});
+	/**ANIMATION                                                                             
+   	 * - This render method will not draw warpedObjects
+   	 * - Renders from a separate arrayList of WarpedAnimation.
+   	 * - Use this mode for a VFX viewport that will just display animations. 
+   	 * - Warped Animations are removed when complete.  
+   	 * - Does not have mouse I/O                                                                                
+	 * @author 5som3*/
+	private final WarpedAction animation = () -> {
+		Graphics2D g = getGraphics();
+		for(int i = 0; i < animations.size(); i++) {
+			WarpedAnimation a = animations.get(i);
+			if(a.isComplete() || !a.isAlive()) {
+				animations.remove(i);
+				i--;
+			}
+			else g.drawImage(a.raster(), a.x(), a.y(), a.getWidth(), a.getHeight(), null);			
 		}
-
 		g.dispose();
-		if(eventObjects.size() > 0 && eventObject == null) eventObject = eventObjects.get(eventObjects.size() - 1);
-	}
+		pushGraphics();
+	};
 	
-	protected void renderTransformedScaledActive() {
-		eventObjects.clear();
-		camera.update();
-		Graphics2D g = getGraphics2D();
-		setRenderHints(g);
-		getTarget().forEachActiveGroup((obj) -> {
-			renderObject = obj;
-			if(obj.isVisible()) {	
-				if(camera.isTracking() && obj.isEqualTo(camera.getTarget()))	camera.updateTracking(obj);		
-				camera.sizeTransformation(obj); //scaled size of object based on the zoom value
-				obj.renderPosition.set(obj.getPosition());
-				camera.positionTransformation(obj); //Offset the screen position for the view ports camera p
-				obj.renderPosition.add(WarpedWindow.center); // offset the origin to the center of the screen
-				if(!camera.isClipped(obj)) {							
-					
-					handleMouse();
-					
-					
-					if(renderHints[OVERALL] == PRIMITIVE) {
-						g.drawImage(obj.raster(), (int)(obj.renderPosition.x),(int)(obj.renderPosition.y), (int)(obj.renderSize.x),(int)(obj.renderSize.y), null); // draw the object
-					} 
-					else if(obj.renderSize.x <= 1.0 || obj.renderSize.y <= 1.0) {
-						g.drawImage(obj.raster(), (int)(obj.renderPosition.x),(int)(obj.renderPosition.y), 1, 1, null); // draw the object
-					} else {
-						at.setTransform(camera.getZoom(), 0.0, 0.0, camera.getZoom(), obj.renderPosition.x, obj.renderPosition.y);
-						g.drawRenderedImage(obj.raster(), at);
-					}
-				}
-			}
-		});
-		g.dispose();
-		if(eventObjects.size() > 0 && eventObject == null) eventObject = eventObjects.get(eventObjects.size() - 1);
-	}
-
-	protected void renderActive() {
-		eventObjects.clear();
-		camera.update();
-		Graphics2D g = getGraphics2D();
-		clear(g);	
-		
-		//<WarpedGroup<WarpedObject>> activeGroups = target.getActiveGroups();
-		
-		//getTarget().getActiveGroups().forEach(group -> {
-		
-		//});
-		
-		getTarget().forEachActiveGroup((obj) -> {
-			renderObject = obj;
-			if(obj.isVisible()) {			
-				obj.renderSize.set(obj.getSize());
-				obj.renderPosition.set(obj.getPosition());
-				if(camera.isTracking() && obj.isEqualTo(camera.getTarget()))	camera.updateTracking(obj);		
-				if(!camera.isClipped(obj)) {							
-					
-					if(renderHints[OVERALL] == PRIMITIVE) {
-						g.drawImage(obj.raster(), (int)(obj.renderPosition.x),(int)(obj.renderPosition.y), (int)(obj.renderSize.x),(int)(obj.renderSize.y), null); // draw the object
-					} else {						
-						at.setTransform(1.0, 0.0, 0.0, 1.0, obj.renderPosition.x, obj.renderPosition.y);
-						g.drawRenderedImage(obj.raster(), at);	
-					}
-					handleMouse();
-				}
-			}
-		});
-		
-		g.dispose();
-		if(eventObjects.size() > 0) eventObject = eventObjects.get(eventObjects.size() - 1);
-	}
-	*/
-
-	/**Fills a graphical context with 100% transparent pixels. 
-	 * @author SomeKid */
-	private void clear(Graphics2D g) {
-		g = rasterBuffer[rasterIndex].createGraphics();
-		g.setComposite(clearComposite);
-		g.fillRect(0,0, size.x(), size.y());
-		g.setComposite(drawComposite);		
-	}
 	
 	/**PRIMITIVE                                                                             
-   	 * - This is the simplest and fastest render method.                                  
+   	 * - This is the simplest and fastest render method.                         
    	 * - Only groups which are 'open' will be rendered.                                   
    	 * - Camera scale and translation will be ignored.                                    
    	 * - Actively produces new frames at target 60fps.                                    
-   	 * - Render Hints will not be applied.                                                                                        
+   	 * - Render Hints will not be applied.     
+   	 * - Has mouse I/O                                                                                    
 	 * @author 5som3*/
 	private final WarpedAction primitive = () -> {
 		Graphics2D g = getGraphics();
@@ -708,13 +694,15 @@ public class WarpedViewport {
 			handleMouse(obj);
 		});		
 		g.dispose();
+		pushGraphics();
 	};
 	
 	/**PRIMITIVE_TRANSFOREMD_SCALED                                                          
 	 *   - Only groups which are 'open' will be rendered.                                   
 	 *   - Camera scale and translation is applied.                                         
      *   - Actively produces new frames at target 60fps.                                    
-     *   - Render hints will not be applied.                 
+     *   - Render hints will not be applied.      
+     *   - Has mouse I/O           
      * @author 5som3*/
 	private final WarpedAction primitiveTransformedScaled = () -> {
 		Graphics2D g = getGraphics();
@@ -726,14 +714,16 @@ public class WarpedViewport {
 			}
 			handleMouse(obj);
 		});		
-		g.dispose();	
+		g.dispose();
+		pushGraphics();
 	};
 	
 	/**ACTIVE                                                                                
      *  - Only groups which are 'open' will be rendered.                                   
      *  - Camera scale and translation will be ignored.                                    
      *  - Actively produces new frames at target 60fps.                                    
-     *  - Render hints will be applied.               
+     *  - Render hints will be applied.      
+     *  - Has mouse I/O         
 	 * @author 5som3 */
 	private final WarpedAction render = () -> {
 		Graphics2D g = getGraphics();
@@ -748,13 +738,15 @@ public class WarpedViewport {
 			handleMouse(obj);
 		});		
 		g.dispose();	
+		pushGraphics();
 	};
 	
 	/**ACTIVE_TRANSFORMED_SCALED                                                             
      *  - Only groups which are 'open' will be rendered.                                   
      *  - Camera scale and translation is applied.                                         
      *  - Actively produces new frames at target 60fps.                                    
-     *  - Render hints will be applied.         
+     *  - Render hints will be applied.     
+     *  - Has mouse I/O    
 	 * @author 5som3*/
 	private final WarpedAction renderTransformedScaled = () -> {
 		Graphics2D g = getGraphics();
@@ -768,14 +760,16 @@ public class WarpedViewport {
 			}
 			handleMouse(obj);
 		});		
-		g.dispose();		
+		g.dispose();
+		pushGraphics();
 	};
 	
 	/**TARGET_GROUPS                                                                         
      *  - Only groups which are targeted by this viewport will be rendered.                
      *  - Camera scale and translation will be ignored.                                    
      *  - Actively produces new frames at target 60fps.                                    
-     *  - Render hints will be applied.                
+     *  - Render hints will be applied.        
+     *  - Has mouse I/O        
 	 * @author 5som3*/
 	private final WarpedAction renderTargets = () -> {
 		Graphics2D g = getGraphics();
@@ -791,14 +785,16 @@ public class WarpedViewport {
 				handleMouse(obj);
 			});
 		}
-		g.dispose();	
+		g.dispose();
+		pushGraphics();
 	};
 	
 	/**TARGET_GROUPS_TRANSFORMED_SCALED                                                      
      *  - Only groups which are targeted by this viewport will be rendered.                
      *  - Camera scale and translation is applied.                                         
      *  - Actively produces new frames at target 60fps.                                    
-     *  - Render hints will be applied.            
+     *  - Render hints will be applied.     
+     *  - Has mouse I/O       
 	 * @author 5som3*/
 	private final WarpedAction renderTargetsTransformedScaled = () -> {
 		Graphics2D g = getGraphics();
@@ -815,7 +811,7 @@ public class WarpedViewport {
 			});
 		}
 		g.dispose();	
-		
+		pushGraphics();
 	};
 
 	/**BAKED                                                                                 

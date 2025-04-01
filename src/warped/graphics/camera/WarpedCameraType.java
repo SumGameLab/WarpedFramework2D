@@ -12,8 +12,7 @@ public enum WarpedCameraType {
 	DEFAULT_GUI,
 	DEFAULT_ITEM,
 	DEFAULT_DEPTH_FIELD,
-	DEFAULT_TILE,
-	DEFAULT_VFX;
+	DEFAULT_TILE;
 	
 	
 	private static Map<Integer, WarpedCameraType> map = new HashMap<>();

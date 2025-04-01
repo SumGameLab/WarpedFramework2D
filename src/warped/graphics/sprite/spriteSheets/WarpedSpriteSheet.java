@@ -314,7 +314,14 @@ public class WarpedSpriteSheet {
 	 * @implNote Changes to the returned image will persist for the duration of runtime.
 	 * @implNote If you don't want to affect other objects using the same image then you should make a copy of the returned image and edit the copy.
 	 * @author 5som3*/
-	public BufferedImage getRandomRawSprite() {return rawSpriteImages[UtilsMath.random(rawSpriteImages.length)];}
+	public BufferedImage getRandomSprite() {return rawSpriteImages[UtilsMath.random(rawSpriteImages.length)];}
+	
+	/**Get the array containing all the sprites.
+	 * @return BufferedImage[] - the array of sprites. 
+	 * @apiNote NOT a copy, any changes made to these images will effect any other object that refers to them.
+	 * @apiNote Typically used for spriteSheets containing a single animation.
+	 * @author 5som3*/
+	public BufferedImage[] getSprites() {return rawSpriteImages;}
 	
 	/**Get a row of sprites.
 	 * @param row - the row to get from this sheet.
