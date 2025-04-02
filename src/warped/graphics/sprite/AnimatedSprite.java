@@ -14,6 +14,9 @@ import warped.utilities.utils.UtilsMath;
 
 public class AnimatedSprite extends WarpedSprite {
 
+	private static Timer animationTimer = new Timer("Timer Thread : Animated Sprite");
+	private TimerTask updateTask;
+
 	private AnimationModeType mode = AnimationModeType.REPEAT;
 	private boolean isComplete = false;
 	private boolean isRepeatAction = false;
@@ -24,8 +27,6 @@ public class AnimatedSprite extends WarpedSprite {
 	protected BufferedImage[] frames;
 	private boolean mirror = false;
 
-	private static Timer animationTimer = new Timer("Animation Timer Thread");
-	private TimerTask updateTask;
 	
 	/**An animation from a single series of frames.
 	 * The animation is scheduled as a task for the animation timer to execute.
@@ -33,7 +34,7 @@ public class AnimatedSprite extends WarpedSprite {
 	 * @param frames - The frames for the animation. Frames must be in their sequential order.
 	 * @apiNote Animation can be set to different AnimationModeTypes described in this class. 
 	 * */
-	public AnimatedSprite(BufferedImage[] frames) {
+	public AnimatedSprite(BufferedImage[] frames) {		
 		super(frames[0].getWidth(), frames[0].getHeight());
 		int checkWidth  = 1;
 		int checkHeight = 1;

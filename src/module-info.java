@@ -40,7 +40,6 @@ module WarpedFramework2D {
 	exports warped.user;
 	exports warped.user.keyboard;
 	exports warped.user.mouse;
-	exports warped.utilities;
 	exports warped.utilities.enums;
 	exports warped.utilities.enums.biology;
 	exports warped.utilities.enums.biology.animal;

@@ -72,3 +72,4 @@ somekid
 unicode
 anticlockwise
 ish
+chevrons

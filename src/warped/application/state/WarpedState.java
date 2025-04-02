@@ -3,8 +3,9 @@
 package warped.application.state;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import warped.WarpedFramework2D;
 import warped.application.assemblys.AssemblyFileInspector;
@@ -35,6 +36,7 @@ import warped.application.state.managers.gameObjectManagers.WarpedManager;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.application.tile.WarpedTile;
 import warped.audio.FrameworkAudio;
+import warped.utilities.WarpedThreadFactory;
 import warped.utilities.utils.Console;
 
 public class WarpedState {
@@ -46,7 +48,9 @@ public class WarpedState {
 	
 	public static int cycleCount = 0;
 	
-	private static Timer stateTimer = new Timer("Timer Thread : WarpedState");
+	
+	private final static ScheduledExecutorService executor = Executors.newScheduledThreadPool(4, new WarpedThreadFactory("Warped State"));
+	//private static Timer stateTimer = new Timer("Timer Thread : Warped State");
 	
 	private static boolean pause = true;
 	private static boolean isInitialized = false;
@@ -88,7 +92,7 @@ public class WarpedState {
 	public static InspectorFramework 			frameworkInspector;
 	public static AssemblyItemInspector 		itemInspector;
 
-	public static Selector 				selector;
+	public static Selector 						selector;
 	public static ToolTip 						toolTip;
 	public static Notify 						notify;
 	public static AssemblyHotBar 				hotBar;	
@@ -112,69 +116,64 @@ public class WarpedState {
 		//hotBar.close();
 	}
 	*/
-	public WarpedState() {
-		stateTimer.scheduleAtFixedRate(updateActive,  0,      17); //58 updates per second
-		stateTimer.scheduleAtFixedRate(updateMid,     0,    1000); //1 update per second
-		stateTimer.scheduleAtFixedRate(updateSlow,    0,   60000); //1 update per minute
-		stateTimer.scheduleAtFixedRate(updatePassive, 0, 3600000); //1 update per hour
+	public WarpedState() {	
+		executor.scheduleAtFixedRate(WarpedState::updateActive, 0, 17, TimeUnit.MILLISECONDS);
+		executor.scheduleAtFixedRate(WarpedState::updateMid, 0, 1000, TimeUnit.MILLISECONDS);
+		executor.scheduleAtFixedRate(WarpedState::updateSlow, 0, 60000, TimeUnit.MILLISECONDS);
+		executor.scheduleAtFixedRate(WarpedState::updatePassive, 0, 3600000, TimeUnit.MILLISECONDS);
 	}
 	
 	public void stop() {
+		Console.ln("WarpedState -> stop()");
+		executor.shutdown();
 		for(int i = 0; i < audioFolders.size(); i++) {
 			WarpedAudioFolder<?> folder = audioFolders.get(i);
 			folder.stop();
 			folder.close();	
 		}
-		stateTimer.cancel();
 	}
 	
-	private static TimerTask updateActive = new TimerTask() {
-		public void run() {
-			if(pause) return;
-			long cycleStartTime = System.nanoTime();
-			cycleCount++;
-			
-			for(int i = 0; i < managers.length; i++) {
-				managers[i].updateActive();
-				managers[i].remove();
-			}
-			
-			for(WarpedAssembly assembly : assemblys) assembly.updateAssembly();
-			for(WarpedAudioFolder<?> folder : audioFolders) folder.update();
-			FrameworkAudio.update();
-			WarpedFramework2D.getApp().persistentLogic();
-			
-			activeCycleDuration = System.nanoTime() - cycleStartTime;
-		}
-	};
 	
-	private static TimerTask updateMid = new TimerTask() {
-		public void run() {
-			if(pause) return; 
-			long cycleStartTime = System.nanoTime();
-			for(int i = 0; i < managers.length; i++) managers[i].updateMid();
-			midCycleDuration = System.nanoTime() - cycleStartTime;		
+	private static void updateActive() {
+		if(pause) return;
+		long cycleStartTime = System.nanoTime();
+		cycleCount++;
+		
+		for(int i = 0; i < managers.length; i++) {
+			managers[i].updateActive();
+			managers[i].remove();
 		}
-	};
+		
+		for(WarpedAssembly assembly : assemblys) assembly.updateAssembly();
+		for(WarpedAudioFolder<?> folder : audioFolders) folder.update();
+		FrameworkAudio.update();
+		WarpedFramework2D.getApp().persistentLogic();
+		
+		activeCycleDuration = System.nanoTime() - cycleStartTime;
+	}
 	
-	private static TimerTask updateSlow = new TimerTask() {
-		public void run() {
-			System.gc();
-			if(pause) return; 
-			long cycleStartTime = System.nanoTime();
-			for(int i = 0; i < managers.length; i++) managers[i].updateSlow();
-			slowCycleDuration = System.nanoTime() - cycleStartTime;
-		}
-	};
+
+	private static void updateMid() {
+		if(pause) return; 
+		long cycleStartTime = System.nanoTime();
+		for(int i = 0; i < managers.length; i++) managers[i].updateMid();
+		midCycleDuration = System.nanoTime() - cycleStartTime;
+	}
 	
-	private static TimerTask updatePassive = new TimerTask() {
-		public void run() {
-			if(pause) return;
-			long cycleStartTime = System.nanoTime();
-			for(int i = 0; i < managers.length; i++) managers[i].updatePassive();
-			passiveCycleDuration = System.nanoTime() - cycleStartTime;
-		}
-	};
+	private static void updateSlow() {
+		System.gc();
+		if(pause) return; 
+		long cycleStartTime = System.nanoTime();
+		for(int i = 0; i < managers.length; i++) managers[i].updateSlow();
+		slowCycleDuration = System.nanoTime() - cycleStartTime;
+	}
+
+	
+	private static void updatePassive() {
+		long cycleStartTime = System.nanoTime();
+		for(int i = 0; i < managers.length; i++) managers[i].updatePassive();
+		passiveCycleDuration = System.nanoTime() - cycleStartTime;
+	}
 	
 	
 	public void initialize() {

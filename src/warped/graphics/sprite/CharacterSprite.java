@@ -31,7 +31,8 @@ public class CharacterSprite extends WarpedSprite {
 	
 	private BufferedImage[] frames;
 	
-	private static Timer animationTimer = new Timer();
+	
+	private static Timer animationTimer = new Timer("Timer Thread : Character Sprite");
 	private TimerTask updateTask;
 	
 	

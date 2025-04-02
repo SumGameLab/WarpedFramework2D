@@ -6,7 +6,6 @@ package warped.graphics.window;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.concurrent.Executors;
 
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
@@ -50,6 +49,12 @@ import warped.utilities.utils.Console;
 
 public class WarpedMediaPane extends BorderPane {
 
+	/*
+	 * Serves as a wrapper for the BorderPane
+	 * This is the component that contains all other components including the video source.
+	 * 
+	 * */
+	
 	private MediaPlayer mediaPlayer;
 	private MediaView mediaView;
 	private final boolean repeat  = false;
@@ -66,7 +71,7 @@ public class WarpedMediaPane extends BorderPane {
 	
 	private Button playButton;
 
-	private WarpedAction mediaEndAction;
+	private WarpedAction mediaEndAction = () -> {return;};
 	
 	private boolean isSkippable = false;
 	private boolean isPreparingMedia = true;
@@ -135,12 +140,19 @@ public class WarpedMediaPane extends BorderPane {
 	private static final int HIDE_DELAY = 60;
 	private static final int SEEK_DELAY = 20;
 	
+	/**A new warped media pane.
+	 * @param parent - the component that this media pane will be added to.
+	 * @author 5som3*/
 	public WarpedMediaPane(WarpedMediaPlayer parent) {
 		this.parent = parent;
 		initializePane();
 		initializeUI();
 	}
 
+	/**A new warped media pane.
+	 * @param parent - the component that this media pane will be added to.
+	 * @param path - the path the media file to load.
+	 * @author 5som3*/
 	public WarpedMediaPane(WarpedMediaPlayer parent, String path) {
 		this.parent = parent;
 		initializePane();
@@ -148,6 +160,243 @@ public class WarpedMediaPane extends BorderPane {
 		loadFrameworkMedia(path);
 	}
 	
+	/**Is the loaded media ready to be played.
+	 * @return boolean - true if the media can be played else false.
+	 * @author 5som3*/
+	public boolean isMediaPlayerReady() {
+		if(mediaPlayer == null									  ||
+		   mediaPlayer.getStatus() == MediaPlayer.Status.UNKNOWN  ||
+		   mediaPlayer.getStatus() == MediaPlayer.Status.DISPOSED || 
+		   mediaPlayer.getStatus() == MediaPlayer.Status.HALTED   ||
+		   mediaPlayer.getStatus() == MediaPlayer.Status.STALLED  ||
+		   isPreparingMedia) return false;
+		else return true;
+	}
+	
+	/**Start playing the loaded media.
+	 * @author 5som3*/
+	public void play() {
+		if(mediaPlayer != null) {
+			if(isMediaPlayerReady()) {
+				Console.ln("WarpedMediaPane -> play()");
+				mediaPlayer.play();
+				playButton.setBackground(pauseBackground);
+			} else Console.err("WarpedMediaPlayer -> play() -> mediaPlayer is not ready");
+		} else Console.err("WarpedMediaPlayer -> play() -> no media is loaded");
+	}
+	
+	/**Stop playing the loaded media and jump to the initial frame.
+	 * @author 5som3*/
+	public void stop() {
+		if(mediaPlayer != null) {
+			if(isMediaPlayerReady()) {	
+				Console.ln("WarpedMediaPane -> stop()");
+				mediaPlayer.stop();
+				playButton.setBackground(playBackground);
+			} else Console.err("WarpedMediaPlayer -> stop() -> mediaPlayer is not ready");
+		} else Console.err("WarpedMediaPlayer -> stop() -> no media is loaded");
+	}
+	
+	/**Pause playing the loaded media on the current frame
+	 * @author 5som3*/
+	public void pause() {
+		if(mediaPlayer != null) {
+			if(isMediaPlayerReady()) {				
+				Console.ln("WarpedMediaPane -> pause()");
+				mediaPlayer.pause();
+				playButton.setBackground(playBackground);
+			} else Console.err("WarpedMediaPlayer -> pause() -> mediaPlayer is not ready");
+		} else Console.err("WarpedMediaPlayer -> pause() -> no media is loaded");
+	}
+	
+	/**Unloads any media that has been loaded.
+	 * @author 5som3*/
+	public void unload() {
+		if(mediaPlayer != null) {
+			mediaPlayer.stop();
+			mediaPlayer.dispose();
+			mediaPlayer = null;
+		} else Console.err("WarpedMediaPlayer -> unload() -> no media is loaded");
+	}
+	
+	public void close() {
+		if(mediaPlayer != null) unload();
+		mediaView = null;
+		playButton = null;
+		media = null;
+		mediaBar = null;
+		playTime = null;
+		volumeSlider = null;
+	}
+	
+	/**Set the volume of the media.
+	 * @param volume - the volume to play the media. Domain 0.0 <= volume <= 1.0
+	 * @author 5som3*/
+	public void setVolume(double volume) {
+		if(mediaPlayer != null) {
+			if(isMediaPlayerReady()) {
+				if(volume < 0.0) {Console.err("WarpedMediaPlayer -> setVolume() -> volume must be greater than 0.0"); volume = 0.0;}
+				else if(volume > 1.0) {Console.err("WarpedMediaPlayer -> setVolume() -> volume must be greater than 1.0"); volume = 1.0;}
+				else mediaPlayer.setVolume(volume);
+			} else Console.err("WarpedMediaPlayer -> setVolume() -> mediaPlayer is not ready");
+		} else Console.err("WarpedMediaPlayer -> setVolume() -> no media is loaded");
+	}
+	
+	/**Jump to a specific time in the media.
+	 * @param time - the time as percentage to jump to. Domain 0.0 <= time <= 1.0.
+	 * @author 5som3*/
+	public void seek(double time) {
+		if(mediaPlayer != null) {
+			if(isMediaPlayerReady()) {
+				if(time < 0.0) {Console.err("WarpedMediaPlayer -> seek() -> time must be greater than 0.0"); time = 0.0;}
+				else if(time > 1.0) {Console.err("WarpedMediaPlayer -> seek() -> time must be less than 1.0"); time = 1.0;}
+				else mediaPlayer.seek(duration.multiply(time));
+			} else Console.err("WarpedMediaPlayer -> seek() -> mediaPlayer is not ready");
+		} else Console.err("WarpedMediaPlayer -> seek() -> mo media is loaded");
+	}
+	
+	/**Set if the media can be skipped by user.
+	 * @param isSkippable - if true the user can jump to the end of the media by clicking it.
+	 * @author 5som3*/
+	public void setSkippable(boolean isSkippable) {
+		Console.ln("WarpedMediaPane -> setSkippable() -> set to : " + isSkippable);
+		this.isSkippable = isSkippable;
+	}
+	
+	/**Set if the media should being playing as soon as it is loaded.
+	 * @param isAutoPlay - if true the media will begin playing once it is loaded else it will wait untill play() is called.
+	 * @author 5som3*/
+	public void setAutoPlay(boolean isAutoPlay) {
+		Console.ln("WarpedMediaPane -> setAutoPlay() -> set to : " + isAutoPlay);
+		this.isAutoPlay = isAutoPlay;
+	}
+	
+	/**Set if the media should be full screened as soon as it is loaded.
+	 * @param isAutoFullscreen - If true the media will be set to fullscreen borderless once it finishes loading.
+	 * @author 5som3*/
+	public void setAutoFullscreen(boolean isAutoFullscreen) {
+		Console.ln("WarpedMediaPane -> setAutoFullscreen() -> set to : + " + isAutoFullscreen);
+		this.isAutoFullscreen = isAutoFullscreen;
+	}
+	
+	/**Set an action to trigger when the media finishes playing.
+	 * @param action - the action to execute when the media is finished.
+	 * @author 5som3*/
+	public void setEndOfMediaAction(WarpedAction action) {mediaEndAction = action;}
+	
+	/**Load the media from the specified path.
+	 * @param path - the path of the media to load relative to the WF2D root directory.
+	 * @author 5som3*/
+	public void loadFrameworkMedia(String path) {
+		this.mediaPath = path;
+    
+		isPreparingMedia = true;
+		//FRAMEWORK CLASS PATH ONLY!
+		URL url = WarpedFramework2D.class.getResource(mediaPath);
+		if(url == null) {
+			Console.err("WarpedMediaPane -> loadMedia() -> could not find media at path : " + mediaPath);
+			return;
+		} else Console.ln("WarpedMediaPane -> loadMedia() -> media exists, loading url path : " + mediaPath);
+		
+		
+		URI uri = null;
+		try {
+			uri = url.toURI();
+			Console.met("WarpedMediaPane -> loadMedia() -> url was converted to uri");
+		} catch (URISyntaxException e) {
+			Console.stackTrace(e);
+		}
+		
+		if(uri == null) {
+			Console.err("WarpedMediaPane -> loadMedia() -> url could not be converted to uri");
+			return;
+			
+		}
+		
+		if(mediaPlayer != null) {
+			Console.ln("WarpedMediaPane -> loadMedia() -> unloading old media");
+			mediaPlayer.stop();
+			mediaPlayer.dispose();
+		}
+		
+		try {
+			
+			media = new Media(uri.toString());
+			Console.ln("WarpedMediaPane -> loadMedia() -> created media..");
+		} catch(MediaException  | IllegalArgumentException | UnsupportedOperationException | NullPointerException e) {
+			Console.stackTrace(e);
+		}
+		
+		if(media == null || media.getDuration().equals(Duration.ZERO)) {
+			Console.err("WarpedMediaPane -> loadMedia() -> failed to load media");
+			return;
+		} else Console.met("WarpedMediaPane -> loadMedia() -> media was loaded, setting media properties..");
+		
+		mediaPlayer = new MediaPlayer(media);  
+		mediaView.setMediaPlayer(mediaPlayer);
+		
+		Console.ln("WarpedMediaPane -> created new media player with loaded mp4");
+		
+		mediaPlayer.currentTimeProperty().addListener(new InvalidationListener() {
+			public void invalidated(Observable ov) {
+				updateValues();
+			}
+		});
+		
+		mediaPlayer.setOnPlaying(new Runnable() {
+			public void run() {
+				if (stopRequested) {
+					mediaPlayer.pause();
+					stopRequested = false;
+				} 
+			}
+		});
+		
+		
+		mediaPlayer.setOnReady(new Runnable() {
+			public void run() {
+				duration = mediaPlayer.getMedia().getDuration();
+				updateValues();
+				Console.ln("WarpedMediaPane -> loadMedia() -> Media ready");
+				Console.ln("WarpedMediaPane -> loadMedia() -> loaded mead with duration: " + duration.toMinutes() + " min");
+				isPreparingMedia = false;
+				offsetMedia();
+				if(isAutoFullscreen) parent.setFullscreen(true);
+				if(isAutoPlay) play();	            
+			}
+		});
+		
+		mediaPlayer.setCycleCount(repeat ? MediaPlayer.INDEFINITE : 1);
+		mediaPlayer.setOnEndOfMedia(new Runnable() {
+			public void run() {
+				Console.ln("WarpedMediaPane -> loadMedia -> end of media");
+				if (!repeat) {
+					stopRequested = true;
+					atEndOfMedia = true;
+					if(mediaEndAction != null) mediaEndAction.action();
+				}
+			}
+		});
+		
+		/*
+	    if(mediaPlayer.getStatus() != MediaPlayer.Status.READY) {
+	    	Console.ln("WarpedMediaPane -> loadMedia() -> preparing media..");
+	    	synchronized(this) {
+	    		try {
+	    			isPreparingMedia = true;
+	    			wait();
+	    		} catch (InterruptedException e) {
+	    			// TODO Auto-generated catch block
+	    			e.printStackTrace();
+	    		}	    		
+	    	}
+	    }
+		 */		
+	}
+	
+	
+	/**Sets up the mouse events and adds the mediaView component.
+	 * @author 5som3 */
 	private void initializePane() {
 		Console.ln("WarpedMediaPane -> initializePane()");
 		BackgroundFill backgroundFill = new BackgroundFill( Color. valueOf("#ff00ff"), new CornerRadii(10), new Insets(10) );
@@ -220,6 +469,8 @@ public class WarpedMediaPane extends BorderPane {
 		getChildren().add(mediaView);
 	}
 
+	/**Adds all subcomponents to this component.
+	 * @author 5som3*/
 	private void initializeUI() {
 		Console.ln("WarpedMediaPane -> inializeUI()");
 		
@@ -407,118 +658,6 @@ public class WarpedMediaPane extends BorderPane {
 	private String mediaPath;
 	
 	
-	public void loadFrameworkMedia(String path) {
-		this.mediaPath = path;
-		//Loaded on framework class path, probably wont work for WarpedMediaFolder, need to use the link method established in warpedImageFolder
-		Executors.newSingleThreadExecutor().execute(this::loadFrameworkMedia);    
-	}
-	
-	public void loadFrameworkMedia() {
-		isPreparingMedia = true;
-		//FRAMEWORK CLASS PATH ONLY!
-		URL url = WarpedFramework2D.class.getResource(mediaPath);
-		if(url == null) {
-			Console.err("WarpedMediaPane -> loadMedia() -> could not find media at path : " + mediaPath);
-			return;
-		} else Console.ln("WarpedMediaPane -> loadMedia() -> media exists, loading url path : " + mediaPath);
-		
-		
-		URI uri = null;
-		try {
-			uri = url.toURI();
-			Console.met("WarpedMediaPane -> loadMedia() -> url was converted to uri");
-		} catch (URISyntaxException e) {
-			Console.stackTrace(e);
-		}
-	
-		if(uri == null) {
-			Console.err("WarpedMediaPane -> loadMedia() -> url could not be converted to uri");
-			return;
-					
-		}
-		
-		if(mediaPlayer != null) {
-			Console.ln("WarpedMediaPane -> loadMedia() -> unloading old media");
-			mediaPlayer.stop();
-			mediaPlayer.dispose();
-		}
-				
-		try {
-			
-			media = new Media(uri.toString());
-			Console.ln("WarpedMediaPane -> loadMedia() -> created media..");
-		} catch(MediaException  | IllegalArgumentException | UnsupportedOperationException | NullPointerException e) {
-			Console.stackTrace(e);
-		}
-	   
-	    if(media == null || media.getDuration().equals(Duration.ZERO)) {
-	    	Console.err("WarpedMediaPane -> loadMedia() -> failed to load media");
-	    	return;
-	    } else Console.met("WarpedMediaPane -> loadMedia() -> media was loaded, setting media properties..");
-	    
-	    mediaPlayer = new MediaPlayer(media);  
-	    mediaView.setMediaPlayer(mediaPlayer);
-	    	    
-	    mediaPlayer.currentTimeProperty().addListener(new InvalidationListener() {
-	        public void invalidated(Observable ov) {
-	            updateValues();
-	        }
-	    });
-
-	    mediaPlayer.setOnPlaying(new Runnable() {
-	        public void run() {
-	            if (stopRequested) {
-	                mediaPlayer.pause();
-	                stopRequested = false;
-	            } 
-	        }
-	    });
-
-
-	    mediaPlayer.setOnReady(new Runnable() {
-	        public void run() {
-	            duration = mediaPlayer.getMedia().getDuration();
-	            updateValues();
-	            Console.ln("WarpedMediaPane -> loadMedia() -> Media ready");
-	            Console.ln("WarpedMediaPane -> loadMedia() -> loaded mead with duration: " + duration.toMinutes() + " min");
-	            synchronized(this) {
-	            	isPreparingMedia = false;
-	            	notify();
-	            	if(isAutoFullscreen) parent.setFullscreen(true);
-	            	if(isAutoPlay) play();
-	            }
-	            
-	        }
-	    });
-
-	    mediaPlayer.setCycleCount(repeat ? MediaPlayer.INDEFINITE : 1);
-	    mediaPlayer.setOnEndOfMedia(new Runnable() {
-	        public void run() {
-	            Console.ln("Entre");
-	            if (!repeat) {
-	                stopRequested = true;
-	                atEndOfMedia = true;
-	                if(mediaEndAction != null) mediaEndAction.action();
-	            }
-	        }
-	    });
-	    
-	    
-	    if(mediaPlayer.getStatus() != MediaPlayer.Status.READY) {
-	    	Console.ln("WarpedMediaPane -> loadMedia() -> preparing media..");
-	    	synchronized(this) {
-	    		try {
-	    			isPreparingMedia = true;
-	    			wait();
-	    		} catch (InterruptedException e) {
-	    			// TODO Auto-generated catch block
-	    			e.printStackTrace();
-	    		}	    		
-	    	}
-	    }
-	    offsetMedia();
-	}
-	
 	
 	protected void toggleBar() {
 		isFadeIn = false;
@@ -542,7 +681,6 @@ public class WarpedMediaPane extends BorderPane {
 		offsetMedia();
 	}
 	
-	public void setEndOfMediaAction(WarpedAction action) {mediaEndAction = action;}
 	
 	//protected void setFrameSize(int x, int y) {setFrameSize((double)x, (double)y);}
 	
@@ -555,7 +693,7 @@ public class WarpedMediaPane extends BorderPane {
 	*/
 	
 	
-	public void offsetMedia() {
+	private void offsetMedia() {
 		if(media == null || mediaPlayer == null) {
 			Console.err("WarpedMediaPane -> offsetMedia() -> media is null");
 			return;
@@ -571,13 +709,13 @@ public class WarpedMediaPane extends BorderPane {
 		int yOffset = 0;
 		
 		if(!isStretched) {			
-			if(parent.getFrameWidth() >= parent.getFrameHeight()) {
-				if(parent.getFrameWidth() > media.getWidth()) {				
-					xOffset = (int)((parent.getFrameWidth() - parent.getFrameHeight() * mediaAspectRatio) / 2.0);
+			if(parent.getWidth() >= parent.getHeight()) {
+				if(parent.getWidth() > media.getWidth()) {				
+					xOffset = (int)((parent.getWidth() - parent.getHeight() * mediaAspectRatio) / 2.0);
 				} else xOffset = 0;
 			} else {
-				if(parent.getFrameHeight() > media.getHeight()) {				
-					yOffset = (int)(parent.getFrameHeight() / 2) - (int)((parent.getFrameWidth() / mediaAspectRatio) / 2);
+				if(parent.getHeight() > media.getHeight()) {				
+					yOffset = (int)(parent.getHeight() / 2) - (int)((parent.getWidth() / mediaAspectRatio) / 2);
 				} else yOffset = 0;
 			}
 		}
@@ -588,7 +726,7 @@ public class WarpedMediaPane extends BorderPane {
 		mediaView.setLayoutY(yOffset);
 	}
 	
-	protected void updateValues() {
+	private void updateValues() {
 	    if (mediaPlayer == null || playTime == null || timeSlider == null || volumeSlider == null) {
 	    	Console.err("WarpedMediaPlayer -> updateValues() -> media pane has one or more null componenets");
 	    	return;
@@ -694,85 +832,6 @@ public class WarpedMediaPane extends BorderPane {
 	    return result;
 	}
 	
-	public boolean isMediaPlayerReady() {
-		if(mediaPlayer == null									  ||
-		   mediaPlayer.getStatus() == MediaPlayer.Status.UNKNOWN  ||
-		   mediaPlayer.getStatus() == MediaPlayer.Status.DISPOSED || 
-		   mediaPlayer.getStatus() == MediaPlayer.Status.HALTED   ||
-		   mediaPlayer.getStatus() == MediaPlayer.Status.STALLED  ||
-		   isPreparingMedia) return false;
-		else return true;
-	}
 	
-	public void play() {
-		if(mediaPlayer != null) {
-			if(isMediaPlayerReady()) {
-				Console.ln("WarpedMediaPane -> play()");
-				mediaPlayer.play();
-				playButton.setBackground(pauseBackground);
-			} else Console.err("WarpedMediaPlayer -> play() -> mediaPlayer is not ready");
-		} else Console.err("WarpedMediaPlayer -> play() -> no media is loaded");
-	}
-	
-	public void stop() {
-		if(mediaPlayer != null) {
-			if(isMediaPlayerReady()) {	
-				Console.ln("WarpedMediaPane -> stop()");
-				mediaPlayer.stop();
-				playButton.setBackground(playBackground);
-			} else Console.err("WarpedMediaPlayer -> stop() -> mediaPlayer is not ready");
-		} else Console.err("WarpedMediaPlayer -> stop() -> no media is loaded");
-	}
-	
-	public void pause() {
-		if(mediaPlayer != null) {
-			if(isMediaPlayerReady()) {				
-				Console.ln("WarpedMediaPane -> pause()");
-				mediaPlayer.pause();
-				playButton.setBackground(playBackground);
-			} else Console.err("WarpedMediaPlayer -> pause() -> mediaPlayer is not ready");
-		} else Console.err("WarpedMediaPlayer -> pause() -> no media is loaded");
-	}
-	
-	public void unload() {
-		if(mediaPlayer != null) {
-			mediaPlayer.stop();
-			mediaPlayer.dispose();
-			mediaPlayer = null;
-		} else Console.err("WarpedMediaPlayer -> unload() -> no media is loaded");
-	}
-	
-	public void setVolume(double volume) {
-		if(mediaPlayer != null) {
-			if(isMediaPlayerReady()) {
-				if(volume < 0.0) {Console.err("WarpedMediaPlayer -> setVolume() -> volume must be greater than 0.0"); volume = 0.0;}
-				else if(volume > 1.0) {Console.err("WarpedMediaPlayer -> setVolume() -> volume must be greater than 1.0"); volume = 1.0;}
-				else mediaPlayer.setVolume(volume);
-			} else Console.err("WarpedMediaPlayer -> setVolume() -> mediaPlayer is not ready");
-		} else Console.err("WarpedMediaPlayer -> setVolume() -> no media is loaded");
-	}
-	
-	public void seek(double time) {
-		if(mediaPlayer != null) {
-			if(isMediaPlayerReady()) {
-				if(time < 0.0) {Console.err("WarpedMediaPlayer -> seek() -> time must be greater than 0.0"); time = 0.0;}
-				else if(time > 1.0) {Console.err("WarpedMediaPlayer -> seek() -> time must be less than 1.0"); time = 1.0;}
-				else mediaPlayer.seek(duration.multiply(time));
-			} else Console.err("WarpedMediaPlayer -> seek() -> mediaPlayer is not ready");
-		} else Console.err("WarpedMediaPlayer -> seek() -> mo media is loaded");
-	}
-		
-	public void setSkippable(boolean isSkippable) {
-		Console.ln("WarpedMediaPane -> setSkippable() -> set to : " + isSkippable);
-		this.isSkippable = isSkippable;
-	}
-	public void setAutoPlay(boolean isAutoPlay) {
-		Console.ln("WarpedMediaPane -> setAutoPlay() -> set to : " + isAutoPlay);
-		this.isAutoPlay = isAutoPlay;
-	}
-	public void setAutoFullscreen(boolean isAutoFullscreen) {
-		Console.ln("WarpedMediaPane -> setAutoFullscreen() -> set to : + " + isAutoFullscreen);
-		this.isAutoFullscreen = isAutoFullscreen;
-	}
 	
 }

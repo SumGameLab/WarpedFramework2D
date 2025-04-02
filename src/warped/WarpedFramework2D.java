@@ -54,8 +54,10 @@ public abstract class WarpedFramework2D {
 		Console.ln("WarpedFramework2D -> startFramework() -> starting : ");
 		Console.setLogging(true);
 		FrameworkSprites.loadMediaPlayerSprites();
+		
 		mediaPlayer = new WarpedMediaPlayer(false);
 		mediaPlayer.setFixedSize(1920, 1080);
+		mediaPlayer.setVolume(0.75);
 		mediaPlayer.setAutoFullscreen(true);
 		mediaPlayer.setAutoPlay(true);
 		mediaPlayer.setSkippable(true);
@@ -63,6 +65,7 @@ public abstract class WarpedFramework2D {
 			window.setVisible(true);
 			mediaPlayer.setVisible(false);
 			mediaPlayer.unload();
+			mediaPlayer.close();
 		});
 		mediaPlayer.loadMP4("/framework/graphics/warped_framework.mp4");
 		
@@ -143,6 +146,7 @@ public abstract class WarpedFramework2D {
 		Console.ln("WarpedFramework -> startApplication()");
 		app.startApplication();
 		WarpedState.play();
+		
 	}
 	
 	/**Stop the application and close the framework.

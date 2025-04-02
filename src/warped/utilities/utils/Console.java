@@ -75,6 +75,7 @@ public abstract class Console {
 	private static Scanner scanner = new Scanner(System.in);
 	private static boolean isLogging = false;
 	private static Timer consoleTimer = new Timer("Timer Thread : Console");
+	
 	private static TimerTask logTask = new TimerTask(){public void run() {updateLog();}};
 	private static TimerTask input = new TimerTask() {public void run() {executeCommand(scanner.nextLine());};};
 

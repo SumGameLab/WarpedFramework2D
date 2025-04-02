@@ -19,7 +19,7 @@ public class BezierCurveObject {
 	protected double increment = 0.01;
 	private int frequency = 40;
 	
-	private static Timer bezierTimer = new Timer();
+	private static Timer bezierTimer = new Timer("Timer Thread : Bezier Timer");
 	private TimerTask updateTask;
 	
 	private WarpedAction complete = () -> {return;};

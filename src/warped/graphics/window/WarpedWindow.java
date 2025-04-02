@@ -20,7 +20,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
@@ -32,6 +31,7 @@ import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.user.WarpedUserInput;
 import warped.user.mouse.WarpedMouseEvent;
+import warped.utilities.WarpedThreadFactory;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
@@ -85,7 +85,7 @@ public class WarpedWindow extends Canvas {
 	private static boolean isFullScreen = false;
 	
 	private static ScheduledExecutorService executor;
-	private static Timer loadTimer = new Timer();
+	private static Timer loadTimer = new Timer("Timer Thread : Load Timer");
 	private static TimerTask updateLoadGraphics = new TimerTask(){public void run() {renderLoadscreen();}};
 	private static WindowListener stopListener = new WindowAdapter() {@Override public void windowClosing(WindowEvent e) {WarpedFramework2D.stop();}};	
 	
@@ -346,6 +346,7 @@ public class WarpedWindow extends Canvas {
 		viewPorts = new WarpedViewport[ports.length];
 		updateLoadGraphics.cancel();
 		loadTimer.cancel();
+		fxPanel = null;
 		updateLoadGraphics = null;
 		loadTimer = null;
 		for(int i = 0; i < ports.length; i++) {
@@ -360,7 +361,7 @@ public class WarpedWindow extends Canvas {
 	 * @author SomeKid */
 	public synchronized void stop() {
 		Console.ln("WarpedWindow -> stop()");
-		if(executor != null) executor.close();		
+		if(executor != null) executor.shutdown();		
 		else Console.err("WarpedWindow -> stop() -> executor is already null");
 		closeFrame();
 	}
@@ -557,21 +558,8 @@ public class WarpedWindow extends Canvas {
 			Console.err("WarpedWindow -> startExecutor() -> the load screen is still being rendered, ");
 			return;
 		}
-		// Creating a custom ThreadFactory to name the threads
-	    ThreadFactory windowThread = new ThreadFactory() {
-	    private static int count = 0;
-	    
-	      @Override
-	      public Thread newThread(Runnable r) {
-	    	Thread thread = new Thread(r);
-	    	if(count == 0) thread.setName("Window Thread");
-	    	else thread.setName("Viewport Thread : " + count);
-	        count++;
-	        return thread;
-	      }
-	    };
-	      
-		executor = Executors.newScheduledThreadPool(viewPorts.length + 2, windowThread);
+	
+		executor = Executors.newScheduledThreadPool(viewPorts.length + 1, new WarpedThreadFactory("Window Thread"));
 		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
 		for(int i = 0; i < viewPorts.length; i++) {			
 			executor.scheduleAtFixedRate(viewPorts[i]::update, 0, 16666666, TimeUnit.NANOSECONDS);
