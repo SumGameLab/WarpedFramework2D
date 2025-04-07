@@ -104,7 +104,7 @@ public class PropProjectile extends WarpedEntitie {
 		this.proximityTarget = proximityTarget;
 		this.visibilityDelay = visibilityDelay;
 		this.isVisibilityDelayed = true;
-		invisible();
+		setVisible(true);
 		lifeType = LifeType.PROXIMITY_TARGET;
 	}
 	
@@ -140,7 +140,7 @@ public class PropProjectile extends WarpedEntitie {
 				kill(); 
 			} else {
 				double distanceTraveled = startPosition.getAngleBetweenVectors(getPosition()); 
-				if(isVisibilityDelayed && !isVisible && distanceTraveled > visibilityDelay) visible();
+				if(isVisibilityDelayed && !isVisible && distanceTraveled > visibilityDelay) setVisible(true);
 				if(distanceTraveled > distanceOut) kill(); 
 			}
 			break;

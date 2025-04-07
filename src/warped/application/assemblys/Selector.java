@@ -78,9 +78,9 @@ public class Selector extends WarpedAssembly {
 		}
 		
 		optionButtons.setOptions(options);
-		if(WarpedMouse.getPoint().y + optionButtons.getMenuSize().y() > WarpedWindow.getWindowHeight()) optionButtons.setPosition(WarpedMouse.getPoint().x - 60, WarpedMouse.getPoint().y + 15 - optionButtons.getSize().y());
+		if(WarpedMouse.getPoint().y + optionButtons.getWidth() > WarpedWindow.getWindowHeight()) optionButtons.setPosition(WarpedMouse.getPoint().x - 60, WarpedMouse.getPoint().y + 15 - optionButtons.getHeight());
 		else optionButtons.setPosition(WarpedMouse.getPoint().x - 60, WarpedMouse.getPoint().y - 15);
-		optionButtons.visible();
+		optionButtons.setVisible(true);
 		open();
 	}	
 	

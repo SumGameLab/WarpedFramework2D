@@ -59,6 +59,11 @@ public abstract class WarpedGUI extends WarpedObject {
 	 * @return double - the offset x coordinate in pixels 
 	 * @author 5som3*/
 	public double getOffsetY() {return offset.y();}
+
+	/**Set if the GUI can be dragged with the mouse.
+	 * @param isDraggable - if true the GUI will be able to be dragged with the mouse.
+	 * @author 5som3*/
+	public void setDragable(boolean isDraggable) {this.isDraggable = isDraggable;}
 	
 	@Override
 	public void updateObject() {return;}
@@ -72,9 +77,8 @@ public abstract class WarpedGUI extends WarpedObject {
 	@Override
 	public void updatePassive() {return;};
 	
-	public final void draggable()   {isDraggable = true;}
-	public final void undraggable() {isDraggable = false;}
-	
+
+
 	
 }
 

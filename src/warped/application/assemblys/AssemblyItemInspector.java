@@ -65,7 +65,7 @@ public class AssemblyItemInspector extends WarpedAssembly {
 		
 		background.addRectangle(backgroundRect, Colour.GREY_DARK.getColor());
 		
-		title.draggable();
+		title.setDragable(true);
 		title.setDraggedAction(() -> {
 			WarpedState.guiManager.getGroup(groupID).forEach(i -> {		
 				i.offset(title);

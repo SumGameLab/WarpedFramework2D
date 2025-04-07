@@ -121,83 +121,29 @@ public abstract class WarpedObject {
 	 * 		-will be removed from the group at the end of the next cycle
 	 * @author SomeKid*/
 	public void kill() {isAlive = false;}
-	
-	/**Will receive mouse events even when the game state is paused.
-	 * 		Typically Warped Objects will not receive mouse events when the GameState is paused
-	 * 		There are times when an object needs to receive mouse events even when the game is paused, 
-	 * 		i.e. a button that pauses the GameState needs to receive mouse events once it has paused the state.
-	 * @deprecated - use setExpress(), expressMouseEvents() and standardMouseEvents() will be removed. 
-	 * @author SomeKid*/
-	public final void expressMouseEvents()  {isExpressEvents = true;}
-	
-	/**When the game state is paused will not receive mouse events.
-	 * 		Typically Warped Objects will not receive mouse events when the GameState is paused
-	 * 		There are times when an object needs to receive mouse events even when the game is paused, 
-	 * 		i.e. a button that pauses the GameState needs to receive mouse events once it has paused the state.
-	 * @deprecated - use setExpress(), expressMouseEvents() and standardMouseEvents() will be removed. 
-	 * @author SomeKid*/
-	public final void standardMouseEvents() {isExpressEvents = false;}
-	
+		
 	/**Express objects will be able to interact with the mouse event when the WarpedState is paused.
 	 * @param isExpressEvents - if true will interact with mouse when updates are paused else will not receive mouse events when updates are paused.
+	 * @apiNote Will receive mouse events even when the game state is paused.
 	 * @author 5som3*/
 	public final void setExpress(boolean isExpressEvents) {this.isExpressEvents = isExpressEvents;}
-	
-	/**Make the object visible
-	 * Invisible Objects
-	 * 		- will receive update events
-	 * 		- will not receive mouse events
-	 * 		- will not be drawn
-	 * @deprecated - use setVisible(), visible() and invisible() are to be removed.
-	 * @author SomeKid*/
-	public final void visible()   {isVisible = true;}
-	
-	/**Make the object invisible
-	 * Invisible Objects
-	 * 		- will receive update events
-	 * 		- will not receive mouse events
-	 * 		- will not be drawn
-	 * @deprecated - use setVisible(), visible() and invisible() are to be removed.
-	 * @author SomeKid*/
-	public final void invisible() {isVisible = false;}
-	
+		
 	/**Set the visibility of this object
 	 * @param isVisible - if true the object will be visible else it will be invisible;
+	 * @apiNote Invisible Objects : receive update events, NOT receive mouse events, NOT not be drawn
 	 * @implNote It's only possible for the mouse to interact with objects that are rendered.
 	 * @implNote Any invisible object will also by definition not be able to be interact with the mouse.
 	 * @author 5som3*/
 	public final void setVisible(boolean isVisible) {this.isVisible = isVisible;}
 	
 	/**Swap the state of invisibility - if visible will become invisible, if invisible will become visible
-	 * Invisible Objects
-	 * 		- will receive update events
-	 * 		- will not receive mouse events
-	 * 		- will not be drawn
+	 * @apiNote Invisible Objects : receive update events, NOT receive mouse events, NOT not be drawn
 	 * @author SomeKid*/
 	public final void toggleVisibility() {if(isVisible) isVisible = false; else isVisible = true;}
-	
-	/**Makes the object Interactive
-	 * Interactivity specifically only refers to mouse interactivity i.e. hoverable, clickable, draggable
-	 * Objects that aren't Interactive
-	 * 		- will receive update events
-	 * 		- will not receive mouse events
-	 * 		- will be drawn
-	 * @deprecated - use setInteractive(). ateractive() and interactive() are to be removed. 
-	 * @author SomeKid*/
-	public final void interactive() {isInteractive = true;}
-	
-	/**Makes the object non-interactive (ateractive)
-	 * Interactivity specifically only refers to mouse interactivity i.e. hoverable, clickable, draggable
-	 * Objects that aren't Interactive
-	 * 		- will receive update events
-	 * 		- will not receive mouse events
-	 * 		- will be drawn 
-	 * @deprecated - use setInteractive(). ateractive() and interactive() are to be removed.
-	 * @author SomeKid*/
-	public final void ateractive() {isInteractive = false;}
-	
+
 	/**Set whether the object can interact with the mouse.
-	 * @param isInteractive - If true the object will interact with the mouse else it will not recieve mouse events.
+	 * @param isInteractive - If true the object will interact with the mouse else it will not receive mouse events.
+	 * @apiNote Objects that aren't Interactive : will receive update events, will not receive mouse events, will be drawn.
 	 * @author 5som3*/
 	public final void setInteractive(boolean isInteractive) {this.isInteractive = isInteractive;}
 	

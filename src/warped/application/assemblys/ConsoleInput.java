@@ -29,6 +29,7 @@ public class ConsoleInput extends WarpedAssembly {
 			Console.executeCommand(line);
 			inputLine.setInputState(true);
 		});
+		inputLine.setMaxCharacters(150);
 	}
 
 	@Override

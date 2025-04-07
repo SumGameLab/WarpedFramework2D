@@ -54,60 +54,41 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 
 
 	
-	private void aInvisible() {
+	private void aSetVisible(boolean isVisible) {
 		//isAVisible = false;
-		aTitle.invisible();         
-		aClose.invisible();         
-		aSortAlphabet.invisible();  
-		aSortMass.invisible();      
-		aSortQuantity.invisible();  
-		aSortValue.invisible();     
-		aInvent.invisible();        
+		aTitle.setVisible(isVisible);         
+		aClose.setVisible(isVisible);         
+		aSortAlphabet.setVisible(isVisible);  
+		aSortMass.setVisible(isVisible);      
+		aSortQuantity.setVisible(isVisible);  
+		aSortValue.setVisible(isVisible);     
+		aInvent.setVisible(isVisible);        
 	}
-	private void aVisible() {
-		//isAVisible = true;
-		aTitle.visible();         
-		aClose.visible();         
-		aSortAlphabet.visible();  
-		aSortMass.visible();      
-		aSortQuantity.visible();  
-		aSortValue.visible();     
-		aInvent.visible();        
-	}
-	private void bInvisible() {
+
+	private void bSetVisible(boolean isVisible) {
 		//isBVisible = false;
-		bTitle.invisible();         
-		bClose.invisible();         
-		bSortAlphabet.invisible();
-		bSortMass.invisible();      
-		bSortQuantity.invisible();  
-		bSortValue.invisible();     
-		bInvent.invisible();        
-	}
-	private void bVisible() {
-		//isBVisible = true;
-		bTitle.visible();         
-		bClose.visible();         
-		bSortAlphabet.visible();  
-		bSortMass.visible();      
-		bSortQuantity.visible();  
-		bSortValue.visible();     
-		bInvent.visible();        
+		bTitle.setVisible(isVisible);         
+		bClose.setVisible(isVisible);         
+		bSortAlphabet.setVisible(isVisible);
+		bSortMass.setVisible(isVisible);      
+		bSortQuantity.setVisible(isVisible);  
+		bSortValue.setVisible(isVisible);     
+		bInvent.setVisible(isVisible);        
 	}
 	
 	public void selectInventoryA(WarpedGroupIdentity inventID) {
-		aVisible();
-		bInvisible();
+		aSetVisible(true);
+		bSetVisible(false);
 		aInvent.selectInventory(inventID);
 	}
 	public void selectInventoryB(WarpedGroupIdentity inventID) {
-		bVisible();
-		aInvisible();
+		bSetVisible(true);
+		aSetVisible(false);
 		bInvent.selectInventory(inventID);
 	}
 	public void selectInventorys(WarpedGroupIdentity aInventID, WarpedGroupIdentity bInventID) {
-		aVisible();
-		bVisible();
+		aSetVisible(true);
+		bSetVisible(true);
 		aInvent.selectInventory(aInventID); 
 		bInvent.selectInventory(bInventID);
 	}
@@ -143,7 +124,7 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 			});			
 		});
 		
-		aClose.setReleasedAction(mouseE -> {aInvisible();});
+		aClose.setReleasedAction(mouseE -> {aSetVisible(false);});
 		
 		aSortAlphabet.setReleasedAction(mouseE -> {
 			if(aAlphabetState == SORT_ASSENDING) {
@@ -191,7 +172,7 @@ public class AssemblyInventoryInspector extends WarpedAssembly {
 			});			
 		});
 		
-		bClose.setReleasedAction(mouseE -> {bInvisible();});
+		bClose.setReleasedAction(mouseE -> {bSetVisible(false);});
 		
 		bSortAlphabet.setReleasedAction(mouseE -> {
 			if(bAlphabetState == SORT_ASSENDING) {

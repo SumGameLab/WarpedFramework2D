@@ -27,7 +27,7 @@ public class EntitieProjectile extends WarpedEntitie {
 	private List<WarpedGroupIdentity> collisionGroups;
 	
 	public EntitieProjectile(ProjectileType type, WarpedEntitie parent, VectorD velocity, List<WarpedGroupIdentity> collisionGroups) {
-		ateractive();
+		setInteractive(false);
 		this.parent = parent;
 		this.type = type;
 		this.velocity = velocity;

@@ -123,6 +123,7 @@ public abstract class Console {
 	 * @param key - the key of the command to execute.
 	 * @author 5som3*/
 	public static void executeCommand(String key) {
+		Console.condition("Console -> executeCommand() -> attempting to execute : " + key);
 		if(key == null || key.equals("")) {
 			Console.err("Console -> executeCommand() -> invalid command");
 			return;

@@ -10,44 +10,70 @@ import warped.application.state.WarpedState;
 import warped.functionalInterfaces.WarpedAction;
 import warped.utilities.utils.Console;
 
-public abstract class WarpedKeyboardController implements WarpedKeyboardActions {
+public abstract class WarpedKeyboardController  {
+	
+	
+
+	protected String name = "Default Controller";
+	
+	protected HashMap<Integer, WarpedKeyBind> keyBinds = new HashMap<>(); //Keybinds have exclusive keys, each key can be bound to only one of these actions
+	protected ArrayList<WarpedKeyBind> hotBinds = new ArrayList<>(); //Hotbinds are NOT exclusive, a key may have multiple hot binds that will all trigger when pressed
+
+	
+	
+	/**The name of this controller, only used for debug in the framework inspector.
+	 * @param name - the name to display in the inspector for this controller.
+	 * @author 5som3*/
+	public void setName(String name) {this.name = name;}
+	
+	/**Get the name for this controller.
+	 * @return String - the name.
+	 * @author 5som3*/
+	public String getName() {return name;}
+	
+	/**Get the keybinds for this controller.
+	 * @return HashMap<Integer, WarpedKeyBind> - the keybindings.
+	 * @author 5som3*/
+	public HashMap<Integer, WarpedKeyBind> getKeybinds(){return keyBinds;}
+	
+	/**Get the hotbinds for this controller.
+	 * @return ArrayList<WarpedKeyBind> - the hotbinds.
+	 * @author 5som3*/
+	public ArrayList<WarpedKeyBind> getHotBinds(){return hotBinds;}
+	
+	/**The number of hotbinds on the controller.
+	 * @return int - the hotbind count.
+	 * @author 5som3*/
+	public int getHotBindCount() {return hotBinds.size();}
+	
+	/**The number of hotbinds on the controller.
+	 * @return int - the hotbind count.
+	 * @author 5som3*/
+	public int getKeyBindCount() {return keyBinds.size();}
 	
 	/**
-	 * HotBinds - 15/5/24 
 	 * */
-	protected String name = "Default Controller";
-	protected WarpedControllerType type;
-	
-	protected WarpedKeyboardController() {};
-	
-	protected HashMap<Integer, WarpedKeyBind<?>> keyBinds = new HashMap<>(); //Keybinds have exclusive keys, each key can be bound to only one of these actions
-	protected ArrayList<WarpedKeyBind<?>> hotBinds = new ArrayList<>(); //Hotbinds are NOT exclusive, a key may have multiple hot binds that will all trigger when pressed
-
-	public void setName(String name) {this.name = name;}
-	public String getName() {return name;}
-	public HashMap<Integer, WarpedKeyBind<?>> getKeybinds(){return keyBinds;}
-	public ArrayList<WarpedKeyBind<?>> getHotBinds(){return hotBinds;}
-	public int getHotBindCount() {return hotBinds.size();}
-	public int getKeyBindCount() {return keyBinds.size();}
-	public WarpedControllerType getType() {return type;}
-	
+	public boolean isKeyBound(int key) {if(keyBinds.containsKey(key)) return true; else return false;}
+	/*
 	public boolean isKeyListening() {
 		 for(Map.Entry<Integer, WarpedKeyBind<?>> set : keyBinds.entrySet()) {
 			 if(set.getValue().isListening) return true;
          }
 		 return false;
 	}	
-	public boolean isKeyBound(int key) {if(keyBinds.containsKey(key)) return true; else return false;}
 	public void stopListening() {
 		for(Map.Entry<Integer, WarpedKeyBind<?>> set : keyBinds.entrySet()) {
 			 set.getValue().stopListening();
         }		
 	}
+	*/
+	/**Restore all bindings on the controller to their default keys.
+	 * @author 5som3*/
 	public void restoreDefaultKeys() {
-		HashMap<Integer, WarpedKeyBind<?>> binds = new HashMap<>();
+		HashMap<Integer, WarpedKeyBind> binds = new HashMap<>();
 		
-		for(Map.Entry<Integer, WarpedKeyBind<?>> set : keyBinds.entrySet()){
-			WarpedKeyBind<?> bind = set.getValue();
+		for(Map.Entry<Integer, WarpedKeyBind> set : keyBinds.entrySet()){
+			WarpedKeyBind bind = set.getValue();
 			bind.restoreDefaultKey();
 			binds.put(bind.getKey(), bind);
 		}	
@@ -58,11 +84,21 @@ public abstract class WarpedKeyboardController implements WarpedKeyboardActions 
 	//--------
 	//---------------- Button --------
 	//-------
+	
+	/**Activate the press action for any bindings with the specified key.
+	 * @param key - press action for bindings with this key.
+	 * @author 5som3*/
 	public void pressKey(int key) {
+		//Console.ln("WarpedKeyboardController -> " + name + " -> pressKey() -> " + key);
 		if(keyBinds.containsKey(key)) keyBinds.get(key).press();
 		hotBinds.forEach(b -> {if(b.key == key) b.press();});
 	}
+	
+	/**Activate the release action for any bindings with the specified key.
+	 * @param key - release action for bindings with this key.
+	 * @author 5som3*/
 	public void releaseKey(int key) {
+	//	Console.ln("WarpedKeyboardController -> " + name + " -> releaseKey() -> " + key);
 		if(keyBinds.containsKey(key)) keyBinds.get(key).release();
 		hotBinds.forEach(b -> {if(b.key == key) b.release();});
 	}
@@ -71,9 +107,9 @@ public abstract class WarpedKeyboardController implements WarpedKeyboardActions 
 	//---------------- Clear Bindings --------
 	//-------
 	public void clearBindings() {keyBinds.clear();}
-	public void clearKeyBindPress(Integer key) {keyBinds.get(key).pressAction = null;}
-	public void clearKeyBindRelease(Integer key){keyBinds.get(key).releaseAction = null;}
-	public void clearBinding(Integer key) {
+	public void clearKeyBindPress(int key) {keyBinds.get(key).pressAction = null;}
+	public void clearKeyBindRelease(int key){keyBinds.get(key).releaseAction = null;}
+	public void clearBinding(int key) {
 		clearKeyBindPress(key);
 		clearKeyBindRelease(key);
 	}
@@ -81,7 +117,7 @@ public abstract class WarpedKeyboardController implements WarpedKeyboardActions 
 	//--------
 	//---------------- KeyBinds --------
 	//-------
-	public void addKeyBind(WarpedKeyBind<?> keyBind) {
+	public void addKeyBind(WarpedKeyBind keyBind) {
 		if(keyBinds.containsKey(keyBind.getKey())) {
 			Console.err("WarpedController -> addKeyBind() -> controller already contains binding for key : " + keyBind.key);
 			return;
@@ -136,15 +172,7 @@ public abstract class WarpedKeyboardController implements WarpedKeyboardActions 
 	//---------------- HotBinds --------
 	//-------
 	
-	public void addHotBind(WarpedKeyBind<?> bind) {
-		for(int i = 0; i < hotBinds.size(); i++) {
-			WarpedKeyBind<?> b = hotBinds.get(i);
-			if(bind.getBound() == null || b.getBound() == null) break;
-			if(bind.getBound().equals(b.getBound())){
-				WarpedState.notify.note("Already bound to HotBar");
-				return;
-			}
-		}
+	public void addHotBind(WarpedKeyBind bind) {
 		Console.ln("WarpedKeyboardController -> addHotBind() -> adding binding " + bind.name + " , on key : " + bind.key);
 		hotBinds.add(bind);
 	}

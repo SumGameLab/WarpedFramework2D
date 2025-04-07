@@ -17,7 +17,6 @@ public class WarpedUserInput {
 		public void run() {
 			long cycleStartTime = System.nanoTime();
 			mouse.update();
-			keyboard.update();
 			updateDuration = System.nanoTime() - cycleStartTime;
 		}
 	};

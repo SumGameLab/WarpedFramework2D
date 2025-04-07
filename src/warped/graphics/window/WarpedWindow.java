@@ -2,12 +2,15 @@
 
 package warped.graphics.window;
 
+import java.awt.AWTException;
+import java.awt.BufferCapabilities;
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.ImageCapabilities;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.WindowAdapter;
@@ -116,6 +119,8 @@ public class WarpedWindow extends Canvas {
 	
 	private static Object[] renderHints = new Object[6];
 	
+	private static short fps = 0;
+	
 	public enum RenderHints {
 		RENDERING, 			
 		COLOR,               
@@ -159,14 +164,16 @@ public class WarpedWindow extends Canvas {
 		addMouseMotionListener(WarpedUserInput.mouse);
 		addMouseWheelListener(WarpedUserInput.mouse);
 		initializeFrame(true);
-		
-		createBufferStrategy(2);
+
+		setBackground(Color.BLACK);
+				
+		try {createBufferStrategy(3, new BufferCapabilities(new ImageCapabilities(true),  new ImageCapabilities(true), BufferCapabilities.FlipContents.BACKGROUND));}
+		catch (AWTException e) {Console.stackTrace(e);}
 		bs = getBufferStrategy();
-        
-		viewPorts[0] = new WarpedViewport("Default", WarpedManagerType.GUI, 0, 0, width, height);
+
+		viewPorts[0] = new WarpedViewport("Default", WarpedManagerType.GUI, 0, 0, width, height); 
 				
         loadTimer.scheduleAtFixedRate(updateLoadGraphics, 0, 16);
-
 	}
 	
 
@@ -209,6 +216,12 @@ public class WarpedWindow extends Canvas {
 		initializeFrame(isFullScreen);
 		setVisible(true);
 				
+	}
+	
+	public final static short getFPS() {
+		short val = fps;
+		fps = 0;
+		return val;		
 	}
 	
 	/**Set the visibility of the JFrame.
@@ -471,6 +484,7 @@ public class WarpedWindow extends Canvas {
 		long cycleStartTime = System.nanoTime();
 		renderViewports();
 		dispatchMouseEvent();
+		fps++;
 		updateDuration = System.nanoTime() - cycleStartTime;
 	}
 

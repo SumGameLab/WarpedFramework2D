@@ -65,6 +65,8 @@ public class WarpedViewport {
 	private BufferedImage[] rasterBuffer;
 	private static int bufferSize;
 	private int bufferIndex = 0;
+	
+	private short fps = 0;
 
 	public WarpedMouseEvent mouseEvent;
 	
@@ -164,7 +166,33 @@ public class WarpedViewport {
 		setRenderMethod(RenderType.ACTIVE);
 		
 	}
+	
+	public WarpedViewport(String name, WarpedManagerType target, RenderType renderType) {
+		this.name = name;
+		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
+		//viewportTimer = new Timer("WarpedViewport : " + name);
+		this.size = new VectorI(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight());
+		this.position = new VectorI(); 
+		this.target = WarpedState.getManager(target);;
+		this.camera = WarpedState.cameraManager.getDefaultCamera(target);
+		camera.setCornerPins(0, 0, size.x(), size.y());
+		
+		Console.ln("WarpedViewPort -> " + name + " Constructing..");
+		
+		rasterBuffer = new BufferedImage[bufferSize];
+		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		pushGraphics();
+		setDefaultRenderHints();
+		setRenderMethod(renderType);
+		
+	}
 
+	public final short getFPS() {
+		short val = fps;
+		fps = 0;
+		return val;
+	}
+	
 	/**DO NOT CALL - this method is scheduled for automatic execution by the WarpedWindow.
 	 * @implNote redraws the viewport based on the current target / targets.
 	 * @author SomeKid*/
@@ -172,6 +200,7 @@ public class WarpedViewport {
 		long cycleStartTime = System.nanoTime();
 		camera.update();
 		render();
+		fps++;
 		updateDuration = System.nanoTime() - cycleStartTime;		
 	}
 	

@@ -83,7 +83,7 @@ public class InspectorObject extends WarpedAssembly {
 		renderPositionLabel.setLabelSize(120, 30);
 		renderSizeLabel.setLabelSize(120, 30);
 		
-		title.draggable();
+		title.setDragable(true);
 		title.setDraggedAction(() -> {
 			WarpedState.guiManager.getGroup(groupID).forEach(i -> {
 				i.offset(title);

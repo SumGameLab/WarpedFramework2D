@@ -11,6 +11,7 @@ import java.util.Map;
 import warped.WarpedFramework2D;
 import warped.application.actionWrappers.ActionOption;
 import warped.application.gui.GUIButton;
+import warped.application.gui.GUIListVertical;
 import warped.application.gui.GUIPopOutMenu;
 import warped.application.gui.GUIRadioButtons;
 import warped.application.gui.GUIShape;
@@ -136,6 +137,8 @@ public class InspectorFramework extends WarpedAssembly {
 	private Rectangle left 	 = new Rectangle(0,0, 2, WarpedWindow.getWindowHeight());
 	private Rectangle right  = new Rectangle(WarpedWindow.getWindowWidth() - 2, 0, 2, WarpedWindow.getWindowHeight());
 
+	private GUIListVertical keybinds = new GUIListVertical();
+	
 	public InspectorFramework(WarpedManagerType type) {
 		super(type);		
 	}
@@ -147,6 +150,7 @@ public class InspectorFramework extends WarpedAssembly {
 		next.setOffset(refresh.getOffsetX() - 30, 0);
 		previous.setOffset(next.getOffsetX() - 30, 0);
 		pages.setOffset(previous.getOffsetX() - 90, 0);
+		keybinds.setOffset(10, 40);
 		
 		managerText.setOffset(5, 35);
 		
@@ -160,6 +164,7 @@ public class InspectorFramework extends WarpedAssembly {
 		managerText.offset(title);
 		refresh.offset(title);
 		pages.offset(title);
+		keybinds.offset(title);
 		
 		resolution.offset(title);
 		exit.offset(title);
@@ -185,7 +190,7 @@ public class InspectorFramework extends WarpedAssembly {
 		exit.setReleasedAction(mouseE -> {WarpedFramework2D.stop();});
 		resolution.setAxis(AxisType.HORIZONTAL);
 		
-		title.draggable();
+		title.setDragable(true);
 		title.setDraggedAction(() -> {
 			WarpedState.guiManager.getGroup(groupID).forEach(i -> {
 				if(!i.isEqualTo(screenParameters)) {
@@ -193,6 +198,8 @@ public class InspectorFramework extends WarpedAssembly {
 				}				
 			});			
 		});
+		
+		keybinds.setListSize(400, 400);
 		
 		ArrayList<ActionOption> pageOptions = new ArrayList<>();
 		pageOptions.add(new ActionOption(FrameworkInspectorPage.AUDIO.toString(), () -> {page = FrameworkInspectorPage.AUDIO; updatePage();}));
@@ -227,7 +234,7 @@ public class InspectorFramework extends WarpedAssembly {
 			});
 		  
 		
-		managerText.ateractive();
+		managerText.setInteractive(true);
 		updatePage();	
 		
 		
@@ -249,6 +256,7 @@ public class InspectorFramework extends WarpedAssembly {
 	private void hideButtons() {
 		resolution.setVisible(false);
 		exit.setVisible(false);
+		keybinds.setVisible(false);
 	}
 	
 	private void updatePage() {
@@ -266,22 +274,22 @@ public class InspectorFramework extends WarpedAssembly {
 			showButtons();
 			break;
 		case WARPED_FRAMEWORK:
-			managerText.setTextLine(line, "Threads - Update Duration : (target frequency, ms per cycle)", Color.YELLOW); line += 2;
+			managerText.setTextLine(line, "Threads : (Target Hz, Measured Hz, Millis per cycle)", Color.YELLOW); line += 2;
 			managerText.setTextLine(line, "---WarpedState---", Color.YELLOW);	line ++;
-			managerText.setTextLine(line, "Active  : (58 per second, " + UtilsMath.round(WarpedState.getActiveCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line ++;
-			managerText.setTextLine(line, "Mid     : (1 per second,  " + UtilsMath.round(WarpedState.getMidCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line ++;
-			managerText.setTextLine(line, "Slow    : (1 per minute,  " + UtilsMath.round(WarpedState.getSlowCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line ++;
-			managerText.setTextLine(line, "Passive : (1 per hour,    " + UtilsMath.round(WarpedState.getPassiveCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line += 2;
+			managerText.setTextLine(line, "Active  : (58 Hz, " + WarpedState.getCycleCount() + ", " + UtilsMath.round(WarpedState.getActiveCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line ++;
+			managerText.setTextLine(line, "Mid     : (1 per second, n.a, " + UtilsMath.round(WarpedState.getMidCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line ++;
+			managerText.setTextLine(line, "Slow    : (1 per minute, n.a, " + UtilsMath.round(WarpedState.getSlowCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line ++;
+			managerText.setTextLine(line, "Passive : (1 per hour,  n.a, " + UtilsMath.round(WarpedState.getPassiveCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line += 2;
 			            
 			managerText.setTextLine(line, "---Window---", Color.YELLOW); line ++;
-			managerText.setTextLine(line, "Update : (60 per second, " + UtilsMath.round(WarpedWindow.getUpdateDuration() * 0.000001, 3) + ")"); line++;
+			managerText.setTextLine(line, "Update : (60 Hz, " + WarpedWindow.getFPS() + ", " + UtilsMath.round(WarpedWindow.getUpdateDuration() * 0.000001, 3) + ")"); line++;
                         
-			managerText.setTextLine(line, "---User Input : (10 per second, " + UtilsMath.round(WarpedUserInput.getUpdateDuration() * 0.000001, 3) + ")", Color.YELLOW); line += 2;
+			managerText.setTextLine(line, "---User Input : (10 Hz, n.a, " + UtilsMath.round(WarpedUserInput.getUpdateDuration() * 0.000001, 3) + ")", Color.YELLOW); line += 2;
 			            
 			managerText.setTextLine(line, "---Warped Viewports---", Color.YELLOW); line++;
 			for(int i = 0; i < WarpedWindow.getViewPorts().length; i++) {
 				WarpedViewport viewport = WarpedWindow.getViewPort(i);
-				managerText.setTextLine(line, viewport.getName() +  " viewPort : (60 per second, " + UtilsMath.round(viewport.getUpdateDuration() * 0.000001, 3) + ")", Color.WHITE); line++;
+				managerText.setTextLine(line, viewport.getName() +  " viewPort : (60 Hz, " + viewport.getFPS() + ", " + UtilsMath.round(viewport.getUpdateDuration() * 0.000001, 3) + ")", Color.WHITE); line++;
 			}
 			
 			break;
@@ -325,10 +333,12 @@ public class InspectorFramework extends WarpedAssembly {
 			break;
 			
 		case KEYBOARD:
+			//keybinds.setOptions(null)
+			keybinds.setVisible(true);
 			managerText.setTextLine(line, "Keyboard", Color.YELLOW); 													line += 2;
 			managerText.setTextLine(line, "Keyboard Controller :  " + WarpedKeyboard.getActiveController().getName());  line++;
-			managerText.setTextLine(line, "Key Presses  :  " + WarpedKeyboard.getPressesString());                      line++;
-			managerText.setTextLine(line, "Key Releases :  " + WarpedKeyboard.getReleaseString());                      line++;
+			managerText.setTextLine(line, "Key Presses  :  " + WarpedKeyboard.getPresses());                      line++;
+			managerText.setTextLine(line, "Key Releases :  " + WarpedKeyboard.getReleases());                      line++;
 			managerText.setTextLine(line, "Key Bindings   :  " + WarpedKeyboard.getKeyBindingsCount());					line++;
 			break;                  
 			                        

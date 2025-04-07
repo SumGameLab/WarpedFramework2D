@@ -199,10 +199,12 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		if(WarpedState.isPaused()) FrameworkAudio.error.play();
 		WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.BUTTON_RELEASE));
 		
+		/*
 		if(WarpedKeyboard.isKeyLogging()) {
 			WarpedKeyboard.clearKeyLog();
 			WarpedKeyboard.stopKeyLogging();
 		}
+		*/
 			
 	}
 	

@@ -5,256 +5,119 @@ package warped.user.keyboard;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
-import java.util.HashMap;
-
-import warped.utilities.utils.Console;
 
 public class WarpedKeyboard implements KeyListener {
 
-	private static final int KEY_SIZE = 1028;
-	private static String pressString;
-	private static String releaseString;
-	
-	private static ArrayList<KeyEvent> presses 	= new ArrayList<>();
-	private static ArrayList<KeyEvent> releases = new ArrayList<>();
-	
-	private static KeyEvent[] pressedKeys 	= new KeyEvent[KEY_SIZE];
-	private static KeyEvent[] releasedKeys 	= new KeyEvent[KEY_SIZE];
-	
-	//private static HashMap<Integer, WarpedAction> pressBindings   = new HashMap<>();
-	//private static HashMap<Integer, WarpedAction> releaseBindings = new HashMap<>();
-	
+	private static ArrayList<Character> pressedKeys = new ArrayList<>();
+	private static ArrayList<Character> releasedKeys = new ArrayList<>();
+		
 	private static WarpedKeyboardController activeController;
+	private static ArrayList<WarpedTypeable> typeables = new ArrayList<>();
 
-	private static ArrayList<Character> keyLog = new ArrayList<>();
-	
 	private static boolean isLocked = false;
-	private static boolean isSpeaking = false;
-	private static boolean isKeyLogging = false;
-	private static int key = -1;
-	
-	private static int delayTick 	 = 0;
-	private static int delayDuration = 240;
-	
-	private static HashMap<WarpedControllerType, WarpedKeyboardController> controllers = new HashMap<>();
-	
-	
+
 	public WarpedKeyboard() {
-		addController(new DefaultController());
-		//addController(new WarpTechController());
-		setController(WarpedControllerType.DEFAULT);
+		setController(new DefaultController());
 	}
 	
+	/**Set a controller to receive events from the keyboard.
+	 * @param controller - the controller for the keyboard.
+	 * @author 5som3*/
+	public static void setController(WarpedKeyboardController controller) {
+		boolean isLockedState = isLocked;
+		isLocked = true;
+		activeController = controller;
+		isLocked = isLockedState;	
+	}
 	
-	
-	
-	//--------
-	//---------------- Access ------------------
-	//--------
-	
-	private static synchronized void addKeyToLog(char key) {keyLog.add(key);}
-	public static synchronized void clearKeyLog() {keyLog.clear();}
-	public static synchronized String getKeyLog() {
-		String result = "";
-		if(keyLog == null || keyLog.size() == 0) return result;
-		for(int i = 0; i < keyLog.size(); i++) {
-			result += keyLog.get(i).toString();
+	/**WarpedTypeables will receive a KeyEvent through the keyTyped method.
+	 * @param typeable - the object to stop receiving KeyEvents when ever a key is released. 
+	 * @author 5som3*/
+	protected static void removeTypeable(WarpedTypeable typeable) {
+		for(int i = 0; i < typeables.size(); i++) {
+			if(typeables.get(i).equals(typeable)) typeables.remove(i);
 		}
+	}	
+	
+	/**WarpedTypeables will receive a KeyEvent through the keyTyped method.
+	 * @param typeable - the object to start receiving KeyEvents when ever a key is released. 
+	 * @author 5som3*/
+	protected static void addTypeable(WarpedTypeable typeable) {
+		if(!contains(typeable))	typeables.add(typeable);
+	}
+	
+	/**Get the active controller.
+	 * @return WarpedKeyboardController - the current keyboard controller.
+	 * @author 5som3*/
+	public static WarpedKeyboardController getActiveController() {return activeController;}	
+	
+	/**Lock or unlock the keyboard
+	 * @param isLocked - if true the controller and typeables will not receive any keyboard events.
+	 * @author 5som3*/
+	public static void setLock(boolean isLocked) {WarpedKeyboard.isLocked = isLocked;}
+	
+	/**Toggle the locked state of the keyboard.
+	 * @author 5som3*/
+	public static void toggleLock() {if(isLocked) isLocked = false;	else isLocked = true;}
+	
+	
+	/**Get a string of the keys pressed since the last time getPresses() was called.
+	 * @return String - the keys pressed. 
+	 * @author 5som3*/
+	public static String getPresses() {
+		String result = "";
+		for(int i = 0; i < pressedKeys.size(); i++) {
+			result += pressedKeys.get(i) + ", ";
+		}
+		pressedKeys.clear();
 		return result;
 	}
-	public static boolean isKeyLogging() {return isKeyLogging;}
-	public static void startKeyLogging() {isKeyLogging = true;}
-	public static void stopKeyLogging() {isKeyLogging = false;}
 	
-	public static void setController(WarpedControllerType type) {
-		Console.ln("WarpedKeyboard -> setController() -> Controller : " + type.toString());
-		if(!controllers.containsKey(type)) {
-			Console.err("Keyboard -> setController() -> keyboard controllers does not contain a keyboard of the type : " + type);
-			return;
+	/**Get a string of the keys released since the last time getReleases() was called.
+	 * @param String - the keys released. 
+	 * @author 5som3*/
+	public static String getReleases() {
+		String result = "";
+		for(int i = 0; i < releasedKeys.size(); i++) {
+			result += releasedKeys.get(i) + ", ";
 		}
-		setController(controllers.get(type));		
+		releasedKeys.clear();
+		return result;
 	}
 	
-	public static synchronized WarpedKeyboardController getActiveController() {return activeController;}
-	public static synchronized WarpedKeyboardController getController(WarpedControllerType controllerType) {return controllers.get(controllerType);}
+	/**Does the keyboard contain the specified typeable
+	 * @param typeable - the typeable to check for.
+	 * @apiNote all typeables contained will received keyPressed() and keyRecieved() events from the keyboard.
+	 * @author 5som3*/
+	public static boolean contains(WarpedTypeable typeable) {if(typeables.contains(typeable)) return true; else return false;}
 	
-	
-	public static void speak() {isSpeaking = true;}	
-	public static void lock() {isLocked = true;}
-	public static void unlock() {isLocked = false;}
-	public static void toggleLock() {if(isLocked) isLocked = false;	else isLocked = true;}
-	public static void stopSpeaking(){
-		isSpeaking = false;
-		key = -1;
-		activeController.stopListening();
-	}
-	
-	public static String getPressesString() {return pressString;}
-	public static String getReleaseString() {return releaseString;}
+	/**The number of bindings on the active controller.
+	 * @return int - the number of bindings.
+	 * @author 5som3*/
 	public static int getKeyBindingsCount(){return activeController.getKeyBindCount();}
-	//public static int getReleaseBindingsCount(){return releaseBindings.size();}
-	
-	
-	//--------
-	//---------------- Update ------------------
-	//--------
-	public void update() {
-		if(delayTick++ > delayDuration) {
-			delayTick = 0;
-			releaseString = "";
-		}		
-		pressString = "";
-		presses.forEach(e -> {pressString += e.getKeyChar() + " ,  ";});
-		presses.clear();
 		
-		releases.forEach(e -> {releaseString += e.getKeyChar() + " ,  ";});
-		releases.clear();
-		
-		if(isSpeaking) { // rebinding keys
-			if(key == -1) return;
-			else {				
-				isSpeaking = false;
-				Console.ln("WarpedKeyboard -> update() -> rebinding to key : " + key);
-				
-				/*
-				if(WarpedState.keyboardOptions.isOpen()) {
-					if(activeController.isKeyBound(key)){						
-						WarpedState.notify.addNotification(KeyEvent.getKeyText(key)  + "  :  Key is already bound");
-						WarpedState.keyboardOptions.keyBindings.resetSelected();
-						stopSpeaking();
-						return;
-					}
-					
-					int listeningKey = -1;
-					for(Map.Entry<Integer, WarpedKeyBind<?>> set : activeController.keyBinds.entrySet()) {
-						if(set.getValue().isListening) {
-							listeningKey = set.getKey();
-							Console.ln("WarpedKeyboard -> update() -> listenKey : " + listeningKey);
-							break;
-						}
-					}
-					
-					activeController.rebindKeyBind(listeningKey, key);
-					activeController.stopListening();
-				}
-				*/
-				/*
-				if(WarpedState.hotBar.isOpen()) {
-					for(int i = 0; i < activeController.hotBinds.size(); i++) {
-						if(activeController.hotBinds.get(i).isListening) {
-							activeController.hotBinds.get(i).setKey(key);
-						}
-					}
-				}
-				*/
-				
-				
-				//if(WarpedState.keyboardOptions.isOpen()) WarpedState.keyboardOptions.keyBindings.setList(activeController);
-				key = -1;
-			}
-			
-			return;
-		}
-		
-		for(int i = 0; i < KEY_SIZE; i++) {
-			if(pressedKeys[i] != null) {				
-				presses.add(pressedKeys[i]);
-			}
-		}
-		if(!isLocked) presses.forEach(k ->{activeController.pressKey(k.getKeyCode());});
-		
-		for(int i = 0; i < KEY_SIZE; i++) {
-			if(releasedKeys[i] != null) {
-				releases.add(releasedKeys[i]);
-				releasedKeys[i] = null;
-			}
-		}
-		if(!isLocked) releases.forEach(kr -> {activeController.releaseKey(kr.getKeyCode());});
-		
-	}
-
-	
-	//--------
-	//------------ KeyEvents ----------------------
-	//--------
+	/**This method is triggered when ever a key is pressed on the keyboard.
+	 * @param e - the key event from the keyboard. This method can trigger multiple times during a single press.
+	 * @author 5som3*/
 	public void keyPressed(KeyEvent e) {
-		if(isSpeaking) key = e.getKeyCode();
-		else pressedKeys[e.getKeyCode()] = e;
+		pressedKeys.add(e.getKeyChar());
+		if(isLocked) return;
+		activeController.pressKey(e.getKeyCode());
+		for(int i = 0; i < typeables.size(); i++) typeables.get(i).keyPressed(e);
 	}
 	
+	/**This method is triggered when ever a key is released on the keyboard.
+	 * @param e - the key event from the keyboard. This method can trigger multiple times during a single press.
+	 * @author 5som3*/
 	public void keyReleased(KeyEvent e) {
-		pressedKeys[e.getKeyCode()] = null;
-		releasedKeys[e.getKeyCode()] = e;
-		if(isKeyLogging) {
-			int key = e.getKeyCode();
-			if(key == KeyEvent.VK_ESCAPE || key == KeyEvent.VK_ENTER) {isKeyLogging = false; return;}
-			if(key == KeyEvent.VK_BACK_SPACE && keyLog.size() > 0) {keyLog.remove(keyLog.size() - 1); return;}
-			if(e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyChar() == KeyEvent.VK_SLASH || isLetterEvent(e) || isNumberEvent(e)) addKeyToLog(e.getKeyChar());
-		}
+		releasedKeys.add(e.getKeyChar());
+		if(isLocked) return;
+		activeController.releaseKey(e.getKeyCode());
+		for(int i = 0; i < typeables.size(); i++) typeables.get(i).keyReleased(e);	
 	}
+	
 	
 	public void keyTyped(KeyEvent e) {return;}
-	
-	private boolean isLetterEvent(KeyEvent e) {
-		int key = e.getKeyCode();
-		if(key == KeyEvent.VK_A || key == KeyEvent.VK_B || key == KeyEvent.VK_C || key == KeyEvent.VK_D || key == KeyEvent.VK_E || key == KeyEvent.VK_F || 
-		   key == KeyEvent.VK_G || key == KeyEvent.VK_H || key == KeyEvent.VK_I || key == KeyEvent.VK_J || key == KeyEvent.VK_K || key == KeyEvent.VK_L || 
-		   key == KeyEvent.VK_M || key == KeyEvent.VK_N || key == KeyEvent.VK_O || key == KeyEvent.VK_P || key == KeyEvent.VK_Q || key == KeyEvent.VK_R ||
-		   key == KeyEvent.VK_S || key == KeyEvent.VK_T || key == KeyEvent.VK_U || key == KeyEvent.VK_V || key == KeyEvent.VK_W || key == KeyEvent.VK_X || 
-		   key == KeyEvent.VK_Y || key == KeyEvent.VK_Z) return true; else return false;
-	}
-	
-	private boolean isNumberEvent(KeyEvent e) {
-		int key = e.getKeyCode();
-		if(key == KeyEvent.VK_0 || key == KeyEvent.VK_1 || key == KeyEvent.VK_2 || key == KeyEvent.VK_3 || key == KeyEvent.VK_4 || key == KeyEvent.VK_5 ||
-		   key == KeyEvent.VK_6 || key == KeyEvent.VK_7 || key == KeyEvent.VK_8 || key == KeyEvent.VK_9) return true; else return false;
-	}
-	
-	
-	//--------
-	//------------ Controllers  ----------------------
-	//--------
-	private static void addController(WarpedKeyboardController controller) {
-		if(controllers.containsKey(controller.getType())) {
-			Console.ln("Keyboard -> addController() -> overwriting controller : " + controller.getType());
-		}
-		controllers.put(controller.getType(), controller);
-	}
-	
-	private static void setController(WarpedKeyboardController controller) {
-		boolean isLockedState = isLocked;
-		isLocked = true;
-		activeController = controller;
-		/*
-		pressBindings    = new HashMap<>();
-		releaseBindings  = new HashMap<>();
-		activeController = controller;
-		for(KeyBind bind : activeController.keyBinds) {
-			if(bind.pressAction != null) pressBindings.put(bind.key, bind.pressAction);
-			if(bind.releaseAction != null) releaseBindings.put(bind.key, bind.releaseAction);
-			
-		}		
-		 */
-		isLocked = isLockedState;	
-	
-	}
-	
-	/*
-	private static void setController() {
-		boolean isLockedState = isLocked;
-		isLocked = true;
-		//activeController
-		/*
-		pressBindings    = new HashMap<>();
-		releaseBindings  = new HashMap<>();
-		for(KeyBind bind : activeController.keyBinds) {
-			if(bind.pressAction != null) pressBindings.put(bind.key, bind.pressAction);
-			if(bind.releaseAction != null) releaseBindings.put(bind.key, bind.releaseAction);
-			
-		}		
-	isLocked = isLockedState;	
-	}
-	 */
 
 	
 }

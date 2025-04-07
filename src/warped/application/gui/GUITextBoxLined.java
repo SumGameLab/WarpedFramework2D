@@ -356,7 +356,6 @@ public class GUITextBoxLined extends WarpedGUI {
 	public void clearTextLines() {
 		textLines.clear();
 		lineColor.clear();
-		updateGraphics();
 	}
 	
 	

@@ -73,3 +73,9 @@ unicode
 anticlockwise
 ish
 chevrons
+typeables
+keybinding
+keybinds
+hotbinds
+hotbind
+typeable

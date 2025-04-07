@@ -49,7 +49,7 @@ public class AssemblyHotBar extends WarpedAssembly {
 		clear.offset(title);
 		hotBar.offset(title);
 		
-		title.draggable();
+		title.setDragable(true);
 		title.setDraggedAction(() -> {
 			WarpedState.guiManager.getGroup(groupID).forEach(i -> {
 				i.offset(title);

@@ -23,7 +23,7 @@ public class GUIShape extends WarpedGUI {
 	private ArrayList<Rectangle> rectangles = new ArrayList<>();
 	
 	public GUIShape(int width, int height) {
-		ateractive();
+		setInteractive(false);
 		sprite.setSize(width, height);
 	}
 		

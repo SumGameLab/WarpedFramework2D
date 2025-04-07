@@ -4,18 +4,19 @@ package warped.application.gui;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
-import warped.application.state.WarpedState;
 import warped.audio.FrameworkAudio;
 import warped.functionalInterfaces.StringAction;
-import warped.user.keyboard.WarpedKeyboard;
+import warped.user.keyboard.WarpedTypeable;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
-public class GUITextInputLine extends WarpedGUI {
+public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	
 	/*GUITextInputLine provides these functions : 
 	 * 		
@@ -25,6 +26,8 @@ public class GUITextInputLine extends WarpedGUI {
 	 * 		- Set the color of text, border, background, hover and input.
 	 * 		- Customize the size and position of the button.
 	 * */
+	
+	private ArrayList<Character> keyLog = new ArrayList<>();
 	
 	private String inputString = "";
 	private String prompt = "|";
@@ -37,6 +40,8 @@ public class GUITextInputLine extends WarpedGUI {
 	private boolean isPrompt = true;
 	private int tick = 0;
 	private static int delay = 40;
+	
+	private int promptIndex = 0;
 	
 	private boolean isPressed 		= false;
 	private boolean isInput 		= false;
@@ -253,14 +258,16 @@ public class GUITextInputLine extends WarpedGUI {
 	}
 
 
-	
+	/**Set if the input line will receive input from the keyboard.
+	 * @param isInput - if true the keyboard input will be forwarded to the input line.
+	 * @author 5som3*/
 	public void setInputState(boolean isInput) {		
 		if(this.isInput != isInput) {
 			this.isInput = isInput;			
 			if(isInput) {
-				WarpedKeyboard.startKeyLogging();
+				setReceiving(true);
 				updateGraphics();				
-			} else WarpedKeyboard.stopKeyLogging();
+			} else setReceiving(false);
 			
 		}
 
@@ -278,39 +285,43 @@ public class GUITextInputLine extends WarpedGUI {
 	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
-		g.setColor(borderColor);
+		g.setColor(borderColor); //Draw background
 		g.fillRect(0, 0, getWidth(), getHeight());
 		g.setColor(backgroundColor);
 		g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
 		if(backgroundImage != null) g.drawImage(backgroundImage, borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2, null);
-		if(isLineHovered) {
+		
+		if(isLineHovered) { //Draw hover colours
 			if(isPressed || isInput) g.setColor(pressColor);
 			else g.setColor(hoverColor);
 			g.fillRect(0, 0, getWidth(), getHeight());
 		}
 		
-		g.setFont(font);
+		g.setFont(font);//Draw text
 		if(isInput) {
 			g.setColor(inputTextColor);
 			g.drawString(inputString, textOffset.x(), textOffset.y());
-			if(isPrompt) g.drawString(prompt, font.getSize() + g.getFontMetrics().stringWidth(inputString), font.getSize());
+			if(promptIndex > inputString.length()) promptIndex = inputString.length();
+			if(isPrompt) g.drawString(prompt, font.getSize() + g.getFontMetrics().stringWidth(inputString.substring(0, promptIndex)) - 2, font.getSize()); // draw prompt
 		} else {
 			g.setColor(blankTextColor);
 			g.drawString(blankText, textOffset.x(), textOffset.y());
 		}
 				
-		if(isButtonVisible) {			
+		if(isButtonVisible) { //Draw button
 			g.setColor(borderColor);
 			g.fillRect(buttonOffset.x(), buttonOffset.y(), buttonSize.x(), buttonSize.y());
 			g.setColor(buttonColor);
 			g.fillRect(buttonOffset.x() + borderThickness, buttonOffset.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 			if(buttonImage != null) g.drawImage(buttonImage,buttonOffset.x() + borderThickness, buttonOffset.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2, null);
-			if(isButtonHovered) {
+			
+			if(isButtonHovered) { // Draw button hover
 				if(isPressed) g.setColor(pressColor);
 				else g.setColor(hoverColor);
 				g.fillRect(buttonOffset.x(), buttonOffset.y(), buttonSize.x(), buttonSize.y());
 			}
 		}
+		
 		
 		g.dispose();
 		pushGraphics();
@@ -318,44 +329,14 @@ public class GUITextInputLine extends WarpedGUI {
 	
 	@Override
 	public void updateObject() {
-		if(isInput) {
+		if(isInput) { // update prompt
 			tick++;
 			if(tick > delay) {
 				tick = 0;
 				if(isPrompt) isPrompt = false;
 				else isPrompt = true;
-				
 				updateGraphics();
 			}
-			
-			if(!WarpedKeyboard.isKeyLogging()) {	// key logging has ended
-				isInput = false;
-				inputString = WarpedKeyboard.getKeyLog();
-				if(inputString.length() > maxCharacters) {		
-					WarpedState.notify.note("Label is too large");
-					inputString = inputString.substring(0, maxCharacters - 1);
-				}
-				if(!inputString.equals("")) {
-					buttonAction.action(inputString);
-					WarpedKeyboard.clearKeyLog();
-				}
-				updateGraphics();
-				return;
-			}
-						
-			
-			if(!WarpedKeyboard.getKeyLog().equals(inputString)) { // string has changed
-				inputString = WarpedKeyboard.getKeyLog();
-				tick = 0;
-				if(inputString.length() > maxCharacters) {		
-					WarpedState.notify.note("Label is too large");
-					inputString = inputString.substring(0, maxCharacters - 1);
-					isPrompt = false;
-				} else isPrompt = true;
-				updateGraphics();
-			}
-			
-			
 		}
 	}
 	
@@ -413,21 +394,105 @@ public class GUITextInputLine extends WarpedGUI {
 		}
 	}
 
+	private void enterInput() {
+		buttonAction.action(inputString);
+		keyLog.clear();
+		inputString = "";
+		setInputState(false);
+		promptIndex = 0;
+		isPrompt = false;
+		tick = 0;
+	}
 
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) { 
 		isPressed = false;
 		if(isButtonHovered) {
-			if(isButtonVisible) WarpedKeyboard.stopKeyLogging();
-		} else {
-			setInputState(true);
-		}
+			if(isButtonVisible) {
+				enterInput();
+				updateGraphics();
+			}
+		} else setInputState(true);
 	}
 	
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
+	
+	@Override
+	public void keyPressed(KeyEvent e) {return;}
+	
+	@Override
+	public void keyReleased(KeyEvent e) {
+		int key = e.getKeyCode();
+		if(key == KeyEvent.VK_ESCAPE){
+			isPrompt = false;
+			setInputState(false);
+			updateGraphics();
+			return;
+		}
+		
+		if(key == KeyEvent.VK_ENTER){
+			enterInput();
+			updateGraphics();
+		}
+		
+		if(key == KeyEvent.VK_END) {
+			promptIndex = keyLog.size();
+			return;
+		}
+		if(key == KeyEvent.VK_HOME) {
+			promptIndex = 0;
+			return;
+		}
+		
+		if(key == KeyEvent.VK_DELETE && promptIndex < keyLog.size()) {
+			keyLog.remove(promptIndex);
+		}
+		if(key == KeyEvent.VK_BACK_SPACE && promptIndex > 0) {
+			keyLog.remove(promptIndex - 1);
+			promptIndex--;
+		}
+		
+		if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+			tick = delay;
+			promptIndex--;
+			if(promptIndex < 0) promptIndex = 0;
+			Console.ln("WarpedKeyboard -> keyReleased() -> Left Arrow -> prompt Index : " + promptIndex);
+			return;
+		}
+		else if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+			tick = delay;
+			promptIndex++;
+			if(promptIndex >= keyLog.size())	keyLog.add(' ');
+			Console.ln("WarpedKeyboard -> keyReleased() -> Right Arrow -> prompt Index : " + promptIndex);
+		}
+		
+		if(e.getKeyCode() == KeyEvent.VK_SPACE || e.getKeyChar() == KeyEvent.VK_SLASH || isLetterEvent(e) || isNumberEvent(e)) {				
+			keyLog.add(promptIndex, e.getKeyChar());
+			Console.ln("WarpedKeyboard -> keyReleased() -> logging key : " + e.getKeyChar());
+			promptIndex++;
+		}
+		inputString = "";
+		for(int i = 0; i < keyLog.size(); i++) {
+			inputString += keyLog.get(i);
+		}
+		updateGraphics();
+	}
 
-
+	private boolean isLetterEvent(KeyEvent e) {
+		int key = e.getKeyCode();
+		if(key == KeyEvent.VK_A || key == KeyEvent.VK_B || key == KeyEvent.VK_C || key == KeyEvent.VK_D || key == KeyEvent.VK_E || key == KeyEvent.VK_F || 
+		   key == KeyEvent.VK_G || key == KeyEvent.VK_H || key == KeyEvent.VK_I || key == KeyEvent.VK_J || key == KeyEvent.VK_K || key == KeyEvent.VK_L || 
+		   key == KeyEvent.VK_M || key == KeyEvent.VK_N || key == KeyEvent.VK_O || key == KeyEvent.VK_P || key == KeyEvent.VK_Q || key == KeyEvent.VK_R ||
+		   key == KeyEvent.VK_S || key == KeyEvent.VK_T || key == KeyEvent.VK_U || key == KeyEvent.VK_V || key == KeyEvent.VK_W || key == KeyEvent.VK_X || 
+		   key == KeyEvent.VK_Y || key == KeyEvent.VK_Z) return true; else return false;
+	}
+	
+	private boolean isNumberEvent(KeyEvent e) {
+		int key = e.getKeyCode();
+		if(key == KeyEvent.VK_0 || key == KeyEvent.VK_1 || key == KeyEvent.VK_2 || key == KeyEvent.VK_3 || key == KeyEvent.VK_4 || key == KeyEvent.VK_5 ||
+		   key == KeyEvent.VK_6 || key == KeyEvent.VK_7 || key == KeyEvent.VK_8 || key == KeyEvent.VK_9) return true; else return false;
+	}
 
 	
 

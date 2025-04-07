@@ -76,7 +76,7 @@ public class ExampleHUD extends WarpedAssembly {
 		background.addRectangle(borderRect, Color.BLACK);
 		background.addRectangle(backgroundRect, Colour.GREY_DARK);
 		
-		title.draggable();
+		title.setDragable(true);
 		title.setDraggedAction(() -> {WarpedState.guiManager.getGroup(groupID).forEach(i -> {i.offset(title);});});
 
 		paragraph.setTitle("A Story");

@@ -100,8 +100,7 @@ public class WarpedGroup<T extends WarpedObject> {
 	}
 	public ArrayList<WarpedObjectIdentity> getMemberIdentitys(){return objectIDs;}
 	
-	public void ateractive() {forEach(obj -> {obj.ateractive();});}
-	public void interactive() {forEach(obj -> {obj.interactive();});}
+	public void setInteractive(boolean isInteractive) {forEach(obj -> obj.setInteractive(isInteractive));}
 	
 	public boolean contains(T member) {
 		boolean result = false;

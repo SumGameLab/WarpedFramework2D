@@ -12,17 +12,35 @@ import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.KeyboardIcons;
 import warped.utilities.utils.Console;
 
-public class WarpedKeyBind<T extends WarpedObject> {
+public class WarpedKeyBind {
 
-	protected T bound;
+	//protected T bound;
 
+	protected String name = "defaultKeyBind";
 	protected int key = -1;
 	protected int defaultKey = -1;
-	protected String name = "defaultKeyBind";
 	protected boolean isListening = false; //this is for getting user input when rebinding 
-	protected WarpedAction pressAction;
-	protected WarpedAction releaseAction;
+	protected WarpedAction pressAction = () -> {return;};
+	protected WarpedAction releaseAction = () -> {return;};
 	
+	/**A keybinding with the specified parameters.
+	 * @param name - the name of the binding.
+	 * @param pressAction - the action to trigger when the key is pressed. This action will trigger multiple times for as long as the key is held pressed.
+	 * @param releaseAction - the action to trigger when the key is released. This action will only trigger once each time the key is released.
+	 * @author 5som3*/
+	public WarpedKeyBind(String name, WarpedAction pressAction, WarpedAction releaseAction) {
+		this.name = name;		
+			
+		this.pressAction = pressAction;
+		this.releaseAction = releaseAction;
+	}
+	
+	/**A keybinding with the specified parameters.
+	 * @param name - the name of the binding.
+	 * @param key - the key that will trigger the actions for this binding. 
+	 * @param pressAction - the action to trigger when the key is pressed. This action will trigger multiple times for as long as the key is held pressed.
+	 * @param releaseAction - the action to trigger when the key is released. This action will only trigger once each time the key is released.
+	 * @author 5som3*/
 	public WarpedKeyBind(String name, int key, WarpedAction pressAction, WarpedAction releaseAction) {
 		this.name = name;
 		this.key = key;
@@ -34,47 +52,83 @@ public class WarpedKeyBind<T extends WarpedObject> {
 		else this.releaseAction = releaseAction;
 	}
 	
-	public WarpedKeyBind(String name, WarpedAction pressAction, WarpedAction releaseAction) {
-		this.name = name;		
-		listen();
-		
-		this.pressAction = pressAction;
-		this.releaseAction = releaseAction;
-	}
-	
+	/*
 	public WarpedKeyBind(String name, T bound) {
 		this.name = name;
 		this.bound = bound;
 		listen();
 		
 	}
+	*/
 	
-	public T getBound() {return bound;}
+	
+	//public T getBound() {return bound;}
 
+	/**Get the name for this keybind.
+	 * @return String - the name.
+	 * @author 5som3*/
 	public String getName() {return name;}
+	
+	/**Get the key bound to to this binding.
+	 * @return int - the key that activates this bindings actions
+	 * @author 5som3*/
 	public int getKey() {return key;}
+	
+	/**The name of the key bound to this binding.
+	 * @return String - the name i.e. Home, F1
+	 * @author 5som3*/
 	public String getKeyName() {return KeyEvent.getKeyText(key);}
 		
+	/**Set the key to bind.
+	 * @param key - the key code. 
+	 * @author 5som3*/
 	public void setKey(int key) {
-		stopListening();
 		this.key = key;
-		if(bound != null && WarpedState.hotBar.isOpen()) WarpedState.hotBar.updateGraphics();
 	}
+	//if(bound != null && WarpedState.hotBar.isOpen()) WarpedState.hotBar.updateGraphics();
+	
+	/**Set the binding back to its original key.
+	 * @author 5som3*/
 	public void restoreDefaultKey() {this.key = defaultKey;}
-	public void setName(String name) {this.name = name;}
-	public void listen() {isListening = true;}
-	public boolean isListening() {return isListening;}
-	public void stopListening() {isListening = false;}
+	
+	//public void listen() {isListening = true;}
+	//public boolean isListening() {return isListening;}
+	//public void stopListening() {isListening = false;}
+	/**Set the actions that will trigger when the bound key is activated by the user.
+	 * @param pressAction - the action to trigger when the key is pressed. This action will trigger multiple times for as long as the key is held pressed.
+	 * @param releaseAction - the action to trigger when the key is released. This action will only trigger once each time the key is released.
+	 * @author 5som3*/
 	public void setActions(WarpedAction pressAction, WarpedAction releaseAction) {this.pressAction = pressAction; this.releaseAction = releaseAction;}
+	
+	/**Set the action to trigger when the bound key is pressed.
+	 * @param pressAction - the action to trigger when the key is pressed. This action will trigger multiple times for as long as the key is held pressed.
+	 * @author 5som3*/
 	public void setPressAction(WarpedAction pressAction) {this.pressAction = pressAction;}
+	
+	/**Set the action to trigger when the bound key is released.
+	 * @param releaseAction - the action to trigger when the key is released. This action will only trigger once each time the key is released.
+	 * @author 5som3*/
 	public void setReleaseAction(WarpedAction releaseAction) {this.releaseAction = releaseAction;}
-	
-	public void press() {if(pressAction != null) pressAction.action();}
-	public void release() {if(releaseAction != null) releaseAction.action();}
 		
-	public BufferedImage raster() {return bound.raster();}
+	/**Activate the press action for this keybinding.
+	 * @author 5som3*/
+	public void press() {pressAction.action();}
 	
+	/**Activate the release action for this keybinding.
+	 * @author 5som3*/
+	public void release() {releaseAction.action();}
+	
+	//public BufferedImage raster() {return bound.raster();}
+	
+	/**Get the standard keyboard icon for this key bound to this binding.
+	 * @return BufferedImage - the standard keyboard icon.
+	 * @author 5som3*/
 	public BufferedImage getKeyImage() {return getKeyImage(key);}
+	
+	/**Get the standard keyboard icon for the specified key bound to this binding.
+	 * @param key - the key to get the icon of.
+	 * @return BufferedImage - the standard keyboard icon.
+	 * @author 5som3*/
 	public static BufferedImage getKeyImage(int key) {
 		switch(key) {
 		case KeyEvent.VK_1:					return FrameworkSprites.getKeyboardIcon(KeyboardIcons.ONE);

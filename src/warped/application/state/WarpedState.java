@@ -3,12 +3,11 @@
 package warped.application.state;
 
 import java.util.ArrayList;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import warped.WarpedFramework2D;
-import warped.application.assemblys.AssemblyFileInspector;
+import warped.application.assemblys.FileExplorer;
 import warped.application.assemblys.AssemblyHotBar;
 import warped.application.assemblys.AssemblyItemInspector;
 import warped.application.assemblys.AssemblyPopUpDialogueBox;
@@ -36,7 +35,6 @@ import warped.application.state.managers.gameObjectManagers.WarpedManager;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.application.tile.WarpedTile;
 import warped.audio.FrameworkAudio;
-import warped.utilities.WarpedThreadFactory;
 import warped.utilities.utils.Console;
 
 public class WarpedState {
@@ -46,11 +44,15 @@ public class WarpedState {
 	public static long slowCycleDuration	= 0;
 	public static long passiveCycleDuration = 0;
 	
-	public static int cycleCount = 0;
+	public static short cycleCount = 0;
 	
 	
-	private final static ScheduledExecutorService executor = Executors.newScheduledThreadPool(4, new WarpedThreadFactory("Warped State"));
-	//private static Timer stateTimer = new Timer("Timer Thread : Warped State");
+	//private final static ScheduledExecutorService executor = Executors.newScheduledThreadPool(4, new WarpedThreadFactory("Warped State"));
+	private static Timer activeTimer  = new Timer("Timer Thread : State Timer");
+	private static TimerTask activeTask = new TimerTask() {public void run() {updateActive();}};
+	private static TimerTask midTask = new TimerTask() {public void run() {updateMid();}};
+	private static TimerTask slowTask = new TimerTask() {public void run() {updateSlow();}};
+	private static TimerTask passiveTask = new TimerTask() {public void run() {updatePassive();}};
 	
 	private static boolean pause = true;
 	private static boolean isInitialized = false;
@@ -97,14 +99,18 @@ public class WarpedState {
 	public static Notify 						notify;
 	public static AssemblyHotBar 				hotBar;	
 	public static AssemblyPopUpDialogueBox 		dialogue;
-	public static AssemblyFileInspector 		fileInspector;
+	public static FileExplorer 					fileExplorer;
 	public static ConsoleInput 					consoleInput;
 	
 	public static long getActiveCycleDuration()  {return activeCycleDuration;}
 	public static long getMidCycleDuration()     {return midCycleDuration;}
 	public static long getSlowCycleDuration()    {return slowCycleDuration;}
 	public static long getPassiveCycleDuration() {return passiveCycleDuration;}
-	public static int getCycleCount() {return cycleCount;}
+	public static short getCycleCount() {
+		short val = cycleCount;
+		cycleCount = 0;
+		return val;
+	}
 	
 	/*
 	public static void closeAssemblys() {
@@ -116,16 +122,24 @@ public class WarpedState {
 		//hotBar.close();
 	}
 	*/
+	
 	public WarpedState() {	
-		executor.scheduleAtFixedRate(WarpedState::updateActive, 0, 17, TimeUnit.MILLISECONDS);
-		executor.scheduleAtFixedRate(WarpedState::updateMid, 0, 1000, TimeUnit.MILLISECONDS);
-		executor.scheduleAtFixedRate(WarpedState::updateSlow, 0, 60000, TimeUnit.MILLISECONDS);
-		executor.scheduleAtFixedRate(WarpedState::updatePassive, 0, 3600000, TimeUnit.MILLISECONDS);
+		activeTimer.scheduleAtFixedRate(activeTask, 0, 17);
+		activeTimer.scheduleAtFixedRate(midTask, 0, 1000);
+		activeTimer.scheduleAtFixedRate(slowTask, 0, 60000);
+		activeTimer.scheduleAtFixedRate(passiveTask, 0, 3600000);
 	}
 	
 	public void stop() {
 		Console.ln("WarpedState -> stop()");
-		executor.shutdown();
+		activeTask.cancel();
+		midTask.cancel();
+		slowTask.cancel();
+		passiveTask.cancel();
+		
+		activeTimer.cancel();
+	
+		
 		for(int i = 0; i < audioFolders.size(); i++) {
 			WarpedAudioFolder<?> folder = audioFolders.get(i);
 			folder.stop();
@@ -211,8 +225,8 @@ public class WarpedState {
 		hotBar = new AssemblyHotBar(WarpedManagerType.GUI);
 		hotBar.assemble();
 		
-		fileInspector = new AssemblyFileInspector(WarpedManagerType.GUI);
-		fileInspector.assemble();
+		fileExplorer = new FileExplorer(WarpedManagerType.GUI);
+		fileExplorer.assemble();
 	}
 		
 	public static int getGameObjectCount() {

@@ -47,7 +47,7 @@ public class GUIHotBar extends WarpedGUI {
 	}
 	
 	public void updateGraphics() {
-		ArrayList<WarpedKeyBind<?>> hotBinds = controller.getHotBinds();
+		ArrayList<WarpedKeyBind> hotBinds = controller.getHotBinds();
 
 		int rows = (int) Math.ceil(((double)hotBinds.size() / 10.0));
 		if(rows == 0) rows = 1;
@@ -82,8 +82,9 @@ public class GUIHotBar extends WarpedGUI {
 				g.drawImage(WarpedKeyBind.getKeyImage(-1), rx, ry, rx + keySize.x(), ry + keySize.y(), null);
 				g.drawImage(FrameworkSprites.getKeyboardIcon(KeyboardIcons.ARROW_UP), rx, ry, buttonSize.x(), buttonSize.y(), null); 
 			} else {
-				WarpedKeyBind<?> bind = hotBinds.get(i);
+				WarpedKeyBind bind = hotBinds.get(i);
 				g.drawImage(WarpedKeyBind.getKeyImage(bind.getKey()), rx, ry, keySize.x(), keySize.y(), null);
+				
 				if(bind.isListening()) {
 					g.setColor(bindColor);
 					g.fillRect(rx, ry, keySize.x(), keySize.y());

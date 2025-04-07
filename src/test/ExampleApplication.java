@@ -18,6 +18,7 @@ import warped.application.tile.TileableGenerative;
 import warped.graphics.sprite.CharacterSprite;
 import warped.graphics.window.WarpedViewport;
 import warped.graphics.window.WarpedWindow;
+import warped.graphics.window.WarpedViewport.RenderType;
 import warped.user.keyboard.WarpedKeyBind;
 import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.enums.WarpedLinkable;
@@ -128,7 +129,7 @@ public class ExampleApplication extends WarpedApplication {
 	 * */
 	@Override
 	protected void initializeApplication() {
-		WarpedWindow.setViewPorts(new WarpedViewport("Entities", WarpedManagerType.ENTITIE), WarpedWindow.getViewPort(0));
+		WarpedWindow.setViewPorts(new WarpedViewport("Entities", WarpedManagerType.ENTITIE, RenderType.ACTIVE_TRANSFORMED_SCALED), WarpedWindow.getViewPort(0));
 		CharacterSprite testSprite = new CharacterSprite(testSprites.getSheet(TestSprites.SPRITE_8DIR), AxisType.HORIZONTAL);
 		testSprite.setFrameRate(16);
 		
@@ -142,7 +143,7 @@ public class ExampleApplication extends WarpedApplication {
 		hud = new ExampleHUD(WarpedManagerType.GUI);	
 		hud.assemble();
 		
-		WarpedKeyboard.getActiveController().addKeyBind(new WarpedKeyBind<>("Toggle Framework Inspector", KeyEvent.VK_F1, null, () -> {hud.toggle();}));
+		WarpedKeyboard.getActiveController().addKeyBind(new WarpedKeyBind("Toggle Framework Inspector", KeyEvent.VK_F1, null, () -> {hud.toggle();}));
 		
 		Console.addCommand("/addHealth", () -> {WarpedState.notify.note("Cheat health");});
 		Console.addCommand("/addStamina", () -> {WarpedState.notify.note("Cheat stamina");});
