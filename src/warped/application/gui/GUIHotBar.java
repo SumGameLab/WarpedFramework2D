@@ -42,7 +42,7 @@ public class GUIHotBar extends WarpedGUI {
 	}
 	
 	public void clearBinds() {
-		controller.clearHotBinds();
+		controller.clearBindings();
 		updateGraphics();
 	}
 	
@@ -119,7 +119,7 @@ public class GUIHotBar extends WarpedGUI {
 		if(hx < 0 || hy < 0 || hx >= columns) return;
 		
 		int index = hx + hy * columns;
-		if(index >=  controller.getHotBindCount()) return;
+		if(index >=  controller.getBindingCount()) return;
 				
 		if(hoverX != hx || hoverY != hy) {
 			hoverX = hx;

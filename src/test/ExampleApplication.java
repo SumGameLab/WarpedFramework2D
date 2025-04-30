@@ -143,7 +143,7 @@ public class ExampleApplication extends WarpedApplication {
 		hud = new ExampleHUD(WarpedManagerType.GUI);	
 		hud.assemble();
 		
-		WarpedKeyboard.getActiveController().addKeyBind(new WarpedKeyBind("Toggle Framework Inspector", KeyEvent.VK_F1, null, () -> {hud.toggle();}));
+		WarpedKeyboard.getActiveController().addBinding(new WarpedKeyBind("Toggle Framework Inspector", KeyEvent.VK_F1, null, () -> {hud.toggle();}));
 		
 		Console.addCommand("/addHealth", () -> {WarpedState.notify.note("Cheat health");});
 		Console.addCommand("/addStamina", () -> {WarpedState.notify.note("Cheat stamina");});

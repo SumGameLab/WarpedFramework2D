@@ -12,16 +12,17 @@ import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.KeyboardIcons;
 import warped.utilities.utils.Console;
 
-public class WarpedKeyBind {
+public class WarpedKeyBind implements WarpedTypeable{
 
 	//protected T bound;
 
 	protected String name = "defaultKeyBind";
 	protected int key = -1;
 	protected int defaultKey = -1;
-	protected boolean isListening = false; //this is for getting user input when rebinding 
+	 
 	protected WarpedAction pressAction = () -> {return;};
 	protected WarpedAction releaseAction = () -> {return;};
+	protected WarpedAction rebindAction = () -> {WarpedState.frameworkInspector.updateKeybindOptions();};
 	
 	/**A keybinding with the specified parameters.
 	 * @param name - the name of the binding.
@@ -235,6 +236,19 @@ public class WarpedKeyBind {
 			Console.err("KeyBind -> getKeyImage() -> invalid key : " + key);
 			return FrameworkSprites.error;
 		}
+	}
+
+	@Override
+	public void keyPressed(KeyEvent e) {
+		return;
+		
+	}
+
+	@Override
+	public void keyReleased(KeyEvent e) {
+		key = e.getKeyCode();
+		setReceiving(false);
+		rebindAction.action();
 	}
 	
 }

@@ -94,7 +94,7 @@ public class WarpedKeyboard implements KeyListener {
 	/**The number of bindings on the active controller.
 	 * @return int - the number of bindings.
 	 * @author 5som3*/
-	public static int getKeyBindingsCount(){return activeController.getKeyBindCount();}
+	public static int getKeyBindingsCount(){return activeController.getBindingCount();}
 		
 	/**This method is triggered when ever a key is pressed on the keyboard.
 	 * @param e - the key event from the keyboard. This method can trigger multiple times during a single press.

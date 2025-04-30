@@ -48,10 +48,10 @@ public class WarpedState {
 	
 	
 	//private final static ScheduledExecutorService executor = Executors.newScheduledThreadPool(4, new WarpedThreadFactory("Warped State"));
-	private static Timer activeTimer  = new Timer("Timer Thread : State Timer");
-	private static TimerTask activeTask = new TimerTask() {public void run() {updateActive();}};
-	private static TimerTask midTask = new TimerTask() {public void run() {updateMid();}};
-	private static TimerTask slowTask = new TimerTask() {public void run() {updateSlow();}};
+	private static Timer activeTimer  	 = new Timer("Timer Thread : State Timer");
+	private static TimerTask activeTask  = new TimerTask() {public void run() {updateActive();}};
+	private static TimerTask midTask 	 = new TimerTask() {public void run() {updateMid();}};
+	private static TimerTask slowTask 	 = new TimerTask() {public void run() {updateSlow();}};
 	private static TimerTask passiveTask = new TimerTask() {public void run() {updatePassive();}};
 	
 	private static boolean pause = true;

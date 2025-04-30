@@ -3,10 +3,12 @@ package warped.application.assemblys;
 
 import java.awt.Color;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import warped.WarpedFramework2D;
 import warped.application.actionWrappers.ActionOption;
@@ -28,6 +30,7 @@ import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.graphics.window.WarpedViewport;
 import warped.graphics.window.WarpedWindow;
 import warped.user.WarpedUserInput;
+import warped.user.keyboard.WarpedKeyBind;
 import warped.user.keyboard.WarpedKeyboard;
 import warped.user.mouse.WarpedMouse;
 import warped.utilities.enums.generalised.AxisType;
@@ -199,7 +202,12 @@ public class InspectorFramework extends WarpedAssembly {
 			});			
 		});
 		
+		
+		
+		
+		
 		keybinds.setListSize(400, 400);
+		updateKeybindOptions();
 		
 		ArrayList<ActionOption> pageOptions = new ArrayList<>();
 		pageOptions.add(new ActionOption(FrameworkInspectorPage.AUDIO.toString(), () -> {page = FrameworkInspectorPage.AUDIO; updatePage();}));
@@ -241,6 +249,14 @@ public class InspectorFramework extends WarpedAssembly {
 		refresh.setRepeatingAction(() -> {updatePage();});		
 	}
 
+	public void updateKeybindOptions() {
+		ArrayList<ActionOption> result = new ArrayList<>();
+		for(WarpedKeyBind bind : WarpedKeyboard.getActiveController().getHotBinds()) {
+			result.add(new ActionOption(bind.getName() + "  :  " + KeyEvent.getKeyText(bind.getKey()), () -> {bind.setReceiving(true);} ));
+		}
+		keybinds.setOptions(result);
+	}
+	
 	public void inspectTimers() {
 		page = FrameworkInspectorPage.WARPED_FRAMEWORK;
 		updatePage();
@@ -419,6 +435,7 @@ public class InspectorFramework extends WarpedAssembly {
 		addMember(resolution);
 		addMember(exit);
 
+		addMember(keybinds);
 		addMember(pages);
 		
 	}
