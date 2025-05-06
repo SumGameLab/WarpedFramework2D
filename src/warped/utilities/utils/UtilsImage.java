@@ -16,8 +16,8 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-import warped.WarpedFramework2D;
 import warped.WarpedProperties;
+import warped.application.state.WarpedFramework2D;
 import warped.application.tile.TerrainTileTransitionType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.utilities.enums.generalised.ColorComponentType;

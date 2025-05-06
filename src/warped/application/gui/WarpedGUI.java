@@ -2,7 +2,7 @@
 package warped.application.gui;
 
 
-import warped.application.object.WarpedObject;
+import warped.application.state.WarpedObject;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
 

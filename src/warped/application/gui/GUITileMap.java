@@ -7,9 +7,9 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import warped.WarpedProperties;
+import warped.application.state.WarpedGroup;
+import warped.application.state.WarpedGroupIdentity;
 import warped.application.state.WarpedState;
-import warped.application.state.groups.WarpedGroup;
-import warped.application.state.groups.WarpedGroupIdentity;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.application.tile.WarpedTile;
 import warped.functionalInterfaces.WarpedAction;

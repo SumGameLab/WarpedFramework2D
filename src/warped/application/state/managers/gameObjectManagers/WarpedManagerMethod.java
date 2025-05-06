@@ -2,7 +2,8 @@
 
 package warped.application.state.managers.gameObjectManagers;
 
-import warped.application.object.WarpedObject;
+import warped.application.state.WarpedManager;
+import warped.application.state.WarpedObject;
 
 public interface WarpedManagerMethod {
 	public void action(WarpedManager<? extends WarpedObject> manager);

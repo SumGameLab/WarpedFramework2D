@@ -1,19 +1,18 @@
 package warped.application.assemblys;
 
 import warped.application.gui.GUITextInputLine;
-import warped.application.state.WarpedAssembly;
+import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.window.WarpedWindow;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.utils.Console;
 
-public class ConsoleInput extends WarpedAssembly {
+public class ConsoleInput extends GUIAssembly {
 
 	private GUITextInputLine inputLine = new GUITextInputLine();
 	
-	public ConsoleInput(WarpedManagerType type) {
-		super(type);
+	public ConsoleInput() {
+		super();
 		// TODO Auto-generated constructor stub
 	}
 

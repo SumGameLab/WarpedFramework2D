@@ -4,14 +4,13 @@ package warped.application.assemblys;
 import java.awt.Point;
 
 import warped.application.gui.GUILabel;
-import warped.application.object.WarpedObject;
-import warped.application.state.WarpedAssembly;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
+import warped.application.state.GUIAssembly;
+import warped.application.state.WarpedObject;
 import warped.graphics.window.WarpedWindow;
 import warped.user.mouse.WarpedMouse;
 import warped.utilities.utils.Console;
 
-public class ToolTip extends WarpedAssembly {
+public class ToolTip extends GUIAssembly {
 	
 	private static Point mousePoint;
 	private static Point labelPoint = new Point();
@@ -25,10 +24,9 @@ public class ToolTip extends WarpedAssembly {
 	private WarpedObject selectedObject;
 	
 	
-	public ToolTip(WarpedManagerType type) {
-		super(type);
+	public ToolTip() {
+		super();
 		label.setBackgroundVisible(true);
-
 	}
 
 	/**Check if the object is the current selected.

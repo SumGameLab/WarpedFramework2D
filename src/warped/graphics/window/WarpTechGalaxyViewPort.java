@@ -2,9 +2,8 @@
 
 package warped.graphics.window;
 
-import warped.application.object.WarpedObject;
-import warped.application.state.managers.gameObjectManagers.WarpedManager;
-import warped.graphics.camera.WarpedCamera;
+import warped.application.state.WarpedManager;
+import warped.application.state.WarpedObject;
 import warped.utilities.math.vectors.VectorI;
 
 public class WarpTechGalaxyViewPort extends WarpedViewport {

@@ -2,11 +2,6 @@
 
 package warped.application.state;
 
-import warped.application.entities.WarpedEntitie;
-import warped.application.gui.WarpedGUI;
-import warped.application.object.WarpedObject;
-import warped.application.state.groups.WarpedGroupIdentity;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.utilities.utils.Console;
 
 public abstract class WarpedAssembly {
@@ -19,8 +14,8 @@ public abstract class WarpedAssembly {
 	protected boolean isClosingQueued = false;
 
 	
-	public WarpedAssembly(WarpedManagerType type) {
-		this.groupID = WarpedState.getManager(type).addGroup();
+	public WarpedAssembly(WarpedManager<?> manager) {
+		this.groupID = manager.addGroup().getGroupID();
 	}
 	
 	public void open() {
@@ -54,20 +49,7 @@ public abstract class WarpedAssembly {
 		addAssembly();
 	}
 	
-	
-	@SuppressWarnings("unchecked")
-	protected final void addMember(WarpedObject obj) {
-		if(obj instanceof WarpedGUI && groupID.getManagerType() != WarpedManagerType.GUI) {
-			Console.err("Assembly -> addMember() -> tried to add a member of the wrong type, this assembly only accepts " + groupID.getManagerType().toString() + " type of object");
-			return;
-		}
-		if(obj instanceof WarpedEntitie && groupID.getManagerType() != WarpedManagerType.ENTITIE) {
-			Console.err("Assembly -> addMember() -> tried to add a member of the wrong type, this assembly only accepts " + groupID.getManagerType().toString() + " type of object");
-			return;
-		}
-		WarpedState.getManager(groupID).getGroup(groupID).addMember(obj);
-	}
-	
+		
 		
 	public final boolean isOpen() {return isOpen;}
 	

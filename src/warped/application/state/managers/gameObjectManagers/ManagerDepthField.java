@@ -5,10 +5,11 @@ import java.awt.image.BufferedImage;
 
 import warped.WarpedProperties;
 import warped.application.depthFields.WarpedDepthField;
-import warped.application.object.WarpedObject;
+import warped.application.state.WarpedGroup;
+import warped.application.state.WarpedGroupIdentity;
+import warped.application.state.WarpedManager;
+import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
-import warped.application.state.groups.WarpedGroup;
-import warped.application.state.groups.WarpedGroupIdentity;
 import warped.graphics.window.WarpedWindow;
 import warped.utilities.utils.Console;
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
@@ -17,45 +18,50 @@ public class ManagerDepthField <T extends WarpedObject> extends WarpedManager<T>
 
 	private static boolean isBackgroundBaked;
 	
-	private static WarpedGroupIdentity bakedGroupID;
-	private static WarpedGroupIdentity primaryGroupID;
+	private static WarpedGroup<WarpedDepthField> bakedGroup;
+	private static WarpedGroup<WarpedDepthField> primaryGroup;
 	
 	
-	protected ManagerDepthField() {managerType = WarpedManagerType.DEPTH_FIELD;}
+	protected ManagerDepthField() {
+		super("Depthfield Manager");
+	}
 	
+	@SuppressWarnings("unchecked")
 	public void initialize() {
-		if(bakedGroupID != null) {
+		if(bakedGroup != null) {
 			Console.err("ManagerDepthField -> initialize() -> is already initialized");
 			return;
 		} else {
-			bakedGroupID = addGroup();
-			primaryGroupID = addGroup();
+			bakedGroup = (WarpedGroup<WarpedDepthField>) addGroup();
+			primaryGroup = (WarpedGroup<WarpedDepthField>) addGroup();
 		}
 	}
 	
 	public void openBackgroundUnbaked() {
-		openGroup(primaryGroupID);
-		closeGroup(bakedGroupID);
+		openGroup(primaryGroup);
+		closeGroup(bakedGroup);
 	}
 	
 	public void addBackgroundMember(WarpedDepthField depthField) {getPrimaryGroup().addMember(depthField);}
-	private static WarpedGroup<WarpedDepthField> getPrimaryGroup() {return WarpedState.depthFieldManager.getGroup(primaryGroupID);}
+	
+	@SuppressWarnings("unchecked")
+	private static WarpedGroup<WarpedDepthField> getPrimaryGroup() {return primaryGroup;}
 	
 	public void panLeft() {
 		if(isBackgroundBaked)return;
-		else WarpedState.depthFieldManager.getGroup(primaryGroupID).forEach(f -> {f.panLeft();});
+		else primaryGroup.forEach(f -> {f.panLeft();});
 	}
 	public void panRight() {
 		if(isBackgroundBaked)return;
-		else WarpedState.depthFieldManager.getGroup(primaryGroupID).forEach(f -> {f.panRight();});	
+		else primaryGroup.forEach(f -> {f.panRight();});	
 	}
 	public void panUp() {
 		if(isBackgroundBaked)return;
-		else WarpedState.depthFieldManager.getGroup(primaryGroupID).forEach(f -> {f.panUp();});
+		else primaryGroup.forEach(f -> {f.panUp();});
 	}
 	public void panDown() {
 		if(isBackgroundBaked)return;
-		else WarpedState.depthFieldManager.getGroup(primaryGroupID).forEach(f -> {f.panDown();});
+		else primaryGroup.forEach(f -> {f.panDown();});
 	}
 	
 	public boolean isBackgroundBaked() {return isBackgroundBaked;}
@@ -67,21 +73,19 @@ public class ManagerDepthField <T extends WarpedObject> extends WarpedManager<T>
 		}
 		
 		isBackgroundBaked = true;
-		
-		WarpedGroup<T> group = getGroup(primaryGroupID);
-		
+				
 		BufferedImage bakedImage = new BufferedImage(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		Graphics g = bakedImage.getGraphics();
 				
-		for(int i = 0; i < group.size(); i++) {
-			T t = group.getMember(i);
+		for(int i = 0; i < primaryGroup.getMemberCount(); i++) {
+			WarpedDepthField t = primaryGroup.getMember(i);
 			g.drawImage(t.raster(), (int)t.getRenderPosition().x(), (int)t.getRenderPosition().y(), (int)t.getRenderSize().x(), (int)t.getRenderSize().y(), null);
 		}
 		
-		getGroup(bakedGroupID).clearMembers();
-		WarpedState.depthFieldManager.getGroup(bakedGroupID).addMember(new WarpedDepthField(bakedImage));
-		WarpedState.depthFieldManager.closeGroup(primaryGroupID);
-		WarpedState.depthFieldManager.openGroup(bakedGroupID);
+		bakedGroup.clearMembers();
+		bakedGroup.addMember(new WarpedDepthField(bakedImage));
+		closeGroup(primaryGroup);
+		openGroup(bakedGroup);
 		Console.ln("ManagerDepthField -> bakeBackground() -> background was baked");
 		
 	}
@@ -92,8 +96,8 @@ public class ManagerDepthField <T extends WarpedObject> extends WarpedManager<T>
 			return;
 		}
 		isBackgroundBaked = false;
-		WarpedState.depthFieldManager.openGroup(primaryGroupID);
-		WarpedState.depthFieldManager.closeGroup(bakedGroupID);
+		WarpedState.depthFieldManager.openGroup(primaryGroup);
+		WarpedState.depthFieldManager.closeGroup(bakedGroup);
 		Console.ln("ManagerDepthField -> bakeBackground() -> background was unbaked");
 	}
 	

@@ -10,9 +10,8 @@ import warped.application.gui.GUIButton;
 import warped.application.gui.GUIImage;
 import warped.application.gui.GUIShape;
 import warped.application.gui.GUITextBoxLined;
-import warped.application.state.WarpedAssembly;
+import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.window.WarpedWindow;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
@@ -21,7 +20,7 @@ import warped.utilities.math.geometry.bezier.BezierCurveLinearI;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
-public class AssemblyPopUpDialogueBox extends WarpedAssembly  {
+public class AssemblyPopUpDialogueBox extends GUIAssembly  {
 
 	private DirectionType defPopDirection = DirectionType.UP;
 	
@@ -64,8 +63,8 @@ public class AssemblyPopUpDialogueBox extends WarpedAssembly  {
 	private boolean popOut = false;
 	private boolean pullIn = false;
 	
-	public AssemblyPopUpDialogueBox(WarpedManagerType type) {
-		super(type);
+	public AssemblyPopUpDialogueBox() {
+		super();
 		initializeBackground();
 		updatePopPosition();
 		close.setTextOffset(35, 6);

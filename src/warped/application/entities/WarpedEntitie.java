@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import warped.application.actionWrappers.ActionOption;
 import warped.application.entities.projectile.EntitieProjectile;
-import warped.application.object.WarpedObject;
+import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.utils.Console;

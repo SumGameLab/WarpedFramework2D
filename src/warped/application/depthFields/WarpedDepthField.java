@@ -3,25 +3,26 @@ package warped.application.depthFields;
 
 import java.awt.image.BufferedImage;
 
-import warped.application.object.WarpedObject;
-import warped.application.state.managers.CameraManager;
-import warped.graphics.camera.WarpedCameraType;
+import warped.application.state.WarpedObject;
+import warped.graphics.window.WarpedCamera;
 import warped.user.mouse.WarpedMouseEvent;
 
 public class WarpedDepthField extends WarpedObject {
 	
 	private double horizontalPanSpeed  = 1.0;
 	private double verticalPanSpeed    = 1.0;
+	private WarpedCamera panScalar;
 	
-	public WarpedDepthField(BufferedImage image) {
+	public WarpedDepthField(BufferedImage image, WarpedCamera panScalar) {
 		setSize(image.getWidth(), image.getHeight());
 		sprite.paint(image);
+		this.panScalar = panScalar;
 	}
 	
-	public void panUp()    {move(0.0, verticalPanSpeed   * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom()));};
-	public void panDown()  {move(0.0, -verticalPanSpeed   * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom()));};
-	public void panLeft()  {move(horizontalPanSpeed * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom()));};
-	public void panRight() {move(-horizontalPanSpeed * (1 / CameraManager.getCamera(WarpedCameraType.DEFAULT_ENTITIE).getZoom()));};
+	public void panUp()    {move(0.0, verticalPanSpeed   * (1 / panScalar.getZoom()));};
+	public void panDown()  {move(0.0, -verticalPanSpeed   * (1 / panScalar.getZoom()));};
+	public void panLeft()  {move(horizontalPanSpeed * (1 / panScalar.getZoom()));};
+	public void panRight() {move(-horizontalPanSpeed * (1 / panScalar.getZoom()));};
 	
 	public void setPanSpeed(double speed) {horizontalPanSpeed = verticalPanSpeed = speed;}
 	public void setHorizontalPanSpeed(double horizontalPanSpeed) { this.horizontalPanSpeed = horizontalPanSpeed;}

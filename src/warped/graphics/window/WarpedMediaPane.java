@@ -41,7 +41,7 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import warped.WarpedFramework2D;
+import warped.application.state.WarpedFramework2D;
 import warped.functionalInterfaces.WarpedAction;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.utilities.math.vectors.VectorD;

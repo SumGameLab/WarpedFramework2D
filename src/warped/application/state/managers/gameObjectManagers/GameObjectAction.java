@@ -2,7 +2,7 @@
 
 package warped.application.state.managers.gameObjectManagers;
 
-import warped.application.object.WarpedObject;
+import warped.application.state.WarpedObject;
 
 @FunctionalInterface
 public interface GameObjectAction {

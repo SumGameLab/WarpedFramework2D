@@ -8,20 +8,19 @@ import java.util.List;
 import warped.application.actionWrappers.ActionOption;
 import warped.application.entities.WarpedEntitie;
 import warped.application.gui.GUIListVertical;
-import warped.application.state.WarpedAssembly;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
+import warped.application.state.GUIAssembly;
 import warped.application.tile.WarpedTile;
 import warped.graphics.window.WarpedWindow;
 import warped.user.mouse.WarpedMouse;
 import warped.utilities.utils.Console;
 
-public class Selector extends WarpedAssembly {
+public class Selector extends GUIAssembly {
 
 	private GUIListVertical optionButtons = new GUIListVertical(150, 420);
 	private boolean strictNaming = true;
 	
-	public Selector(WarpedManagerType type) {
-		super(type);		
+	public Selector() {
+		super();		
 		
 	}
 

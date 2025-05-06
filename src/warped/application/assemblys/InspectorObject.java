@@ -13,17 +13,16 @@ import warped.application.gui.GUIShape;
 import warped.application.gui.GUITextBoxLined;
 import warped.application.gui.GUIToggle;
 import warped.application.gui.GUIValue;
-import warped.application.object.WarpedObject;
-import warped.application.state.WarpedAssembly;
+import warped.application.state.GUIAssembly;
+import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.audio.FrameworkAudio;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.utils.Console;
 
-public class InspectorObject extends WarpedAssembly {
+public class InspectorObject extends GUIAssembly {
 	
 	private WarpedObject object;
 		
@@ -45,8 +44,8 @@ public class InspectorObject extends WarpedAssembly {
 	private GUIValue  renderSize	 = new GUIValue(120, 30);
 
 	
-	public InspectorObject(WarpedManagerType type) {
-		super(type);
+	public InspectorObject() {
+		super();
 	}
 	
 	protected void defineAssembly() {

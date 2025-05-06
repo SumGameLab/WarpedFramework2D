@@ -2,7 +2,7 @@
 
 package warped.utilities.math.geometry.bezier;
 
-import warped.graphics.camera.WarpedCamera;
+import warped.graphics.window.WarpedCamera;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
 

@@ -2,9 +2,10 @@
 
 package warped.application.state.managers.gameObjectManagers;
 
+import warped.application.state.WarpedGroup;
+import warped.application.state.WarpedGroupIdentity;
+import warped.application.state.WarpedManager;
 import warped.application.state.WarpedState;
-import warped.application.state.groups.WarpedGroup;
-import warped.application.state.groups.WarpedGroupIdentity;
 import warped.application.tile.WarpedTile;
 import warped.application.tile.TileableGenerative;
 import warped.utilities.utils.Console;

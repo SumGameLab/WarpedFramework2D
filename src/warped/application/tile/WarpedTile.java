@@ -5,7 +5,7 @@ package warped.application.tile;
 import java.util.ArrayList;
 
 import warped.application.actionWrappers.ActionOption;
-import warped.application.object.WarpedObject;
+import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorI;

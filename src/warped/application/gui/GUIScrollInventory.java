@@ -5,7 +5,7 @@ import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
-import warped.application.object.WarpedObjectIdentity;
+import warped.application.state.WarpedObjectIdentity;
 import warped.user.mouse.WarpedMouseEvent;
 
 public class GUIScrollInventory extends WarpedGUI {

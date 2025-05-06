@@ -13,13 +13,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import warped.WarpedProperties;
-import warped.application.object.WarpedObject;
-import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManager;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
+import warped.application.state.WarpedGroup;
+import warped.application.state.WarpedManager;
+import warped.application.state.WarpedObject;
 import warped.functionalInterfaces.WarpedAction;
-import warped.graphics.animation.WarpedAnimation;
-import warped.graphics.camera.WarpedCamera;
 import warped.user.mouse.WarpedMouse;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorI;
@@ -47,18 +44,17 @@ public class WarpedViewport {
 	private String name;	
 	private long updateDuration;
 	
+	public  WarpedCamera camera = new WarpedCamera();
+
 	private WarpedManager<?> target; 	
-	public  WarpedCamera camera = WarpedState.cameraManager.getDefaultEntitieCamera();
-	
-	private ArrayList<Integer> targetGroups = new ArrayList<>();
-	
-	public long getUpdateDuration() {return updateDuration;}
-	
+	private ArrayList<WarpedGroup<?>> targetGroups = new ArrayList<>();
+		
 	private boolean visible = true;
 	private boolean interactive = true;
 	
-	private VectorI size = new VectorI(); 
-	private VectorI position = new VectorI();
+	private VectorI size 	  	 = new VectorI(); 
+	private VectorI position 	= new VectorI();
+	private VectorI cornerPoint = new VectorI();
 	
 	private BufferedImage buffer; //graphic input
 	private BufferedImage raster;    //graphic output
@@ -67,10 +63,11 @@ public class WarpedViewport {
 	private int bufferIndex = 0;
 	
 	private short fps = 0;
+	
 
 	public WarpedMouseEvent mouseEvent;
 	
-	private ArrayList<WarpedAnimation> animations = new ArrayList<>();
+	//private ArrayList<WarpedAnimation> animations = new ArrayList<>();
 
 	public ArrayList<WarpedObject> eventObjects = new ArrayList<>();
 	protected Object[] renderHints = new Object[8];
@@ -90,7 +87,7 @@ public class WarpedViewport {
 	public static final int DITHERING              = 7;
 	
 	public enum RenderType {
-		ANIMATION,
+		//ANIMATION,
 		PRIMITIVE,
 		PRIMITIVE_TRANSFORMED_SCALED,
 		ACTIVE,
@@ -101,40 +98,47 @@ public class WarpedViewport {
 		TARGET_GROUPS_TRANSFORMED_SCALED,
 	}
 	
-	//--------
-	//---------------- Constructors -------
-	//--------
-	public WarpedViewport(String name, WarpedManager<? extends WarpedObject> target, WarpedCamera camera, VectorI frameSize, VectorI framePosition) { /*GameContext must be defined at this point*/
+	/**A new viewport with the specified parameters.
+	 * @param name - the name of the viewport (not significant, mainly for debug purposes)
+	 * @param target - The manager that the viewport should target.
+	 * @param camera - The camera for the viewport to use
+	 * @param size - the size of the viewPort
+	 * @param position - the position of the viewPort in the window.
+	 * @author 5som3*/
+	public WarpedViewport(String name, WarpedManager<? extends WarpedObject> target, WarpedCamera camera, VectorI size, VectorI position) { /*GameContext must be defined at this point*/
 		this.name = name;
 		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
-		//viewportTimer = new Timer("WarpedViewport : " + name);
-		this.size = frameSize;
-		this.position = framePosition; 
+		this.size = size;
+		this.position = position;
 		this.target = target;
 		this.camera = camera;
-		camera.setCornerPins(0, 0, framePosition.x() + frameSize.x(), framePosition.y() + frameSize.y());
-		
+		cornerPoint.set(position.x() + size.x(), position.y() + size.y());		
+
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
 		rasterBuffer = new BufferedImage[bufferSize];
 		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		pushGraphics();
 		setDefaultRenderHints();
-		setRenderMethod(RenderType.ACTIVE);
-		
-		
+		setRenderMethod(RenderType.ACTIVE);	
 	}
 	
-	
-	public WarpedViewport(String name, WarpedManagerType target, int x, int y, int width, int height) {
+	/**A new viewport with the specified parameters.
+	 * @param name - the name of the viewport (not significant, mainly for debug purposes)
+	 * @param target - The manager that the viewport should target.
+	 * @param x - the x component of the viewport position in the window.
+	 * @param y - the y component of the viewport position in the window.
+	 * @param width - the width of the viewport.
+	 * @param height - the height of the viewport.
+	 * @author 5som3*/
+	public WarpedViewport(String name, WarpedManager<?> target, int x, int y, int width, int height) {
 		this.name = name;
 		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
-		//viewportTimer = new Timer("WarpedViewport : " + name);
 		this.size = new VectorI(width, height);
 		this.position = new VectorI(x, y); 
-		this.target = WarpedState.getManager(target);;
-		this.camera = WarpedState.cameraManager.getDefaultCamera(target);
-		camera.setCornerPins(0, 0, x + width, y + height);
+		this.target = target;
+		this.camera = new WarpedCamera();
+		cornerPoint.set(position.x() + size.x(), position.y() + size.y());		
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
@@ -143,19 +147,20 @@ public class WarpedViewport {
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
-		
 	}
 	
-	
-	public WarpedViewport(String name, WarpedManagerType target) {
+	/**A new viewport with the specified parameters.
+	 * @param name - the name of the viewport (not significant, mainly for debug purposes)
+	 * @param target - The manager that the viewport should target.
+	 * @author 5som3*/
+	public WarpedViewport(String name, WarpedManager<?> target) {
 		this.name = name;
 		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
-		//viewportTimer = new Timer("WarpedViewport : " + name);
 		this.size = new VectorI(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight());
 		this.position = new VectorI(); 
-		this.target = WarpedState.getManager(target);;
-		this.camera = WarpedState.cameraManager.getDefaultCamera(target);
-		camera.setCornerPins(0, 0, size.x(), size.y());
+		this.target = target;
+		this.camera = new WarpedCamera();
+		cornerPoint.set(position.x() + size.x(), position.y() + size.y());		
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
@@ -164,18 +169,21 @@ public class WarpedViewport {
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
-		
 	}
 	
-	public WarpedViewport(String name, WarpedManagerType target, RenderType renderType) {
+	/**A new viewport with the specified parameters.
+	 * @param name - the name of the viewport (not significant, mainly for debug purposes)
+	 * @param target - the manager that the viewport should target.
+	 * @param renderType - the type of render method for the viewport to use.  
+	 * @author 5som3*/
+	public WarpedViewport(String name, WarpedManager<?> target, RenderType renderType) {
 		this.name = name;
 		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
-		//viewportTimer = new Timer("WarpedViewport : " + name);
 		this.size = new VectorI(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight());
 		this.position = new VectorI(); 
-		this.target = WarpedState.getManager(target);;
-		this.camera = WarpedState.cameraManager.getDefaultCamera(target);
-		camera.setCornerPins(0, 0, size.x(), size.y());
+		this.target = target;
+		this.camera = new WarpedCamera();
+		cornerPoint.set(position.x() + size.x(), position.y() + size.y());		
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
@@ -184,9 +192,15 @@ public class WarpedViewport {
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(renderType);
-		
 	}
 
+	/**The duration of the last update cycle.
+	 * @author 5som3*/
+	public long getUpdateDuration() {return updateDuration;}
+	
+	/**The number of frames generated since the last time getFPS() was called.
+	 * @return short - the frame count
+	 * @author 5som3*/
 	public final short getFPS() {
 		short val = fps;
 		fps = 0;
@@ -196,7 +210,7 @@ public class WarpedViewport {
 	/**DO NOT CALL - this method is scheduled for automatic execution by the WarpedWindow.
 	 * @implNote redraws the viewport based on the current target / targets.
 	 * @author SomeKid*/
-	public final void update() {
+	protected final void update() {
 		long cycleStartTime = System.nanoTime();
 		camera.update();
 		render();
@@ -207,21 +221,14 @@ public class WarpedViewport {
 	/**For the currently targeted manager, set which groups should be viewed by this viewport.
 	 * @param groups - a list of the groups within the current targeted manager to draw.
 	 * @author SomeKid*/
-	public final void setTargetGroups(Integer... groups) {setTargetGroups(Arrays.asList(groups));}
+	public final void setTargetGroups(WarpedGroup<?>... groups) {setTargetGroups(Arrays.asList(groups));}
 	
 	/**For the currently targeted manager, set which groups should be viewed by this viewport.
 	 * @param groups - a list of the groups within the current targeted manager to draw.
 	 * @author SomeKid*/
-	public final void setTargetGroups(List<Integer> groups) {
+	public final void setTargetGroups(List<WarpedGroup<?>> groups) {
 		targetGroups.clear();
-		for(int i = 0; i < groups.size(); i++) {
-			int index = groups.get(i);
-			if(index < 0 || index > target.getGroups().size()) {
-				Console.err("WarpedViewport -> setTargetGroups() -> index out of bounds : " + index);
-				return;
-			}
-			targetGroups.add(index);
-		}
+		targetGroups = new ArrayList<>(groups);		
 	}
 	
 	/**If the viewport has been baked with graphics they will be cleared.
@@ -243,7 +250,7 @@ public class WarpedViewport {
 	 * @param groups - a list of the groups within the current targeted manager to bake.
 	 * @apiNote baked viewports will only draw groups that have been targeted, it is independent if which groups are open / closed.
 	 * @author SomeKid*/
-	public void bakeGroups(boolean isScaledAndTransformed, Integer... groups) {
+	public void bakeGroups(boolean isScaledAndTransformed, WarpedGroup<?>... groups) {
 		setTargetGroups(groups);
 		bakeGroups(isScaledAndTransformed);
 	}
@@ -260,17 +267,17 @@ public class WarpedViewport {
 		
 		if(isScaledAndTransformed) {	
 			for(int i = 0; i < targetGroups.size(); i++) {
-				getTarget().getGroup(targetGroups.get(i)).forEach((obj) -> {
+				targetGroups.get(i).forEach((obj) -> {
 					obj.setRenderTransformations(camera);
-					if(obj.isVisible() && !camera.isClipped(obj)) {			
+					if(obj.isVisible() && !isClipped(obj)) {			
 						at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
 						g.drawRenderedImage(obj.raster(), at);	
 					}
 				});
 			}
 		} else for(int i = 0; i < targetGroups.size(); i++) {
-			getTarget().getGroup(targetGroups.get(i)).forEach((obj) -> {
-				if(obj.isVisible() && !camera.isClipped(obj)) {			
+			targetGroups.get(i).forEach((obj) -> {
+				if(obj.isVisible() && !isClipped(obj)) {			
 					at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
 					g.drawRenderedImage(obj.raster(), at);	
 				}
@@ -280,6 +287,7 @@ public class WarpedViewport {
 		g.dispose();
 		raster = baked;		
 	}
+	
 	
 	/**The manager that this viewport is targeting.
 	 * @return WarpedManager<?> - the current manager.
@@ -364,9 +372,6 @@ public class WarpedViewport {
 	public void setRenderMethod(RenderType renderType) {
 		this.renderType = renderType;
 		switch(renderType) {
-		case ANIMATION:
-			renderMethod = animation;
-			break;
 		case PRIMITIVE:
 			renderMethod = primitive;
 			break;
@@ -404,22 +409,24 @@ public class WarpedViewport {
 	 * @apiNote The Viewport must be in animation mode. use setRenderMode(RenderType.ANIMATION);
 	 * @apiNote Animations will be removed automatically from the viewport as they complete.
 	 * @apiNote Animations will begin playing when they are added (if not playing already).
-	 * @author 5som3*/
+	 * @author 5som3
 	public void addAnimation(WarpedAnimation animation) {
 		if(renderType != RenderType.ANIMATION) {
 			Console.err("WarpedViewport -> " + name + " -> addAnimation() -> this viewport is not set to render animations, change render method before adding animations");
 			return;
 		} else animations.add(animation);
 	}
+	 * */
 	
 	/**Remove all the animations (if any).
-	 * @author 5som3*/
+	 * @author 5som3
 	public void clearAnimations() {
 		if(renderType != RenderType.ANIMATION) {
 			Console.err("WarpedViewport -> " + name + " -> clearAnimations() -> this viewport is not set to render animations, change render method before clearing animations");
 			return;
 		} else animations.clear();
 	}
+	 * */
 	
 	/**Set if the mouse can interactive with objects drawn by this viewport
 	 * @param isInteractive  - If true the mouse will be able to interact with objects displayed in the viewport
@@ -439,7 +446,10 @@ public class WarpedViewport {
 	 * @param y - the y position in pixels.
 	 * @apiNote The position is measured from the top left corner of the window to the top left corner of the viewport.
 	 * @author 5som3*/
-	public void setPosition(int x, int y) {this.position.set(x, y);}
+	public void setPosition(int x, int y) {
+		this.position.set(x, y);
+		cornerPoint.set(position.x() + size.x(), position.y() + size.y());		
+	}
 	
 	/**Get the name of the viewport
 	 * @return String - the name
@@ -571,7 +581,7 @@ public class WarpedViewport {
 	 * @implNote This function is called from the WarpedWindow class automatically when a mouse event occurs over it.
 	 * @implNote This function may be called multiple times per frame, only the last mouse event of each frame is considered; all other events will be trashed.
 	 * @author SomeKid */
-	public void MouseEvent(WarpedMouseEvent mouseEvent) {
+	protected void MouseEvent(WarpedMouseEvent mouseEvent) {
 		mouseEvent.updateTrace(this);
 		this.mouseEvent = mouseEvent;
 	}
@@ -579,7 +589,7 @@ public class WarpedViewport {
 	/** DO NOT CALL. 
 	 * @implNote This function is called automatically from the WarpedWindow once at the end of each render cycle.
 	 * @author SomeKid*/
-	public void dispatchMouseEvents() {
+	protected void dispatchMouseEvents() {
 		if(eventObjects.size() == 0 || !isEvent()) return;
 		WarpedObject eventObject = eventObjects.get(eventObjects.size() - 1);
 		eventObjects.clear();
@@ -606,6 +616,14 @@ public class WarpedViewport {
 		else renderObject.unhovered();
 	}
 		
+	private boolean isClipped(WarpedObject obj) {
+		if(obj.getRenderPosition().x() + obj.getRenderSize().x() < position.x()) return true; // outside left bound
+		if(obj.getRenderPosition().y() + obj.getRenderSize().y() < position.y()) return true; // outside top bound
+		if(obj.getRenderPosition().x() > cornerPoint.x()) return true; // outside right bound
+		if(obj.getRenderPosition().y() > cornerPoint.y()) return true; // outside bottom bound
+		return false;
+	}
+	
 	private boolean isEvent() {if(mouseEvent == null) return false; else return true;}
 
 	
@@ -688,7 +706,7 @@ public class WarpedViewport {
    	 * - Use this mode for a VFX viewport that will just display animations. 
    	 * - Warped Animations are removed when complete.  
    	 * - Does not have mouse I/O                                                                                
-	 * @author 5som3*/
+	 * @author 5som3
 	private final WarpedAction animation = () -> {
 		Graphics2D g = getGraphics();
 		for(int i = 0; i < animations.size(); i++) {
@@ -702,6 +720,7 @@ public class WarpedViewport {
 		g.dispose();
 		pushGraphics();
 	};
+	 * */
 	
 	
 	/**PRIMITIVE                                                                             
@@ -717,7 +736,7 @@ public class WarpedViewport {
 		target.forEachActiveGroup(obj -> {
 			obj.setRenderTransformations();
 			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
-			if(obj.isVisible() && !camera.isClipped(obj)) {			
+			if(obj.isVisible() && !isClipped(obj)) {			
 				g.drawImage(obj.raster(), (int)(obj.getRenderPosition().x()),(int)(obj.getRenderPosition().y()), (int)(obj.getRenderSize().x()),(int)(obj.getRenderSize().y()), null); 
 			}
 			handleMouse(obj);
@@ -738,7 +757,7 @@ public class WarpedViewport {
 		target.forEachActiveGroup(obj -> {
 			obj.setRenderTransformations(camera);
 			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
-			if(obj.isVisible() && !camera.isClipped(obj)) {			
+			if(obj.isVisible() && !isClipped(obj)) {			
 				g.drawImage(obj.raster(), (int)(obj.getRenderPosition().x()),(int)(obj.getRenderPosition().y()), (int)(obj.getRenderSize().x()),(int)(obj.getRenderSize().y()), null); 
 			}
 			handleMouse(obj);
@@ -760,7 +779,7 @@ public class WarpedViewport {
 		target.forEachActiveGroup(obj -> {
 			obj.setRenderTransformations();
 			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
-			if(obj.isVisible() && !camera.isClipped(obj)) {			
+			if(obj.isVisible() && !isClipped(obj)) {			
 				at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
 				g.drawRenderedImage(obj.raster(), at);	
 			}
@@ -783,7 +802,7 @@ public class WarpedViewport {
 		target.forEachActiveGroup(obj -> {
 			obj.setRenderTransformations(camera);
 			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
-			if(obj.isVisible() && !camera.isClipped(obj)) {			
+			if(obj.isVisible() && !isClipped(obj)) {			
 				at.setTransform(camera.getZoom() * obj.getRenderScale(), 0.0, 0.0, camera.getZoom() * obj.getRenderScale(), obj.getRenderPosition().x(), obj.getRenderPosition().y());
 				g.drawRenderedImage(obj.raster(), at);	
 			}
@@ -804,10 +823,10 @@ public class WarpedViewport {
 		Graphics2D g = getGraphics();
 		setRenderHints(g);
 		for(int i = 0; i < targetGroups.size(); i++) {
-			target.getGroup(targetGroups.get(i)).forEach(obj -> {
+			targetGroups.get(i).forEach(obj -> {
 				obj.setRenderTransformations();
 				if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
-				if(obj.isVisible() && !camera.isClipped(obj)) {			
+				if(obj.isVisible() && !isClipped(obj)) {			
 					at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
 					g.drawRenderedImage(obj.raster(), at);	
 				}
@@ -829,10 +848,10 @@ public class WarpedViewport {
 		Graphics2D g = getGraphics();
 		setRenderHints(g);
 		for(int i = 0; i < targetGroups.size(); i++) {
-			target.getGroup(targetGroups.get(i)).forEach(obj -> {
+			targetGroups.get(i).forEach(obj -> {
 				obj.setRenderTransformations(camera);
 				if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
-				if(obj.isVisible() && !camera.isClipped(obj)) {			
+				if(obj.isVisible() && !isClipped(obj)) {			
 					at.setTransform(camera.getZoom() * obj.getRenderScale(), 0.0, 0.0, camera.getZoom() * obj.getRenderScale(), obj.getRenderPosition().x(), obj.getRenderPosition().y());
 					g.drawRenderedImage(obj.raster(), at);	
 				}

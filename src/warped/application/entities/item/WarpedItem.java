@@ -1,8 +1,6 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 package warped.application.entities.item;
 
-import java.awt.image.BufferedImage;
-
 import warped.application.actionWrappers.ActionOption;
 import warped.application.entities.WarpedEntitie;
 import warped.application.state.WarpedState;
@@ -14,9 +12,11 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	protected T itemType;
 	protected int quantity = 1;
 	private double mass = 0.1;
+	private int value = 0;
 	
-	
-	public WarpedItem(T itemType) {
+	/**A new item of of the specified type
+	 * @author 5som3*/
+	protected WarpedItem(T itemType) {
 		this.itemType = itemType;
 		this.name = itemType.getString();
 		setToolTip(name);
@@ -28,7 +28,9 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 		}));
 	}
 	
-	public WarpedItem(T itemType, int quantity) {
+	/**A new item of of the specified type and quantity
+	 * @author 5som3*/
+	protected WarpedItem(T itemType, int quantity) {
 		this.itemType = itemType;
 		this.name = itemType.getString();
 		this.quantity = quantity;
@@ -40,33 +42,7 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 			WarpedState.itemInspector.open();
 		}));
 	}
-	
-	
-	public WarpedItem(T itemType, String name, BufferedImage raster, int quantity) {
-		this.itemType = itemType;
-		this.name = name;
-		this.quantity = quantity;
-		setToolTip(name);
-		sprite.paint(itemType.getRaster());
-		clearSelectOptions();
-		addSelectOption(new ActionOption("Inspect", () -> {
-			WarpedState.itemInspector.selectItem(this);
-			WarpedState.itemInspector.open();
-		}));
-	}
-	
-	@SuppressWarnings("unchecked")
-	/**Cast the input item to the specified type
-	 * @return null if the cast is not valid else returns the cast item 
-	 * */
-	public static <K extends ItemBindable<?>, L extends ItemBindable<?>> WarpedItem<K> castItem(WarpedItem<L> a, K castType){if(isSameType(a, castType)) return (WarpedItem<K>) a; else return null;}
-	
-	/**Cast the input item to the specified type
-	 * @return null if the cast is not valid else returns the cast item 
-	 * */
-	public <K extends ItemBindable<?>, L extends ItemBindable<?>> WarpedItem<K> castItem(K castType){return castItem(this, castType);}
-	
-	
+		
 	/**Set the quantity regardless of what it was prior.
 	 * If the quantity of the item should be set to a specific number use this function.
 	 * If you want to (for example) add 10 or remove 10 items from the current quantity you should instead use the produce / consume functions.
@@ -80,6 +56,7 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 		}
 		this.quantity = quantity;
 		updateMass();
+		updateValue();
 	}
 	
 	/**Increases the quantity
@@ -88,6 +65,7 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	public final void produce(int quantity) {
 		this.quantity += quantity;
 		updateMass();
+		updateValue();
 	}
 	/**Increases the quantity by one*/
 	public final void produce() {produce(1);}	
@@ -109,22 +87,53 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 		else {
 			this.quantity = val;
 			updateMass();
+			updateValue();
 			return true;
 		}
 	}
 	
-	
-
+	/**Get the item type
+	 * @return T - the type of item
+	 * @author 5som3*/
 	public T getItemType() {return itemType;}
+	
+	/**Get the item quantity
+	 * @return int - the number of items in the stack
+	 * @author 5som3*/
 	public final int getQuantity() {return quantity;}
+	
+	/**Get the item quantity as a string
+	 * @return String - the number of items
+	 * @author 5som3*/
 	public final String getQuantityString() {return "" + quantity;}
+	
+	/**Get the mass of the item stack.
+	 * @return double - the total mass of the items 
+	 * @author 5som3*/
 	public final double getMass() {return mass;}
+	
+	/**Get the mass of a single item of this type
+	 * @return double - the mass of one of this item type
+	 * @author 5som3*/
 	public final double getMassOfOne() {return itemType.getMass();}
-	public final int getValue() {return quantity * itemType.getValue();}
+	
+	/**Get the value of the item stack
+	 * @return int - the value of the stack
+	 * @author 5som3*/
+	public final int getValue() {return value;}
+	
+	/**Get the value of a single item of this type
+	 * @return int - the value of one item of this type
+	 * @author 5som3*/
 	public final int getValueOfOne() {return itemType.getValue();}
 	
-
-	protected final void updateMass() {mass = quantity * itemType.getMass();}
+	/**Update the mass of the stack
+	 * @author 5som3*/
+	private final void updateMass() {mass = quantity * itemType.getMass();}
+	
+	/**Update the value of the stack
+	 * @author 5som3*/
+	private final void updateValue() {value = (int)(quantity * itemType.getValue());}
 
 	
 	/**Do the items come from the same declaration of itemBindables.

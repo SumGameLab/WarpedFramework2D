@@ -4,7 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import warped.application.entities.item.ResourceType;
-import warped.application.state.groups.WarpedGroupIdentity;
+import warped.application.state.WarpedGroupIdentity;
 import warped.utilities.utils.Console;
 
 public class TerrainTile<T extends TileableGenerative<? extends Enum<?>>> extends TileGenerative<T> {

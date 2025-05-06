@@ -4,8 +4,8 @@ package warped.application.state.managers;
 
 import java.util.ArrayList;
 
-import warped.application.object.WarpedObject;
-import warped.application.object.WarpedObjectIdentity;
+import warped.application.state.WarpedObject;
+import warped.application.state.WarpedObjectIdentity;
 import warped.application.state.WarpedState;
 import warped.utilities.utils.Console;
 
@@ -23,7 +23,7 @@ public class SelectionManager {
 			Console.err("SelectionManager -> getSelection() -> no object is selected");
 			return null;
 		}
-		return WarpedState.getGameObject(selection.get(0));
+		return WarpedState.getMember(selection.get(0));
 	}
 	public WarpedObjectIdentity getSelectedIdentity() {return selection.get(0);}
 	
@@ -34,7 +34,7 @@ public class SelectionManager {
 		}
 		ArrayList<WarpedObject> result = new ArrayList<>();
 		for(int i = 0; i < selection.size(); i++) {
-			result.add(WarpedState.getGameObject(selection.get(i)));
+			result.add(WarpedState.getMember(selection.get(i)));
 		}
 		return result;
 	}

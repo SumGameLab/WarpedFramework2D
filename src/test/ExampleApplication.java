@@ -2,23 +2,25 @@
 package test;
 
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
-import warped.WarpedFramework2D;
-import warped.application.entities.WarpedEntitie;
+import warped.application.assemblys.InspectorInventory;
+import warped.application.entities.item.ItemBindable;
+import warped.application.state.ManagerItem;
 import warped.application.state.WarpedApplication;
 import warped.application.state.WarpedAudioFolder;
+import warped.application.state.WarpedFramework2D;
+import warped.application.state.WarpedGroup;
 import warped.application.state.WarpedImageFolder;
+import warped.application.state.WarpedInventory;
+import warped.application.state.WarpedObject;
 import warped.application.state.WarpedSpriteFolder;
 import warped.application.state.WarpedState;
-import warped.application.state.groups.WarpedGroup;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.application.tile.TileableGenerative;
 import warped.graphics.sprite.CharacterSprite;
-import warped.graphics.window.WarpedViewport;
-import warped.graphics.window.WarpedWindow;
-import warped.graphics.window.WarpedViewport.RenderType;
+import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.user.keyboard.WarpedKeyBind;
 import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.enums.WarpedLinkable;
@@ -81,8 +83,68 @@ public class ExampleApplication extends WarpedApplication {
 				Console.err("ExampleApplication -> TestTiles -> getRoughness() -> invalid case : " + tileType);
 				return 0.25;			
 			}
+		}		
+	}
+	
+	public enum TestItems implements ItemBindable<TestItems>{
+		POTION,
+		FOOD,
+		ROCK,
+		;
+
+		public static Map<Integer, TestItems> map = new HashMap<>();
+		static {for(TestItems tile : TestItems.values()) map.put(tile.ordinal(), tile);}
+
+		@Override
+		public Map<Integer, TestItems> getMap() {return map;}
+
+		@Override
+		public BufferedImage getRaster(TestItems itemType) {
+			switch(itemType) {
+			case FOOD:   return FrameworkSprites.error;	
+			case POTION: return FrameworkSprites.error;		
+			case ROCK:	 return FrameworkSprites.error;	
+			default:
+				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
+				return FrameworkSprites.error;			
+			}
 		}
 
+		@Override
+		public String getDescription(TestItems itemType) {
+			switch(itemType) {
+			case FOOD: 	 return "Yummy food"; 
+			case POTION: return "Health potion";
+			case ROCK:	 return "Heavy rock";
+			default:
+				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
+				return "Error!";			
+			}
+		}
+
+		@Override
+		public int getValue(TestItems itemType) {
+			switch(itemType) {
+			case FOOD: 	 return 4;
+			case POTION: return 6;
+			case ROCK:	 return 3;
+			default:
+				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
+				return -1;		
+			}
+		}
+
+		@Override
+		public double getMass(TestItems itemType) {
+			switch(itemType) {
+			case FOOD: 	 return 1.0;
+			case POTION: return 0.5;
+			case ROCK:	 return 3.0;
+			default:
+				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
+				return 4.0;			
+			}
+		}
 		
 	}
 	
@@ -92,8 +154,15 @@ public class ExampleApplication extends WarpedApplication {
 	public static WarpedSpriteFolder<TestSprites> testSprites; 
 	public static WarpedAudioFolder<TestAudio> testAudio;
 	
+	public static ManagerItem<TestItems> itemManager;
+	
 	/*Check out example of how to set up a HUD here*/
 	public static ExampleHUD hud;
+	
+	public static InspectorInventory<TestItems> inventInspector;
+	
+	public static WarpedInventory<TestItems> exampleInventory;
+	
 	
 	/*Check out example entitie here*/
 	private ExampleEntitie dude;
@@ -129,25 +198,35 @@ public class ExampleApplication extends WarpedApplication {
 	 * */
 	@Override
 	protected void initializeApplication() {
-		WarpedWindow.setViewPorts(new WarpedViewport("Entities", WarpedManagerType.ENTITIE, RenderType.ACTIVE_TRANSFORMED_SCALED), WarpedWindow.getViewPort(0));
+		itemManager = new ManagerItem<TestItems>();
+		WarpedState.addManager(itemManager);
+
+		inventInspector = new InspectorInventory<TestItems>(4, 5);
+		inventInspector.assemble();
+		
+		exampleInventory = itemManager.addGroup();
+		exampleInventory.produce(TestItems.FOOD, 10);
+		exampleInventory.produce(TestItems.POTION, 2);
+		exampleInventory.produce(TestItems.ROCK, 5);
+		exampleInventory.produce(TestItems.ROCK, 1);
+		
 		CharacterSprite testSprite = new CharacterSprite(testSprites.getSheet(TestSprites.SPRITE_8DIR), AxisType.HORIZONTAL);
 		testSprite.setFrameRate(16);
 		
 		dude = new ExampleEntitie(testSprite);
 		dude.setPosition(900, 500);
 		
-		WarpedGroup<WarpedEntitie> testGroup = WarpedState.entitieManager.getGroup(WarpedState.entitieManager.addGroup());
+		WarpedGroup<WarpedObject> testGroup = WarpedState.objectManager.addGroup();
 		testGroup.addMember(dude);
 		WarpedState.openGroup(testGroup);
 		
-		hud = new ExampleHUD(WarpedManagerType.GUI);	
+		hud = new ExampleHUD();	
 		hud.assemble();
 		
 		WarpedKeyboard.getActiveController().addBinding(new WarpedKeyBind("Toggle Framework Inspector", KeyEvent.VK_F1, null, () -> {hud.toggle();}));
 		
 		Console.addCommand("/addHealth", () -> {WarpedState.notify.note("Cheat health");});
 		Console.addCommand("/addStamina", () -> {WarpedState.notify.note("Cheat stamina");});
-		
 	}
 
 	/*This function is run once when the framework has finished initializing and has prepared the application.

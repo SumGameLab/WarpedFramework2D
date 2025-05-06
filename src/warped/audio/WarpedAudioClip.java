@@ -12,7 +12,7 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
-import warped.WarpedFramework2D;
+import warped.application.state.WarpedFramework2D;
 import warped.utilities.utils.Console;
 
 public class WarpedAudioClip {

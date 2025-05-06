@@ -7,14 +7,13 @@ import warped.application.gui.GUIButton;
 import warped.application.gui.GUIShape;
 import warped.application.gui.GUITextBoxLined;
 import warped.application.gui.GUITextInputLine;
-import warped.application.state.WarpedAssembly;
+import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.utilities.enums.generalised.Colour;
 
-public class FileExplorer  extends WarpedAssembly {
+public class FileExplorer  extends GUIAssembly {
 
 	private GUIButton title  	= new GUIButton("File Explorer");
 	private GUIButton close 	= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
@@ -26,8 +25,8 @@ public class FileExplorer  extends WarpedAssembly {
 	private GUITextInputLine textLine = new GUITextInputLine();
 	
 	
-	public FileExplorer(WarpedManagerType type) {
-		super(type);
+	public FileExplorer() {
+		super();
 
 	}
 

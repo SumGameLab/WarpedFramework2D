@@ -4,7 +4,7 @@ package warped.application.entities.projectile;
 import java.awt.image.BufferedImage;
 
 import warped.application.entities.WarpedEntitie;
-import warped.application.object.WarpedObject;
+import warped.application.state.WarpedObject;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.math.geometry.bezier.BezierCurveLinearD;
 import warped.utilities.math.vectors.VectorD;

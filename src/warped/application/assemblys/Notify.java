@@ -4,12 +4,11 @@ package warped.application.assemblys;
 import java.util.ArrayList;
 
 import warped.application.gui.GUINotification;
-import warped.application.state.WarpedAssembly;
+import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.utilities.utils.Console;
 
-public class Notify extends WarpedAssembly {
+public class Notify extends GUIAssembly {
 		
 	public enum StyleType {
 		DEFAULT;
@@ -20,12 +19,12 @@ public class Notify extends WarpedAssembly {
 	
 	private ArrayList<Integer> indices = new ArrayList<>();
 	
-	public Notify(WarpedManagerType type) {
-		super(type);
+	public Notify() {
+		super();
 	}
 
 	public void note(String text) {
-		if(!WarpedState.guiManager.isGroupOpen(groupID)) open();
+		if(!WarpedState.guiManager.isOpen(groupID)) open();
 		if(lastNote.equals(text)) return;
 		else lastNote = text;
 		GUINotification note; 

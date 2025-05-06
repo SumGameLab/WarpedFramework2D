@@ -4,8 +4,8 @@ package warped.user.keyboard;
 
 import java.awt.event.KeyEvent;
 
-import warped.WarpedFramework2D;
 import warped.WarpedProperties;
+import warped.application.state.WarpedFramework2D;
 import warped.application.state.WarpedState;
 
 public class DefaultController extends WarpedKeyboardController {
@@ -20,12 +20,6 @@ public class DefaultController extends WarpedKeyboardController {
 		addBinding(new WarpedKeyBind("Toggle Cap Render Size", KeyEvent.VK_F2, null, () -> {WarpedProperties.toggleCapMinSize();}));
 		addBinding(new WarpedKeyBind("Toggle Full screen", KeyEvent.VK_F3, null, () -> {WarpedFramework2D.getWindow().toggleFullscreen();}));
 		
-		addBinding(new WarpedKeyBind("Pan Up", KeyEvent.VK_UP, () -> {WarpedState.cameraManager.getDefaultEntitieCamera().panUp();}, null));
-		addBinding(new WarpedKeyBind("Pan Down", KeyEvent.VK_DOWN, () -> {WarpedState.cameraManager.getDefaultEntitieCamera().panDown();}, null));
-		addBinding(new WarpedKeyBind("Pan Left", KeyEvent.VK_LEFT, () -> {WarpedState.cameraManager.getDefaultEntitieCamera().panLeft();}, null));
-		addBinding(new WarpedKeyBind("Pan Right", KeyEvent.VK_RIGHT, () -> {WarpedState.cameraManager.getDefaultEntitieCamera().panRight();}, null));
-		addBinding(new WarpedKeyBind("Zoom In", KeyEvent.VK_PAGE_UP, () -> {WarpedState.cameraManager.getDefaultEntitieCamera().zoomIn();}, null));
-		addBinding(new WarpedKeyBind("Zoom Out", KeyEvent.VK_PAGE_DOWN, () -> {WarpedState.cameraManager.getDefaultEntitieCamera().zoomOut();}, null));
 	}
 	
 }

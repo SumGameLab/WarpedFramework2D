@@ -5,7 +5,7 @@ package warped.user.keyboard;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
-import warped.application.object.WarpedObject;
+import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.functionalInterfaces.WarpedAction;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;

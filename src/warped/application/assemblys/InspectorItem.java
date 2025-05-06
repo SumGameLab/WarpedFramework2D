@@ -8,9 +8,8 @@ import warped.application.gui.GUIButton;
 import warped.application.gui.GUIImage;
 import warped.application.gui.GUIShape;
 import warped.application.gui.GUITextBoxLined;
-import warped.application.state.WarpedAssembly;
+import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.audio.FrameworkAudio;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
@@ -18,7 +17,7 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.UtilsMath;
 
-public class AssemblyItemInspector extends WarpedAssembly {
+public class InspectorItem extends GUIAssembly {
 
 	private Rectangle backgroundRect = new Rectangle(0, 0, 200, 400);
 	private GUIShape background = new GUIShape(200, 300);
@@ -31,8 +30,8 @@ public class AssemblyItemInspector extends WarpedAssembly {
 	private VectorD detailsOffset = new VectorD(5, 100);
 	private VectorD closeOffset = new VectorD(170, 0);
 	
-	public AssemblyItemInspector(WarpedManagerType type) {
-		super(type);
+	public InspectorItem() {
+		super();
 		
 	}
 

@@ -578,16 +578,16 @@ public abstract class FrameworkSprites {
 		case F11: return standardIcons.getSprite(10, 11); 
 		case F12: return standardIcons.getSprite(11, 11); 
 		 
-		case ONE:   return standardIcons.getSprite(0, 5);  
-		case TWO:   return standardIcons.getSprite(1, 5);  
-		case THREE: return standardIcons.getSprite(2, 5);  
-		case FOUR:  return standardIcons.getSprite(3, 5);  
-		case FIVE:  return standardIcons.getSprite(4, 5);  
-		case SIX:   return standardIcons.getSprite(5, 5);  
-		case SEVEN: return standardIcons.getSprite(6, 5);  
-		case EIGHT: return standardIcons.getSprite(7, 5);  
-		case NINE:  return standardIcons.getSprite(8, 5);  
-		case ZERO:  return standardIcons.getSprite(9, 5);  
+		case ONE:   return standardIcons.getSprite(0, 0);  
+		case TWO:   return standardIcons.getSprite(1, 0);  
+		case THREE: return standardIcons.getSprite(2, 0);  
+		case FOUR:  return standardIcons.getSprite(3, 0);  
+		case FIVE:  return standardIcons.getSprite(4, 0);  
+		case SIX:   return standardIcons.getSprite(5, 0);  
+		case SEVEN: return standardIcons.getSprite(6, 0);  
+		case EIGHT: return standardIcons.getSprite(7, 0);  
+		case NINE:  return standardIcons.getSprite(8, 0);  
+		case ZERO:  return standardIcons.getSprite(9, 0);  
 		            
 		case MINUS:		return standardIcons.getSprite(0, 10);
 		case EQUALS:	return standardIcons.getSprite(0, 11);

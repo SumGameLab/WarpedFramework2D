@@ -21,7 +21,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import javafx.scene.media.MediaException;
-import warped.WarpedFramework2D;
+import warped.application.state.WarpedFramework2D;
 import warped.application.state.WarpedState;
 import warped.functionalInterfaces.WarpedAction;
 

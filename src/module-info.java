@@ -21,11 +21,9 @@ module WarpedFramework2D {
 	exports warped.application.entities.item;
 	exports warped.application.entities.projectile;
 	exports warped.application.gui;
-	exports warped.application.object;
 	exports warped.application.player;
 	exports warped.application.quest;
 	exports warped.application.state;
-	exports warped.application.state.groups;
 	exports warped.application.state.managers;
 	exports warped.application.state.managers.gameObjectManagers;
 	exports warped.application.tile;
@@ -33,7 +31,6 @@ module WarpedFramework2D {
 	exports warped.functionalInterfaces;
 	exports warped.graphics;
 	exports warped.graphics.animation;
-	exports warped.graphics.camera;
 	exports warped.graphics.sprite;
 	exports warped.graphics.sprite.spriteSheets;	
 	exports warped.graphics.window;

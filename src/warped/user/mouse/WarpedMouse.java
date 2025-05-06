@@ -10,9 +10,10 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 
-import warped.WarpedFramework2D;
-import warped.application.gui.GUIInventoryItems;
-import warped.application.object.WarpedObject;
+import warped.application.entities.item.WarpedItem;
+import warped.application.gui.GUIInventory;
+import warped.application.state.WarpedFramework2D;
+import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.audio.FrameworkAudio;
 import warped.graphics.window.WarpedWindow;
@@ -45,23 +46,24 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	public static final int PRESS = 1;
 	public static final int LOAD  = 2;
 	
-	
 	private static WarpedMouseController mouseController = new DefaultMouseController();
-	
 	private static Point lastPoint = new Point(1,1);
 	
-	
-	// 18/1/24 -> Implement different mouse graphics for press / release etc
 	private static boolean inWindow   = true;
 	private static boolean isDragging = false;
-	private static boolean isDraggingItem = false;
 	public static boolean isTrapMouse = true;
 	
 	private static boolean isFocused  = false;
 	private static boolean isPressed  = false;
 	private static boolean isLocked   = false;
-	private static GUIInventoryItems itemParent;
-	private static int dragItemIndex;
+	
+	
+	private static WarpedItem<?> dragItem;
+	private static boolean isDraggingItem = false;
+
+	//private static boolean isDraggingItem = false;
+	//private static GUIInventory<?> itemParent;
+	//private static int dragItemIndex;
 	
 	//--------
 	//---------------- Access --------
@@ -80,8 +82,8 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		WarpedWindow.getFrame().setCursor(mouseController.getCursor());
 	}
 	
-	public static GUIInventoryItems getDragItemInventory() {return itemParent;}
-	public static int getDragItemIndex() { return dragItemIndex;}
+	//public static GUIInventory<?> getDragItemInventory() {return itemParent;}
+	//public static int getDragItemIndex() { return dragItemIndex;}
 	
 	public static Point getPoint() {return mouseController.getMousePoint();}
 	public static boolean isInWindow() {return inWindow;}
@@ -106,28 +108,30 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		WarpedWindow.getFrame().setCursor(mouseController.getCursor());
 	}	
 	
+	public static void focus() {isFocused = true;}
+	public static void unfocus() {isFocused = false;}
+
 	//--------
 	//---------------- Dragging -------
 	//--------	
-	public static void focus() {isFocused = true;}
-	public static void unfocus() {isFocused = false;}
 	
-	public static void dragItem(WarpedObject obj, GUIInventoryItems parent, int dragIndex) {
-		itemParent = parent;
-		dragItemIndex = dragIndex;
-		mouseController.setTemporaryCursorImage(obj.raster());
+	public static WarpedItem<?> getDraggedItem(){return dragItem;}
+		
+	public static void dragItem(WarpedItem<?> dragItem) {
+		WarpedMouse.dragItem = dragItem;
+		mouseController.setTemporaryCursorImage(dragItem.raster());
 		resetCursor();
 		isDraggingItem = true;
 	}
 	
 	public static void dropItem() {
 		if(isDraggingItem) {			
-			itemParent = null;
-			dragItemIndex = -1;
 			resetCursor();
 			isDraggingItem = false;
 		}
 	}
+	/*
+	*/
 	
 
 	//--------

@@ -1,0 +1,231 @@
+/* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
+package warped.application.gui;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+
+import warped.application.entities.item.ItemBindable;
+import warped.application.entities.item.WarpedItem;
+import warped.application.state.WarpedInventory;
+import warped.application.state.WarpedInventory.SortType;
+import warped.application.state.WarpedState;
+import warped.user.mouse.WarpedMouse;
+import warped.user.mouse.WarpedMouseEvent;
+import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
+
+public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
+	
+	private Color backgroundColor = new Color(50,50,50);
+	
+	private Color textColor = Color.YELLOW;
+	private Font font = UtilsFont.getPreferred();
+
+	private int columns = 8; 
+	private int rows = 8;
+	
+	private int iconWidth = 64;
+	private int iconHeight = 64;
+	
+	private int rowMargin = 20;
+	private int columnMargin = 10;
+	
+	private int itemSpacingX = iconWidth + columnMargin;
+	private int itemSpacingY = iconHeight + rowMargin;
+	
+	private int iconOffsetX = columnMargin / 2;
+	private int textOffsetY = iconHeight + font.getSize() + 2;
+	private int textOffsetX = iconWidth / 6;
+	
+	private int hoverX = -1;
+	private int hoverY = -1;
+	private Color hoverColor = new Color(60,60,60,60);
+	
+	private WarpedInventory<T> selectInvent;
+	
+	private static int dropIndex;
+	private static int dragIndex;
+	
+	/**An interactive inventory with the specified number of rows and columns
+	 * @param columns - the number of columns in the inventory.
+	 * @param rows - the number of rows in the inventory. 
+	 * @author 5som3*/
+	public GUIInventory(int columns, int rows) {
+		this.columns = columns; 
+		this.rows = rows;
+		setSize(itemSpacingX * columns, itemSpacingY * rows);
+	}
+	
+	/**Select an inventory to inspect
+	 * @param invent - the inventory to inspect
+	 * @author 5som3*/
+	public void selectInventory(WarpedInventory<T> selectInvent) {
+		this.selectInvent = selectInvent;
+		updateGraphics();		
+	}
+
+	/**Get the inventory currently displayed in the GUI.
+	 * @return WarpedInventory<T> - the inventory currently selected.
+	 * @author 5som3*/
+	public WarpedInventory<T> getInventory(){return selectInvent;}
+
+	/**Drop an item from the previous inventory into this inventory.
+	 * @param previousInventory - the inventory that the item is being taken from.
+	 * @param dragIndex - the index of the item in the previous inventory.
+	 * @param dropIndex - the index where the item is to be inserted into this inventory.
+	 * @author 5som3*/
+	public void dropItem(WarpedItem<?> dropItem) {
+		if(dropItem.getObjectID().getGroupID().getManagerID() != selectInvent.getGroupID().getManagerID()) {
+			Console.err("GUIInventory -> dropItem() -> dropItem is not from the same item set : " + dropItem.getItemType());
+			return;
+		}		
+		@SuppressWarnings("unchecked")
+		WarpedItem<T> di = (WarpedItem<T>) dropItem;
+		
+		if(di.getObjectID().getGroupID().isEqual(selectInvent.getGroupID())) { //Move the object within the inventory
+			selectInvent.swampMembers(dragIndex, dropIndex);
+		} else { //Move object to this inventory
+			WarpedState.removeMember(dropItem.getObjectID());
+			addItem(di, dropIndex);
+		}
+		
+		dragIndex  = -1;
+		dropIndex  = -1;
+		WarpedMouse.dropItem();
+	}
+		
+	/**Sort the inventory with the specified sort type
+	 * @param sort - the type of sorting to apply to the inventory
+	 * @apiNote Graphics will be updated after the sorting has completed.
+	 * @implNote The sorting will be applied to the inventory that this GUI is inspecting, (not just a visual change)
+	 * @author 5som3*/
+	public void sort(SortType sort) {
+		selectInvent.sort(sort);
+		updateGraphics();
+	}
+	
+	/**Add an item to this inventory
+	 * @param item - the item to add to the inventory.
+	 * @param index - the index that the item will be added at.
+	 * @apiNote If index larger than member count it will be inserted at the end of the group instead.
+	 * @implNote This will also remove the item from the context group that contains it, not just the GUI
+	 * @author 5som3*/
+	private void addItem(WarpedItem<T> item, int index) {
+		selectInvent.addMember(item, index);
+		updateGraphics();
+	}
+		
+	/***/
+	private void updateGraphics() {	
+		Graphics g = getGraphics();
+		
+		g.setColor(backgroundColor);
+		g.fillRect(0, 0, getWidth(), getHeight());
+				
+		int x = 0;
+		int y = 0;
+		for(int i = 0; i < selectInvent.getMemberCount(); i++) {
+			if(x >= columns) {
+				x = 0;
+				y++;
+			}
+			if(y >= rows) {
+				return;
+			}
+			
+			int rx = x * itemSpacingX;
+			int ry = y * itemSpacingY;
+			
+			g.drawImage(selectInvent.getMember(i).raster(), rx + iconOffsetX , ry, iconWidth, iconHeight, null);
+			g.setFont(font);
+			g.setColor(textColor);
+			g.drawString(selectInvent.getMember(i).getQuantityString(), rx + textOffsetX, ry + textOffsetY);
+			
+			if(x == hoverX && y == hoverY) {
+				g.setColor(hoverColor);
+				g.fillRect(rx, ry, rx + iconWidth + columnMargin, ry + iconHeight + rowMargin);
+			}
+			
+			x++;
+		}
+		g.dispose();
+		pushGraphics();
+	}
+	
+	
+	@Override
+	protected void mouseEntered() {return;}
+
+	@Override
+	protected void mouseExited() {
+		hoverX = hoverY = -1;
+		updateGraphics();
+		
+	}
+
+	@Override
+	protected void mouseMoved(WarpedMouseEvent mouseEvent) {
+		int hx = Math.floorDiv(mouseEvent.getPointRelativeToObject().x, itemSpacingX);
+		int hy = Math.floorDiv(mouseEvent.getPointRelativeToObject().y, itemSpacingY);
+		
+		if(hx < 0 || hy < 0 || hx >= columns || hy >= rows) return;
+		
+		int index = hx + hy * columns;
+		if(index >= selectInvent.getMemberCount()) return;
+		
+		if(hoverX != hx || hoverY != hy) {
+			//invent.getMember(index).unhovered();
+			hoverX = hx;
+			hoverY = hy;
+			updateGraphics();
+		}
+	}
+
+	@Override
+	protected void mouseDragged(WarpedMouseEvent mouseEvent) {
+		//if(mouseEvent.getMouseEvent().getButton() == MouseEvent.BUTTON3) return;
+		if(WarpedMouse.isFocused() || WarpedMouse.isDraggingItem()) return;
+		int hx = Math.floorDiv(mouseEvent.getPointRelativeToObject().x, itemSpacingX);
+		int hy = Math.floorDiv(mouseEvent.getPointRelativeToObject().y, itemSpacingY);
+		if(hx < 0 || hy < 0 || hx >= columns || hy >= rows) return;
+		int index = hx + hy * columns;
+		if(index >= selectInvent.getMemberCount()) return;
+		
+		dragIndex = index;
+		WarpedMouse.dragItem(selectInvent.getMember(index));		
+	}
+
+	@Override
+	protected void mousePressed(WarpedMouseEvent mouseEvent) {return;}
+
+	@Override
+	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
+		int hx = Math.floorDiv(mouseEvent.getPointRelativeToObject().x, itemSpacingX);
+		int hy = Math.floorDiv(mouseEvent.getPointRelativeToObject().y, itemSpacingY);
+		
+		if(hx < 0 || hy < 0 || hx >= columns || hy >= rows) return;
+		int index = hx + hy * columns;
+
+		if(WarpedMouse.isDraggingItem()) {
+			Console.ln("GUIInventory -> mouseReleased() -> dropping item at index : " + dropIndex);
+			if(index > selectInvent.getMemberCount()) {
+				Console.ln("GUIInventory -> dropIndex() -> drop index too high -> chaned to : " + dropIndex);
+				index = selectInvent.getMemberCount();
+			}
+
+			dropIndex = index;
+			dropItem(WarpedMouse.getDraggedItem());			
+			return;							
+		} 
+			
+		if(index >= selectInvent.getMemberCount()) return;
+		selectInvent.getMember(index).mouseEvent(mouseEvent);
+	}
+
+
+	@Override
+	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
+
+
+}

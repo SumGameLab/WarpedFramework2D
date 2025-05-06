@@ -3,16 +3,15 @@ package warped.application.assemblys;
 
 import warped.application.gui.GUIButton;
 import warped.application.gui.GUIHotBar;
-import warped.application.state.WarpedAssembly;
+import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.user.keyboard.WarpedKeyboardController;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 
-public class AssemblyHotBar extends WarpedAssembly {
+public class AssemblyHotBar extends GUIAssembly {
 
 	private GUIButton close  = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
 	private GUIButton title  = new GUIButton("HotBar");
@@ -23,8 +22,8 @@ public class AssemblyHotBar extends WarpedAssembly {
 	private VectorI clearOffset = new VectorI(120, 0);
 	private VectorI hotBarOffset = new VectorI(0, 30);
 	
-	public AssemblyHotBar(WarpedManagerType type) {
-		super(type);
+	public AssemblyHotBar() {
+		super();
 
 	}
 

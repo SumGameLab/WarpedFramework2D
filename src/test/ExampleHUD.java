@@ -12,9 +12,8 @@ import warped.application.gui.GUIScrollBar;
 import warped.application.gui.GUIShape;
 import warped.application.gui.GUITextBoxWrapped;
 import warped.application.gui.GUITextInputLine;
-import warped.application.state.WarpedAssembly;
+import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedState;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.audio.FrameworkAudio;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.utilities.enums.generalised.Colour;
@@ -22,7 +21,7 @@ import warped.utilities.enums.generalised.DirectionType;
 import warped.utilities.utils.UtilsMath;
 import warped.utilities.utils.UtilsString;
 
-public class ExampleHUD extends WarpedAssembly {
+public class ExampleHUD extends GUIAssembly {
 
 	private int borderThickness = 2;
 	private GUIShape background = new GUIShape(410, 620);
@@ -31,6 +30,7 @@ public class ExampleHUD extends WarpedAssembly {
 	
 	public  GUIButton title = new GUIButton("  Drag me...  ");
 	private GUIButton funny = new GUIButton("  Be funny  ");
+	private GUIButton invent = new GUIButton("  Invent  ");
 	private GUITextInputLine notifyInput = new GUITextInputLine();
 	private GUIScrollBar effectVolume = new GUIScrollBar();
 	private GUIProgressBar volumeProgress = new GUIProgressBar();
@@ -42,8 +42,8 @@ public class ExampleHUD extends WarpedAssembly {
 	/**The default constructor is fine for most purposes.
 	 * No need to do anything here.
 	 * */
-	public ExampleHUD(WarpedManagerType type) {
-		super(type);
+	public ExampleHUD() {
+		super();
 		// TODO Auto-generated constructor stub
 	}
 
@@ -58,6 +58,7 @@ public class ExampleHUD extends WarpedAssembly {
 	@Override
 	protected void defineAssembly() { 
 		funny.setOffset(50, 60);
+		invent.setOffset(180, 60);
 		notifyInput.setOffset(50, 100);
 		effectVolume.setOffset(50, 150);
 		volumeProgress.setOffset(50, 190);
@@ -66,6 +67,7 @@ public class ExampleHUD extends WarpedAssembly {
 		paragraph.setOffset(5, 345);
 		
 		funny.offset(title);
+		invent.offset(title);
 		notifyInput.offset(title);
 		effectVolume.offset(title);
 		volumeProgress.offset(title);
@@ -85,6 +87,11 @@ public class ExampleHUD extends WarpedAssembly {
 		
 		funny.setReleasedAction(mouseE -> {WarpedState.notify.note(UtilsString.getFunnyString());});
 
+		invent.setReleasedAction(mouseE -> {
+			ExampleApplication.inventInspector.selectInventory(ExampleApplication.exampleInventory);
+			ExampleApplication.inventInspector.open();		
+		}); 
+		
 		notifyInput.setButtonAction(str -> {WarpedState.notify.note(str);});
 		
 		effectVolume.setLabel(" Volume ");
@@ -102,6 +109,8 @@ public class ExampleHUD extends WarpedAssembly {
 			rotationDisplay.setHandRotation(1, rotationControl.getRotation());
 		});
 		
+		
+		
 	}
 
 	/**Everything has to be added to the assembly.
@@ -112,6 +121,7 @@ public class ExampleHUD extends WarpedAssembly {
 	protected void addAssembly() {
 		addMember(background);
 		addMember(title);
+		addMember(invent);
 		addMember(funny);
 		addMember(notifyInput);
 		addMember(effectVolume);

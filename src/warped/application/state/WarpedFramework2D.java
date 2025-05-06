@@ -1,6 +1,6 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 
-package warped;
+package warped.application.state;
 
 import java.awt.AWTException;
 import java.awt.MenuItem;
@@ -11,8 +11,6 @@ import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import warped.application.state.WarpedApplication;
-import warped.application.state.WarpedState;
 import warped.audio.FrameworkAudio;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.window.WarpedMediaPlayer;
@@ -139,7 +137,7 @@ public abstract class WarpedFramework2D {
 		app = application;
 		app.load();
 		
-		state.initialize();
+		state.initializeAssemblys();
 		
 		isLoading = false;
 		setLoadProgress(1.0);

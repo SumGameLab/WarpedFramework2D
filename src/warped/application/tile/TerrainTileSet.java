@@ -6,9 +6,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import warped.application.state.WarpedGroup;
+import warped.application.state.WarpedGroupIdentity;
 import warped.application.state.WarpedState;
-import warped.application.state.groups.WarpedGroup;
-import warped.application.state.groups.WarpedGroupIdentity;
 import warped.graphics.sprite.spriteSheets.WarpedSpriteSheet;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;

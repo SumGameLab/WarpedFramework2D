@@ -1,4 +1,4 @@
-/* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
+/* WarpedFramework 2D - java API - Copyright (C) 2021-2025 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 
 package warped.application.state;
 
@@ -6,34 +6,17 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import warped.WarpedFramework2D;
-import warped.application.assemblys.FileExplorer;
 import warped.application.assemblys.AssemblyHotBar;
-import warped.application.assemblys.AssemblyItemInspector;
 import warped.application.assemblys.AssemblyPopUpDialogueBox;
 import warped.application.assemblys.ConsoleInput;
+import warped.application.assemblys.FileExplorer;
 import warped.application.assemblys.InspectorFramework;
+import warped.application.assemblys.InspectorItem;
 import warped.application.assemblys.InspectorObject;
 import warped.application.assemblys.Notify;
 import warped.application.assemblys.Selector;
 import warped.application.assemblys.ToolTip;
-import warped.application.depthFields.WarpedDepthField;
-import warped.application.entities.WarpedEntitie;
-import warped.application.entities.item.WarpedItem;
 import warped.application.gui.WarpedGUI;
-import warped.application.object.WarpedObject;
-import warped.application.object.WarpedObjectIdentity;
-import warped.application.state.groups.WarpedGroup;
-import warped.application.state.groups.WarpedGroupIdentity;
-import warped.application.state.managers.CameraManager;
-import warped.application.state.managers.gameObjectManagers.ManagerDepthField;
-import warped.application.state.managers.gameObjectManagers.ManagerEntitie;
-import warped.application.state.managers.gameObjectManagers.ManagerGUI;
-import warped.application.state.managers.gameObjectManagers.ManagerItem;
-import warped.application.state.managers.gameObjectManagers.ManagerTile;
-import warped.application.state.managers.gameObjectManagers.WarpedManager;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
-import warped.application.tile.WarpedTile;
 import warped.audio.FrameworkAudio;
 import warped.utilities.utils.Console;
 
@@ -46,8 +29,6 @@ public class WarpedState {
 	
 	public static short cycleCount = 0;
 	
-	
-	//private final static ScheduledExecutorService executor = Executors.newScheduledThreadPool(4, new WarpedThreadFactory("Warped State"));
 	private static Timer activeTimer  	 = new Timer("Timer Thread : State Timer");
 	private static TimerTask activeTask  = new TimerTask() {public void run() {updateActive();}};
 	private static TimerTask midTask 	 = new TimerTask() {public void run() {updateMid();}};
@@ -56,43 +37,17 @@ public class WarpedState {
 	
 	private static boolean pause = true;
 	private static boolean isInitialized = false;
-	 
-	public static CameraManager 			    cameraManager     = new CameraManager();
 	
-	//Context managers - contains game objects for the declared type
-	//These fields will need to be serialized for save / load
-	
-	private static final WarpedManager<?>[] managers = new WarpedManager[6];
-	static {
-		managers[WarpedManagerType.OBJECT.ordinal()] 	 = WarpedManager.generateObjectManager();
-		managers[WarpedManagerType.ENTITIE.ordinal()] 	 = WarpedManager.generateEntitieManager();
-		managers[WarpedManagerType.DEPTH_FIELD.ordinal()]= WarpedManager.generateDepthFieldManager();
-		managers[WarpedManagerType.GUI.ordinal()]  		 = WarpedManager.generateGUIManager();
-		managers[WarpedManagerType.TILE.ordinal()] 		 = WarpedManager.generateTileManager();
-		managers[WarpedManagerType.ITEM.ordinal()] 		 = WarpedManager.generateItemManager();;
-	}
-	
-	
-	@SuppressWarnings("unchecked")
-	public static final WarpedManager<WarpedObject>      	objectManager     =  (WarpedManager<WarpedObject>) managers[WarpedManagerType.OBJECT.ordinal()];
-	@SuppressWarnings("unchecked")
-	public static final ManagerEntitie<WarpedEntitie>       entitieManager    =  (ManagerEntitie<WarpedEntitie>) managers[WarpedManagerType.ENTITIE.ordinal()];
-	@SuppressWarnings("unchecked")
-	public static final ManagerDepthField<WarpedDepthField> depthFieldManager =  (ManagerDepthField<WarpedDepthField>) managers[WarpedManagerType.DEPTH_FIELD.ordinal()];	
-	@SuppressWarnings("unchecked")
-	public static final ManagerGUI<WarpedGUI>        		guiManager        =  (ManagerGUI<WarpedGUI>) managers[WarpedManagerType.GUI.ordinal()];
-	@SuppressWarnings("unchecked")
-	public static final ManagerTile<WarpedTile>		    	tileManager 	  =  (ManagerTile<WarpedTile>) managers[WarpedManagerType.TILE.ordinal()];
-	@SuppressWarnings("unchecked")
-	public static final ManagerItem<WarpedItem<?>>			itemManager	  	  =  (ManagerItem<WarpedItem<?>>) managers[WarpedManagerType.ITEM.ordinal()];
+	public static final WarpedManager<WarpedObject> objectManager = new WarpedManager<WarpedObject>("Object Manager");	
+	public static final WarpedManager<WarpedGUI> guiManager = new WarpedManager<WarpedGUI>("GUI Manager");
+	private static WarpedManager<?>[] managers = new WarpedManager[] {objectManager, guiManager};	
 	
 	protected static ArrayList<WarpedAudioFolder<?>> audioFolders = new ArrayList<>();
 	protected static ArrayList<WarpedAssembly> assemblys = new ArrayList<>();
-	
 
 	public static InspectorObject 				gameObjectInspector;
 	public static InspectorFramework 			frameworkInspector;
-	public static AssemblyItemInspector 		itemInspector;
+	public static InspectorItem					itemInspector;
 
 	public static Selector 						selector;
 	public static ToolTip 						toolTip;
@@ -102,34 +57,54 @@ public class WarpedState {
 	public static FileExplorer 					fileExplorer;
 	public static ConsoleInput 					consoleInput;
 	
-	public static long getActiveCycleDuration()  {return activeCycleDuration;}
-	public static long getMidCycleDuration()     {return midCycleDuration;}
-	public static long getSlowCycleDuration()    {return slowCycleDuration;}
-	public static long getPassiveCycleDuration() {return passiveCycleDuration;}
-	public static short getCycleCount() {
-		short val = cycleCount;
-		cycleCount = 0;
-		return val;
-	}
 	
-	/*
-	public static void closeAssemblys() {
-		selector.close();
-		gameObjectInspector.close();
-		toolTip.close();
-		dialogue.close();
-		//itemInspector.close();
-		//hotBar.close();
-	}
-	*/
-	
-	public WarpedState() {	
+	/**The application state, only one instance should ever exist*/
+	protected WarpedState() {	
 		activeTimer.scheduleAtFixedRate(activeTask, 0, 17);
 		activeTimer.scheduleAtFixedRate(midTask, 0, 1000);
 		activeTimer.scheduleAtFixedRate(slowTask, 0, 60000);
 		activeTimer.scheduleAtFixedRate(passiveTask, 0, 3600000);
 	}
 	
+	/**The duration of the last active update cycle
+	 * @return long - the duration in nano-seconds.
+	 * @implNote active update cycle is scheduled to run every 17ms (approximate 60hz) 
+	 * @author 5som3*/
+	public static long getActiveCycleDuration()  {return activeCycleDuration;}
+	
+	/**The duration of the last mid update cycle
+	 * @return long - the duration in nano-seconds.
+	 * @implNote mid update cycle is scheduled to run once a second.
+	 * @author 5som3*/
+	public static long getMidCycleDuration()     {return midCycleDuration;}
+	
+	/**The duration of the last slow update cycle
+	 * @return long - the duration in nano-seconds.
+	 * @implNote slow update cycle is scheduled to run ever minute.
+	 * @author 5som3*/
+	public static long getSlowCycleDuration()    {return slowCycleDuration;}
+	
+	/**The duration of the last passive update cycle
+	 * @return long - the duration in nano-seconds.
+	 * @implNote the passive update cycle is scheduled to run once an hour
+	 * @author 5som3*/
+	public static long getPassiveCycleDuration() {return passiveCycleDuration;}
+	
+	/**The number of cycles completed by the active update loop since the last time this method was called.
+	 * @return short - the active update cycle count
+	 * @author 5som3*/
+	public static short getCycleCount() {
+		short val = cycleCount;
+		cycleCount = 0;
+		return val;
+	}
+	
+	/**Closes all assemblys in the state
+	 * @author 5som3*/
+	public static void closeAssemblys() {assemblys.forEach(a -> {a.close();});}
+	
+	/**Cancels all update tasks
+	 * @author 5som3*/
 	public void stop() {
 		Console.ln("WarpedState -> stop()");
 		activeTask.cancel();
@@ -148,6 +123,128 @@ public class WarpedState {
 	}
 	
 	
+	/**Total number of objects
+	 * @return int - the object count.
+	 * @author 5som3*/
+	public static int getObjectCount() {
+		int gameObjectCount = 0;
+		for(int i = 0; i < managers.length; i++){
+			gameObjectCount += managers[i].getObjectCount();
+		}
+		return gameObjectCount;
+	}
+	
+	/**The total number of objects that are active
+	 * @return int - the active object count
+	 * @author 5som3*/
+	public static int getActiveObjectCount() {
+		int activeGameObjectCount = 0;
+		for(int i = 0; i < managers.length; i++) {
+			activeGameObjectCount += managers[i].getOpenObjectCount();
+		}
+		return activeGameObjectCount;
+	}
+	
+	/**Add a manager to the state
+	 * @author 5som3*/
+	public static void addManager(WarpedManager<?> manager) {
+		for(int i = 0; i < managers.length; i++) {
+			if(managers[i].UNIQUE_ID == manager.UNIQUE_ID) {
+				Console.err("WarpedState -> addManager() -> manager already exist in state");
+				return;
+			}
+		}
+		WarpedManager<?>[] managers = new WarpedManager<?>[WarpedState.managers.length + 1];
+		for(int i = 0; i < WarpedState.managers.length; i++) {
+			managers[i] = WarpedState.managers[i];
+			Console.ln("WarpedState -> addManager() -> adding manager : " + managers[i].name);
+		}
+		managers[managers.length - 1] = manager;
+		WarpedState.managers = managers;
+	}
+	
+	/**Get an object using an objectID
+	 * @param objectID - the ID of the object to get.
+	 * @return WarpedObject - the object to get
+	 * @author 5som3*/
+	public static WarpedObject getMember(WarpedObjectIdentity objectID) {return getManager(objectID).getMember(objectID);}
+	
+	/**Remove a member from group that contains it.
+	 * @param objectID - the id of the object to remove.
+	 * @author 5som3*/
+	public static void removeMember(WarpedObjectIdentity objectID) {getManager(objectID).getGroup(objectID).removeMember(objectID);}
+	
+	/**Get the manager that contains the specified object ID.
+	 * @param objectID - ID of the object to check
+	 * @return WarpedManager<?> - the manager that contains the object
+	 * @author 5som3*/
+	public static WarpedManager<?> getManager(WarpedObjectIdentity objectID) {return getManager(objectID.getGroupID());}
+	
+	/**Get the manager that contains the specified group ID.
+	 * @param groupID - the id of the group to check.
+	 * @return WarpedManager<?> - the manager that contains the group
+	 * @author 5som3*/
+	public static WarpedManager<?> getManager(WarpedGroupIdentity groupID) {return managers[groupID.getManagerID()];}
+	
+	/**Get the group specified by the groupID
+	 * @param groupID - ID of the group to get.
+	 * @return WarpedGroup<?> - the group for the specified the groupID
+	 * @author 5som3*/
+	public static WarpedGroup<?> getGroup(WarpedGroupIdentity groupID){return getManager(groupID).getGroup(groupID);}
+	
+	/**Change the Open/Closed state of the specified group.
+	 * @param groupID - the ID of the group to toggle.
+	 * @author 5som3*/
+	public static void toggleGroup(WarpedGroupIdentity groupID) {getManager(groupID).toggleGroup(groupID);}
+	
+	/**Open the specified group.
+	 * @param group - the group to open.
+	 * @author 5som3*/
+	public static void openGroup(WarpedGroup<?> group) {getManager(group.getGroupID()).openGroup(group.getGroupID());}
+	
+	/**Open the specified group
+	 * @param groupID - the ID of the group to open.
+	 * @author 5som3*/
+	public static void openGroup(WarpedGroupIdentity groupID) {getManager(groupID).openGroup(groupID);}
+	
+	/**Close the specified group
+	 * @param groupID -  the ID of the group to close
+	 * @author 5som3*/
+	public static void closeGroup(WarpedGroupIdentity groupID) {getManager(groupID).closeGroup(groupID);}
+	
+	/**Is the specified group open
+	 * @param groupID - the group to check.
+	 * @return boolean - true if the group is open, else false.
+	 * @author 5som3*/
+	public static boolean isGroupOpen(WarpedGroupIdentity groupID) {return getManager(groupID).isOpen(groupID);}
+	
+	/**Pause updating the managers of the game state 
+	 * @author 5som3*/
+	public static void pause() {
+		Console.ln("WarpedState -> pause()");
+		pause = true;
+	}
+	
+	/**Resume updating the managers of the game state
+	 * @author 5som3*/
+	public static void play() {
+		Console.ln("WarpedState -> play()");
+		pause =  false;
+	}
+	
+	/**Change the Play/Pause condition of the state
+	 * @author 5som3*/
+	public static void togglePause() { 
+		if(pause) pause = false;
+		else pause = true;
+	}
+	
+	/**Is the state updating
+	 * @return boolean - if true the state will update its managers else false.
+	 * @author 5som3*/
+	public static boolean isPaused() {return pause;}
+	
+	/**Update 60 times per second*/
 	private static void updateActive() {
 		if(pause) return;
 		long cycleStartTime = System.nanoTime();
@@ -155,7 +252,7 @@ public class WarpedState {
 		
 		for(int i = 0; i < managers.length; i++) {
 			managers[i].updateActive();
-			managers[i].remove();
+			managers[i].removeDead();
 		}
 		
 		for(WarpedAssembly assembly : assemblys) assembly.updateAssembly();
@@ -166,7 +263,7 @@ public class WarpedState {
 		activeCycleDuration = System.nanoTime() - cycleStartTime;
 	}
 	
-
+	/**Update once per second*/
 	private static void updateMid() {
 		if(pause) return; 
 		long cycleStartTime = System.nanoTime();
@@ -174,6 +271,7 @@ public class WarpedState {
 		midCycleDuration = System.nanoTime() - cycleStartTime;
 	}
 	
+	/**Update once per minute*/
 	private static void updateSlow() {
 		System.gc();
 		if(pause) return; 
@@ -182,120 +280,48 @@ public class WarpedState {
 		slowCycleDuration = System.nanoTime() - cycleStartTime;
 	}
 
-	
+	/**Update once per hour*/
 	private static void updatePassive() {
 		long cycleStartTime = System.nanoTime();
 		for(int i = 0; i < managers.length; i++) managers[i].updatePassive();
 		passiveCycleDuration = System.nanoTime() - cycleStartTime;
 	}
 	
-	
-	public void initialize() {
+	/**Initialize the default assemblys*/
+	protected void initializeAssemblys() {
 		if(isInitialized) {
 			Console.err("WarpedState -> initialize() -> state is already initialized");
 			return;
 		}
 		isInitialized = true;
 		
-		toolTip = new ToolTip(WarpedManagerType.GUI);
+		toolTip = new ToolTip();
 		toolTip.assemble();
 		
-		selector = new Selector(WarpedManagerType.GUI);
+		selector = new Selector();
 		selector.assemble();
 		
-		gameObjectInspector = new InspectorObject(WarpedManagerType.GUI);
+		gameObjectInspector = new InspectorObject();
 		gameObjectInspector.assemble();
 		
-		frameworkInspector = new InspectorFramework(WarpedManagerType.GUI);
+		frameworkInspector = new InspectorFramework();
 		frameworkInspector.assemble();
 		
-		dialogue = new AssemblyPopUpDialogueBox(WarpedManagerType.GUI);
+		dialogue = new AssemblyPopUpDialogueBox();
 		dialogue.assemble();
 		
-		notify = new Notify(WarpedManagerType.GUI);
+		notify = new Notify();
 		notify.assemble();
 		notify.open();
 
-		consoleInput = new ConsoleInput(WarpedManagerType.GUI);
+		consoleInput = new ConsoleInput();
 		consoleInput.assemble();
-		
-		itemInspector = new AssemblyItemInspector(WarpedManagerType.GUI);
-		itemInspector.assemble();
-		
-		hotBar = new AssemblyHotBar(WarpedManagerType.GUI);
+				
+		hotBar = new AssemblyHotBar();
 		hotBar.assemble();
 		
-		fileExplorer = new FileExplorer(WarpedManagerType.GUI);
+		fileExplorer = new FileExplorer();
 		fileExplorer.assemble();
-	}
-		
-	public static int getGameObjectCount() {
-		int gameObjectCount = 0;
-		
-		gameObjectCount += entitieManager.getGameObjectCount();
-		gameObjectCount += depthFieldManager.getGameObjectCount();
-		gameObjectCount += guiManager.getGameObjectCount();
-		gameObjectCount += tileManager.getGameObjectCount();
-		
-		return gameObjectCount;
-	}
-	public static int getActiveGameObjectCount() {
-		int activeGameObjectCount = 0;
-		
-		activeGameObjectCount += entitieManager.getActiveGameObjectCount();
-		activeGameObjectCount += depthFieldManager.getActiveGameObjectCount();
-		activeGameObjectCount += guiManager.getActiveGameObjectCount();
-		activeGameObjectCount += tileManager.getActiveGameObjectCount();
-		
-		return activeGameObjectCount;
-	}
-	/**Useful when you only have the ID for an object that you need to modify
-	 * Note : if you possible use a more specific access method (i.e. call the manager directly) to avoid unnecessary switching
-	 * @param  id of the game object to return
-	 * @return the game object that the id refers to*/
-	public static WarpedObject getGameObject(WarpedObjectIdentity objectID) {return getManager(objectID.getManagerType()).getMember(objectID);}
-	@SuppressWarnings("rawtypes")
-	public static WarpedManager getManager(WarpedObjectIdentity objectID) {return getManager(objectID.getManagerType());}
-	@SuppressWarnings("rawtypes")
-	public static WarpedManager getManager(WarpedGroupIdentity groupID) {return getManager(groupID.getManagerType());}
-	@SuppressWarnings("rawtypes")
-	public static WarpedManager getManager(WarpedManagerType managerID) {
-		switch(managerID) {
-		case DEPTH_FIELD: 	return depthFieldManager;
-		case ENTITIE: 		return entitieManager;
-		case GUI: 			return guiManager;
-		case TILE: 			return tileManager;
-		case ITEM:			return itemManager;
-		case OBJECT:		return objectManager;
-		default:
-			Console.err("GameContext -> getManager(ContextManagers) -> invalid case : " + managerID);
-			return null;
-		}
-	}
-	
-	public static WarpedGroup<?> getGroup(WarpedGroupIdentity groupID){return getManager(groupID.getManagerType()).getGroup(groupID);}
-	public static void toggleGroup(WarpedGroupIdentity groupID) {getManager(groupID.getManagerType()).toggleGroup(groupID);}
-	public static void openGroup(WarpedGroup<?> group) {getManager(group.getGroupID().getManagerType()).openGroup(group.getGroupID());}
-	public static void openGroup(WarpedGroupIdentity groupID) {getManager(groupID.getManagerType()).openGroup(groupID);}
-	public static void closeGroup(WarpedGroupIdentity groupID) {getManager(groupID.getManagerType()).closeGroup(groupID);}
-	public static boolean isGroupOpen(WarpedGroupIdentity groupID) {return getManager(groupID.getManagerType()).isGroupOpen(groupID);}
-	public static void pause() {
-		Console.ln("WarpedState -> pause()");
-		pause = true;
-	}
-	public static void play() {
-		Console.ln("WarpedState -> play()");
-		pause =  false;
-	}
-	public static void togglePause() { 
-		if(pause) pause = false;
-		else pause = true;
-	}
-	public static boolean isPaused() {return pause;}
-	
-	@SuppressWarnings("unchecked")
-	public static void addGameObject(WarpedGroupIdentity groupID, WarpedObject object) {
-		getManager(groupID).addMember(groupID, object);
 	}
 	
 }

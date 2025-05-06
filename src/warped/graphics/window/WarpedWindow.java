@@ -27,10 +27,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
 
-import javafx.embed.swing.JFXPanel;
-import warped.WarpedFramework2D;
 import warped.WarpedProperties;
-import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
+import warped.application.state.WarpedFramework2D;
+import warped.application.state.WarpedState;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.user.WarpedUserInput;
 import warped.user.mouse.WarpedMouseEvent;
@@ -95,7 +94,7 @@ public class WarpedWindow extends Canvas {
 	public static  BufferedImage frameIcon = UtilsImage.loadBufferedImage("res/framework/graphics/frame_icon.png");
 	private static JFrame frame;
 	
-	private static JFXPanel fxPanel = new JFXPanel();
+	//private static JFXPanel fxPanel = new JFXPanel();
 
 	private static AffineTransform at = new AffineTransform();
 	
@@ -107,7 +106,7 @@ public class WarpedWindow extends Canvas {
 	private static int height = 1080; 
 	private static VectorI center = new VectorI(width / 2, height / 2);
 			
-	private static WarpedViewport[] viewPorts = new WarpedViewport[1];
+	private static WarpedViewport[] viewPorts = new WarpedViewport[2];
 	private static BufferedImage[] rasterBuffer = new BufferedImage[1];
 	private static int rasterIndex = 0;
 
@@ -135,8 +134,9 @@ public class WarpedWindow extends Canvas {
 		Console.ln("WarpedWindow -> Name  : " + windowName);
 		Console.ln("WarpedWindow -> Width  : " + applicationWidth);
 		Console.ln("WarpedWindow -> Height : " + applicationHeight);
+		
 		System.setProperty("sun.java2d.opengl", "True");
-
+		
 		renderHints[RenderHints.RENDERING.ordinal()] 			 = RenderingHints.VALUE_RENDER_SPEED;
 		renderHints[RenderHints.ANTIALIASING.ordinal()] 		 = RenderingHints.VALUE_ANTIALIAS_OFF;
 		renderHints[RenderHints.COLOR.ordinal()] 				 = RenderingHints.VALUE_COLOR_RENDER_SPEED;
@@ -171,7 +171,8 @@ public class WarpedWindow extends Canvas {
 		catch (AWTException e) {Console.stackTrace(e);}
 		bs = getBufferStrategy();
 
-		viewPorts[0] = new WarpedViewport("Default", WarpedManagerType.GUI, 0, 0, width, height); 
+		viewPorts[0] = new WarpedViewport("Object", WarpedState.objectManager, 0, 0, width, height); 
+		viewPorts[1] = new WarpedViewport("GUI", WarpedState.guiManager, 0, 0, width, height); 
 				
         loadTimer.scheduleAtFixedRate(updateLoadGraphics, 0, 16);
 	}
@@ -202,8 +203,10 @@ public class WarpedWindow extends Canvas {
 		WarpedWindow.height = y;
 		WarpedWindow.windowResolution.set(x, y);
 		windowScale.set((double)windowResolution.x() / (double)applicationResolution.x(), (double)windowResolution.y() / (double)applicationResolution.y());
+		
 		Console.ln("WarpedWindow -> setWindowResolution() -> setting resolution to : " + x + ", " + y);
 		Console.ln("WarpedWindow -> setWindowResolution() -> setting resolution scale to : " + windowScale.getString());
+		
 		if(windowScale.x() >= 1.0 || windowScale.y() >= 1.0) renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
 		else renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 		
@@ -211,12 +214,14 @@ public class WarpedWindow extends Canvas {
 		setPreferredSize(size);
 		for(int i = 0; i < BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(windowResolution.x(), windowResolution.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		
-		if(windowScale.x() != 1.0 || windowScale.y() != 1.0) isFullScreen = false;
-		else isFullScreen = true;
+		//if(windowScale.x() != 1.0 || windowScale.y() != 1.0) isFullScreen = false;
+		//else isFullScreen = true;
 		initializeFrame(isFullScreen);
 		setVisible(true);
 				
 	}
+	
+	public static VectorD getWindowScale() {return windowScale;}
 	
 	public final static short getFPS() {
 		short val = fps;
@@ -329,8 +334,10 @@ public class WarpedWindow extends Canvas {
 	
 	/**Get the scale of the window
 	 * @return VectorD - the x and y scale.
-	 * @author SomeKid*/
+	 * @author SomeKid
+	 * 
 	public static VectorD getWindowScale() {return windowScale;}
+	 * */
 	
 	/**The width of the WarpedWindow in pixels.
 	 * @author 5som3*/
@@ -359,7 +366,7 @@ public class WarpedWindow extends Canvas {
 		viewPorts = new WarpedViewport[ports.length];
 		updateLoadGraphics.cancel();
 		loadTimer.cancel();
-		fxPanel = null;
+		//fxPanel = null;
 		updateLoadGraphics = null;
 		loadTimer = null;
 		for(int i = 0; i < ports.length; i++) {
@@ -496,18 +503,18 @@ public class WarpedWindow extends Canvas {
 		bufferGraphics.fillRect(0, 0, windowResolution.x(), windowResolution.y());	
 
 		setRenderHints(bufferGraphics);
-	
+			
 		for(int i = 0; i < viewPorts.length; i++) {
 			WarpedViewport port = viewPorts[i];
 			if(port.isVisible()) {
-				at.setTransform(windowScale.x(), 0.0, 0.0, windowScale.y(), port.getX() * windowScale.x(), port.getY() * windowScale.y());
+				at.setTransform(windowScale.x(), 0.0, 0.0, windowScale.y(), port.getX(), port.getY());
 				bufferGraphics.drawRenderedImage(port.raster(), at);
 			}
 		}
 		bufferGraphics.dispose();
 		
 		bsGraphics = bs.getDrawGraphics();
-		bsGraphics.drawImage(rasterBuffer[rasterIndex], 0, 0, windowResolution.x(), windowResolution.y(), null);
+		bsGraphics.drawImage(rasterBuffer[rasterIndex], 0, 0, windowResolution.x() , windowResolution.y(), null);
 		bsGraphics.dispose();
 		bs.show();
 	}
