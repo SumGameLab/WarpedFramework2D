@@ -1,6 +1,10 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 package warped.application.entities.item;
 
+import java.awt.image.BufferedImage;
+
+import test.ExampleApplication;
+import test.ExampleApplication.TestImage;
 import warped.application.actionWrappers.ActionOption;
 import warped.application.entities.WarpedEntitie;
 import warped.application.state.WarpedState;
@@ -16,11 +20,11 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	
 	/**A new item of of the specified type
 	 * @author 5som3*/
-	protected WarpedItem(T itemType) {
+	public WarpedItem(T itemType) {
 		this.itemType = itemType;
 		this.name = itemType.getString();
 		setToolTip(name);
-		sprite.paint(itemType.getRaster());
+		sprite.paint(itemType.getRaster(), itemType.getRaster().getWidth(), itemType.getRaster().getHeight());
 		clearSelectOptions();
 		addSelectOption(new ActionOption("Inspect", () -> {
 			WarpedState.itemInspector.selectItem(this);
@@ -30,12 +34,12 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	
 	/**A new item of of the specified type and quantity
 	 * @author 5som3*/
-	protected WarpedItem(T itemType, int quantity) {
+	public WarpedItem(T itemType, int quantity) {
 		this.itemType = itemType;
 		this.name = itemType.getString();
 		this.quantity = quantity;
 		setToolTip(name);
-		sprite.paint(itemType.getRaster());
+		sprite.paint(itemType.getRaster(), itemType.getRaster().getWidth(), itemType.getRaster().getHeight());
 		clearSelectOptions();
 		addSelectOption(new ActionOption("Inspect", () -> {
 			WarpedState.itemInspector.selectItem(this);
@@ -140,45 +144,45 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	 * @param a, b   - the items to check.
 	 * @return True  - If the itemBindable that defines the itemType for 'a' is the same itemBindable that defines the itemType for 'b'.
 	 * @return False - If the itemTypes of a and be are declared by different itemBindables.
-	 * */
 	public static boolean isSameBindable(WarpedItem<?> a, WarpedItem<?> b) {if(ItemBindable.isSameBindable(a.getItemType(), b.getItemType())) return true; else return false;}
+	 */
 	
 	/**Do the items come from the same declaration of itemBindables.
 	 * @param b      - the items to compare with.
 	 * @return True  - If the itemBindable that defines the itemType for 'a' is the same itemBindable that defines the itemType for 'b'.
 	 * @return False - If the itemTypes of a and be are declared by different itemBindables.
-	 * */
 	public boolean isSameBindable(WarpedItem<?> b) {return isSameBindable(this, b);}
+	 * */
 	
 	
 	/**Do the items have the same type.
 	 * @param a, b   - the items to check.
 	 * @return True  - If 'a' and 'b' have are declared by the same itemBindable and they are of the same type in that declaration.
 	 * @return False - If 'a' and 'b' have are declared by different itemBindables or if they are not the same type.
-	 * */
 	public static boolean isSameType(WarpedItem<?> a, WarpedItem<?> b) {if(isSameBindable(a, b) && a == b) return true; else return false;}
+	 * */
 	
 	/**Do the items have the same type.
 	 * @param a, b   - the items to check.
 	 * @return True  - If 'a' and 'b' have are declared by the same itemBindable and they are of the same type in that declaration.
 	 * @return False - If 'a' and 'b' have are declared by different itemBindables or if they are not the same type.
-	 * */
 	public boolean isSameType(WarpedItem<?> b) {return isSameType(this, b);}
+	 * */
 	
 	/**Does the item type match the input type
 	 * @param a        - the item to check.
 	 * @param itemType - the type to compare the item against
 	 * @return True    - If 'a' and 'itemType' have are declared by the same itemBindable and they are of the same type in that declaration.
 	 * @return False   - If 'a' and 'itemType' have are declared by different itemBindables or if they are not the same type.
-	 * */
 	public static <K extends ItemBindable<?>> boolean isSameType(WarpedItem<?> a, K itemType) {if(ItemBindable.isSameType(a.getItemType(), itemType)) return true; else return false;}
+	 * */
 	
 	/**Does the item type match the input type.
 	 * @param itemType - the type to compare the item against
 	 * @return True    - If 'a' and 'itemType' have are declared by the same itemBindable and they are of the same type in that declaration.
 	 * @return False   - If 'a' and 'itemType' have are declared by different itemBindables or if they are not the same type.
-	 * */
 	public <K extends ItemBindable<?>> boolean isSameType(K itemType) {return isSameType(this, itemType);}
+	 * */
 	
 	@Override
 	protected void mouseEntered() {return;}

@@ -221,11 +221,30 @@ public class WarpedSprite {
 	 * @param height - the height for this sprite in pixels (image will be scaled to fit).
 	 * @author SomeKid*/
 	public final void paint(BufferedImage image, int width, int height) {
+		setSize(width, height);
 		Graphics g = getGraphics();
 		g.drawImage(image, 0, 0, width, height, null);
 		g.dispose();
 		pushGraphics();
 	}
+	
+	/**Paint over the sprite front and back buffer with the input image
+	 * @param image - the image to be drawn over the sprite.
+	 * @param width - the width for this sprite in pixels (image will be scaled to fit).
+	 * @param height - the height for this sprite in pixels (image will be scaled to fit).
+	 * @author SomeKid*/
+	public final void paintBuffers(BufferedImage image, int width, int height) {
+		setSize(width, height);
+		Graphics g = getGraphics();
+		g.drawImage(image, 0, 0, width, height, null);
+		g.dispose();
+		pushGraphics();
+		Graphics g2 = getGraphics();
+		g2.drawImage(image, 0, 0, width, height, null);
+		g2.dispose();
+		pushGraphics();
+	}
+	
 	
 
 	/**Paint over the sprite with the input image
@@ -236,6 +255,7 @@ public class WarpedSprite {
 	 * @param height - the height for this sprite in pixels.
 	 * @author SomeKid*/ 
 	public final void paint(BufferedImage image, int x, int y, int width, int height) {
+		setSize(width, height);
 		Graphics g = getGraphics();
 		g.drawImage(image, x, y, width, height, null);
 		g.dispose();
@@ -243,9 +263,7 @@ public class WarpedSprite {
 	}
 	
 	/**Paint over the sprite with the input color
-	 * @param color 		- the color to fill the sprite with
-	 * @param x, y  		- the offset for the image 
-	 * @param width, height - the input image will be scaled to fit the specified width and height 
+	 * @param color 		- the color to fill the sprite with 
 	 * @author SomeKid*/
 	public void paint(Color color) {
 		Graphics g = getGraphics();
@@ -258,7 +276,7 @@ public class WarpedSprite {
 	/**Paint a rectangle over the sprite with the specified parameters
 	 * @param color 		- the color to fill the sprite with
 	 * @param x, y  		- the offset for the image 
-	 * @param width, height - the input image will be scaled to fit the specified width and height 
+	 * @param width, height - the size of hte area to fill with the specified color. 
 	 * @author SomeKid*/
 	public void paint(Color color, int x, int y, int width, int height) {
 		Graphics g = getGraphics();

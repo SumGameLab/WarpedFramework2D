@@ -307,6 +307,9 @@ public class WarpedState {
 		frameworkInspector = new InspectorFramework();
 		frameworkInspector.assemble();
 		
+		itemInspector = new InspectorItem();
+		itemInspector.assemble();
+		
 		dialogue = new AssemblyPopUpDialogueBox();
 		dialogue.assemble();
 		

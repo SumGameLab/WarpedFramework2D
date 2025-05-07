@@ -69,6 +69,9 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 		} return null;
 	}
 	
+	
+
+	
 	/**Add a member to the group
 	 * @param member - add a member to the inventory
 	 * @apiNote If another item of the same type already exist then the items will be consolidated. (their quantities combined)
@@ -76,11 +79,12 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 	public WarpedObjectIdentity addMember(WarpedItem<T> member) {		
 		boolean consolidated = false;
 		for(int i = 0; i < members.size(); i++) {
-			if(WarpedItem.isSameType(members.get(i), member)) {
+			if(members.get(i).getItemType() == member.getItemType()) {
 				members.get(i).produce(member.getQuantity());
 				consolidated = true;
 				return members.get(i).getObjectID();
-			} else continue;
+			}
+			else continue;
 		}
 		if(!consolidated) {
 			WarpedObjectIdentity ID = new WarpedObjectIdentity(groupID, members.size());
@@ -102,7 +106,7 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 	public WarpedObjectIdentity addMember(WarpedItem<T> member, int index) {		
 		boolean consolidated = false;
 		for(int i = 0; i < members.size(); i++) {
-			if(WarpedItem.isSameType(members.get(i), member)) {
+			if(members.get(i).getItemType() == member.getItemType()) {
 				members.get(i).produce(member.getQuantity());
 				consolidated = true;
 				return members.get(i).getObjectID();

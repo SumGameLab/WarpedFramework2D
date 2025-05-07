@@ -49,11 +49,12 @@ public interface ItemBindable<T extends Enum<?>> {
 	
 	@SuppressWarnings("unchecked")
 	public default <K extends ItemBindable<?>> WarpedItem<K> generateItem(int quantity) {return new WarpedItem<K>((K)this, quantity);}
+	/*
 	
 	public static <K extends ItemBindable<?>, L extends ItemBindable<?>> boolean isSameBindable(K a, L b) {if(a.getClass() == b.getClass()) return true; else return false;}
 	public default <K extends ItemBindable<?>> boolean isSameBindable(K b) {return isSameBindable(this, b);}
 	
 	public static  <K extends ItemBindable<?>, L extends ItemBindable<?>> boolean isSameType(K a, L b) {if(isSameBindable(a, b) && a == b) return true; else return false;}
 	public default  <K extends ItemBindable<?>>boolean isSameType(K b) {return isSameType(this, b);}
-	
+	*/
 }

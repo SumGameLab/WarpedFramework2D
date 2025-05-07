@@ -1,3 +1,6 @@
+/framework/testImages/food.png
+/framework/testImages/potion.png
+/framework/testImages/rock.png
 /framework/testImages/test1.png
 /framework/testImages/test2.png
 /framework/testImages/test3.png

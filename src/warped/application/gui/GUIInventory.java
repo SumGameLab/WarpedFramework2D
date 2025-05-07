@@ -83,18 +83,34 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 		@SuppressWarnings("unchecked")
 		WarpedItem<T> di = (WarpedItem<T>) dropItem;
 		
-		if(di.getObjectID().getGroupID().isEqual(selectInvent.getGroupID())) { //Move the object within the inventory
-			selectInvent.swampMembers(dragIndex, dropIndex);
-		} else { //Move object to this inventory
-			WarpedState.removeMember(dropItem.getObjectID());
-			addItem(di, dropIndex);
-		}
+		selectInvent.addMember(di, dropIndex);
+		updateGraphics();
 		
 		dragIndex  = -1;
 		dropIndex  = -1;
-		WarpedMouse.dropItem();
+		WarpedMouse.dropItem(true);
 	}
+	
+	/**Drop an item from the previous inventory into this inventory.
+	 * @param previousInventory - the inventory that the item is being taken from.
+	 * @param dragIndex - the index of the item in the previous inventory.
+	 * @param dropIndex - the index where the item is to be inserted into this inventory.
+	 * @author 5som3*/
+	public void restoreItem(WarpedItem<?> dropItem) {
+		if(dropItem.getObjectID().getGroupID().getManagerID() != selectInvent.getGroupID().getManagerID()) {
+			Console.err("GUIInventory -> dropItem() -> dropItem is not from the same item set : " + dropItem.getItemType());
+			return;
+		}		
+		@SuppressWarnings("unchecked")
+		WarpedItem<T> di = (WarpedItem<T>) dropItem;
 		
+		selectInvent.addMember(di, dragIndex);
+		updateGraphics();
+		
+		dragIndex  = -1;
+		dropIndex  = -1;
+	}
+			
 	/**Sort the inventory with the specified sort type
 	 * @param sort - the type of sorting to apply to the inventory
 	 * @apiNote Graphics will be updated after the sorting has completed.
@@ -105,16 +121,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 		updateGraphics();
 	}
 	
-	/**Add an item to this inventory
-	 * @param item - the item to add to the inventory.
-	 * @param index - the index that the item will be added at.
-	 * @apiNote If index larger than member count it will be inserted at the end of the group instead.
-	 * @implNote This will also remove the item from the context group that contains it, not just the GUI
-	 * @author 5som3*/
-	private void addItem(WarpedItem<T> item, int index) {
-		selectInvent.addMember(item, index);
-		updateGraphics();
-	}
+
 		
 	/***/
 	private void updateGraphics() {	
@@ -193,7 +200,9 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 		if(index >= selectInvent.getMemberCount()) return;
 		
 		dragIndex = index;
-		WarpedMouse.dragItem(selectInvent.getMember(index));		
+		WarpedMouse.dragItem(this, selectInvent.getMember(index));		
+		selectInvent.removeMember(index);
+		updateGraphics();
 	}
 
 	@Override
@@ -220,7 +229,8 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 		} 
 			
 		if(index >= selectInvent.getMemberCount()) return;
-		selectInvent.getMember(index).mouseEvent(mouseEvent);
+		Console.ln("GUIInventory -> mouseReleased() -> passing event to member at : " + index);
+		selectInvent.getMember(index).forwardMouseEvent(mouseEvent);
 	}
 
 

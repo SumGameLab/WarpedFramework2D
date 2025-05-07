@@ -374,6 +374,10 @@ public abstract class WarpedObject {
 	
 	private final void executeMouseEvent(WarpedMouseEvent mouseEvent) {
 		if(!isHovered) return;
+		forwardMouseEvent(mouseEvent);
+	}
+	
+	public final void forwardMouseEvent(WarpedMouseEvent mouseEvent) {
 		switch(mouseEvent.getMouseEventType()) {
 		case BUTTON_PRESS: 
 			mousePressed(mouseEvent); 	

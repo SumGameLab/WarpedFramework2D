@@ -23,12 +23,9 @@ public class InspectorItem extends GUIAssembly {
 	private GUIShape background = new GUIShape(200, 300);
 	private GUITextBoxLined details = new GUITextBoxLined(200, 300);
 	private GUIImage item = new GUIImage();
-	private GUIButton title = new GUIButton(200, 30);
+	private GUIButton title = new GUIButton("Item Inspector : ");
 	private GUIButton close = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
-	
-	private VectorD moduleOffset = new VectorD(35, 35);
-	private VectorD detailsOffset = new VectorD(5, 100);
-	private VectorD closeOffset = new VectorD(170, 0);
+
 	
 	public InspectorItem() {
 		super();
@@ -54,9 +51,10 @@ public class InspectorItem extends GUIAssembly {
 
 	@Override
 	protected void defineAssembly() {
-		item.setOffset(moduleOffset);
-		details.setOffset(detailsOffset);
-		close.setOffset(closeOffset);
+		title.setPosition(100, 100);
+		item.setOffset(35, 35);
+		details.setOffset(5, 100);
+		close.setOffset(200, 0);
 		
 		item.offset(title);
 		details.offset(title);		
@@ -85,8 +83,8 @@ public class InspectorItem extends GUIAssembly {
 		addMember(background);
 		addMember(details);
 		addMember(item);
-		addMember(title);
 		addMember(close);
+		addMember(title);
 		
 	}
 

@@ -40,7 +40,6 @@ public abstract class WarpedEntitie extends WarpedObject {
 	
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
 		Console.ln("WarpedEntitie -> mouseReleased()");
-		//WarpedState.selectionManager.select(objectID);
 		WarpedState.selector.select(this);
 	};
 	

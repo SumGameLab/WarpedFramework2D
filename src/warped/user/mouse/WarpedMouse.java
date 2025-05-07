@@ -13,11 +13,9 @@ import java.awt.image.BufferedImage;
 import warped.application.entities.item.WarpedItem;
 import warped.application.gui.GUIInventory;
 import warped.application.state.WarpedFramework2D;
-import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.audio.FrameworkAudio;
 import warped.graphics.window.WarpedWindow;
-import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.utils.Console;
 
 public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWheelListener {
@@ -58,12 +56,15 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	private static boolean isLocked   = false;
 	
 	
+	private static GUIInventory<?> dragGUI;
 	private static WarpedItem<?> dragItem;
 	private static boolean isDraggingItem = false;
 
 	//private static boolean isDraggingItem = false;
 	//private static GUIInventory<?> itemParent;
 	//private static int dragItemIndex;
+	private static int tick = 0;
+	private static final int delay = 1;
 	
 	//--------
 	//---------------- Access --------
@@ -117,18 +118,20 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	
 	public static WarpedItem<?> getDraggedItem(){return dragItem;}
 		
-	public static void dragItem(WarpedItem<?> dragItem) {
+	public static void dragItem(GUIInventory<?> dragGUI, WarpedItem<?> dragItem) {
+		WarpedMouse.dragGUI = dragGUI;
 		WarpedMouse.dragItem = dragItem;
-		mouseController.setTemporaryCursorImage(dragItem.raster());
-		resetCursor();
+		setTemporaryCursor(dragItem.raster());
 		isDraggingItem = true;
 	}
 	
-	public static void dropItem() {
+	public static void dropItem(boolean transfered) {
 		if(isDraggingItem) {			
-			resetCursor();
 			isDraggingItem = false;
+			resetCursor();
+			if(!transfered) dragGUI.restoreItem(dragItem);
 		}
+		
 	}
 	/*
 	*/
@@ -138,6 +141,13 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	//---------------- Update --------
 	//--------
 	public void update() {
+		if(isDraggingItem && !isDragging) {
+			tick++;
+			if(tick > delay) {
+				tick = 0;
+				dropItem(false);
+			}
+		}
 		if(mouseController.isLoadState() && mouseController.setLoadCursor()) WarpedWindow.getFrame().setCursor(mouseController.getCursor());
 		if(!inWindow && isTrapMouse && isOutOfBounds(lastPoint)) {
 			WarpedFramework2D.getRobot().mouseMove(lastPoint.x, lastPoint.y);
@@ -178,7 +188,6 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	@Override
 	public void mousePressed(MouseEvent e) {
 		if(isLocked) return;
-		dropItem();		
 		if(!isPressed) {
 			isPressed = true;
 			mouseController.setCursorState(PRESS);
@@ -202,6 +211,7 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		isDragging = false;
 		if(WarpedState.isPaused()) FrameworkAudio.error.play();
 		WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.BUTTON_RELEASE));
+			
 		
 		/*
 		if(WarpedKeyboard.isKeyLogging()) {

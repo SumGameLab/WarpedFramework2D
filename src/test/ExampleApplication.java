@@ -50,6 +50,9 @@ public class ExampleApplication extends WarpedApplication {
 	}
 	
 	public enum TestImage implements WarpedLinkable<TestImage>{
+		FOOD,
+		POTION,
+		ROCK,
 		TEST_1,
 		TEST_2,
 		TEST_3,
@@ -101,9 +104,9 @@ public class ExampleApplication extends WarpedApplication {
 		@Override
 		public BufferedImage getRaster(TestItems itemType) {
 			switch(itemType) {
-			case FOOD:   return FrameworkSprites.error;	
-			case POTION: return FrameworkSprites.error;		
-			case ROCK:	 return FrameworkSprites.error;	
+			case FOOD:   return testImage.getImage(TestImage.FOOD);	
+			case POTION: return testImage.getImage(TestImage.POTION);		
+			case ROCK:	 return testImage.getImage(TestImage.ROCK);	
 			default:
 				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
 				return FrameworkSprites.error;			
@@ -159,9 +162,11 @@ public class ExampleApplication extends WarpedApplication {
 	/*Check out example of how to set up a HUD here*/
 	public static ExampleHUD hud;
 	
-	public static InspectorInventory<TestItems> inventInspector;
+	public static InspectorInventory<TestItems> inventInspectorA;
+	public static InspectorInventory<TestItems> inventInspectorB;
 	
-	public static WarpedInventory<TestItems> exampleInventory;
+	public static WarpedInventory<TestItems> exampleInventoryA;
+	public static WarpedInventory<TestItems> exampleInventoryB ;
 	
 	
 	/*Check out example entitie here*/
@@ -186,7 +191,7 @@ public class ExampleApplication extends WarpedApplication {
 	/*This will load all the assets from the resource folders and bind them to the WarpedLinkables I specified.*/
 	@Override
 	public void loadAssets() {
-		testImage 	= WarpedImageFolder.generateFolder(TestImage.TEST_1, "res/framework/testImages");
+		testImage 	= WarpedImageFolder.generateFolder(TestImage.FOOD, "res/framework/testImages");
 		testSprites = WarpedSpriteFolder.generateFolder(TestSprites.SPRITE_8DIR, "res/framework/testSprites");
 		testAudio 	= WarpedAudioFolder.generateFolder(TestAudio.TEST_1, "res/framework/testAudio");
 	}
@@ -201,14 +206,23 @@ public class ExampleApplication extends WarpedApplication {
 		itemManager = new ManagerItem<TestItems>();
 		WarpedState.addManager(itemManager);
 
-		inventInspector = new InspectorInventory<TestItems>(4, 5);
-		inventInspector.assemble();
+		inventInspectorA = new InspectorInventory<TestItems>(4, 5);
+		inventInspectorA.assemble();
 		
-		exampleInventory = itemManager.addGroup();
-		exampleInventory.produce(TestItems.FOOD, 10);
-		exampleInventory.produce(TestItems.POTION, 2);
-		exampleInventory.produce(TestItems.ROCK, 5);
-		exampleInventory.produce(TestItems.ROCK, 1);
+		inventInspectorB = new InspectorInventory<TestItems>(4, 5);
+		inventInspectorB.assemble();
+		
+		exampleInventoryA = itemManager.addGroup();
+		exampleInventoryA.produce(TestItems.FOOD, 10);
+		exampleInventoryA.produce(TestItems.POTION, 2);
+		exampleInventoryA.produce(TestItems.ROCK, 5);
+		exampleInventoryA.produce(TestItems.ROCK, 1);
+		
+		exampleInventoryB = itemManager.addGroup();
+		exampleInventoryB.produce(TestItems.FOOD, 10);
+		exampleInventoryB.produce(TestItems.POTION, 2);
+		exampleInventoryB.produce(TestItems.ROCK, 5);
+		exampleInventoryB.produce(TestItems.ROCK, 1);
 		
 		CharacterSprite testSprite = new CharacterSprite(testSprites.getSheet(TestSprites.SPRITE_8DIR), AxisType.HORIZONTAL);
 		testSprite.setFrameRate(16);

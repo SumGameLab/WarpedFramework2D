@@ -30,7 +30,8 @@ public class ExampleHUD extends GUIAssembly {
 	
 	public  GUIButton title = new GUIButton("  Drag me...  ");
 	private GUIButton funny = new GUIButton("  Be funny  ");
-	private GUIButton invent = new GUIButton("  Invent  ");
+	private GUIButton inventA = new GUIButton("InventA");
+	private GUIButton inventB = new GUIButton("InventA");
 	private GUITextInputLine notifyInput = new GUITextInputLine();
 	private GUIScrollBar effectVolume = new GUIScrollBar();
 	private GUIProgressBar volumeProgress = new GUIProgressBar();
@@ -58,7 +59,8 @@ public class ExampleHUD extends GUIAssembly {
 	@Override
 	protected void defineAssembly() { 
 		funny.setOffset(50, 60);
-		invent.setOffset(180, 60);
+		inventA.setOffset(210, 15);
+		inventB.setOffset(210, 50);
 		notifyInput.setOffset(50, 100);
 		effectVolume.setOffset(50, 150);
 		volumeProgress.setOffset(50, 190);
@@ -67,7 +69,8 @@ public class ExampleHUD extends GUIAssembly {
 		paragraph.setOffset(5, 345);
 		
 		funny.offset(title);
-		invent.offset(title);
+		inventA.offset(title);
+		inventB.offset(title);
 		notifyInput.offset(title);
 		effectVolume.offset(title);
 		volumeProgress.offset(title);
@@ -87,9 +90,14 @@ public class ExampleHUD extends GUIAssembly {
 		
 		funny.setReleasedAction(mouseE -> {WarpedState.notify.note(UtilsString.getFunnyString());});
 
-		invent.setReleasedAction(mouseE -> {
-			ExampleApplication.inventInspector.selectInventory(ExampleApplication.exampleInventory);
-			ExampleApplication.inventInspector.open();		
+		inventA.setReleasedAction(mouseE -> {
+			ExampleApplication.inventInspectorA.selectInventory(ExampleApplication.exampleInventoryA);
+			ExampleApplication.inventInspectorA.toggle();	
+		}); 
+		
+		inventB.setReleasedAction(mouseE -> {
+			ExampleApplication.inventInspectorB.selectInventory(ExampleApplication.exampleInventoryB);
+			ExampleApplication.inventInspectorB.toggle();		
 		}); 
 		
 		notifyInput.setButtonAction(str -> {WarpedState.notify.note(str);});
@@ -121,7 +129,8 @@ public class ExampleHUD extends GUIAssembly {
 	protected void addAssembly() {
 		addMember(background);
 		addMember(title);
-		addMember(invent);
+		addMember(inventA);
+		addMember(inventB);
 		addMember(funny);
 		addMember(notifyInput);
 		addMember(effectVolume);
