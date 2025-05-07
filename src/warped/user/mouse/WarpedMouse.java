@@ -53,6 +53,8 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	
 	private static boolean isFocused  = false;
 	private static boolean isPressed  = false;
+	private static boolean isLeftPressed  = false;
+	private static boolean isRightPressed  = false;
 	private static boolean isLocked   = false;
 	
 	
@@ -89,6 +91,8 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	public static Point getPoint() {return mouseController.getMousePoint();}
 	public static boolean isInWindow() {return inWindow;}
 	public static boolean isPressed()  {return isPressed;}
+	public static boolean isLeftPressed()  {return isLeftPressed;}
+	public static boolean isRightPressed()  {return isRightPressed;}
 	public static boolean isDragging() {return isDragging;}
 	public static boolean isFocused()  {return isFocused;}
 
@@ -116,8 +120,16 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	//---------------- Dragging -------
 	//--------	
 	
+	/**
+	 * */
 	public static WarpedItem<?> getDraggedItem(){return dragItem;}
 		
+	/**Drag an item with the mouse
+	 * @param dragGUI - the GUI that the item was dragged from.
+	 * @param dragItem - the item that is being dragged.War
+	 * @implNote Will set the cursor to match the dragged item.
+	 * @author 5som3 
+	 * */
 	public static void dragItem(GUIInventory<?> dragGUI, WarpedItem<?> dragItem) {
 		WarpedMouse.dragGUI = dragGUI;
 		WarpedMouse.dragItem = dragItem;
@@ -125,13 +137,15 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		isDraggingItem = true;
 	}
 	
-	public static void dropItem(boolean transfered) {
+	/**Drop the item and reset the cursor.
+	 * @implNote Will reset the cursor to the controller default.
+	 * @author 5som3 */
+	public static void dropItem() {
 		if(isDraggingItem) {			
 			isDraggingItem = false;
+			isDragging = false;
 			resetCursor();
-			if(!transfered) dragGUI.restoreItem(dragItem);
 		}
-		
 	}
 	/*
 	*/
@@ -145,7 +159,9 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 			tick++;
 			if(tick > delay) {
 				tick = 0;
-				dropItem(false);
+				isDraggingItem = false;
+				resetCursor();
+				dragGUI.restoreItem(dragItem);
 			}
 		}
 		if(mouseController.isLoadState() && mouseController.setLoadCursor()) WarpedWindow.getFrame().setCursor(mouseController.getCursor());
@@ -190,7 +206,9 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 		if(isLocked) return;
 		if(!isPressed) {
 			isPressed = true;
-			mouseController.setCursorState(PRESS);
+			if(!isDraggingItem) mouseController.setCursorState(PRESS);
+			if(e.getButton() == MouseEvent.BUTTON1) isLeftPressed = true;
+			else isRightPressed = true;
 		}
 		Console.ln("WarpedMouse -> mousePressed()");
 		WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.BUTTON_PRESS));
@@ -199,16 +217,18 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		if(e.getButton() == MouseEvent.BUTTON3) {
-			resetCursor();
-		}
 		if(isLocked) return;
+		Console.ln("WarpedMouse -> mouseRelase()");
 		if(isPressed) {
 			isPressed = false;
+			isLeftPressed = false;
+			isRightPressed = false;
+		}
+		if(e.getButton() == MouseEvent.BUTTON1) {			
+			isDragging = false;
 			mouseController.setCursorState(PLAIN);
 		}
-		Console.ln("WarpedMouse -> mouseRelase()");
-		isDragging = false;
+	
 		if(WarpedState.isPaused()) FrameworkAudio.error.play();
 		WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.BUTTON_RELEASE));
 			

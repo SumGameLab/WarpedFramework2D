@@ -2,10 +2,8 @@
 
 package warped.user.keyboard;
 
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
-import warped.application.actionWrappers.ActionOption;
 import warped.utilities.utils.Console;
 
 public abstract class WarpedKeyboardController  {

@@ -27,7 +27,7 @@ public class InspectorInventory<T extends ItemBindable<?>> extends GUIAssembly {
 	private GUIButton 	 close			= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
 	private GUIButton 	 sortAlphabet	= new GUIButton(FrameworkSprites.getKeyboardIcon(KeyboardIcons.A));
 	private GUIButton 	 sortMass		= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.MASS));
-	private GUIButton 	 sortQuantity	= new GUIButton(FrameworkSprites.getKeyboardIcon(KeyboardIcons.ONE));
+	private GUIButton 	 sortQuantity	= new GUIButton(FrameworkSprites.getKeyboardIcon(KeyboardIcons.HASHTAG));
 	private GUIButton 	 sortValue		= new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.DOLLAR));
 	private GUIInventory<T> invent;
 	

@@ -5,16 +5,21 @@ package warped.user.keyboard;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import warped.utilities.utils.Console;
 
 public class WarpedKeyboard implements KeyListener {
 
-	private static ArrayList<Character> pressedKeys = new ArrayList<>();
-	private static ArrayList<Character> releasedKeys = new ArrayList<>();
+	//private static ArrayList<Character> pressedKeys = new ArrayList<>();
+	//private static ArrayList<Character> releasedKeys = new ArrayList<>();
 		
 	private static WarpedKeyboardController activeController;
 	private static ArrayList<WarpedTypeable> typeables = new ArrayList<>();
 
 	private static boolean isLocked = false;
+	
+	private static HashMap<Integer, Boolean> pressedKeys = new HashMap<>();
 
 	public WarpedKeyboard() {
 		setController(new DefaultController());
@@ -62,27 +67,29 @@ public class WarpedKeyboard implements KeyListener {
 	
 	
 	/**Get a string of the keys pressed since the last time getPresses() was called.
-	 * @return String - the keys pressed. 
+	 * @return String - a string of the keys that are pressed 
 	 * @author 5som3*/
 	public static String getPresses() {
 		String result = "";
-		for(int i = 0; i < pressedKeys.size(); i++) {
-			result += pressedKeys.get(i) + ", ";
+		ArrayList<Integer> keys = new ArrayList<>(pressedKeys.keySet());
+		for(int i = 0; i < keys.size(); i++) {
+			if(pressedKeys.get(keys.get(i)) == true) result += KeyEvent.getKeyText(keys.get(i));
 		}
-		pressedKeys.clear();
 		return result;
+		
 	}
 	
-	/**Get a string of the keys released since the last time getReleases() was called.
-	 * @param String - the keys released. 
-	 * @author 5som3*/
-	public static String getReleases() {
-		String result = "";
-		for(int i = 0; i < releasedKeys.size(); i++) {
-			result += releasedKeys.get(i) + ", ";
+	/**Is the specified key currently pressed.
+	 * @param keyCode - the keyCode of the key to check
+	 * @return boolean - true if the key is pressed.
+	 * @apiNote Will return false with error if the key has not been pressed at least once
+	 * @author 5som3 */
+	public static boolean isKeyPressed(int keyCode) {
+		if(pressedKeys.containsKey(keyCode)) return pressedKeys.get(keyCode);
+		else {
+			Console.err("WarpeeKeyboard -> isKeyPressed() -> key doesn't exist : " + keyCode);
+			return false;
 		}
-		releasedKeys.clear();
-		return result;
 	}
 	
 	/**Does the keyboard contain the specified typeable
@@ -100,7 +107,7 @@ public class WarpedKeyboard implements KeyListener {
 	 * @param e - the key event from the keyboard. This method can trigger multiple times during a single press.
 	 * @author 5som3*/
 	public void keyPressed(KeyEvent e) {
-		pressedKeys.add(e.getKeyChar());
+		pressedKeys.put(e.getKeyCode(), true);
 		if(isLocked) return;
 		activeController.pressKey(e.getKeyCode());
 		for(int i = 0; i < typeables.size(); i++) typeables.get(i).keyPressed(e);
@@ -110,7 +117,7 @@ public class WarpedKeyboard implements KeyListener {
 	 * @param e - the key event from the keyboard. This method can trigger multiple times during a single press.
 	 * @author 5som3*/
 	public void keyReleased(KeyEvent e) {
-		releasedKeys.add(e.getKeyChar());
+		pressedKeys.put(e.getKeyCode(), false);
 		if(isLocked) return;
 		activeController.releaseKey(e.getKeyCode());
 		for(int i = 0; i < typeables.size(); i++) typeables.get(i).keyReleased(e);	

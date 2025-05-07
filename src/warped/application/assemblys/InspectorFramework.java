@@ -328,7 +328,6 @@ public class InspectorFramework extends GUIAssembly {
 			managerText.setTextLine(line, "Keyboard", Color.YELLOW); 													line += 2;
 			managerText.setTextLine(line, "Keyboard Controller :  " + WarpedKeyboard.getActiveController().getName());  line++;
 			managerText.setTextLine(line, "Key Presses  :  " + WarpedKeyboard.getPresses());                      		line++;
-			managerText.setTextLine(line, "Key Releases :  " + WarpedKeyboard.getReleases());                      		line++;
 			managerText.setTextLine(line, "Key Bindings   :  " + WarpedKeyboard.getKeyBindingsCount());					line++;
 			break;                  
 			                        
