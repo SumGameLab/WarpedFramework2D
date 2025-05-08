@@ -33,46 +33,52 @@ public class WarpedGroupIdentity {
 	 * @return int - the ID of the manager
 	 * @implNote the uniqueID is also the index of the manager in the game state   
 	 * @author 5som3*/
-	public int getManagerID() {return MANAGER_ID;}
+	public final int getManagerID() {return MANAGER_ID;}
 	
 	/**The UNIQUE_ID of the group
 	 * @return int - the unique ID assigned to the group when it was added to a manager
 	 * @author 5som3*/
-	public int getUniqueID() {return UNIQUE_ID;}
+	public final int getUniqueID() {return UNIQUE_ID;}
 	
 	/**The index of this group in the managers groups array.
 	 * @return int - the index of this group
 	 * @author 5som3*/
-	public int getGroupIndex() {return GROUP_INDEX;}
+	public final int getGroupIndex() {return GROUP_INDEX;}
 	
 	/**Is the group the same as this group
 	 * @param WarpedGroupIdentity - the identity of the group to check
 	 * @return boolean - True if the identitys match, else false. 
 	 * @author 5som3*/
-	public boolean isEqual(WarpedGroupIdentity groupID) {if(groupID.getUniqueID() == UNIQUE_ID) return true; else return false;}
+	public final boolean isEqual(WarpedGroupIdentity groupID) {if(groupID.getUniqueID() == UNIQUE_ID) return true; else return false;}
 	
 	/**Print the ID to the console
 	 * @author 5som3*/
-	public void printString() {Console.err("(manager, groupIndex) : (" + MANAGER_ID + ", " + UNIQUE_ID + ") ");}
+	public final void printString() {Console.err("(manager, groupIndex) : (" + MANAGER_ID + ", " + UNIQUE_ID + ") ");}
 	
 	/**Get the ID as a string
 	 * @author 5som3*/
-	public String getString() {
+	public final String getString() {
 		String result = "(manager, groupIndex) : (" + MANAGER_ID + ", " + UNIQUE_ID + ") ";
 		return result;
 	}
-	
 	
 	/**Remove this group from its managers activeGroups array
 	 * @implNote closed groups will not receive updates from their managers.
 	 * @implNote closed groups will not be drawn by viewports unless specifically added to the pipeline 
 	 * @author 5som3*/
-	public void closeGroup() {WarpedState.closeGroup(this);}
+	public final void closeGroup() {WarpedState.closeGroup(this);}
 	
 	/**Add this group to its managers activeGroups array
 	 * @implNote open groups will receive updates from their managers.
 	 * @implNote open groups will be drawn by viewports in the render using render active methods. 
 	 * @author 5som3*/
-	public void openGroup() {WarpedState.openGroup(this);}
+	public final void openGroup() {WarpedState.openGroup(this);}
+	
+	/**Change the open/closed state of the group.
+	 * @apiNote If open the group will close, if closed the group will open.
+	 * @implNote open groups will receive updates from their managers, closed groups do not.
+	 * @implNote open groups will be drawn by viewports in the render using render active methods, closed groups are not. 
+	 * @author 5som3*/
+	public final void toggleGroup() {WarpedState.toggleGroup(this);}
 	
 }

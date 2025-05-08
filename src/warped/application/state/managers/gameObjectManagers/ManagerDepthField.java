@@ -77,7 +77,7 @@ public class ManagerDepthField <T extends WarpedObject> extends WarpedManager<T>
 		BufferedImage bakedImage = new BufferedImage(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		Graphics g = bakedImage.getGraphics();
 				
-		for(int i = 0; i < primaryGroup.getMemberCount(); i++) {
+		for(int i = 0; i < primaryGroup.size(); i++) {
 			WarpedDepthField t = primaryGroup.getMember(i);
 			g.drawImage(t.raster(), (int)t.getRenderPosition().x(), (int)t.getRenderPosition().y(), (int)t.getRenderSize().x(), (int)t.getRenderSize().y(), null);
 		}

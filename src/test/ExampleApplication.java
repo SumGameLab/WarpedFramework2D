@@ -204,7 +204,6 @@ public class ExampleApplication extends WarpedApplication {
 	@Override
 	protected void initializeApplication() {
 		itemManager = new ManagerItem<TestItems>();
-		WarpedState.addManager(itemManager);
 
 		inventInspectorA = new InspectorInventory<TestItems>(4, 5);
 		inventInspectorA.assemble();

@@ -19,11 +19,13 @@ public class WarpedManager<T extends WarpedObject> {
 	
 	/**A manager for extensions of the WarpedObject class
 	 * @param name - the name for the manager (not significant, used for debugging)
+	 * @implNote Will automatically add the manager to the warped state.
 	 * @author 5som3*/
 	public WarpedManager(String name) {
 		this.name = name;
 		UNIQUE_ID = managerCount;
 		managerCount++;
+		WarpedState.addManager(this);
 	}
 
 	/**Get the active Groups
@@ -51,6 +53,19 @@ public class WarpedManager<T extends WarpedObject> {
 		return g;
 	}
 	
+	@SuppressWarnings("unchecked")
+	/**Add a group of the specified class type.
+	 * @param classType - the class of object that the group will contain.
+	 * @apiNote It is up to you to ensure only object of the groups type are added to it.
+	 * @apiNote Adding members of another class will cause a class cast exception when accessing them.
+	 * @author 5som3*/
+	public final <K extends T> WarpedGroup<K> addGroup(Class<K> classType) {
+		WarpedGroupIdentity groupID = new WarpedGroupIdentity(UNIQUE_ID, groups.size());
+		WarpedGroup<T> g = new WarpedGroup<T>(groupID);
+		groups.add(g);
+		return (WarpedGroup<K>) g;
+	}
+	
 	/**Add a member to a group in this manager
 	 * @param groupID - the ID of the group to added the member too
 	 * @param member - the member to add to the group
@@ -59,7 +74,7 @@ public class WarpedManager<T extends WarpedObject> {
 	
 	/**Open the group if it is closed, else closes the group.
 	 * @author 5som3*/
-	public void toggleGroup(WarpedGroupIdentity groupID) {
+	public final void toggleGroup(WarpedGroupIdentity groupID) {
 		if(isOpen(groupID)) closeGroup(groupID);
 		else openGroup(groupID);
 	}
@@ -70,7 +85,7 @@ public class WarpedManager<T extends WarpedObject> {
 	 * @exception return false and print error if the group is not owned by this manager
 	 * @implNote Open groups will be updated and rendered by active render methods
 	 * @author 5som3*/
-	public boolean isOpen(WarpedGroupIdentity groupID) {
+	public final boolean isOpen(WarpedGroupIdentity groupID) {
 		if(!isOwner(groupID)) {
 			Console.err("WarpedManager -> isGroupOpen() -> the group does not belong to this manager : " + name);
 			Console.err(groupID.getString());
@@ -84,37 +99,37 @@ public class WarpedManager<T extends WarpedObject> {
 	 * @param groupID - the ID to check 
 	 * @return boolean - true if the group exists in this manager else false
 	 * @author 5som3*/
-	public boolean isOwner(WarpedGroupIdentity groupID) {if(groupID.getManagerID() == UNIQUE_ID) return true; else return false;}
+	public final boolean isOwner(WarpedGroupIdentity groupID) {if(groupID.getManagerID() == UNIQUE_ID) return true; else return false;}
 	
 	/**Is the manager the owner of the group that contains this object
 	 * @param objectID - the ID of the object to check. 
 	 * @return boolean - true if the group exists in this manager else false
 	 * @author 5som3*/
-	public boolean isOwner(WarpedObjectIdentity objectID) {if(isOwner(objectID.getGroupID())) return true; else return false;}
+	public final boolean isOwner(WarpedObjectIdentity objectID) {if(isOwner(objectID.getGroupID())) return true; else return false;}
 	
 	/**Opens the group if it is not already open
 	 * @param group - the group to open
 	 * @author 5som3*/
-	public synchronized void openGroup(WarpedGroup<?> group) {openGroup(group.getGroupID());}
+	public final synchronized void openGroup(WarpedGroup<?> group) {openGroup(group.getGroupID());}
 	
 	/**Opens the group if it is not already open
 	 * @param groupID - the identity of the group to open
 	 * @author 5som3*/
-	public synchronized void openGroup(WarpedGroupIdentity groupID) {if(isOwner(groupID) && !isOpen(groupID)) activeGroups.add(getGroup(groupID));}
+	public final synchronized void openGroup(WarpedGroupIdentity groupID) {if(isOwner(groupID) && !isOpen(groupID)) activeGroups.add(getGroup(groupID));}
 	
 	/**Open a list of groups
 	 * @param identities - a list of the identities to add
 	 * @author 5som3*/
-	public synchronized void openGroups(List<WarpedGroupIdentity> identities) {identities.forEach(i -> {openGroup(i);});}
+	public final synchronized void openGroups(List<WarpedGroupIdentity> identities) {identities.forEach(i -> {openGroup(i);});}
 	
 	/**Open a list of groups
 	 * @param identities - a list of the identities to add
 	 * @author 5som3*/
-	public synchronized void openGroups(WarpedGroupIdentity... groupID) {openGroups(groupID);}
+	public final synchronized void openGroups(WarpedGroupIdentity... groupID) {openGroups(groupID);}
 	
 	/**Open all groups in the manager
 	 * @author 5som3*/
-	public synchronized void openGroups() {
+	public final synchronized void openGroups() {
 		for(int i = 0; i < groups.size(); i++) {
 			WarpedGroup<T> group = groups.get(i);
 			if(!isOpen(group.getGroupID())) activeGroups.add(group);
@@ -123,17 +138,17 @@ public class WarpedManager<T extends WarpedObject> {
 	
 	/**Close all groups in the manager
 	 * @author 5som3*/
-	public synchronized void closeGroups() {activeGroups.clear();}
+	public final synchronized void closeGroups() {activeGroups.clear();}
 	
 	/**Close the group if it is not already closed
 	 * @param group - the group to close
 	 * @author 5som3*/
-	public synchronized void closeGroup(WarpedGroup<?> group) {closeGroup(group.getGroupID());}
+	public final synchronized void closeGroup(WarpedGroup<?> group) {closeGroup(group.getGroupID());}
 	
 	/**close a group
 	 * @param groupID - the ID of the group to close.
 	 * @author 5som3*/
-	public synchronized void closeGroup(WarpedGroupIdentity groupID) {
+	public final synchronized void closeGroup(WarpedGroupIdentity groupID) {
 		if(isOwner(groupID)) {
 			for(int i = 0; i < activeGroups.size(); i++) {
 				if(activeGroups.get(i).isEqual(groupID)) activeGroups.remove(i);
@@ -156,12 +171,12 @@ public class WarpedManager<T extends WarpedObject> {
 	 * @return int - the unique ID for this manager
 	 * @implNote the uniqueID is also the index of the manager in the game state   
 	 * @author 5som3*/
-	public int getManagerID() {return UNIQUE_ID;}
+	public final int getManagerID() {return UNIQUE_ID;}
 	
 	/**The number of groups contained in this manager.
 	 * @return int - the group count
 	 * @author 5som3*/
-	public int getGroupCount() {return groups.size();}
+	public final int size() {return groups.size();}
 	
 	/**The number of groups that are open in this manager.
 	 * @return int - the number of groups that are open.
@@ -176,7 +191,7 @@ public class WarpedManager<T extends WarpedObject> {
 		int subTotal = 0;
 		
 		for(int i = 0; i < groups.size(); i++) {
-			subTotal += groups.get(i).getMemberCount();
+			subTotal += groups.get(i).size();
 		}
 		
 		return subTotal;
@@ -188,7 +203,7 @@ public class WarpedManager<T extends WarpedObject> {
 	public int getOpenObjectCount() {
 		int subTotal = 0;
 		for(int i = 0; i < activeGroups.size(); i++) {
-			subTotal += activeGroups.get(i).getMemberCount();
+			subTotal += activeGroups.get(i).size();
 		}
 		return subTotal;
 	}
@@ -261,40 +276,78 @@ public class WarpedManager<T extends WarpedObject> {
 	}	
 	
 	/**Update 60 times per second*/
-	protected void updateActive() {
+	protected final void updateActive() {
 		for(int i = 0; i< activeGroups.size(); i++) {
 			activeGroups.get(i).updateActive();	
 		}
 	}
 	
 	/**Update once per second*/
-	protected void updateMid() {
+	protected final void updateMid() {
 		 for(int i = 0; i< activeGroups.size(); i++) {
 			 	activeGroups.get(i).updateMid();	
 			}
 	}
 	
 	/**Update once per minute*/
-	protected void updateSlow() {
+	protected final void updateSlow() {
 		for(int i = 0; i< activeGroups.size(); i++) {	
 			activeGroups.get(i).updateSlow();
 		}
 	}
 	
 	/**Update once per hour*/
-	protected void updatePassive() {
+	protected final void updatePassive() {
 		for(int i = 0; i< activeGroups.size(); i++) {
 			activeGroups.get(i).updatePassive();	
 		}
 	}
 	
 	/**Called after each update active cycle*/
-	protected void removeDead() {
+	protected final void removeDead() {
 		for(int i = 0; i < activeGroups.size(); i++) {
 			activeGroups.get(i).removeDead();
 		}
 	}
 
+	
+
+	@SuppressWarnings("unchecked")
+	/**Get the specified group cast as the declared classType.
+	 * @param groupID - the id of the group to get.
+	 * @param classType - the type to cast this group to.
+	 * @apiNote It is up to you to ensure the group is cast to the type it contains.
+	 * @apiNote If the group contains members that are not the same classType then class exception will occur when accessing those members.
+	 * @author 5som3*/
+	public final <K extends T> WarpedGroup<K> getGroupOf(WarpedGroupIdentity groupID, Class<K> classType) {
+		int index = groupID.getGroupIndex();
+		if(groupID.getManagerID() != UNIQUE_ID) {
+			Console.err("WarpedManager -> getGroupOf() -> the group doesn't exist in " + name +", it exist in manager : " + groupID.getManagerID());
+			return null;
+		}
+		if(groups.size() <= 0) {
+			Console.err("ContextManager -> getGroupOf() -> There are no groups in : " + name);
+			return null;
+		}
+		
+		if(index < 0 || index >= groups.size()) {
+			Console.err("ContextManager -> getGroupOf -> index is out side function domain : ( 0 < " + index + " < " + groups.size() + " )");
+			return null;
+		}
+		
+		if(groups.get(index) == null) {
+			Console.err("ContextManager -> getGroupOf -> null group found in " + name + " at index " + index);
+			return null;
+		}
+		
+		if(groups.get(index).size() > 0 && groups.get(index).getMember(0).getClass() != classType) {
+			Console.err("ContextManager -> getGroupOf -> group is not a gropu of " + classType);
+			return null;
+		}
+			
+		return (WarpedGroup<K>) groups.get(index);
+	}
+	
 
 	
 	
@@ -328,31 +381,7 @@ public class WarpedManager<T extends WarpedObject> {
 
 	
 
-	@SuppressWarnings("unchecked")
-	protected <K extends T> WarpedGroup<K> getGroupOf(int index, Class<K> classType) {
-		if(groups.size() <= 0) {
-			Console.err("ContextManager -> getGroupOf() -> There are no groups in : " + managerType);
-			return null;
-		}
-		
-		if(index < 0 || index >= groups.size()) {
-			Console.err("ContextManager -> getGroupOf -> index is out side function domain : ( 0 < " + index + " < " + groups.size() + " )");
-			return null;
-		}
-		
-		if(groups.get(index) == null) {
-			Console.err("ContextManager -> getGroupOf -> null group found in " + managerType + " at index " + index);
-			return null;
-		}
-		
-		if(groups.get(index).size() > 0 && groups.get(index).getMember(0).getClass() != classType) {
-			Console.err("ContextManager -> getGroupOf -> group is not a gropu of " + classType);
-			return null;
-		}
-			
-		return (WarpedGroup<K>) groups.get(index);
-	}
-	
+
 	 */
 	
 }

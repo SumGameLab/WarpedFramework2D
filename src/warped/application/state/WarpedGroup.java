@@ -41,6 +41,23 @@ public class WarpedGroup<T extends WarpedObject> {
 		this.name = name;
 	}
 	
+	/**Add this group to its managers activeGroups array
+	 * @implNote open groups will receive updates from their managers.
+	 * @implNote open groups will be drawn by viewports in the render using render active methods. 
+	 * @author 5som3*/
+	public final void open() {groupID.openGroup();}
+	/**Remove this group from its managers activeGroups array
+	 * @implNote closed groups will not receive updates from their managers.
+	 * @implNote closed groups will not be drawn by viewports unless specifically added to the pipeline 
+	 * @author 5som3*/
+	public final void close() {groupID.closeGroup();}
+	
+	/**Change the open/closed state of the group.
+	 * @apiNote If open the group will close, if closed the group will open.
+	 * @implNote open groups will receive updates from their managers, closed groups do not.
+	 * @implNote open groups will be drawn by viewports in the render using render active methods, closed groups are not. 
+	 * @author 5som3*/
+	public final void toggle() {groupID.toggleGroup();}
 	
 	/*
 	public void setMemberSize(VectorI memberSize) {this.memberSize = memberSize;}
@@ -64,7 +81,7 @@ public class WarpedGroup<T extends WarpedObject> {
 	/**The number of members in the group
 	 * @return int - the member count.
 	 * @author 5som3*/
-	public int getMemberCount() {return members.size();}
+	public int size() {return members.size();}
 	
 	/**The name assigned to this group.
 	 * @return String - the name of the group.

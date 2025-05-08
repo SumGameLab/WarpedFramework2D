@@ -59,11 +59,10 @@ public class WarpedViewport {
 	private BufferedImage buffer; //graphic input
 	private BufferedImage raster;    //graphic output
 	private BufferedImage[] rasterBuffer;
-	private static int bufferSize;
+	//private static int bufferSize;
 	private int bufferIndex = 0;
 	
 	private short fps = 0;
-	
 
 	public WarpedMouseEvent mouseEvent;
 	
@@ -107,7 +106,6 @@ public class WarpedViewport {
 	 * @author 5som3*/
 	public WarpedViewport(String name, WarpedManager<? extends WarpedObject> target, WarpedCamera camera, VectorI size, VectorI position) { /*GameContext must be defined at this point*/
 		this.name = name;
-		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
 		this.size = size;
 		this.position = position;
 		this.target = target;
@@ -116,8 +114,8 @@ public class WarpedViewport {
 
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
-		rasterBuffer = new BufferedImage[bufferSize];
-		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new BufferedImage[WarpedWindow.BUFFER_SIZE];
+		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);	
@@ -133,7 +131,6 @@ public class WarpedViewport {
 	 * @author 5som3*/
 	public WarpedViewport(String name, WarpedManager<?> target, int x, int y, int width, int height) {
 		this.name = name;
-		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
 		this.size = new VectorI(width, height);
 		this.position = new VectorI(x, y); 
 		this.target = target;
@@ -142,8 +139,8 @@ public class WarpedViewport {
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
-		rasterBuffer = new BufferedImage[bufferSize];
-		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new BufferedImage[WarpedWindow.BUFFER_SIZE];
+		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
@@ -155,7 +152,6 @@ public class WarpedViewport {
 	 * @author 5som3*/
 	public WarpedViewport(String name, WarpedManager<?> target) {
 		this.name = name;
-		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
 		this.size = new VectorI(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight());
 		this.position = new VectorI(); 
 		this.target = target;
@@ -164,8 +160,8 @@ public class WarpedViewport {
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
-		rasterBuffer = new BufferedImage[bufferSize];
-		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new BufferedImage[WarpedWindow.BUFFER_SIZE];
+		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
@@ -178,7 +174,6 @@ public class WarpedViewport {
 	 * @author 5som3*/
 	public WarpedViewport(String name, WarpedManager<?> target, RenderType renderType) {
 		this.name = name;
-		WarpedViewport.bufferSize = WarpedWindow.getBufferSize();
 		this.size = new VectorI(WarpedWindow.getWindowWidth(), WarpedWindow.getWindowHeight());
 		this.position = new VectorI(); 
 		this.target = target;
@@ -187,8 +182,8 @@ public class WarpedViewport {
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
-		rasterBuffer = new BufferedImage[bufferSize];
-		for(int i = 0; i < bufferSize; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new BufferedImage[WarpedWindow.BUFFER_SIZE];
+		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(renderType);
@@ -206,17 +201,7 @@ public class WarpedViewport {
 		fps = 0;
 		return val;
 	}
-	
-	/**DO NOT CALL - this method is scheduled for automatic execution by the WarpedWindow.
-	 * @implNote redraws the viewport based on the current target / targets.
-	 * @author SomeKid*/
-	protected final void update() {
-		long cycleStartTime = System.nanoTime();
-		camera.update();
-		render();
-		fps++;
-		updateDuration = System.nanoTime() - cycleStartTime;		
-	}
+
 	
 	/**For the currently targeted manager, set which groups should be viewed by this viewport.
 	 * @param groups - a list of the groups within the current targeted manager to draw.
@@ -479,12 +464,6 @@ public class WarpedViewport {
 	 * @author SomeKid*/
 	public int getHeight() {return size.y();}
 	
-	/**The graphic output for this viewport
-	 * @return BufferedImage - this image is the current frame of viewport at the time this function is called.
-	 * @implNote You should not try to edit the viewport raster manually. 
-	 * @implNote Editing this image will possibly cause momentary graphical artifacts.
-	 * @author SomeKid*/
-	public BufferedImage raster() {return raster;}
 	
 	/**Sets the rendering parameters for this viewport to the default.
 	 * @apiNote Call this function if you have changed the render settings and want to reset them.
@@ -573,10 +552,25 @@ public class WarpedViewport {
 	 * @author SomeKid*/
 	public void hintDitheringOff() {renderHints[DITHERING] = RenderingHints.VALUE_DITHER_DISABLE;}
 	
+	/**The graphic output for this viewport
+	 * @return BufferedImage - this image is the current frame of viewport at the time this function is called.
+	 * @implNote You should not try to edit the viewport raster manually. 
+	 * @implNote Editing this image will possibly cause momentary graphical artifacts.
+	 * @author SomeKid*/
+	protected BufferedImage raster() {return raster;}
 		
-	//--------
-	//-------------- Mouse Event ----------------------
-	//--------
+	
+	/**DO NOT CALL - this method is scheduled for automatic execution by the WarpedWindow.
+	 * @implNote redraws the viewport based on the current target / targets.
+	 * @author SomeKid*/
+	protected final void update() {
+		long cycleStartTime = System.nanoTime();
+		camera.update();
+		render();
+		fps++;
+		updateDuration = System.nanoTime() - cycleStartTime;		
+	}
+	
 	/** DO NOT CALL.
 	 * @implNote This function is called from the WarpedWindow class automatically when a mouse event occurs over it.
 	 * @implNote This function may be called multiple times per frame, only the last mouse event of each frame is considered; all other events will be trashed.
@@ -671,6 +665,11 @@ public class WarpedViewport {
 	}
 	
 	private final void pushGraphics() {
+		raster = rasterBuffer[bufferIndex];
+		bufferIndex++;
+		if(bufferIndex == WarpedWindow.BUFFER_SIZE) bufferIndex = 0;
+		buffer = rasterBuffer[bufferIndex];
+		/*
 		if(bufferIndex == 0) {
 			bufferIndex = 1;
 			buffer = rasterBuffer[1];
@@ -680,6 +679,7 @@ public class WarpedViewport {
 			buffer = rasterBuffer[0];
 			raster = rasterBuffer[1];
 		}
+		*/
 	}
 	
 	/** Renders the viewport based on the set method and set's the output raster to the new buffer

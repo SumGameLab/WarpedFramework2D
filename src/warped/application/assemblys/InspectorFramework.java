@@ -147,6 +147,7 @@ public class InspectorFramework extends GUIAssembly {
 		keybinds.setOffset(10, 40);
 		
 		managerText.setOffset(5, 35);
+		managerText.setInteractive(false);
 		
 		resolution.setOffset(50, 150);
 		exit.setOffset(50, 270);
@@ -196,7 +197,7 @@ public class InspectorFramework extends GUIAssembly {
 		
 		
 		
-		
+		keybinds.setVisible(false);
 		keybinds.setListSize(400, 400);
 		updateKeybindOptions();
 		
@@ -284,7 +285,8 @@ public class InspectorFramework extends GUIAssembly {
 			managerText.setTextLine(line, "Passive : (1 per hour,  n.a, " + UtilsMath.round(WarpedState.getPassiveCycleDuration() * 0.000001, 3) + ")", Color.WHITE); line += 2;
 			            
 			managerText.setTextLine(line, "---Window---", Color.YELLOW); line ++;
-			managerText.setTextLine(line, "Update : (60 Hz, " + WarpedWindow.getFPS() + ", " + UtilsMath.round(WarpedWindow.getUpdateDuration() * 0.000001, 3) + ")"); line++;
+			managerText.setTextLine(line, "Update : (60 Hz, " + WarpedWindow.getUPS() + ", " + UtilsMath.round(WarpedWindow.getUpdateDuration() * 0.000001, 3) + ")"); line++;
+			managerText.setTextLine(line, "Render : (60 Hz, " + WarpedWindow.getFPS() + ", " + UtilsMath.round(WarpedWindow.getRenderDuration() * 0.000001, 3) + ")"); line++;
                         
 			managerText.setTextLine(line, "---User Input : (10 Hz, n.a, " + UtilsMath.round(WarpedUserInput.getUpdateDuration() * 0.000001, 3) + ")", Color.YELLOW); line += 2;
 			            
@@ -341,7 +343,7 @@ public class InspectorFramework extends GUIAssembly {
 			
 		case OBJECT:   
 			managerText.setTextLine(line,  "Manager : Object", Color.YELLOW); 											line += 2;
-			managerText.setTextLine(line,  "Groups              :  " + WarpedState.guiManager.getGroupCount()); 		line++;
+			managerText.setTextLine(line,  "Groups              :  " + WarpedState.guiManager.size()); 		line++;
 			managerText.setTextLine(line,  "Active Groups       :  " + WarpedState.guiManager.getOpenGroupCount());	 	line++;	
 			managerText.setTextLine(line,  "Game Objects        :  " + WarpedState.guiManager.getObjectCount());     	line++;
 			managerText.setTextLine(line,  "Active Game Objects :  " + WarpedState.guiManager.getOpenObjectCount()); 	line++;
@@ -350,7 +352,7 @@ public class InspectorFramework extends GUIAssembly {
 	
 		case GUI:    
 			managerText.setTextLine(line,  "Manager : GUI", Color.YELLOW); 												line += 2;
-			managerText.setTextLine(line,  "Groups              :  " + WarpedState.guiManager.getGroupCount());         line++;
+			managerText.setTextLine(line,  "Groups              :  " + WarpedState.guiManager.size());         line++;
 			managerText.setTextLine(line,  "Active Groups       :  " + WarpedState.guiManager.getOpenGroupCount());     line++;
 			managerText.setTextLine(line,  "Game Objects        :  " + WarpedState.guiManager.getObjectCount());        line++;
 			managerText.setTextLine(line,  "Active Game Objects :  " + WarpedState.guiManager.getOpenObjectCount());    line++;

@@ -61,7 +61,7 @@ public class ManagerTile<T extends WarpedTile> extends WarpedManager<T> {
 		int height = group.getMapGridSize().y();
 		WarpedTile [] result = new WarpedTile[width * height];
 		
-		for(int i = 0; i < group.getMemberCount(); i++) {
+		for(int i = 0; i < group.size(); i++) {
 			result[i] = group.getMember(i);
 		}
 		return result;

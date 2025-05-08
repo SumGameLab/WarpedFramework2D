@@ -138,7 +138,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 				
 		int x = 0;
 		int y = 0;
-		for(int i = 0; i < selectInvent.getMemberCount(); i++) {
+		for(int i = 0; i < selectInvent.size(); i++) {
 			if(x >= columns) {
 				x = 0;
 				y++;
@@ -192,7 +192,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 		if(hx < 0 || hy < 0 || hx >= columns || hy >= rows) return;
 		
 		int index = hx + hy * columns;
-		if(index >= selectInvent.getMemberCount()) index = selectInvent.getMemberCount() - 1;
+		if(index >= selectInvent.size()) index = selectInvent.size() - 1;
 		
 		if(hoverX != hx || hoverY != hy) {
 			//invent.getMember(index).unhovered();
@@ -225,7 +225,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 		int hy = Math.floorDiv(mouseEvent.getPointRelativeToObject().y, itemSpacingY);
 		if(hx < 0 || hy < 0 || hx >= columns || hy >= rows) return;
 		int index = hx + hy * columns;
-		if(index >= selectInvent.getMemberCount()) return;
+		if(index >= selectInvent.size()) return;
 		
 		WarpedItem<T> selectItem = selectInvent.getMember(index);
 		dragIndex = index;
@@ -276,9 +276,9 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 
 		if(WarpedMouse.isDraggingItem() && mouseEvent.getMouseEvent().getButton() != MouseEvent.BUTTON3) {
 			Console.ln("GUIInventory -> mouseReleased() -> dropping item at index : " + dropIndex);
-			if(index > selectInvent.getMemberCount()) {
+			if(index > selectInvent.size()) {
 				Console.ln("GUIInventory -> dropIndex() -> drop index too high -> chaned to : " + dropIndex);
-				index = selectInvent.getMemberCount();
+				index = selectInvent.size();
 			}
 
 			dropIndex = index;
@@ -286,7 +286,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 			return;							
 		} 
 			
-		if(index >= selectInvent.getMemberCount()) return;
+		if(index >= selectInvent.size()) return;
 		Console.ln("GUIInventory -> mouseReleased() -> passing event to member at : " + index);
 		selectInvent.getMember(index).forwardMouseEvent(mouseEvent);
 	}

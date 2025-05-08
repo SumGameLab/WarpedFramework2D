@@ -1,12 +1,9 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 package warped.application.entities.item;
 
-import java.awt.image.BufferedImage;
-
-import test.ExampleApplication;
-import test.ExampleApplication.TestImage;
 import warped.application.actionWrappers.ActionOption;
 import warped.application.entities.WarpedEntitie;
+import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.utils.Console;
@@ -47,6 +44,7 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 		}));
 	}
 		
+	
 	/**Set the quantity regardless of what it was prior.
 	 * If the quantity of the item should be set to a specific number use this function.
 	 * If you want to (for example) add 10 or remove 10 items from the current quantity you should instead use the produce / consume functions.

@@ -38,9 +38,9 @@ public class WarpedState {
 	private static boolean pause = true;
 	private static boolean isInitialized = false;
 	
+	private static WarpedManager<?>[] managers = new WarpedManager<?>[0];	
 	public static final WarpedManager<WarpedObject> objectManager = new WarpedManager<WarpedObject>("Object Manager");	
 	public static final WarpedManager<WarpedGUI> guiManager = new WarpedManager<WarpedGUI>("GUI Manager");
-	private static WarpedManager<?>[] managers = new WarpedManager[] {objectManager, guiManager};	
 	
 	protected static ArrayList<WarpedAudioFolder<?>> audioFolders = new ArrayList<>();
 	protected static ArrayList<WarpedAssembly> assemblys = new ArrayList<>();
@@ -147,7 +147,7 @@ public class WarpedState {
 	
 	/**Add a manager to the state
 	 * @author 5som3*/
-	public static void addManager(WarpedManager<?> manager) {
+	protected static void addManager(WarpedManager<?> manager) {
 		for(int i = 0; i < managers.length; i++) {
 			if(managers[i].UNIQUE_ID == manager.UNIQUE_ID) {
 				Console.err("WarpedState -> addManager() -> manager already exist in state");

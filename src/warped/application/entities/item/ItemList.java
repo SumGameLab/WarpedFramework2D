@@ -60,7 +60,7 @@ public class ItemList<T extends ItemBindable<?>> {
 	/**List all the items in the specified inventory
 	 * @author 5som3*/
 	public ItemList(WarpedInventory<T> invent) {
-		for(int i = 0; i < invent.getMemberCount(); i++) {
+		for(int i = 0; i < invent.size(); i++) {
 			WarpedItem<T> item = invent.getMember(i);
 			if(addType(item.getItemType())) itemQuantities.add(item.getQuantity());
 			else addQuantity(item.getItemType(), item.getQuantity());

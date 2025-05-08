@@ -137,7 +137,7 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 	 * @implNote The method will not remove a member if the index is out of bounds.
 	 * @author 5som3 */
 	public void removeMember(int index) {
-		if(index < 0 || index >= getMemberCount()) {
+		if(index < 0 || index >= size()) {
 			Console.err("WarpedInventory -> removeMember() -> index is out of bounds : " + index);
 			return;
 		} else members.remove(index);
@@ -180,7 +180,7 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 			Collections.sort(names);
 			for(int i = 0; i < names.size(); i++) {
 				String name = names.get(i);
-				for(int j = 0; j < getMemberCount(); j++) {
+				for(int j = 0; j < size(); j++) {
 					if(name.equals(getMember(j).getName())) {
 						sortedAlphabet.add(getMember(j));
 						break;
@@ -196,7 +196,7 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 			Collections.reverse(names);
 			for(int i = 0; i < names.size(); i++) {
 				String name = names.get(i);
-				for(int j = 0; j < getMemberCount(); j++) {
+				for(int j = 0; j < size(); j++) {
 					if(name.equals(getMember(j).getName())) {
 						reverseAlphabet.add(getMember(j));
 						break;

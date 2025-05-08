@@ -83,12 +83,14 @@ public class WarpedWindow extends Canvas {
 	
 	private static String windowName = "WarpedFramework2D";
 	private static long updateDuration;
+	private static long renderDuration;
 	private static double loadProgress = 0.0;
 	private static boolean isFullScreen = false;
 	
 	private static ScheduledExecutorService executor;
 	private static Timer loadTimer = new Timer("Timer Thread : Load Timer");
 	private static TimerTask updateLoadGraphics = new TimerTask(){public void run() {renderLoadscreen();}};
+	private static TimerTask renderLoadGraphics = new TimerTask(){public void run() {renderCanvas();}};
 	private static WindowListener stopListener = new WindowAdapter() {@Override public void windowClosing(WindowEvent e) {WarpedFramework2D.stop();}};	
 	
 	public static  BufferedImage frameIcon = UtilsImage.loadBufferedImage("res/framework/graphics/frame_icon.png");
@@ -100,15 +102,20 @@ public class WarpedWindow extends Canvas {
 	
 	private static Graphics2D bufferGraphics;
 	private static Graphics bsGraphics;
-	private static final int BUFFER_SIZE = 3;
+	protected static final int BUFFER_SIZE = 3;
 
+	
 	private static int width  = 1920; 
 	private static int height = 1080; 
 	private static VectorI center = new VectorI(width / 2, height / 2);
 			
 	private static WarpedViewport[] viewPorts = new WarpedViewport[2];
 	private static BufferedImage[] rasterBuffer = new BufferedImage[1];
-	private static int rasterIndex = 0;
+	
+	private static BufferedImage raster = new BufferedImage(1, 1, 1);
+	private static BufferedImage buffer = new BufferedImage(1, 1, 1);
+	private static int bufferIndex = 0;
+	
 
 	private static int   loadBarBorderThickness = 5;
 	private static VectorI loadBarSize = new VectorI((int)(WarpedWindow.width - 200), 50);
@@ -118,6 +125,7 @@ public class WarpedWindow extends Canvas {
 	
 	private static Object[] renderHints = new Object[6];
 	
+	private static short ups = 0;
 	private static short fps = 0;
 	
 	public enum RenderHints {
@@ -167,7 +175,7 @@ public class WarpedWindow extends Canvas {
 
 		setBackground(Color.BLACK);
 				
-		try {createBufferStrategy(3, new BufferCapabilities(new ImageCapabilities(true),  new ImageCapabilities(true), BufferCapabilities.FlipContents.BACKGROUND));}
+		try {createBufferStrategy(3, new BufferCapabilities(new ImageCapabilities(true),  new ImageCapabilities(true), BufferCapabilities.FlipContents.PRIOR));}
 		catch (AWTException e) {Console.stackTrace(e);}
 		bs = getBufferStrategy();
 
@@ -175,6 +183,7 @@ public class WarpedWindow extends Canvas {
 		viewPorts[1] = new WarpedViewport("GUI", WarpedState.guiManager, 0, 0, width, height); 
 				
         loadTimer.scheduleAtFixedRate(updateLoadGraphics, 0, 16);
+        loadTimer.scheduleAtFixedRate(renderLoadGraphics, 0, 16);
 	}
 	
 
@@ -222,6 +231,12 @@ public class WarpedWindow extends Canvas {
 	}
 	
 	public static VectorD getWindowScale() {return windowScale;}
+	
+	public final static short getUPS() {
+		short val = ups;
+		ups = 0;
+		return val;		
+	}
 	
 	public final static short getFPS() {
 		short val = fps;
@@ -299,6 +314,11 @@ public class WarpedWindow extends Canvas {
 	 * @return long - the time taken to do the most recent update cycle measured in nanoseconds.
 	 * @author SomeKid */
 	public static long getUpdateDuration() {return updateDuration;}
+	
+	/**Get the time taken to update the window.
+	 * @return long - the time taken to do the most recent update cycle measured in nanoseconds.
+	 * @author SomeKid */
+	public static long getRenderDuration() {return renderDuration;}
 	
 	/**Get one of the viewports in the window.
 	 * @param index - the index of the viewport, will return viewPorts[0] if index is invalid.
@@ -491,17 +511,31 @@ public class WarpedWindow extends Canvas {
 		long cycleStartTime = System.nanoTime();
 		renderViewports();
 		dispatchMouseEvent();
-		fps++;
+		ups++;
 		updateDuration = System.nanoTime() - cycleStartTime;
+	}
+	
+	private static void pushGraphics() {
+		raster = rasterBuffer[bufferIndex];
+		bufferIndex++;
+		if(bufferIndex == BUFFER_SIZE) bufferIndex = 0;
+		buffer = rasterBuffer[bufferIndex];
+	}
+	
+	private static void renderCanvas() {
+		long cycleStartTime = System.nanoTime();
+		bsGraphics = bs.getDrawGraphics();
+		bsGraphics.drawImage(raster, 0, 0, width, height, null);
+		bsGraphics.dispose();
+		bs.show();
+		fps++;
+		renderDuration = System.nanoTime() - cycleStartTime;
 	}
 
 	/**Gets the next image in the buffer and fills it with black, then draws the viewports onto the image, finally the composite of viewports is drawn into this canvas
 	 * @author SomeKid*/
 	private static void renderViewports() {
 		bufferGraphics = getBufferGraphics();			
-		bufferGraphics.setColor(Color.BLACK);
-		bufferGraphics.fillRect(0, 0, windowResolution.x(), windowResolution.y());	
-
 		setRenderHints(bufferGraphics);
 			
 		for(int i = 0; i < viewPorts.length; i++) {
@@ -512,11 +546,7 @@ public class WarpedWindow extends Canvas {
 			}
 		}
 		bufferGraphics.dispose();
-		
-		bsGraphics = bs.getDrawGraphics();
-		bsGraphics.drawImage(rasterBuffer[rasterIndex], 0, 0, windowResolution.x() , windowResolution.y(), null);
-		bsGraphics.dispose();
-		bs.show();
+		pushGraphics();
 	}
 	
 	/**This method is not called it is scheduled when the WarpedWindow is constructed. Draws the load screen into the canvas while WarpedFramework2D is initialized.
@@ -543,18 +573,16 @@ public class WarpedWindow extends Canvas {
 		bufferGraphics.drawString(UtilsString.getFunnyString(), loadBarPosition.x() * 2,  loadBarPosition.y() + 20 + loadBarBorderThickness * 2);
 		bufferGraphics.dispose();
 		
-		bsGraphics = bs.getDrawGraphics();
-		bsGraphics.drawImage(rasterBuffer[rasterIndex], 0, 0, width, height, null);
-		bsGraphics.dispose();
-		bs.show();
+		pushGraphics();
 	}
 	
 	/** Get the graphics for the next image in the buffer.
 	 * @author SomeKid*/
 	private static Graphics2D getBufferGraphics() {
-		rasterIndex++;
-		if(rasterIndex >= BUFFER_SIZE) rasterIndex = 0;
-		return rasterBuffer[rasterIndex].createGraphics();
+		Graphics2D g2d = buffer.createGraphics();
+		g2d.setColor(Color.BLACK);
+		g2d.fillRect(0, 0, width, height);
+		return g2d;
 	}
 	
 	/** Sets the rendering hints for a graphics context using the hint parameters set in the WarpedWindow.
@@ -582,6 +610,7 @@ public class WarpedWindow extends Canvas {
 	
 		executor = Executors.newScheduledThreadPool(viewPorts.length + 1, new WarpedThreadFactory("Window Thread"));
 		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
+		executor.scheduleAtFixedRate(WarpedWindow::renderCanvas, 0, 16666666, TimeUnit.NANOSECONDS);
 		for(int i = 0; i < viewPorts.length; i++) {			
 			executor.scheduleAtFixedRate(viewPorts[i]::update, 0, 16666666, TimeUnit.NANOSECONDS);
 		}		
