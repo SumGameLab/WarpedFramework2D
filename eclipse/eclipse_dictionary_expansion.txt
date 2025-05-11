@@ -79,3 +79,5 @@ keybinds
 hotbinds
 hotbind
 typeable
+projectiles
+collider

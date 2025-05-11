@@ -113,10 +113,10 @@ public class InspectorFramework extends GUIAssembly {
 	private GUIButton close     = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
 	private GUIPopOutMenu pages = new GUIPopOutMenu("page");
 	
-	private GUIRadioButtons resolution = new GUIRadioButtons(Arrays.asList("720p", "1080p", "1440p"), 
+	private GUIRadioButtons resolution = new GUIRadioButtons(Arrays.asList("720p", "1080p", "  4K "), 
 			Arrays.asList(() -> {WarpedFramework2D.getWindow().setWindowResolution(1280, 720);},
 					() -> {WarpedFramework2D.getWindow().setWindowResolution(1920, 1080);},
-					() -> {WarpedFramework2D.getWindow().setWindowResolution(2560, 1440);}));
+					() -> {WarpedFramework2D.getWindow().setWindowResolution(3840, 2160);}));
 	private GUIButton exit		= new GUIButton("exit");
 
 	

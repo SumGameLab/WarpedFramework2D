@@ -71,7 +71,7 @@ public class WarpedWindow extends Canvas {
 	 * */ 
 	
 	private static final VectorI MIN_WINDOW_RESOLUTION = new VectorI(400, 300);
-	private static final VectorI MAX_WINDOW_RESOLUTION = new VectorI(3860, 2140);
+	private static final VectorI MAX_WINDOW_RESOLUTION = new VectorI(3840, 2160);
 	
 	private static final VectorI MIN_APPLICATION_RESOLUTION = new VectorI(320, 200);
 	private static final VectorI MAX_APPLICATION_RESOLUTION = new VectorI(1920, 1080);
@@ -366,6 +366,11 @@ public class WarpedWindow extends Canvas {
 	/**The height of the WarpedWindow in pixels
 	 * @author 5som3*/
 	public static int getWindowHeight() {return height;}
+	
+	public static int getApplicationWidth() {return applicationResolution.x();}
+	
+	public static int getApplicationHeight () {return applicationResolution.y();}
+	
 	
 	/**The center of the window.
 	 * @return int - the center of the window x coordinate measured in pixels.

@@ -287,8 +287,8 @@ public class GUIButton extends WarpedGUI {
 				
 				if(px < 0) px = 0;
 				if(py < 0) py = 0;
-				if(px + sprite.getSize().x() > WarpedWindow.getWindowWidth()) px = WarpedWindow.getWindowWidth() - sprite.getSize().x();
-				if(py + sprite.getSize().y() > WarpedWindow.getWindowHeight()) px = WarpedWindow.getWindowHeight() - sprite.getSize().y();	
+				if(px + sprite.getSize().x() > WarpedWindow.getApplicationWidth()) px = WarpedWindow.getApplicationWidth() - sprite.getSize().x();
+				if(py + sprite.getSize().y() > WarpedWindow.getApplicationHeight()) px = WarpedWindow.getApplicationHeight() - sprite.getSize().y();	
 				
 				setPosition(px, py);
 			}

@@ -59,7 +59,6 @@ public class WarpedViewport {
 	private BufferedImage buffer; //graphic input
 	private BufferedImage raster;    //graphic output
 	private BufferedImage[] rasterBuffer;
-	//private static int bufferSize;
 	private int bufferIndex = 0;
 	
 	private short fps = 0;
@@ -389,7 +388,7 @@ public class WarpedViewport {
 		}
 	}
 	
-	/**Add an animation to be rendered in the viewport.
+	/*Add an animation to be rendered in the viewport.
 	 * @param animation - the animation to render.
 	 * @apiNote The Viewport must be in animation mode. use setRenderMode(RenderType.ANIMATION);
 	 * @apiNote Animations will be removed automatically from the viewport as they complete.
@@ -401,7 +400,7 @@ public class WarpedViewport {
 			return;
 		} else animations.add(animation);
 	}
-	 * */
+	
 	
 	/**Remove all the animations (if any).
 	 * @author 5som3

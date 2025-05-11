@@ -4,6 +4,7 @@ package warped.application.state;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
+import warped.WarpedProperties;
 import warped.graphics.sprite.WarpedSprite;
 import warped.graphics.window.WarpedCamera;
 import warped.user.mouse.WarpedMouse;
@@ -11,6 +12,7 @@ import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsImage;
 
 public abstract class WarpedObject {
 	
@@ -74,14 +76,16 @@ public abstract class WarpedObject {
 		this.objectID = objectIdentity;
 	}
 	
+		
+	/**This method will be executed by the CollisionManager when it detects a collision with this object.
+	 * @param collider - the object that has collided with this one.
+	 * @apiNote The collider will also receive a hit() with this object as it's collider. 
+	 * @author 5som3*/
+	protected void hit(WarpedObject collider) {
+		Console.err("WarpedObject -> hit() -> object hit by : " + collider.getClass().getSimpleName());
+	}
 	
-	//--------
-	//------------------- Access ---------------------
-	//--------
-	//TODO - implement a better collision system, checking one entitie at a time is bad*/
-	public boolean collision(WarpedObject b) {return collision(this, b);}
-	//TODO - implement a better collision system, checking one entitie at a time is bad*/
-	public static boolean collision(WarpedObject a, WarpedObject b) {if(a.getCenterX() > b.getPosition().x() && a.getCenterY() > b.getPosition().y() && a.getCenterX() < b.getPosition().x() + b.getSize().x() && a.getCenterY() < b.getPosition().y() + b.getSize().y()) return true; else return false;}
+	
 	
 	/**@return ID pointing to the manager, array and index of the object*/
 	public final WarpedObjectIdentity getObjectID() {return objectID;}

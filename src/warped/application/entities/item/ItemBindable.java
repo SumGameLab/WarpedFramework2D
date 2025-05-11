@@ -40,6 +40,16 @@ public interface ItemBindable<T extends Enum<?>> {
 	 * Implementation of value is up to the developer.
 	 * */
 	public abstract int getValue(T itemType);
+	
+	@SuppressWarnings("unchecked")
+	/**The Value of one
+	 * Implementation of value is up to the developer.
+	 * */
+	public default boolean isDropable() {return isDropable((T)this);};
+	/**The Value of one
+	 * Implementation of value is up to the developer.
+	 * */
+	public abstract boolean isDropable(T itemType);
 		
 	@SuppressWarnings("unchecked")
 	/**The Mass of one*/

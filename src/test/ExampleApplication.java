@@ -2,12 +2,10 @@
 package test;
 
 import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
 import warped.application.assemblys.InspectorInventory;
-import warped.application.entities.item.ItemBindable;
 import warped.application.state.ManagerItem;
 import warped.application.state.WarpedApplication;
 import warped.application.state.WarpedAudioFolder;
@@ -20,7 +18,6 @@ import warped.application.state.WarpedSpriteFolder;
 import warped.application.state.WarpedState;
 import warped.application.tile.TileableGenerative;
 import warped.graphics.sprite.CharacterSprite;
-import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.user.keyboard.WarpedKeyBind;
 import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.enums.WarpedLinkable;
@@ -31,7 +28,7 @@ public class ExampleApplication extends WarpedApplication {
 	
 	/*Here I set up some WarpedLinkables so we can refer to the assets i want to load later.	
 	 * */
-	public enum TestSprites implements WarpedLinkable<TestSprites>{
+	public enum TestSprites implements WarpedLinkable<TestSprites> {
 		SPRITE_8DIR,
 		;public static Map<Integer, TestSprites> map = new HashMap<>();
 		static {for(TestSprites sprite : TestSprites.values()) map.put(sprite.ordinal(), sprite);}
@@ -39,7 +36,7 @@ public class ExampleApplication extends WarpedApplication {
 		public Map<Integer, TestSprites> getMap() {return map;}
 	}
 	
-	public enum TestAudio implements WarpedLinkable<TestAudio>{
+	public enum TestAudio implements WarpedLinkable<TestAudio> {
 		TEST_1,
 		TEST_2,
 		TEST_3,
@@ -89,84 +86,23 @@ public class ExampleApplication extends WarpedApplication {
 		}		
 	}
 	
-	public enum TestItems implements ItemBindable<TestItems>{
-		POTION,
-		FOOD,
-		ROCK,
-		;
 
-		public static Map<Integer, TestItems> map = new HashMap<>();
-		static {for(TestItems tile : TestItems.values()) map.put(tile.ordinal(), tile);}
-
-		@Override
-		public Map<Integer, TestItems> getMap() {return map;}
-
-		@Override
-		public BufferedImage getRaster(TestItems itemType) {
-			switch(itemType) {
-			case FOOD:   return testImage.getImage(TestImage.FOOD);	
-			case POTION: return testImage.getImage(TestImage.POTION);		
-			case ROCK:	 return testImage.getImage(TestImage.ROCK);	
-			default:
-				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
-				return FrameworkSprites.error;			
-			}
-		}
-
-		@Override
-		public String getDescription(TestItems itemType) {
-			switch(itemType) {
-			case FOOD: 	 return "Yummy food"; 
-			case POTION: return "Health potion";
-			case ROCK:	 return "Heavy rock";
-			default:
-				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
-				return "Error!";			
-			}
-		}
-
-		@Override
-		public int getValue(TestItems itemType) {
-			switch(itemType) {
-			case FOOD: 	 return 4;
-			case POTION: return 6;
-			case ROCK:	 return 3;
-			default:
-				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
-				return -1;		
-			}
-		}
-
-		@Override
-		public double getMass(TestItems itemType) {
-			switch(itemType) {
-			case FOOD: 	 return 1.0;
-			case POTION: return 0.5;
-			case ROCK:	 return 3.0;
-			default:
-				Console.err("ExampleApplication -> getRaster() -> invalid case : " + itemType);
-				return 4.0;			
-			}
-		}
-		
-	}
-	
 	/*Here I created some public folders so that I can access the assets across the project
 	 * I use the WarpedLinkables as type so each one will be linked with the right names*/
 	public static WarpedImageFolder<TestImage> testImage;
 	public static WarpedSpriteFolder<TestSprites> testSprites; 
 	public static WarpedAudioFolder<TestAudio> testAudio;
 	
-	public static ManagerItem<TestItems> itemManager;
+	public static ManagerItem<ExampleItems> itemManager;
 	
 	/*Check out example of how to set up a HUD here*/
 	public static ExampleHUD hud;
 	
-	public static InspectorInventory<TestItems> inventInspectorA;
-	public static InspectorInventory<TestItems> inventInspectorB;
+	public static InspectorInventory<ExampleItems> inventInspectorA;
+	public static InspectorInventory<ExampleItems> inventInspectorB;
 	
-	public static WarpedInventory<TestItems> exampleInventoryA;
-	public static WarpedInventory<TestItems> exampleInventoryB ;
+	public static WarpedInventory<ExampleItems> exampleInventoryA;
+	public static WarpedInventory<ExampleItems> exampleInventoryB ;
 	
 	
 	/*Check out example entitie here*/
@@ -203,25 +139,25 @@ public class ExampleApplication extends WarpedApplication {
 	 * */
 	@Override
 	protected void initializeApplication() {
-		itemManager = new ManagerItem<TestItems>();
+		itemManager = new ManagerItem<ExampleItems>();
 
-		inventInspectorA = new InspectorInventory<TestItems>(4, 5);
+		inventInspectorA = new InspectorInventory<ExampleItems>(4, 5);
 		inventInspectorA.assemble();
 		
-		inventInspectorB = new InspectorInventory<TestItems>(4, 5);
+		inventInspectorB = new InspectorInventory<ExampleItems>(4, 5);
 		inventInspectorB.assemble();
 		
 		exampleInventoryA = itemManager.addGroup();
-		exampleInventoryA.produce(TestItems.FOOD, 10);
-		exampleInventoryA.produce(TestItems.POTION, 2);
-		exampleInventoryA.produce(TestItems.ROCK, 5);
-		exampleInventoryA.produce(TestItems.ROCK, 1);
+		exampleInventoryA.produce(ExampleItems.FOOD, 10);
+		exampleInventoryA.produce(ExampleItems.POTION, 2);
+		exampleInventoryA.produce(ExampleItems.ROCK, 5);
+		exampleInventoryA.produce(ExampleItems.ROCK, 1);
 		
 		exampleInventoryB = itemManager.addGroup();
-		exampleInventoryB.produce(TestItems.FOOD, 10);
-		exampleInventoryB.produce(TestItems.POTION, 2);
-		exampleInventoryB.produce(TestItems.ROCK, 5);
-		exampleInventoryB.produce(TestItems.ROCK, 1);
+		exampleInventoryB.produce(ExampleItems.FOOD, 10);
+		exampleInventoryB.produce(ExampleItems.POTION, 2);
+		exampleInventoryB.produce(ExampleItems.ROCK, 5);
+		exampleInventoryB.produce(ExampleItems.ROCK, 1);
 		
 		CharacterSprite testSprite = new CharacterSprite(testSprites.getSheet(TestSprites.SPRITE_8DIR), AxisType.HORIZONTAL);
 		testSprite.setFrameRate(16);

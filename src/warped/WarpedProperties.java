@@ -19,6 +19,7 @@ public class WarpedProperties {
 	public static final int SCREEN_REFRESH_RATE 		  = 60;	//Controls frame rate of screen + all screen composers
 	public static final int AUDIO_CONTROLLER_REFRESH_RATE = 60;		
 	public static final int USER_INPUT_REFRESH_RATE 	  = 60; 
+	public static final int ALPHA_THRESHOLD = 10; // the alpha threshold that will be used when checking for collisions
 	
 	/* ------------------ Saving ------------------ */
 	public static final String SAVE_DIR = "saves/";
