@@ -6,8 +6,8 @@ import java.awt.Point;
 import warped.application.gui.GUILabel;
 import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedObject;
+import warped.graphics.window.WarpedMouse;
 import warped.graphics.window.WarpedWindow;
-import warped.user.mouse.WarpedMouse;
 import warped.utilities.utils.Console;
 
 public class ToolTip extends GUIAssembly {

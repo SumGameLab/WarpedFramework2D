@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import warped.graphics.sprite.RotationSprite;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;

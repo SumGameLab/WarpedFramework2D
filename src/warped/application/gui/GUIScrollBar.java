@@ -11,7 +11,7 @@ import java.awt.geom.AffineTransform;
 
 import warped.audio.FrameworkAudio;
 import warped.functionalInterfaces.WarpedAction;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.AxisType;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;

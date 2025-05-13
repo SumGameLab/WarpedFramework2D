@@ -1,6 +1,6 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 
-package warped.user.mouse;
+package warped.graphics.window;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -15,7 +15,9 @@ import warped.application.gui.GUIInventory;
 import warped.application.state.WarpedFramework2D;
 import warped.application.state.WarpedState;
 import warped.audio.FrameworkAudio;
-import warped.graphics.window.WarpedWindow;
+import warped.user.mouse.DefaultMouseController;
+import warped.user.mouse.MouseEventType;
+import warped.user.mouse.WarpedMouseController;
 import warped.utilities.utils.Console;
 
 public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWheelListener {
@@ -38,7 +40,6 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	 * This System allows for the mouse event to be passed to its correct object without adding much extra computation
 	 * */
 	
-	public static final int ALPHA_THRESHHOLD = 10;
 	
 	public static final int PLAIN = 0;
 	public static final int PRESS = 1;
@@ -91,6 +92,7 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	public static Point getPoint() {return mouseController.getMousePoint();}
 	public static boolean isInWindow() {return inWindow;}
 	public static boolean isPressed()  {return isPressed;}
+	
 	public static boolean isLeftPressed()  {return isLeftPressed;}
 	public static boolean isRightPressed()  {return isRightPressed;}
 	public static boolean isDragging() {return isDragging;}
@@ -192,7 +194,6 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	
 	@Override
 	public void mouseMoved(MouseEvent e) {
-
 		if(isLocked) return;
 		else {			
 			mouseController.setPoint(e.getPoint());

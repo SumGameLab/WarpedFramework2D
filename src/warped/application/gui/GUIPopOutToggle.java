@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import warped.application.actionWrappers.ActionToggle;
 import warped.application.gui.GUIButton.ButtonStateType;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
 import warped.utilities.math.vectors.VectorI;

@@ -251,6 +251,7 @@ public class WarpedCollisionManager {
 						if(collisionQuick(member, collisionSet[k].getMember(l))) {
 							member.hit(collisionSet[k].getMember(l));
 							collisionSet[k].getMember(l).hit(member);
+							Console.blueln("WarpedCollisionManager -> updateCrossGroupCollisionQuick() -> collision");
 						}
 					}
 				}

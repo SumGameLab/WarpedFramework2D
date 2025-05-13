@@ -10,8 +10,8 @@ import warped.application.entities.WarpedEntitie;
 import warped.application.gui.GUIListVertical;
 import warped.application.state.GUIAssembly;
 import warped.application.tile.WarpedTile;
+import warped.graphics.window.WarpedMouse;
 import warped.graphics.window.WarpedWindow;
-import warped.user.mouse.WarpedMouse;
 import warped.utilities.utils.Console;
 
 public class Selector extends GUIAssembly {

@@ -12,9 +12,9 @@ import warped.application.entities.item.ItemBindable;
 import warped.application.entities.item.WarpedItem;
 import warped.application.state.WarpedInventory;
 import warped.application.state.WarpedInventory.SortType;
+import warped.graphics.window.WarpedMouse;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.user.keyboard.WarpedKeyboard;
-import warped.user.mouse.WarpedMouse;
-import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
 
@@ -288,7 +288,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 			
 		if(index >= selectInvent.size()) return;
 		Console.ln("GUIInventory -> mouseReleased() -> passing event to member at : " + index);
-		selectInvent.getMember(index).forwardMouseEvent(mouseEvent);
+		selectInvent.getMember(index).executeMouseEvent(mouseEvent);
 	}
 
 

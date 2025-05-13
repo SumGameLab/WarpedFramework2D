@@ -13,7 +13,7 @@ import warped.application.state.WarpedState;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
 import warped.application.tile.WarpedTile;
 import warped.functionalInterfaces.WarpedAction;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 

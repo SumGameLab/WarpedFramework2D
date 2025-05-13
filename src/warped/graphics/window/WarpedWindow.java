@@ -32,7 +32,6 @@ import warped.application.state.WarpedFramework2D;
 import warped.application.state.WarpedState;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.user.WarpedUserInput;
-import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.WarpedThreadFactory;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
@@ -79,7 +78,7 @@ public class WarpedWindow extends Canvas {
 	private static VectorI applicationResolution = new VectorI(MIN_APPLICATION_RESOLUTION.x(), MIN_APPLICATION_RESOLUTION.y()); //Resolution of the application, not the displayed resolution
 	private static VectorI windowResolution = new VectorI(MIN_APPLICATION_RESOLUTION.x(), MIN_APPLICATION_RESOLUTION.y());//Resolution of the window, the displayed resolution
 	private static VectorD windowScale = new VectorD(1.0, 1.0);
-	private static VectorD mouseScale = new VectorD(1.0, 1.0);
+
 	
 	private static String windowName = "WarpedFramework2D";
 	private static long updateDuration;
@@ -95,8 +94,7 @@ public class WarpedWindow extends Canvas {
 	
 	public static  BufferedImage frameIcon = UtilsImage.loadBufferedImage("res/framework/graphics/frame_icon.png");
 	private static JFrame frame;
-	
-	//private static JFXPanel fxPanel = new JFXPanel();
+
 
 	private static AffineTransform at = new AffineTransform();
 	
@@ -667,13 +665,13 @@ public class WarpedWindow extends Canvas {
 	/**DO NOT CALL - This function is called automatically by WarpedMouse when a mouse event occurs.
 	 * @implNote Checks if the mouse event occurred in the bounds of any of the viewports and forwards the event to any relevant port
 	 * @author SomeKid*/
-	public static void MouseEvent(WarpedMouseEvent mouseEvent) {
+	protected static void MouseEvent(WarpedMouseEvent mouseEvent) {
 		//Console.ln("WarpedWindow -> mouseEvent() -> " + mouseEvent.getPointRelativeToCanvas());
 		if(WarpedFramework2D.isLoading()) return;
 		for(int i = viewPorts.length - 1; i >= 0; i--) {
 			WarpedViewport port = viewPorts[i];
 			if(port.isInteractive() && port.isVisible() && isHit(port, mouseEvent.getPointTrace())) {
-				port.MouseEvent(WarpedMouseEvent.generateClone(mouseEvent));
+				port.MouseEvent(new WarpedMouseEvent(mouseEvent));
 			}
 		} 
 	}
@@ -681,9 +679,8 @@ public class WarpedWindow extends Canvas {
 	/** Checks if a point occurred within the bounds of a viewport.
 	 * @author SomeKid*/
 	private static final boolean isHit(WarpedViewport port, Point trace) { // check if click is contained within the bounds of the view port
-		if(trace.x > port.getX() && trace.x < (port.getX() + port.getWidth())
-		&& trace.y > port.getY() && trace.y < (port.getY() + port.getHeight())) return true;
-		else return false;
+		if(trace.x < port.getX() || trace.y < port.getY() || trace.x >= port.getX() + port.getWidth() || trace.y >= port.getY() + port.getHeight()) return false;
+		else return true;
 	}
 	
 	/** Dispatches mouse events for each viewport if any exist. 

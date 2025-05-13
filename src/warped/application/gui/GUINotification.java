@@ -7,7 +7,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import warped.functionalInterfaces.WarpedAction;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.geometry.bezier.BezierCurveObject;
 import warped.utilities.math.vectors.VectorI;

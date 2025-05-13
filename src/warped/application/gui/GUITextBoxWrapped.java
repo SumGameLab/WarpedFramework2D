@@ -8,7 +8,7 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;

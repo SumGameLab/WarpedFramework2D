@@ -6,7 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 
 import warped.application.state.WarpedObject;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;

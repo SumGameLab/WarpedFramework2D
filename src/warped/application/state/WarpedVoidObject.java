@@ -3,7 +3,7 @@
 package warped.application.state;
 
 import warped.graphics.sprite.WarpedSprite;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 
 public class WarpedVoidObject extends WarpedObject {
 

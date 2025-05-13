@@ -516,6 +516,8 @@ public enum ResourceType implements ItemBindable<ResourceType> {
 		// TODO Auto-generated method stub
 		return 0;
 	}
+	@Override
+	public boolean isDropable(ResourceType itemType) {return true;}
 	
 	
 }

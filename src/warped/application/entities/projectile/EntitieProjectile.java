@@ -9,7 +9,7 @@ import warped.application.entities.WarpedEntitie;
 import warped.application.state.WarpedGroupIdentity;
 import warped.application.state.WarpedState;
 import warped.application.state.managers.gameObjectManagers.WarpedManagerType;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
 

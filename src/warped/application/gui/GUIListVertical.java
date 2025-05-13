@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 import warped.application.actionWrappers.ActionOption;
 import warped.functionalInterfaces.WarpedAction;
-import warped.user.mouse.WarpedMouse;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouse;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;

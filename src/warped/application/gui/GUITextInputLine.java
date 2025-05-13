@@ -10,8 +10,8 @@ import java.util.ArrayList;
 
 import warped.audio.FrameworkAudio;
 import warped.functionalInterfaces.StringAction;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.user.keyboard.WarpedTypeable;
-import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;

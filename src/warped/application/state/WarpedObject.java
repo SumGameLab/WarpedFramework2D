@@ -7,8 +7,8 @@ import java.awt.image.BufferedImage;
 import warped.WarpedProperties;
 import warped.graphics.sprite.WarpedSprite;
 import warped.graphics.window.WarpedCamera;
-import warped.user.mouse.WarpedMouse;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouse;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
@@ -334,10 +334,6 @@ public abstract class WarpedObject {
 	  *@author SomeKid*/
 	protected final void updateActively() {
 		if(!isAlive) return;
-		if(mouseEvent != null) {
-			executeMouseEvent(mouseEvent);
-			mouseEvent = null;
-		}
 		updateObject();	
 	};
 
@@ -359,29 +355,20 @@ public abstract class WarpedObject {
 	 * @author SomeKid*/
 	public final void mouseEvent(WarpedMouseEvent mouseEvent) {
 		//Console.ln("WarpedObject -> mouseEvent() " + getClass().getSimpleName() + " -> " + name);
-		if(WarpedMouse.isFocused()) return;
+		if(WarpedMouse.isFocused() ) return;
 		if(!isAlive) return;
 		if(!isVisible) return;
 		if(!isInteractive) {mouseEvent.handle(); return;}
+		if(!isHovered) return;
 		if(mouseEvent.isHandled()) return;
 		
 		mouseEvent.updateTrace(renderPosition);
-		if(isExpressEvents) {
-			//Console.ln("WarpedObject -> mouseEvent() -> express event");
-			executeMouseEvent(mouseEvent);
-		}
-		else {
-			//Console.ln("WarpedObject -> mouseEvent() -> regular event");
-			this.mouseEvent = mouseEvent;
-		}
+		if(isExpressEvents)  executeMouseEvent(mouseEvent);
+		else if(WarpedState.isPaused()) return;
+		else executeMouseEvent(mouseEvent);		
 	}
-	
-	private final void executeMouseEvent(WarpedMouseEvent mouseEvent) {
-		if(!isHovered) return;
-		forwardMouseEvent(mouseEvent);
-	}
-	
-	public final void forwardMouseEvent(WarpedMouseEvent mouseEvent) {
+		
+	public final void executeMouseEvent(WarpedMouseEvent mouseEvent) {
 		switch(mouseEvent.getMouseEventType()) {
 		case BUTTON_PRESS: 
 			mousePressed(mouseEvent); 	

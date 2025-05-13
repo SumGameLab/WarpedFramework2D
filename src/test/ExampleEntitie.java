@@ -5,7 +5,7 @@ import warped.application.entities.WarpedEntitie;
 import warped.application.state.WarpedState;
 import warped.graphics.sprite.CharacterSprite;
 import warped.graphics.sprite.CharacterSprite.AnimationType;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsMath;
 

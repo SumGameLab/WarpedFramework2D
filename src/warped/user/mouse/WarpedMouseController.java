@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 
 import warped.functionalInterfaces.WarpedAction;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
+import warped.graphics.window.WarpedMouse;
 import warped.graphics.window.WarpedWindow;
 import warped.utilities.utils.Console;
 

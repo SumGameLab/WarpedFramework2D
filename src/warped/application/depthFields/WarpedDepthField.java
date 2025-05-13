@@ -5,7 +5,7 @@ import java.awt.image.BufferedImage;
 
 import warped.application.state.WarpedObject;
 import warped.graphics.window.WarpedCamera;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 
 public class WarpedDepthField extends WarpedObject {
 	

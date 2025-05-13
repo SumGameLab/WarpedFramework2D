@@ -2,7 +2,7 @@
 
 package warped.functionalInterfaces;
 
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 
 @FunctionalInterface
 

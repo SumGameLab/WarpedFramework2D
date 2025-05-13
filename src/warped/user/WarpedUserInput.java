@@ -5,8 +5,8 @@ package warped.user;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import warped.graphics.window.WarpedMouse;
 import warped.user.keyboard.WarpedKeyboard;
-import warped.user.mouse.WarpedMouse;
 
 public class WarpedUserInput {
 	

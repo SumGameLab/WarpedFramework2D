@@ -1,13 +1,13 @@
 /* WarpedFramework 2D - java API - Copyright (C) 2021-2024 Angelo Wilson | released under LGPL 2.1-or-later https://opensource.org/license/lgpl-2-1*/
 
-package warped.user.mouse;
+package warped.graphics.window;
 
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
-import warped.graphics.window.WarpedViewport;
-import warped.graphics.window.WarpedWindow;
+import warped.user.mouse.MouseEventType;
+import warped.user.mouse.WarpedMouseHandler;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
 
@@ -25,14 +25,16 @@ public class WarpedMouseEvent {
 	
 	protected WarpedMouseHandler handler;
 	
-	public WarpedMouseEvent(MouseEvent e, MouseEventType ID) {
+	/**
+	 * */
+	protected WarpedMouseEvent(MouseEvent e, MouseEventType ID) {
 		handler = new WarpedMouseHandler();
 		this.e = e;
 		this.ID = ID;
 		updateTrace(e);
 	}
 	
-	private WarpedMouseEvent(WarpedMouseEvent e) {
+	protected WarpedMouseEvent(WarpedMouseEvent e) {
 		this.e = e.e;
 		this.ID = e.ID;
 		this.handler = e.handler;
@@ -65,20 +67,19 @@ public class WarpedMouseEvent {
 	public Point getPointRelativeToObject() {return objectP;}
 	
 	public Point getPointTrace() {return traceP;}
-	//public void checked() {isChecked = true;}
-	//public boolean isChecked() {return isChecked;}
 	
 	public boolean isHandled() {return handler.isHandled();}
 	public void handle() {handler.handle();}
 	
-	public void updateTrace(MouseEvent e) {
+	
+	protected void updateTrace(MouseEvent e) {
 		traceP  = new Point(e.getPoint().x, e.getPoint().y);
 		traceP.x /= WarpedWindow.getWindowScale().x();
 		traceP.y /= WarpedWindow.getWindowScale().y();
 		canvasP = (Point)traceP.clone();
 	}
 	
-	public void updateTrace(WarpedViewport viewPort) {
+	protected void updateTrace(WarpedViewport viewPort) {
 		traceP.setLocation(traceP.x - viewPort.getX(), traceP.y - viewPort.getY());
 		viewPortP = (Point)traceP.clone();		
 	}
@@ -90,9 +91,6 @@ public class WarpedMouseEvent {
 	}
 	
 
-
-	public static WarpedMouseEvent generateClone(WarpedMouseEvent e) {return new WarpedMouseEvent(e);}
-	
 	
 	
 }

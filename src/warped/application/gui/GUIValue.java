@@ -6,7 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 
 import warped.functionalInterfaces.WarpedGraphicAction;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.Winteger;
 import warped.utilities.math.Woolean;

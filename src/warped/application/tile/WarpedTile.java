@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import warped.application.actionWrappers.ActionOption;
 import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorI;
 
 public class WarpedTile extends WarpedObject {

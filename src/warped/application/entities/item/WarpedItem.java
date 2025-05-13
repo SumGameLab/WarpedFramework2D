@@ -5,7 +5,7 @@ import warped.application.actionWrappers.ActionOption;
 import warped.application.entities.WarpedEntitie;
 import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
-import warped.user.mouse.WarpedMouseEvent;
+import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.utils.Console;
 
 public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends WarpedEntitie {

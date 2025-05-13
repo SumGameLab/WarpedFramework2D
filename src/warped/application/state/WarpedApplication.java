@@ -2,7 +2,7 @@
 
 package warped.application.state;
 
-import warped.user.mouse.WarpedMouse;
+import warped.graphics.window.WarpedMouse;
 import warped.utilities.utils.Console;
 
 public abstract class WarpedApplication  {

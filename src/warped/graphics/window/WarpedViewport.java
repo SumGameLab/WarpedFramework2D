@@ -17,8 +17,6 @@ import warped.application.state.WarpedGroup;
 import warped.application.state.WarpedManager;
 import warped.application.state.WarpedObject;
 import warped.functionalInterfaces.WarpedAction;
-import warped.user.mouse.WarpedMouse;
-import warped.user.mouse.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsImage;
@@ -64,6 +62,7 @@ public class WarpedViewport {
 	private short fps = 0;
 
 	public WarpedMouseEvent mouseEvent;
+	private WarpedObject eventObject;
 	
 	//private ArrayList<WarpedAnimation> animations = new ArrayList<>();
 
@@ -566,12 +565,16 @@ public class WarpedViewport {
 		long cycleStartTime = System.nanoTime();
 		camera.update();
 		render();
+		if(eventObjects.size() > 0) {
+			eventObject = eventObjects.get(eventObjects.size() - 1);
+			eventObjects.clear();
+			//mouseEvent = null;
+		}
 		fps++;
 		updateDuration = System.nanoTime() - cycleStartTime;		
 	}
 	
-	/** DO NOT CALL.
-	 * @implNote This function is called from the WarpedWindow class automatically when a mouse event occurs over it.
+	/**@implNote This function is called from the WarpedWindow class automatically when a mouse event occurs over it.
 	 * @implNote This function may be called multiple times per frame, only the last mouse event of each frame is considered; all other events will be trashed.
 	 * @author SomeKid */
 	protected void MouseEvent(WarpedMouseEvent mouseEvent) {
@@ -579,16 +582,16 @@ public class WarpedViewport {
 		this.mouseEvent = mouseEvent;
 	}
 	
-	/** DO NOT CALL. 
-	 * @implNote This function is called automatically from the WarpedWindow once at the end of each render cycle.
+	/**@implNote This function is called automatically from the WarpedWindow once at the end of each render cycle.
 	 * @author SomeKid*/
 	protected void dispatchMouseEvents() {
-		if(eventObjects.size() == 0 || !isEvent()) return;
-		WarpedObject eventObject = eventObjects.get(eventObjects.size() - 1);
-		eventObjects.clear();
+		//if(eventObjects.size() == 0 || !isEvent()) return;
+		//WarpedObject eventObject = eventObjects.get(eventObjects.size() - 1);
+		if(eventObject == null || !isEvent()) return;
 		
 		if(mouseEvent.isHandled()) {
 			mouseEvent = null;
+			eventObject = null;
 			return;		
 		}
 		
@@ -604,7 +607,7 @@ public class WarpedViewport {
 	 * The last object in eventObjects will be the object that actually receives a mouse event when dispactMouseEvent() triggers. 
 	 * 	@author 5som3*/
 	protected void handleMouse(WarpedObject renderObject) {
-		if(!isEvent()  || !renderObject.isVisible() || !renderObject.isInteractive()) return;		
+		if(!isEvent()) return;		
 		if(isOverObject(renderObject)) eventObjects.add(renderObject);
 		else renderObject.unhovered();
 	}
@@ -621,29 +624,23 @@ public class WarpedViewport {
 
 	
 	private boolean isOverObject(WarpedObject renderObject){
-		WarpedMouseEvent mEvent = mouseEvent;
-		if(mEvent == null) return false; 
-		Point point = mEvent.getPointRelativeToViewPort();
+		Point point = mouseEvent.getPointRelativeToViewPort();
 		
 		int traceX = (int)(point.x - renderObject.getRenderPosition().x());
 		int traceY = (int)(point.y - renderObject.getRenderPosition().y());
 		
-		if(traceX > 0 && traceX < renderObject.getRenderSize().x()
-		&& traceY > 0 && traceY < renderObject.getRenderSize().y()) {
-			
-			int pixelX = (int)(traceX / camera.getZoom());
-			int pixelY = (int)(traceY / camera.getZoom());
-			
-			if(pixelX > 0 && pixelX < renderObject.raster().getWidth() 
-			&& pixelY > 0 && pixelY < renderObject.raster().getHeight()) {
-				int col = renderObject.raster().getRGB(pixelX, pixelY);
-				int alpha = 0xFF & (col >> 24);
-				if(alpha > WarpedMouse.ALPHA_THRESHHOLD) {
-					return true;
-				}
-				else return false;				
-			} else return false;
-		}else return false;
+		if(traceX < 0 || traceY < 0 || traceX >= renderObject.getRenderSize().x() || traceY >= renderObject.getRenderSize().y()) return false;
+		
+		int pixelX = (int)(traceX / camera.getZoom());
+		int pixelY = (int)(traceY / camera.getZoom());
+		
+		if(pixelX < 0 || pixelY < 0 || pixelX >= renderObject.raster().getWidth() || pixelY >= renderObject.raster().getHeight()) return false;
+
+		int col = renderObject.raster().getRGB(pixelX, pixelY);
+		int alpha = 0xFF & (col >> 24);
+		if(alpha > WarpedProperties.ALPHA_THRESHOLD) {
+			return true;
+		} else return false;	
 	}
 	
 
