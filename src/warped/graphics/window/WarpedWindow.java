@@ -513,7 +513,6 @@ public class WarpedWindow extends Canvas {
 	private static final void update() {
 		long cycleStartTime = System.nanoTime();
 		renderViewports();
-		dispatchMouseEvent();
 		ups++;
 		updateDuration = System.nanoTime() - cycleStartTime;
 	}
@@ -613,6 +612,7 @@ public class WarpedWindow extends Canvas {
 	
 		executor = Executors.newScheduledThreadPool(viewPorts.length + 1, new WarpedThreadFactory("Window Thread"));
 		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
+		executor.scheduleAtFixedRate(WarpedWindow::dispatchMouseEvent, 0, 16666666, TimeUnit.NANOSECONDS);
 		executor.scheduleAtFixedRate(WarpedWindow::renderCanvas, 0, 16666666, TimeUnit.NANOSECONDS);
 		for(int i = 0; i < viewPorts.length; i++) {			
 			executor.scheduleAtFixedRate(viewPorts[i]::update, 0, 16666666, TimeUnit.NANOSECONDS);
@@ -668,6 +668,8 @@ public class WarpedWindow extends Canvas {
 	protected static void MouseEvent(WarpedMouseEvent mouseEvent) {
 		//Console.ln("WarpedWindow -> mouseEvent() -> " + mouseEvent.getPointRelativeToCanvas());
 		if(WarpedFramework2D.isLoading()) return;
+		
+		//for(int i = 0; i < viewPorts.length; i++) {
 		for(int i = viewPorts.length - 1; i >= 0; i--) {
 			WarpedViewport port = viewPorts[i];
 			if(port.isInteractive() && port.isVisible() && isHit(port, mouseEvent.getPointTrace())) {
@@ -684,7 +686,8 @@ public class WarpedWindow extends Canvas {
 	}
 	
 	/** Dispatches mouse events for each viewport if any exist. 
-	 * @author SomeKid*/
+	 * @author SomeKid
+	 * */
 	private static void dispatchMouseEvent() {
 		if(WarpedFramework2D.isLoading()) return;
 		for(int i = viewPorts.length - 1; i >= 0; i--) {

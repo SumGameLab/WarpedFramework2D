@@ -63,10 +63,11 @@ public class WarpedViewport {
 
 	public WarpedMouseEvent mouseEvent;
 	private WarpedObject eventObject;
+	private ArrayList<WarpedMouseEvent> mouseEvents = new ArrayList<>();;
+	private ArrayList<WarpedObject> eventObjects = new ArrayList<>();
 	
 	//private ArrayList<WarpedAnimation> animations = new ArrayList<>();
 
-	public ArrayList<WarpedObject> eventObjects = new ArrayList<>();
 	protected Object[] renderHints = new Object[8];
 	
 	private RenderType renderType = RenderType.ACTIVE;
@@ -564,53 +565,62 @@ public class WarpedViewport {
 	protected final void update() {
 		long cycleStartTime = System.nanoTime();
 		camera.update();
+		if(mouseEvents.size() > 0) {
+			if(mouseEvent== null)mouseEvent = mouseEvents.getLast();
+			mouseEvents.clear();
+		}
 		render();
 		if(eventObjects.size() > 0) {
-			eventObject = eventObjects.get(eventObjects.size() - 1);
+			if(eventObject == null)eventObject = eventObjects.getLast();
+			//dispatchMouseEvents();
 			eventObjects.clear();
-			//mouseEvent = null;
 		}
+		
 		fps++;
 		updateDuration = System.nanoTime() - cycleStartTime;		
 	}
+	
 	
 	/**@implNote This function is called from the WarpedWindow class automatically when a mouse event occurs over it.
 	 * @implNote This function may be called multiple times per frame, only the last mouse event of each frame is considered; all other events will be trashed.
 	 * @author SomeKid */
 	protected void MouseEvent(WarpedMouseEvent mouseEvent) {
 		mouseEvent.updateTrace(this);
-		this.mouseEvent = mouseEvent;
+		mouseEvents.add(mouseEvent);
 	}
 	
 	/**@implNote This function is called automatically from the WarpedWindow once at the end of each render cycle.
 	 * @author SomeKid*/
 	protected void dispatchMouseEvents() {
 		//if(eventObjects.size() == 0 || !isEvent()) return;
-		//WarpedObject eventObject = eventObjects.get(eventObjects.size() - 1);
-		if(eventObject == null || !isEvent()) return;
-		
-		if(mouseEvent.isHandled()) {
-			mouseEvent = null;
+		//WarpedObject eventObject = eventObjects.get(eventObjects.size() - 1);		
+		if(mouseEvent == null || eventObject == null) {
+			mouseEvent  = null;
 			eventObject = null;
-			return;		
+			return;
 		}
 		
-		eventObject.hovered();		
-		eventObject.mouseEvent(mouseEvent);
-		mouseEvent.handle();
+		if(!mouseEvent.isHandled()) {		
+			eventObject.hovered();		
+			eventObject.mouseEvent(mouseEvent);
+			mouseEvent.handle();
+		}
 		mouseEvent  = null;
 		eventObject = null;
 		
 	}
 	
+	
 	/**Checks if the renderObject interacts with the mouseEvent, if the renderObject is added to the eventObjects shortList.
 	 * The last object in eventObjects will be the object that actually receives a mouse event when dispactMouseEvent() triggers. 
 	 * 	@author 5som3*/
 	protected void handleMouse(WarpedObject renderObject) {
-		if(!isEvent()) return;		
+		if(mouseEvent == null) return;
+		else if(mouseEvent.isHandled()) return;
 		if(isOverObject(renderObject)) eventObjects.add(renderObject);
 		else renderObject.unhovered();
 	}
+	
 		
 	private boolean isClipped(WarpedObject obj) {
 		if(obj.getRenderPosition().x() + obj.getRenderSize().x() < position.x()) return true; // outside left bound
@@ -620,10 +630,10 @@ public class WarpedViewport {
 		return false;
 	}
 	
-	private boolean isEvent() {if(mouseEvent == null) return false; else return true;}
+	//private boolean isEvent() {if(mouseEvent == null) return false; else return true;}
 
 	
-	private boolean isOverObject(WarpedObject renderObject){
+	protected boolean isOverObject(WarpedObject renderObject){
 		Point point = mouseEvent.getPointRelativeToViewPort();
 		
 		int traceX = (int)(point.x - renderObject.getRenderPosition().x());

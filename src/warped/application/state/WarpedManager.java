@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import warped.application.state.managers.gameObjectManagers.WarpedObjectAction;
+import warped.application.state.managers.gameObjectManagers.WarpedObjectCheckAction;
 import warped.utilities.utils.Console;
 
 public class WarpedManager<T extends WarpedObject> {
@@ -32,6 +33,8 @@ public class WarpedManager<T extends WarpedObject> {
 	 * @return ArrayList<WarpedGroup<T>> - a list of the groups currently being updated
 	 * @author 5som3*/
 	public  ArrayList<WarpedGroup<T>> getActiveGroups(){return activeGroups;}
+	
+	
 	
 	/**Add a group to the manager
 	 * @return WarpedGroup<T> - the newly created added group
@@ -266,6 +269,14 @@ public class WarpedManager<T extends WarpedObject> {
 	 * @implNote Each group will execute in the order 0 -> m - 1 where m is the length of members array for the corresponding group.
 	 * @author SomeKid*/
 	public void forEachActiveGroup(WarpedObjectAction<T> method) {for(int i = 0; i < activeGroups.size(); i++) activeGroups.get(i).forEach(method);}
+	
+	public boolean forEachActiveGroupReverse(WarpedObjectCheckAction<T> method) {
+		for(int i = activeGroups.size() - 1; i > 0; i--) {
+			if(activeGroups.get(i).forEachReverse(method)) return true;
+		}
+		return false;
+	}
+	
 
 	/**Clears all data from the manager
 	 * @apiNote Use open and close to control group updating. Do not clear groups to stop them from updating.
