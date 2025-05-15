@@ -566,13 +566,14 @@ public class WarpedViewport {
 		long cycleStartTime = System.nanoTime();
 		camera.update();
 		if(mouseEvents.size() > 0) {
-			if(mouseEvent== null)mouseEvent = mouseEvents.getLast();
+			if(mouseEvent== null) mouseEvent = mouseEvents.getLast();
 			mouseEvents.clear();
 		}
 		render();
 		if(eventObjects.size() > 0) {
-			if(eventObject == null)eventObject = eventObjects.getLast();
+			if(eventObject == null) eventObject = eventObjects.getLast();
 			//dispatchMouseEvents();
+			for(int i = 0; i < eventObjects.size() - 1; i++) eventObjects.get(i).unhovered();
 			eventObjects.clear();
 		}
 		
@@ -617,7 +618,7 @@ public class WarpedViewport {
 	protected void handleMouse(WarpedObject renderObject) {
 		if(mouseEvent == null) return;
 		else if(mouseEvent.isHandled()) return;
-		if(isOverObject(renderObject)) eventObjects.add(renderObject);
+		if(renderObject.isVisible() && renderObject.isInteractive() && isOverObject(renderObject)) eventObjects.add(renderObject);
 		else renderObject.unhovered();
 	}
 	
