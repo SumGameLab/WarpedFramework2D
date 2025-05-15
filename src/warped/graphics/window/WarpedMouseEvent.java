@@ -49,7 +49,6 @@ public class WarpedMouseEvent {
 		
 		if(e.objectP == null) objectP = new Point();
 		else objectP = new Point(e.objectP);
-		
 	}
 	
 	public MouseEvent getMouseEvent() {return e;}

@@ -7,6 +7,8 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
 
+import warped.application.entities.item.WarpedItem;
+import warped.application.gui.GUIInventory;
 import warped.functionalInterfaces.WarpedAction;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.window.WarpedMouse;
@@ -15,15 +17,12 @@ import warped.utilities.utils.Console;
 
 public abstract class WarpedMouseController {
 
+	private short cursorState = 0;
 	
-	public static final int PLAIN = WarpedMouse.PLAIN;
-	public static final int PRESS = WarpedMouse.PRESS;
-	public static final int LOAD  = WarpedMouse.LOAD;
-	
-	private int cursorState = 0;
-	
-	private int loadTick   = 0;
-	private int loadDelay  = 16; 
+	private short loadTick   = 0;
+	private static final short LOAD_DELAY  = 16; 
+	private short dropTick = 0;
+	private static final short DROP_DELAY = 1;
 	
 	private int loadCursorIndex = 0;	
 
@@ -46,17 +45,17 @@ public abstract class WarpedMouseController {
 	protected Cursor loadCursor7;	
 	
 	
+	private GUIInventory<?> dragGUI;
+	private WarpedItem<?> dragItem;
+	private boolean isDraggingItem = false;
+	
 	protected static Point zeroPoint = new Point();
 	public Point mousePoint = new Point();
 	
 	private WarpedAction resetCursorAction = () -> {Console.err("WapredMouseController -> default reset cursor action, this should be overwritten by your game");};
 	
-	public void resetCursor() {resetCursorAction.action();}
-	public int getCursorState() {return cursorState;}
-	public boolean isLoadState() {if(cursorState == LOAD) return true; else return false;}
-	
-	public void setResetCursorAction(WarpedAction action) {this.resetCursorAction = action;}
-
+	/**
+	 * */
 	public WarpedMouseController() {
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 
@@ -80,13 +79,20 @@ public abstract class WarpedMouseController {
 		this.pressCursor = toolkit.createCustomCursor(pressCursor , zeroPoint, "plainCursor");
 	}
 	
-	public void setCursorState(int cursorState) {
+	public void resetCursor() {resetCursorAction.action();}
+	public int getCursorState() {return cursorState;}
+	public boolean isLoadState() {if(cursorState == WarpedMouse.LOAD) return true; else return false;}
+	
+	public void setResetCursorAction(WarpedAction action) {this.resetCursorAction = action;}
+
+	
+	public void setCursorState(short cursorState) {
 		this.cursorState = cursorState;
 		if(isIntermediateCursor) cursor = intermediateCursor;
 		else switch(cursorState) {
-		case PLAIN: cursor = plainCursor; break;
-		case PRESS: cursor = pressCursor; break;
-		case LOAD: cursor = loadCursor0; break;
+		case WarpedMouse.PLAIN: cursor = plainCursor; break;
+		case WarpedMouse.PRESS: cursor = pressCursor; break;
+		case WarpedMouse.LOAD: cursor = loadCursor0; break;
 		default: Console.err("WarpedMouse -> setCursorState() -> invalid case : " + cursorState); return;
 		} 
 		WarpedWindow.getFrame().setCursor(cursor);
@@ -98,7 +104,7 @@ public abstract class WarpedMouseController {
 	
 	public boolean setLoadCursor() {
 		loadTick++;
-		if(loadTick > loadDelay) {
+		if(loadTick > LOAD_DELAY) {
 			loadTick = 0;
 			loadCursorIndex++;
 			if(loadCursorIndex > 7) loadCursorIndex = 0;
@@ -136,6 +142,46 @@ public abstract class WarpedMouseController {
 	public void resetIntermediateCursor() {
 		isIntermediateCursor = false;
 		setCursorState(cursorState);
+	}
+	
+	/**
+	 * */
+	public boolean isDraggingItem() {return  isDraggingItem;}
+	
+	public WarpedItem<?> getDraggedItem(){return dragItem;}
+		
+	/**Drag an item with the mouse
+	 * @param dragGUI - the GUI that the item was dragged from.
+	 * @param dragItem - the item that is being dragged.War
+	 * @implNote Will set the cursor to match the dragged item.
+	 * @author 5som3 
+	 * */
+	public void dragItem(GUIInventory<?> dragGUI, WarpedItem<?> dragItem) {
+		this.dragGUI = dragGUI;
+		this.dragItem = dragItem;
+		isDraggingItem = true;
+	}
+	
+	/**Drop the item and reset the cursor.
+	 * @implNote Will reset the cursor to the controller default.
+	 * @author 5som3 */
+	public void dropItem() {
+		if(isDraggingItem) {			
+			isDraggingItem = false;
+		}
+	}
+	
+	public void update() {
+		if(isDraggingItem && !WarpedMouse.isDragging()) {
+			dropTick++;
+			if(dropTick > DROP_DELAY) {
+				dropTick = 0;
+				isDraggingItem = false;
+				resetCursor();
+				dragGUI.restoreItem(dragItem);
+			}
+		}
+		
 	}
 	
 }

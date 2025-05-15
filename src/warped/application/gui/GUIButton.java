@@ -275,7 +275,7 @@ public class GUIButton extends WarpedGUI {
 		if(isLocked) return;
 		if(!WarpedMouse.isDragging()) {				
 			isDragging = false;
-			WarpedMouse.unfocus();
+			WarpedMouse.setFocus(false);
 		}
 		if(isDragging) {
 			if(dragOffset.isEqual(0.0, 0.0)){
@@ -354,7 +354,7 @@ public class GUIButton extends WarpedGUI {
 		if(isDraggable && !isEnteredDragging) {
 			if(!isDragging && !WarpedMouse.isFocused()) {
 				sprite.press();
-				WarpedMouse.focus();
+				WarpedMouse.setFocus(true);;
 				
 				isDragging = true;
 			} 								

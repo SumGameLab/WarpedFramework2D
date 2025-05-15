@@ -572,11 +572,9 @@ public class WarpedViewport {
 		render();
 		if(eventObjects.size() > 0) {
 			if(eventObject == null) eventObject = eventObjects.getLast();
-			//dispatchMouseEvents();
 			for(int i = 0; i < eventObjects.size() - 1; i++) eventObjects.get(i).unhovered();
 			eventObjects.clear();
 		}
-		
 		fps++;
 		updateDuration = System.nanoTime() - cycleStartTime;		
 	}
@@ -592,23 +590,16 @@ public class WarpedViewport {
 	
 	/**@implNote This function is called automatically from the WarpedWindow once at the end of each render cycle.
 	 * @author SomeKid*/
-	protected void dispatchMouseEvents() {
-		//if(eventObjects.size() == 0 || !isEvent()) return;
-		//WarpedObject eventObject = eventObjects.get(eventObjects.size() - 1);		
-		if(mouseEvent == null || eventObject == null) {
+	protected void dispatchMouseEvents() {		
+		if(mouseEvent == null || eventObject == null || mouseEvent.isHandled()) {
 			mouseEvent  = null;
 			eventObject = null;
 			return;
-		}
-		
-		if(!mouseEvent.isHandled()) {		
+		} else {			
 			eventObject.hovered();		
 			eventObject.mouseEvent(mouseEvent);
 			mouseEvent.handle();
 		}
-		mouseEvent  = null;
-		eventObject = null;
-		
 	}
 	
 	
@@ -631,8 +622,6 @@ public class WarpedViewport {
 		return false;
 	}
 	
-	//private boolean isEvent() {if(mouseEvent == null) return false; else return true;}
-
 	
 	protected boolean isOverObject(WarpedObject renderObject){
 		Point point = mouseEvent.getPointRelativeToViewPort();
@@ -676,17 +665,6 @@ public class WarpedViewport {
 		bufferIndex++;
 		if(bufferIndex == WarpedWindow.BUFFER_SIZE) bufferIndex = 0;
 		buffer = rasterBuffer[bufferIndex];
-		/*
-		if(bufferIndex == 0) {
-			bufferIndex = 1;
-			buffer = rasterBuffer[1];
-			raster = rasterBuffer[0];
-		} else {
-			bufferIndex = 0;
-			buffer = rasterBuffer[0];
-			raster = rasterBuffer[1];
-		}
-		*/
 	}
 	
 	/** Renders the viewport based on the set method and set's the output raster to the new buffer

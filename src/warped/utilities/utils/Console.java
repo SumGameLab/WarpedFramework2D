@@ -88,6 +88,9 @@ public abstract class Console {
 		frameworkCommands.put("/inspect", () -> {  WarpedState.frameworkInspector.inspectTimers();});
 		frameworkCommands.put("/stopLog", () -> { setLogging(false);});
 		frameworkCommands.put("/startLog", () -> { setLogging(true);});
+		frameworkCommands.put("/setRes720p", () -> {WarpedFramework2D.getWindow().setWindowResolution(1280, 720);});
+		frameworkCommands.put("/setRes1080p", () -> {WarpedFramework2D.getWindow().setWindowResolution(1920, 1080);});
+		frameworkCommands.put("/setRes4k", () -> {WarpedFramework2D.getWindow().setWindowResolution(3840, 2160);});
 		frameworkCommands.put("/command", () -> {consoleCommands.keySet().forEach(k -> {WarpedState.notify.note(k);});});
 		frameworkCommands.put("/help", () -> {frameworkCommands.keySet().forEach(k -> {WarpedState.notify.note(k);});});
 	}
