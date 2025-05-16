@@ -358,9 +358,7 @@ public abstract class WarpedObject {
 		if(WarpedMouse.isFocused() ) return;
 		if(!isAlive) return;
 		if(!isVisible) return;
-		if(!isInteractive) {mouseEvent.handle(); return;}
 		if(!isHovered) return;
-		if(mouseEvent.isHandled()) return;
 		
 		mouseEvent.updateTrace(renderPosition);
 		if(isExpressEvents)  executeMouseEvent(mouseEvent);

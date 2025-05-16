@@ -595,11 +595,16 @@ public class WarpedViewport {
 			mouseEvent  = null;
 			eventObject = null;
 			return;
-		} else {			
+		} else if(eventObject.isInteractive()){			
 			eventObject.hovered();		
 			eventObject.mouseEvent(mouseEvent);
 			mouseEvent.handle();
-		}
+		} else {
+			mouseEvent.handle();
+			eventObject.unhovered();
+		} 
+		mouseEvent  = null;
+		eventObject = null;
 	}
 	
 	
@@ -609,20 +614,20 @@ public class WarpedViewport {
 	protected void handleMouse(WarpedObject renderObject) {
 		if(mouseEvent == null) return;
 		else if(mouseEvent.isHandled()) return;
-		if(renderObject.isVisible() && renderObject.isInteractive() && isOverObject(renderObject)) eventObjects.add(renderObject);
+		if(renderObject.isVisible() && isOverObject(renderObject)) eventObjects.add(renderObject);
 		else renderObject.unhovered();
 	}
 	
-		
-	private boolean isClipped(WarpedObject obj) {
-		if(obj.getRenderPosition().x() + obj.getRenderSize().x() < position.x()) return true; // outside left bound
-		if(obj.getRenderPosition().y() + obj.getRenderSize().y() < position.y()) return true; // outside top bound
-		if(obj.getRenderPosition().x() > cornerPoint.x()) return true; // outside right bound
-		if(obj.getRenderPosition().y() > cornerPoint.y()) return true; // outside bottom bound
+	/**Check if the specified object is in the bounds of the viewport*/
+	private boolean isClipped(WarpedObject object) {
+		if(object.getRenderPosition().x() + object.getRenderSize().x() < position.x()) return true; // outside left bound
+		if(object.getRenderPosition().y() + object.getRenderSize().y() < position.y()) return true; // outside top bound
+		if(object.getRenderPosition().x() > cornerPoint.x()) return true; // outside right bound
+		if(object.getRenderPosition().y() > cornerPoint.y()) return true; // outside bottom bound
 		return false;
 	}
 	
-	
+	/**Check if the mouse event is over the specified object*/
 	protected boolean isOverObject(WarpedObject renderObject){
 		Point point = mouseEvent.getPointRelativeToViewPort();
 		
@@ -644,10 +649,6 @@ public class WarpedViewport {
 	}
 	
 
-	//--------
-	//---------------- Graphics --------
-	//--------	
-	
 	/**Get the graphics for this viewport.
 	 * @return Graphics2D - a graphics interface with next buffer in the viewport.
 	 * @implNote any changes made to the graphics will not not be visible raster is set to the new buffer.
