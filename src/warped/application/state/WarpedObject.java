@@ -4,7 +4,6 @@ package warped.application.state;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import warped.WarpedProperties;
 import warped.graphics.sprite.WarpedSprite;
 import warped.graphics.window.WarpedCamera;
 import warped.graphics.window.WarpedMouse;
@@ -12,7 +11,6 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsImage;
 
 public abstract class WarpedObject {
 	
@@ -35,7 +33,7 @@ public abstract class WarpedObject {
 	private String toolTip = null;
 
 	//In application space, prior to camera transformation
-	private VectorD position 	 	= new VectorD(); 
+	protected VectorD position 	 	= new VectorD(); 
 
 	//In Screen space, subsequent to camera transformation
 	private VectorD renderPosition	= new VectorD();

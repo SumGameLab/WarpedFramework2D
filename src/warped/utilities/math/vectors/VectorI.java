@@ -1,7 +1,6 @@
 package warped.utilities.math.vectors;
 
 import java.util.List;
-import java.util.Vector;
 
 import warped.functionalInterfaces.VecIAction;
 import warped.utilities.utils.Console;
@@ -127,7 +126,7 @@ public class VectorI {
 		if(!hasZComponent()) {
 			Console.err("VectorI -> z() -> this vector is length 2 and has no z componenet.");
 			return -1;
-		} else return vec[3];
+		} else return vec[2];
 	};
 	
 	/**Get a specific value in the vector.

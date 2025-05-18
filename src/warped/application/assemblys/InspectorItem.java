@@ -14,7 +14,6 @@ import warped.audio.FrameworkAudio;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites.StandardIcons;
 import warped.utilities.enums.generalised.Colour;
-import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.UtilsMath;
 
 public class InspectorItem extends GUIAssembly {

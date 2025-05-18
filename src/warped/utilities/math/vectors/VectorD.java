@@ -143,7 +143,7 @@ public class VectorD {
 		if(!hasZComponent()) {
 			Console.err("VectorD -> z() -> this vector is length 2 and has no z componenet.");
 			return -1.0;
-		} else return vec[3];
+		} else return vec[2];
 	};
 	
 	/**Get a specific value in the vector.

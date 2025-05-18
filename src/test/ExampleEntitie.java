@@ -38,7 +38,7 @@ public class ExampleEntitie extends WarpedEntitie {
 
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {
-		if(mouseEvent.getWheelEvent().getWheelRotation() > 0) speed += 0.1;
+		if(mouseEvent.getWheelRotation() > 0) speed += 0.1;
 		else speed -= 0.1;
 	}
 

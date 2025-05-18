@@ -17,7 +17,6 @@ public class WarpedMouseEvent {
 	private MouseEventType eventType;
 	private Point windowP;   //mouse event location relative to the canvas
 	private Point viewPortP; //mouse event location relative to the view port
-	private Point viewPortLayerP; //mouse event location relative to the view port layer
 	private Point objectP; //mouse event location relative to the object 
 	private Point traceP; // mouse event trace, updated at each stage of mouse handleing -> screen -> view port -> view port layer -> object
 		
@@ -42,9 +41,6 @@ public class WarpedMouseEvent {
 		if(e.viewPortP == null) viewPortP = new Point();
 		else viewPortP = new Point(e.viewPortP);
 		
-		if(e.viewPortLayerP == null) viewPortLayerP = new Point();
-		else viewPortLayerP = new Point(e.viewPortLayerP);
-		
 		if(e.objectP == null) objectP = new Point();
 		else objectP = new Point(e.objectP);
 	}
@@ -68,6 +64,14 @@ public class WarpedMouseEvent {
 			return null;
 		}
 	}
+	
+	/**Get the button associated with this mouse event.
+	 * @return int - the int code associated with the button event.
+	 * @return 1 - The button assigned to left mouse button is the event button.
+	 * @return 2 - The button assigned to middle mouse button is the event button (mouse wheel button).
+	 * @return 3 - The button assigned to right mouse button is the event button.
+	 * @author 5som3*/
+	public int getButton() {return e.getButton();}
 	
 	/**Get the type of mouse event.
 	 * @return MouseEventType - the type of mouse event 

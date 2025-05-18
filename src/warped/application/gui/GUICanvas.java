@@ -175,8 +175,7 @@ public class GUICanvas<T extends GUIDrawable> extends WarpedGUI {
 		Console.ln("GUICanvas -> mouseReleased() -> mouse coords : " + x + ", " + y);
 		
 		
-		MouseEvent mouseE = mouseEvent.getMouseEvent();
-		if(mouseE.getButton() == MouseEvent.BUTTON3) {
+		if(mouseEvent.getButton() == MouseEvent.BUTTON3) {
 			if(selectPosition == null) selectPosition = new VectorI();
 			selectPosition.set(x, y);
 			altClickAction.action();

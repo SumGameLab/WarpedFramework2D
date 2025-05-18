@@ -70,9 +70,15 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 	}
 	
 	
-
+	public WarpedObjectIdentity dropMember(WarpedItem<T> member) {
+		WarpedObjectIdentity ID = new WarpedObjectIdentity(groupID, members.size());
+		member.initObjectIdentity(ID);
+		members.add(member);
+		member.dropItem();
+		return ID;
+	}
 	
-	/**Add a member to the group
+	/**Add a item to the group
 	 * @param member - add a member to the inventory
 	 * @apiNote If another item of the same type already exist then the items will be consolidated. (their quantities combined)
 	 * @author 5som3*/
@@ -285,6 +291,7 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 		return true;
 	}
 	
+	
 	/**Create and add the items specified in the list to this inventory
 	 * @param items - the list of items to produce
 	 * @implNote  if an item in the list already exist in the inventory then their quantities will be combined. 
@@ -303,6 +310,11 @@ public class WarpedInventory<T extends ItemBindable<? extends Enum<?>>> extends 
 		WarpedItem<T> item = itemType.generateItem(quantity);
 		addMember(item);
 	}
+	
+	/**Create and add the item specified.
+	 * @param itemType - the type of item to produce.
+	 * @author 5som3*/
+	public WarpedObjectIdentity produce(T itemType) {return addMember(new WarpedItem<>(itemType));}
 	
 	
 	

@@ -172,7 +172,8 @@ public class UtilsMath {
 	public static double round(double value, int decimalPlaces) {
 		if (decimalPlaces < 1 || decimalPlaces > 9) {
 			Console.err("Maths -> nextDouble -> invalid number of decimal places : " + decimalPlaces);
-			decimalPlaces = 1;			
+			if(decimalPlaces < 1) decimalPlaces = 1;	
+			else decimalPlaces = 9;
 		}
 		BigDecimal bd = BigDecimal.valueOf(value);
 		bd = bd.setScale(decimalPlaces + 1, RoundingMode.HALF_UP);
@@ -719,31 +720,89 @@ public class UtilsMath {
 		return random.nextInt(1, n + 1);
 	}
 	
-	
-	public static int random(int lowerBound, int upperBound) {return random.nextInt(lowerBound, upperBound);}
-	public static int random(int upperBound) {return random.nextInt(upperBound);}
+	/**Get a random integer.
+	 * @return int - a random integer, could be negative or positive.
+	 * @author 5som3*/
 	public static int randomInt() {return random.nextInt();}
 	
-	public static Long random(Long lowerBound, Long upperBound) {return random.nextLong(lowerBound, upperBound);}
-	public static Long random(Long upperBound) {return random.nextLong(upperBound);}
+	/**Get a random positive integer.
+	 * @param upperBound - the maximum value (exclusive) that can be returned.
+	 * @return int - a random number (r) in the range : 0 <= upperBound.
+	 * @author 5som3*/
+	public static int random(int upperBound) {return random.nextInt(upperBound);}
+	
+	/**Get a random integer in the specified range.
+	 * @param lowerBound - the minimum value (inclusive) that can be returned.
+	 * @param upperBound - the maximum value (exclusive) that can be returned.
+	 * @return int - a random number (r) in the range : lowerBound <= r <= upperBound
+	 * @author 5som3*/
+	public static int random(int lowerBound, int upperBound) {return random.nextInt(lowerBound, upperBound);}
+	
+	/**Get a random Long
+	 * @return Long - a random Long, could be negative or positive.
+	 * @author 5som3*/
 	public static Long randomLong() {return random.nextLong();}
 	
-	public static double random(double lowerBound, double upperBound) {return random.nextDouble(lowerBound, upperBound);}
-	public static double random(double upperBound) {return random.nextDouble(upperBound);}
+	/**Get a random positive Long.
+	 * @param upperBound - the maximum value (exclusive) that can be returned.
+	 * @return Long - a random number (r) in the range : 0 <= upperBound.
+	 * @author 5som3*/
+	public static Long random(Long upperBound) {return random.nextLong(upperBound);}
+	
+	/**Get a random Long in the specified range.
+	 * @param lowerBound - the minimum value (inclusive) that can be returned.
+	 * @param upperBound - the maximum value (exclusive) that can be returned.
+	 * @return Long - a random number (r) in the range : lowerBound <= r <= upperBound
+	 * @author 5som3*/
+	public static Long random(Long lowerBound, Long upperBound) {return random.nextLong(lowerBound, upperBound);}
+	
+	/**Get a random double.
+	 * @return double - a random double, could be negative or positive.
+	 * @author 5som3*/
 	public static double randomDouble() {return random.nextDouble();}
+	
+	/**Get a random double.
+	 * @param int - the number of decimal places
+	 * @return double - a random double, could be negative or positive.
+	 * @author 5som3*/
+	public static double randomDouble(int decimalPlaces) {return round(random.nextDouble(), decimalPlaces);}
+	
+	/**Get a random double
+	 * @param upperBound - the maximum value (exclusive) that can be returned. 
+	 * @return double - a random Long, could be negative or positive.
+	 * @author 5som3*/
+	public static double random(double upperBound) {return random.nextDouble(upperBound);}
+	
+	/**Get a random double in the specified range.
+	 * @param lowerBound - the minimum value (inclusive) that can be returned.
+	 * @param upperBound - the maximum value (exclusive) that can be returned.
+	 * @return double - a random number (r) in the range : lowerBound <= r <= upperBound
+	 * @author 5som3*/
+	public static double random(double lowerBound, double upperBound) {return random.nextDouble(lowerBound, upperBound);}
+	
+	/**Get a random double in the specified range.
+	 * @param lowerBound - the minimum value (inclusive) that can be returned.
+	 * @param upperBound - the maximum value (exclusive) that can be returned.
+	 * @param decimalPlaces - returned value is rounded to the number of decimal places
+	 * @return double - a random number (r) in the range : lowerBound <= r <= upperBound
+	 * @author 5som3*/
 	public static double random(double lowerBound, double upperBound, int decimalPlaces) {
 		return round(random.nextDouble(lowerBound, upperBound), decimalPlaces);
 	}
+	
+	/**Get a random double
+	 * @param upperBound - the maximum value (exclusive) that can be returned.
+	 * @param decimalPlaces - returned value is rounded to the number of decimal places   
+	 * @return double - a random Long, could be negative or positive.
+	 * @author 5som3*/
 	public static double random(double upperBound, int decimalPlaces) {
 		return round(random.nextDouble(upperBound), decimalPlaces);
 	}
-	public static double randomDouble(int decimalPlaces) {
-		return round(random.nextDouble(), decimalPlaces);
-	}
+	
 
-	public static Float random(Float lowerBound, Float upperBound) {return random.nextFloat(lowerBound, upperBound);}
-	public static Float random(Float upperBound) {return random.nextFloat(upperBound);}
 	public static Float random() {return random.nextFloat();}
+	public static Float random(Float upperBound) {return random.nextFloat(upperBound);}
+	public static Float random(Float lowerBound, Float upperBound) {return random.nextFloat(lowerBound, upperBound);}
 	public static Float random(Float lowerBound, Float upperBound, int decimalPlaces) {
 		return round(random.nextFloat(lowerBound, upperBound), decimalPlaces);
 	}

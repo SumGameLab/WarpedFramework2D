@@ -448,7 +448,7 @@ public class GUIScrollBar extends WarpedGUI {
 
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {
-		if(0 + mouseEvent.getWheelEvent().getWheelRotation() > 0) increaseProgress();
+		if(0 + mouseEvent.getWheelRotation() > 0) increaseProgress();
 		else decreaseProgress();
 		if(scrollAction != null) scrollAction.action();
 	}

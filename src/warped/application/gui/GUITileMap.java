@@ -260,8 +260,8 @@ public class GUITileMap extends WarpedGUI {
 		if(rx < 0 || ry < 0 || rx >= group.getMapGridSize().x() || ry >= group.getMapGridSize().y()) return;
 		
 
-		MouseEvent me = mouseEvent.getMouseEvent();
-		if(me.getButton() == MouseEvent.BUTTON3) {
+		//MouseEvent me = mouseEvent.getMouseEvent();
+		if(mouseEvent.getButton() == MouseEvent.BUTTON3) {
 			selectTile = group.getMember(rx + ry * group.getMapGridSize().x());
 			altSelectAction.action();
 		}

@@ -6,7 +6,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
 
 import warped.application.entities.item.ItemBindable;
 import warped.application.entities.item.WarpedItem;
@@ -242,7 +241,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void mousePressed(WarpedMouseEvent mouseEvent) {
-		if(WarpedMouse.isDraggingItem() && mouseEvent.getMouseEvent().getButton() == MouseEvent.BUTTON3) {
+		if(WarpedMouse.isDraggingItem() && mouseEvent.getButton() == MouseEvent.BUTTON3) {
 			if(WarpedMouse.getDraggedItem().getObjectID() == null) {
 				Console.err("GUIInventory -> mousePressed() -> item has no ID -> ignore if this is a half stack");
 			} else if(WarpedMouse.getDraggedItem().getObjectID().getGroupID().getManagerID() != selectInvent.getGroupID().getManagerID()) {
@@ -266,7 +265,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
-		if(mouseEvent.getMouseEvent().getButton() == MouseEvent.BUTTON3) return;
+		if(mouseEvent.getButton() == MouseEvent.BUTTON3) return;
 		leftDragging = false;
 		int hx = Math.floorDiv(mouseEvent.getPointRelativeToObject().x, itemSpacingX);
 		int hy = Math.floorDiv(mouseEvent.getPointRelativeToObject().y, itemSpacingY);
@@ -274,7 +273,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 		if(hx < 0 || hy < 0 || hx >= columns || hy >= rows) return;
 		int index = hx + hy * columns;
 
-		if(WarpedMouse.isDraggingItem() && mouseEvent.getMouseEvent().getButton() != MouseEvent.BUTTON3) {
+		if(WarpedMouse.isDraggingItem() && mouseEvent.getButton() != MouseEvent.BUTTON3) {
 			Console.ln("GUIInventory -> mouseReleased() -> dropping item at index : " + dropIndex);
 			if(index > selectInvent.size()) {
 				Console.ln("GUIInventory -> dropIndex() -> drop index too high -> chaned to : " + dropIndex);

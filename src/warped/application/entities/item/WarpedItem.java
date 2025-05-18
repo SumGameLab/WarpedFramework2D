@@ -3,10 +3,11 @@ package warped.application.entities.item;
 
 import warped.application.actionWrappers.ActionOption;
 import warped.application.entities.WarpedEntitie;
-import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.graphics.window.WarpedMouseEvent;
+import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsMath;
 
 public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends WarpedEntitie {
 		
@@ -14,6 +15,15 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	protected int quantity = 1;
 	private double mass = 0.1;
 	private int value = 0;
+	
+	private static final double FALL_HEIGHT = 80;
+	private static final double ITEM_GRAVITY = 0.195;
+	private static final double BOUNCE_LOSS = 0.75;
+	private VectorD velocity = new VectorD(0.0, 0.0, 0.0);
+	private boolean isDropped = false;
+	private double height = FALL_HEIGHT;
+	
+	
 	
 	/**A new item of of the specified type
 	 * @author 5som3*/
@@ -44,6 +54,13 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 		}));
 	}
 		
+	/**Drop the item 
+	 * Will randomize the drop velocity and queue the updating of the drop animation  
+	 * @author 5som3*/
+	public void dropItem() {
+		velocity.set(UtilsMath.random(-3.0, 3.0), UtilsMath.random(-3.0, 3.0), 0.0);
+		isDropped = true;
+	}
 	
 	/**Set the quantity regardless of what it was prior.
 	 * If the quantity of the item should be set to a specific number use this function.
@@ -137,6 +154,20 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	 * @author 5som3*/
 	private final void updateValue() {value = (int)(quantity * itemType.getValue());}
 
+	/**Update the position of the item when it is "dropped" into a group
+	 * @author 5som3*/
+	private void updateDrop() {
+		velocity.add(0.0, 0.0, ITEM_GRAVITY);
+		height -= velocity.z();
+		if(height < 0) {
+			height = 0;
+			velocity.setIndex(2, -(velocity.z()));
+			velocity.scale(BOUNCE_LOSS);
+		}
+		if(velocity.x() < 0.3 && velocity.x() > -0.3 && velocity.y() < 0.3 && velocity.y() > -0.3) isDropped = false;
+		
+		position.add(velocity.x(), (velocity.y() + velocity.z()));
+	}
 	
 	/**Do the items come from the same declaration of itemBindables.
 	 * @param a, b   - the items to check.
@@ -201,7 +232,12 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
 	@Override
-	public void updateObject() {return;}
+	public void updateObject() {
+		if(isDropped) {
+			//position.add(0.1);
+			updateDrop();
+		}
+	}
 	
 	
 	

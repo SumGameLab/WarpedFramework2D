@@ -29,6 +29,7 @@ import javax.swing.JFrame;
 
 import warped.WarpedProperties;
 import warped.application.state.WarpedFramework2D;
+import warped.application.state.WarpedManager;
 import warped.application.state.WarpedState;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.user.WarpedUserInput;
@@ -37,7 +38,6 @@ import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsImage;
-import warped.utilities.utils.UtilsMath;
 import warped.utilities.utils.UtilsString;
 
 public class WarpedWindow extends Canvas {
@@ -232,14 +232,24 @@ public class WarpedWindow extends Canvas {
 				
 	}
 	
+	/**Get the scale of the window. This is the window ratio in comparison to the application resolution.
+	 * @author 5som3*/
 	public static VectorD getWindowScale() {return windowScale;}
 	
+	/**DO NOT USE - Get the number of updates since the last time this method was called.
+	 * @implNote This method is used for debugging purposes. The value is displayed in the FrameworkInspector.
+	 * @implNote Using this value anywhere else will invalidate the UPS count. 
+	 * @author 5som3 */
 	public final static short getUPS() {
 		short val = ups;
 		ups = 0;
 		return val;		
 	}
 	
+	/**DO NOT USE - Get the number of frames drawn since the last time this method was called.
+	 * @implNote This method is used for debugging purposes. The value is displayed in the FrameworkInspector.
+	 * @implNote Using this value anywhere else will invalidate the FPS count. 
+	 * @author 5som3 */
 	public final static short getFPS() {
 		short val = fps;
 		fps = 0;
@@ -383,6 +393,38 @@ public class WarpedWindow extends Canvas {
 	 * @return int - the center of the window y coordinate measured in pixels.
 	 * @author 5som3*/
 	public static int getCenterY() {return center.y();}
+	
+	/**Add a viewport at the specified index.
+	 * @param target - the manager to draw in the viewport.
+	 * @param index - the index of the viewport. (the draw stack position).
+	 * @apiNote index is effectively the viewports priority in the draw stack.
+	 * @apiNote example viewports[0 -> n] where n is the number of viewports:
+	 * @apiNote 0 - the first viewport drawn and the lowest priority to receive mouse events.
+	 * @apiNote 1 - drawn on top of viewport[0], mouse events will check against object in viewport[1] before they are check against objects in viewport[2]. 
+	 * @apiNote ...
+	 * @apiNote n - the last viewport drawn on top of all others for the viewports and the highest priority to receive mouse events.
+	 * @implNote WarpedFramework2D has two viewports by default, the object viewport (index 0) and the GUI viewport (index 1). 
+	 * @implNote These viewports 
+	 * @author 5som3*/
+	public static WarpedViewport addViewport(WarpedManager<?> target, int index) {
+		if(index < 0) {
+			Console.err("WarpedWindow -> addViewport() -> index out of bounds : " + index);
+			index = 0;
+		} else if(index > viewPorts.length) {
+			Console.err("WarpedWindow -> addViewport() -> index out of bounds : " + index);
+			index = 0;
+		}
+		
+		WarpedViewport[] viewports = new WarpedViewport[viewPorts.length + 1];
+		viewports[index] = new WarpedViewport("Manager" + target.getClass().getSimpleName(), target); 
+		for(int i = 0; i < viewPorts.length; i++) {
+			if(i < index) viewports[i] = viewPorts[i];
+			else viewports[i + 1] = viewPorts[i]; 
+		}
+		
+		setViewPorts(viewports);
+		return viewports[index];
+	}
 	
 	/**Set the viewports to be displayed in the window.
 	 * @param ports - the viewports to add to this window. Ports will be drawn in the order they are added from bottom to top

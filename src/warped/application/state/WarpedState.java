@@ -16,8 +16,6 @@ import warped.application.assemblys.InspectorObject;
 import warped.application.assemblys.Notify;
 import warped.application.assemblys.Selector;
 import warped.application.assemblys.ToolTip;
-import warped.application.entities.item.ItemBindable;
-import warped.application.entities.item.WarpedItem;
 import warped.application.gui.WarpedGUI;
 import warped.audio.FrameworkAudio;
 import warped.utilities.utils.Console;
@@ -43,7 +41,6 @@ public class WarpedState {
 	private static WarpedManager<?>[] managers = new WarpedManager<?>[0];	
 	public static final WarpedManager<WarpedObject> objectManager = new WarpedManager<WarpedObject>("Object Manager");	
 	public static final WarpedManager<WarpedGUI> guiManager = new WarpedManager<WarpedGUI>("GUI Manager");
-	public static final WarpedGroup<WarpedItem> itemGroup = objectManager.addGroup(WarpedItem.class);
 	
 	protected static ArrayList<WarpedAudioFolder<?>> audioFolders = new ArrayList<>();
 	protected static ArrayList<WarpedAssembly> assemblys = new ArrayList<>();

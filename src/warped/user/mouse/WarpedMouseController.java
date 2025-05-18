@@ -19,10 +19,10 @@ public abstract class WarpedMouseController {
 
 	private short cursorState = 0;
 	
-	private short loadTick   = 0;
-	private static final short LOAD_DELAY  = 16; 
-	private short dropTick = 0;
-	private static final short DROP_DELAY = 1;
+	protected short loadTick   = 0;
+	protected static final short LOAD_DELAY  = 16; 
+	protected short dropTick = 0;
+	protected static final short DROP_DELAY = 1;
 	
 	private int loadCursorIndex = 0;	
 
@@ -45,9 +45,9 @@ public abstract class WarpedMouseController {
 	protected Cursor loadCursor7;	
 	
 	
-	private GUIInventory<?> dragGUI;
-	private WarpedItem<?> dragItem;
-	private boolean isDraggingItem = false;
+	protected GUIInventory<?> dragGUI;
+	protected WarpedItem<?> dragItem;
+	protected boolean isDraggingItem = false;
 	
 	protected static Point zeroPoint = new Point();
 	public Point mousePoint = new Point();

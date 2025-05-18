@@ -436,7 +436,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {return;}
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {
-		if(mouseEvent.getWheelEvent().getWheelRotation() > 0) {
+		if(mouseEvent.getWheelRotation() > 0) {
 			scroll += 0.04325;
 			if(scroll > 1.0) scroll = 1.0;
 		} else {

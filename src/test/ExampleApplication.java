@@ -5,6 +5,7 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+import test.ExampleItem.ExampleItems;
 import warped.application.assemblys.InspectorInventory;
 import warped.application.state.ManagerItem;
 import warped.application.state.WarpedApplication;
@@ -18,6 +19,7 @@ import warped.application.state.WarpedSpriteFolder;
 import warped.application.state.WarpedState;
 import warped.application.tile.TileableGenerative;
 import warped.graphics.sprite.CharacterSprite;
+import warped.graphics.window.WarpedWindow;
 import warped.user.keyboard.WarpedKeyBind;
 import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.enums.WarpedLinkable;
@@ -94,6 +96,7 @@ public class ExampleApplication extends WarpedApplication {
 	public static WarpedAudioFolder<TestAudio> testAudio;
 	
 	public static ManagerItem<ExampleItems> itemManager;
+	public static WarpedInventory<ExampleItems> itemDropGroup;
 	
 	/*Check out example of how to set up a HUD here*/
 	public static ExampleHUD hud;
@@ -140,6 +143,9 @@ public class ExampleApplication extends WarpedApplication {
 	@Override
 	protected void initializeApplication() {
 		itemManager = new ManagerItem<ExampleItems>();
+		itemDropGroup = itemManager.addGroup();
+		
+		itemDropGroup.open();
 
 		inventInspectorA = new InspectorInventory<ExampleItems>(4, 5);
 		inventInspectorA.assemble();
@@ -173,6 +179,10 @@ public class ExampleApplication extends WarpedApplication {
 		hud.assemble();
 		
 		WarpedKeyboard.getActiveController().addBinding(new WarpedKeyBind("Toggle Framework Inspector", KeyEvent.VK_F1, null, () -> {hud.toggle();}));
+		
+		//WarpedMouse.setMouseController(new ExampleMouseController());
+		
+		WarpedWindow.addViewport(itemManager, 1);
 		
 		Console.addCommand("/addHealth", () -> {WarpedState.notify.note("Cheat health");});
 		Console.addCommand("/addStamina", () -> {WarpedState.notify.note("Cheat stamina");});
