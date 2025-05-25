@@ -1026,17 +1026,81 @@ public class UtilsMath {
 	}
 	
 	
-	
+	/**Find the minimum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return Integer - the minimum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
+	public static int findMin(ArrayList<Integer> values)  {return values.get(findMinIndex(values));}
+		
+	/**Find the minimum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return int - the minimum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static int findMin(int[] values) 				 {return values[findMinIndex(values)];}
+	
+	/**Find the minimum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return int - the minimum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static int findMin(int[][] values) 				 {VectorI coords = findMinIndex(values); return values[coords.x()][coords.y()];}
+	
+	/**Find the minimum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return double - the minimum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static double findMin(double[] values) 		  	 {return values[findMinIndex(values)];}
+	
+	/**Find the minimum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return double - the minimum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static double findMin(double[][] values) 		 {VectorI coords = findMinIndex(values); return values[coords.x()][coords.y()];}
-	public static double findMin(ArrayList<Integer> values)  {return values.get(findMinIndex(values));}
+	
+	/**Find the maximum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return int - the maximum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static int findMax(Integer[] values)              {return values[findMaxIndex(values)];}
+	
+	/**Find the maximum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return int - the maximum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static int findMax(int[] values) 				 {return values[findMaxIndex(values)];}
+	
+	/**Find the maximum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return int - the maximum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static int findMax(int[][] values) 				 {VectorI coords = findMaxIndex(values); return values[coords.x()][coords.y()];}
+	
+	/**Find the maximum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return int - the maximum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static int findMax(ArrayList<Integer> values)     {return values.get(findMaxIndex(values));}
+	
+	/**Find the maximum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return double - the maximum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static double findMax(double[] values) 			 {return values[findMaxIndex(values)];}
+	
+	/**Find the maximum value in the specified array.
+	 * @param values - the array of values to check.
+	 * @return double - the maximum value in the array.
+	 * @implNote will cause array index out of bounds exception if values is null or empty.  
+	 * @author 5som3*/
 	public static double findMax(double[][] values) 	     {VectorI coords = findMaxIndex(values); return values[coords.x()][coords.y()];}
 	
 	public static int findMinX(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinXIndex(rectangles)).x;}
@@ -1046,22 +1110,36 @@ public class UtilsMath {
 	public static int findMinWidth(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinWidthIndex(rectangles)).width;}
 	public static int findMaxWidth(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMaxWidthIndex(rectangles)).height;}
 	
-	
+	/**Find the index of the minimum value in the array.
+	 * @param values - the array of values to check.
+	 * @return int - the index of the minimum value in the array.
+	 * @apiNote returns -1 with error if array is null or empty
+	 * @author 5som3*/
 	public static int findMinIndex(int[] values) {
-		int result = -1;
-		
-		int currentMin = 0;
-		for(int i = 0; i < values.length; i++) {
-			if(i == 0) continue;
-			if(values[i] < values[currentMin]) currentMin = i;
+		if(values == null || values.length == 0) {
+			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
+			return -1;
 		}
-		result = currentMin;
 		
+		int result = 0;
+		for(int i = 0; i < values.length; i++) {
+			result = (values[i] < values[result]) ? i : result;
+		}		
 		return result;
 	}
 
+	/**Find the coordinates of the minimum value in the array.
+	 * @param values - the array of values to check.
+	 * @return VectorI - the coordinate of the minimum value in the array.
+	 * @apiNote returns vector (-1, -1) with error if array is null or empty
+	 * @author 5som3*/
 	public static VectorI findMinIndex(int[][] values) {
-		VectorI result = new VectorI();
+		VectorI result = new VectorI(-1);
+		
+		if(values == null || values.length == 0) {
+			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
+			return result;
+		}
 		
 		VectorI currentMin = new VectorI();
 		for(int y = 0; y < values.length; y++) {
@@ -1071,23 +1149,32 @@ public class UtilsMath {
 			}
 		}
 		result = currentMin;
-		
 		return result;
 	}
 	
+	/**Find the index of the minimum value in the array.
+	 * @param values - the array of values to check.
+	 * @return int - the index of the minimum value in the array.
+	 * @apiNote returns -1 with error if array is null or empty
+	 * @author 5som3*/
 	public static int findMinIndex(double[] values) {
-		int result = -1;
-		
-		int currentMin = 0;
-		for(int i = 0; i < values.length; i++) {
-			if(i == 0) continue;
-			if(values[i] < values[currentMin]) currentMin = i;
+		if(values == null || values.length == 0) {
+			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
+			return -1;
 		}
-		result = currentMin;
 		
+		int result = 0;
+		for(int i = 0; i < values.length; i++) {
+			result = (values[i] < values[result]) ? i : result;
+		}		
 		return result;
 	}
 	
+	/**Find the coordinates of the minimum value in the array.
+	 * @param values - the array of values to check.
+	 * @return VectorI - the coordinate of the minimum value in the array.
+	 * @apiNote returns vector (-1, -1) with error if array is null or empty
+	 * @author 5som3*/
 	public static VectorI findMinIndex(double[][] values) {
 		VectorI result = new VectorI();
 		
@@ -1103,47 +1190,67 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the minimum value in the array.
+	 * @param values - the array of values to check.
+	 * @return int - the index of the minimum value in the array.
+	 * @apiNote returns -1 with error if array is null or empty
+	 * @author 5som3*/
 	public static int findMinIndex(ArrayList<Integer> values) {
-		int result = -1;
+		if(values == null || values.size() == 0) {
+			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
+			return -1;
+		}
 		
-		int currentMin = 0;
+		int result = 0;
 		for(int i = 0; i < values.size(); i++) {
-			if(i == 0) continue;
-			if(values.get(i) < values.get(currentMin)) currentMin = i;
-		}
-		result = currentMin;
-		
+			result = (values.get(i) < values.get(result)) ? i : result;
+		}		
 		return result;
 	}
 	
 	
+	
+	/**Find the index of the maximum value in the array.
+	 * @param values - the array of values to check.
+	 * @return int - the index of the maximum value in the array.
+	 * @apiNote returns -1 with error if array is null or empty
+	 * @author 5som3*/
 	public static int findMaxIndex(Integer[] values) {
-		int result = -1; 
-		
-		int currentMax = 0;
-		for(int i = 0; i < values.length; i++) {
-			if(values[i] > currentMax) {
-				result = i;
-				currentMax = values[i];
-			}
+		if(values == null || values.length == 0) {
+			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
+			return -1;
 		}
 		
+		int result = 0;
+		for(int i = 0; i < values.length; i++) {
+			result = (values[i] > values[result]) ? i : result;
+		}		
 		return result;
 	}
 	
+	/**Find the index of the maximum value in the array.
+	 * @param values - the array of values to check.
+	 * @return int - the index of the maximum value in the array.
+	 * @apiNote returns -1 with error if array is null or empty
+	 * @author 5som3 */
 	public static int findMaxIndex(int[] values) {
-		int result = -1;
-		
-		int currentMin = 0;
-		for(int i = 0; i < values.length; i++) {
-			if(i == 0) continue;
-			if(values[i] > values[currentMin]) currentMin = i;
+		if(values == null || values.length == 0) {
+			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
+			return -1;
 		}
-		result = currentMin;
 		
+		int result = 0;
+		for(int i = 0; i < values.length; i++) {
+			result = (values[i] > values[result]) ? i : result;
+		}		
 		return result;
 	}
 	
+	/**Find the coordinates of the maximum value in the array.
+	 * @param values - the array of values to check.
+	 * @return VectorI - the coordinate of the maximum value in the array.
+	 * @apiNote returns vector (-1, -1) with error if array is null or empty
+	 * @author 5som3*/
 	public static VectorI findMaxIndex(int[][] values) {
 		VectorI result = new VectorI();
 		
@@ -1159,19 +1266,29 @@ public class UtilsMath {
 		return result;
 	}
 		
+	/**Find the index of the maximum value in the array.
+	 * @param values - the array of values to check.
+	 * @return int - the index of the maximum value in the array.
+	 * @apiNote returns -1 with error if array is null or empty
+	 * @author 5som3 */
 	public static int findMaxIndex(double[] values) {
-		int result = -1;
-		
-		int currentMin = 0;
-		for(int i = 0; i < values.length; i++) {
-			if(i == 0) continue;
-			if(values[i] > values[currentMin]) currentMin = i;
+		if(values == null || values.length == 0) {
+			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
+			return -1;
 		}
-		result = currentMin;
 		
+		int result = 0;
+		for(int i = 0; i < values.length; i++) {
+			result = (values[i] > values[result]) ? i : result;
+		}		
 		return result;
 	}
 	
+	/**Find the coordinates of the maximum value in the array.
+	 * @param values - the array of values to check.
+	 * @return VectorI - the coordinate of the maximum value in the array.
+	 * @apiNote returns vector (-1, -1) with error if array is null or empty
+	 * @author 5som3*/
 	public static VectorI findMaxIndex(double[][] values) {
 		VectorI result = new VectorI();
 		
@@ -1187,20 +1304,29 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the maximum value in the array.
+	 * @param values - the array of values to check.
+	 * @return int - the index of the maximum value in the array.
+	 * @apiNote returns -1 with error if array is null or empty
+	 * @author 5som3 */
 	public static int findMaxIndex(ArrayList<Integer> values) {
-		int result = 0;
-		
-		int currentMax = values.get(0);
-		for(int i = 1; i < values.size(); i++) {
-			if(values.get(i) > currentMax) {
-				currentMax = values.get(i);
-				result = i;
-			}
+		if(values == null || values.size() == 0) {
+			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
+			return -1;
 		}
+		
+		int result = 0;
+		for(int i = 0; i < values.size(); i++) {
+			result = (values.get(i) > values.get(result)) ? i : result;
+		}		
 		return result;
 	}
 	
-	private static boolean validRectangles(ArrayList<Rectangle> rectangles) {
+	/**Is the list null or contain null.
+	 * @param rectangles - an arrayList of the rectangles to check.
+	 * @return boolean - false if the array is null or contains null, else true.
+	 * @author 5som3*/
+	public static boolean validRectangles(ArrayList<Rectangle> rectangles) {
 		if(rectangles == null) {
 			Console.err("Maths -> findMinPosIndex(ArrayList<Rectangle>) -> passed null array as parameter ");
 			return false;
@@ -1212,6 +1338,11 @@ public class UtilsMath {
 		return true;
 	}
 	
+	/**Find the index of the rectangle with the minimum X value.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return int - the index of the rectangle with the minimum X component.
+	 * @apiNote Will return -1 if rectangles is null or contains null.
+	 * @author 5som3*/
 	public static int findMinXIndex(ArrayList<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		
@@ -1226,6 +1357,11 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the rectangle with the maximum X value.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return int - the index of the rectangle with the maximum X component.
+	 * @apiNote Will return -1 if rectangles is null or contains null.
+	 * @author 5som3*/
 	public static int findMaxXIndex(ArrayList<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
@@ -1239,6 +1375,11 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the rectangle with the minimum Y value.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return int - the index of the rectangle with the minimum Y component.
+	 * @apiNote Will return -1 if rectangles is null or contains null.
+	 * @author 5som3*/
 	public static int findMinYIndex(ArrayList<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		
@@ -1253,6 +1394,11 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the rectangle with the maximum Y value.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return int - the index of the rectangle with the maximum Y component.
+	 * @apiNote Will return -1 if rectangles is null or contains null.
+	 * @author 5som3*/
 	public static int findMaxYIndex(ArrayList<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
@@ -1266,6 +1412,11 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the rectangle with the minimum width.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return int - the index of the rectangle with the minimum width.
+	 * @apiNote Will return -1 if rectangles is null or contains null.
+	 * @author 5som3*/
 	public static int findMinWidthIndex(ArrayList<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
@@ -1279,6 +1430,11 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the rectangle with the maximum width.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return int - the index of the rectangle with the maximum width.
+	 * @apiNote Will return -1 if rectangles is null or contains null.
+	 * @author 5som3*/
 	public static int findMaxWidthIndex(ArrayList<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
@@ -1292,6 +1448,11 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the rectangle with the maximum height.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return int - the index of the rectangle with the maximum height.
+	 * @apiNote Will return -1 if rectangles is null or contains null.
+	 * @author 5som3*/
 	public static int findMaxHeightIndex(ArrayList<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
@@ -1305,6 +1466,11 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Find the index of the rectangle with the minimum height.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return int - the index of the rectangle with the minimum height.
+	 * @apiNote Will return -1 if rectangles is null or contains null.
+	 * @author 5som3*/
 	public static int findMinHeightIndex(ArrayList<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
@@ -1318,11 +1484,24 @@ public class UtilsMath {
 		return result;
 	}
 	
+	/**Get the minimum x/y components from the specified list of rectangles.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return VectorD - a vector containing the minimum x and y components from the array. 
+	 * @apiNote x/y components may be from different rectangles. 
+	 * @apiNote Example : will return (rectangles[1].x, rectangles[2].y) if rectangles[1] is minimum X, and rectangles[2] is minimum Y.
+	 * @author 5som3*/
 	public static VectorD findMinBounds(ArrayList<Rectangle> rectangles) {
 		VectorD result = new VectorD(findMinX(rectangles), findMinY(rectangles));		
 		return result;
 	}
 	
+	/**Get the maximum x/y components from the specified list of rectangles.
+	 * @param rectangles - an array of rectangles to check.
+	 * @return VectorD - a vector containing the maximum x and y components from the array. 
+	 * @apiNote NOTE: not the maximum width/height of the rectangles, calculates relative point based on x + width, y + height.
+	 * @apiNote x/y components may be from different rectangles. 
+	 * @apiNote Example : will return (rectangles[1].x + width, rectangles[2].y + height) if rectangles[1] + width is maximum, and rectangles[2] + height is maximum.
+	 * @author 5som3*/
 	public static VectorD findMaxBounds(ArrayList<Rectangle> rectangles) {
 		VectorD result = new VectorD();
 		double xMax = 0;
