@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import warped.application.tile.RiverSegment;
 import warped.utilities.enums.generalised.RotationType;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
@@ -203,14 +202,13 @@ public class UtilsMath {
 	 * @author 5som3*/
 	public static double divide(int a, int b) {return ((double)a)/ ((double)b);}
 	
-	//--------
-	//---------------- inversion --------
-	//--------
-	/**Invert an array of booleans. All trues will become false and all false will become true.
+	/**Generate an inverted array of booleans. 
 	 * @param array - the array to invert.
 	 * @return boolean[] - a new array inverse to the original one.
+	 * @apiNote All trues will become false and all false will become true.
+	 * @apiNote The original array will be unmodified.
 	 * @author 5som3*/
-	public static boolean[] invert(boolean[] array) { 
+	public static boolean[] inverted(boolean[] array) { 
 		boolean[] result = new boolean[array.length];
 		for(int i = 0; i < array.length; i++) {
 			if(array[i]) result[i] = false;
@@ -219,13 +217,152 @@ public class UtilsMath {
 		return result;
 	}
 	
-	public static double[] invert(double[] array) {
+	/**Generate an inverted array of doubles.
+	 * @param array - the array to invert.
+	 * @return double[] - a new array inverse to the original one.
+	 * @apiNote All positives will become negative and all negatives will become positive.
+	 * @apiNote The original array will be unmodified. 
+	 * @author 5som3*/
+	public static double[] inverted(double[] array) {
 		double[] result = new double[array.length];
 		for(int i = 0; i < array.length; i++) result[i] = 1 / array[i];
 		return result;		
 	}
 	
+	/**Generate an inverted array of integers.
+	 * @param array - the array to invert.
+	 * @return int[] - a new array inverse to the original one.
+	 * @apiNote All positives will become negative and all negatives will become positive.
+	 * @apiNote The original array will be unmodified. 
+	 * @author 5som3*/
+	public static int[] inverted(int[] array) {
+		int[] result = new int[array.length];
+		for(int i = 0; i < array.length; i++) result[i] = 1 / array[i];
+		return result;		
+	}
 	
+	/**Invert the specified array of booleans
+	 * @param array - the array to invert.
+	 * @apiNote All trues will become false and all false will become true.
+	 * @author 5som3*/
+	public static void invert(boolean[] array) {
+		for(int i = 0; i < array.length; i++) {
+			array[i] = array[i] ? false : true;
+		}
+	}
+	
+	/**Invert the specified array of integers.
+	 * @param array - the array to invert.
+	 * @apiNote All positives will become negative and all negatives will become positive. 
+	 * @author 5som3*/
+	public static void invert(int[] array) {
+		for(int i = 0; i < array.length; i++) {
+			array[i] = -array[i];
+		}
+	}
+	
+	/**Invert the specified array of doubles.
+	 * @param array - the array to invert.
+	 * @apiNote All positives will become negative and all negatives will become positive. 
+	 * @author 5som3*/
+	public static void invert(double[] array) {
+		for(int i = 0; i < array.length; i++) {
+			array[i] = -array[i];
+		}
+	}
+	
+	/**Invert the specified array of integers.
+	 * @param array - the array to invert.
+	 * @apiNote All positives will become negative and all negatives will become positive. 
+	 * @author 5som3*/
+	public static void invert(int[][] array) {
+		for(int i = 0; i < array.length; i++) {
+			for(int j = 0; j < array[i].length; j++) {				
+				array[i][j] = -array[i][j];
+			}
+		}
+	}
+	
+	/**Invert the specified array of doubles.
+	 * @param array - the array to invert.
+	 * @apiNote All positives will become negative and all negatives will become positive. 
+	 * @author 5som3*/
+	public static void invert(double[][] array) {
+		for(int i = 0; i < array.length; i++) {
+			for(int j = 0; j < array[i].length; j++) {				
+				array[i][j] = -array[i][j];
+			}
+		}
+	}
+	
+	/**Invert the specified list of integers.
+	 * @param list - the list to invert.
+	 * @apiNote All positives will become negative and all negatives will become positive. 
+	 * @author 5som3*/
+	public static void invertIntegers(List<Integer> list) {
+		for(int i = 0; i < list.size(); i++) {
+			list.set(i, -list.get(i));
+		}
+	}
+	
+	/**Invert the specified list of doubles
+	 * @param list - the list to invert.
+	 * @apiNote All positives will become negative and all negatives will become positive. 
+	 * @author 5som3*/
+	public static void invertDoubles(List<Double> list) {
+		for(int i = 0; i < list.size(); i++) {
+			list.set(i, -list.get(i));
+		}
+	}
+	
+	/**Invert the specified list of booleans
+	 * @param list - the list to invert
+	 * @apiNote All trues will become false and all false will become true.
+	 * @author 5som3*/
+	public static void invertBooleans(List<Boolean> list) {
+		for(int i = 0; i < list.size(); i++) {
+			list.set(i, list.get(i) ? false : true);
+		}
+	}
+	
+	/**Generate an inverted list based on the specified list. 
+	 * @param list - the list of integers to invert.
+	 * @return List<Integer> - a new list of integers inverse to the specified list.
+	 * @apiNote All positives will become negative and all negatives will become positive. 
+	 * @author 5som3*/
+	public static List<Integer> invertedIntegers(List<Integer> list){
+		ArrayList<Integer> result = new ArrayList<>();
+		for(int i = 0; i < list.size(); i++) {
+			result.add(-list.get(i));
+		}
+		return result;
+	}
+
+	/**Generate an inverted list based on the specified list. 
+	 * @param list - the list of integers to invert.
+	 * @return List<Double> - a new list of integers inverse to the specified list.
+	 * @apiNote All positives will become negative and all negatives will become positive. 
+	 * @author 5som3*/
+	public static List<Double> invertedDoubles(List<Double> list){
+		ArrayList<Double> result = new ArrayList<>();
+		for(int i = 0; i < list.size(); i++) {
+			result.add(-list.get(i));
+		}
+		return result;
+	}
+	
+	/**Generate an inverted list based on the specified list. 
+	 * @param list - the list of booleans to invert.
+	 * @return List<Boolean> - a new list of booleans inverse to the specified list.
+	 * @apiNote All trues will become false and all false will become true.
+	 * @author 5som3*/
+	public static List<Boolean> invertedBooleans(List<Boolean> list){
+		ArrayList<Boolean> result = new ArrayList<>();
+		for(int i = 0; i < list.size(); i++) {
+			result.add(list.get(i) ? false : true);
+		}
+		return result;
+	}
 	
 	//--------
 	//---------------- Angular Math -------- 
@@ -803,15 +940,9 @@ public class UtilsMath {
 	public static Float random() {return random.nextFloat();}
 	public static Float random(Float upperBound) {return random.nextFloat(upperBound);}
 	public static Float random(Float lowerBound, Float upperBound) {return random.nextFloat(lowerBound, upperBound);}
-	public static Float random(Float lowerBound, Float upperBound, int decimalPlaces) {
-		return round(random.nextFloat(lowerBound, upperBound), decimalPlaces);
-	}
-	public static Float randomFloat(Float upperBound, int decimalPlaces) {
-		return round(random.nextFloat(upperBound), decimalPlaces);
-	}
-	public static Float randomFloat(int decimalPlaces) {
-		return round(random.nextFloat(), decimalPlaces);
-	}	
+	public static Float random(Float lowerBound, Float upperBound, int decimalPlaces) {return round(random.nextFloat(lowerBound, upperBound), decimalPlaces);}
+	public static Float random(Float upperBound, int decimalPlaces) {return round(random.nextFloat(upperBound), decimalPlaces);}
+	public static Float randomFloat(int decimalPlaces) {return round(random.nextFloat(), decimalPlaces);}	
 	
 	//--------
 	//---------------------- Generation -----------------------
@@ -1005,25 +1136,86 @@ public class UtilsMath {
 	
 
 	
-	//
-	//-------------------Searching Algorithms------------------------
-	//
+	/**Does the list of vectors contain a vector equal to the specified components.
+	 * @param vectors - the list of vectors to check.
+	 * @param components - the vector components to compare to.
+	 * @return boolean - true if the list contains a vector with the specified vector components else false.
+	 * @author 5som3*/
+	public static boolean containsVectorI(List<VectorI> vectors, int...components) {if(findVectorIIndex(vectors, components) == -1) return false; else return true;}
 	
-	public static boolean contains(ArrayList<VectorI> vectors, int x, int y) {return contains(vectors, new VectorI(x, y));}
-	public static boolean contains(ArrayList<VectorI> vectors, VectorI vec) {
+	/**Does the list of vectors contain a vector equal to the specified vector.
+	 * @param vectors - the list of vectors to check.
+	 * @param vec - the vector to compare to.
+	 * @return boolean - true if the list contains a vector equal to the specified vector else false.
+	 * @author 5som3*/
+	public static boolean containsVectorI(List<VectorI> vectors, VectorI vec) {if(findVectorIIndex(vectors, vec) == -1) return false; else return true;}
+	
+	/**Find the index of the vector equal to the specified coordinates.
+	 * @param vectors - the list of vectors to check.
+	 * @param components - the vector components to look for. 
+	 * @return int - the index of the first vector with components equal to the specified components.
+	 * @apiNote Will return -1 if no vector in the list is equal to the specified components. 
+	 * @author 5som3*/
+	public static int findVectorIIndex(List<VectorI> vectors, int... components) {
 		for(int i = 0; i < vectors.size(); i++) {
-			if(vectors.get(i).isEqual(vec)) return true;
+			if(vectors.get(i).isEqual(components)) return i;
 		}
-		return false;
+		return -1;
 	}
 	
-	public static boolean containsCoordinate(ArrayList<RiverSegment> segments, int x, int y) {return containsCoordinate(segments, new VectorI(x, y));}
-	public static boolean containsCoordinate(ArrayList<RiverSegment> segments, VectorI vec) {
-		for(int i = 0; i < segments.size(); i++) {
-			if(segments.get(i).getCoords().isEqual(vec)) return true;
+	/**Find the index of the vector equal to the specified vec.
+	 * @param vectors - the list of vectors to check.
+	 * @param vec - the vector components to look for. 
+	 * @return int - the index of the first vector with components equal to the specified components.
+	 * @apiNote Will return -1 if no vector in the list is equal to the specified components. 
+	 * @author 5som3*/
+	public static int findVectorIIndex(List<VectorI> vectors, VectorI vec) {
+		for(int i = 0; i < vectors.size(); i++) {
+			if(vectors.get(i).isEqual(vec)) return i;
 		}
-		return false;
+		return -1;
 	}
+	
+	/**Does the list of vectors contain a vector equal to the specified components.
+	 * @param vectors - the list of vectors to check.
+	 * @param components - the vector components to compare to.
+	 * @return boolean - true if the list contains a vector with the specified vector components else false.
+	 * @author 5som3*/
+	public static boolean containsVectorD(List<VectorD> vectors, double...components) {if(findVectorDIndex(vectors, components) == -1) return false; else return true;}
+	
+	/**Does the list of vectors contain a vector equal to the specified vector.
+	 * @param vectors - the list of vectors to check.
+	 * @param vec - the vector to compare to.
+	 * @return boolean - true if the list contains a vector equal to the specified vector else false.
+	 * @author 5som3*/
+	public static boolean containsVectorD(List<VectorD> vectors, VectorD vec) {if(findVectorDIndex(vectors, vec) == -1) return false; else return true;}
+	
+	/**Find the index of the vector equal to the specified coordinates.
+	 * @param vectors - the list of vectors to check.
+	 * @param components - the vector components to look for. 
+	 * @return int - the index of the first vector with components equal to the specified components.
+	 * @apiNote Will return -1 if no vector in the list is equal to the specified components. 
+	 * @author 5som3*/
+	public static int findVectorDIndex(List<VectorD> vectors, double... components) {
+		for(int i = 0; i < vectors.size(); i++) {
+			if(vectors.get(i).isEqual(components)) return i;
+		}
+		return -1;
+	}
+	
+	/**Find the index of the vector equal to the specified vec.
+	 * @param vectors - the list of vectors to check.
+	 * @param vec - the vector components to look for. 
+	 * @return int - the index of the first vector with components equal to the specified components.
+	 * @apiNote Will return -1 if no vector in the list is equal to the specified components. 
+	 * @author 5som3*/
+	public static int findVectorDIndex(List<VectorD> vectors, VectorD vec) {
+		for(int i = 0; i < vectors.size(); i++) {
+			if(vectors.get(i).isEqual(vec)) return i;
+		}
+		return -1;
+	}
+	
 	
 	
 	/**Find the minimum value in the specified array.
@@ -1031,7 +1223,7 @@ public class UtilsMath {
 	 * @return Integer - the minimum value in the array.
 	 * @implNote will cause array index out of bounds exception if values is null or empty.  
 	 * @author 5som3*/
-	public static int findMin(ArrayList<Integer> values)  {return values.get(findMinIndex(values));}
+	public static int findMin(List<Integer> values)  {return values.get(findMinIndex(values));}
 		
 	/**Find the minimum value in the specified array.
 	 * @param values - the array of values to check.
@@ -1087,7 +1279,7 @@ public class UtilsMath {
 	 * @return int - the maximum value in the array.
 	 * @implNote will cause array index out of bounds exception if values is null or empty.  
 	 * @author 5som3*/
-	public static int findMax(ArrayList<Integer> values)     {return values.get(findMaxIndex(values));}
+	public static int findMax(List<Integer> values)     {return values.get(findMaxIndex(values));}
 	
 	/**Find the maximum value in the specified array.
 	 * @param values - the array of values to check.
@@ -1103,12 +1295,53 @@ public class UtilsMath {
 	 * @author 5som3*/
 	public static double findMax(double[][] values) 	     {VectorI coords = findMaxIndex(values); return values[coords.x()][coords.y()];}
 	
-	public static int findMinX(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinXIndex(rectangles)).x;}
-	public static int findMaxX(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMaxXIndex(rectangles)).x;}
-	public static int findMinY(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinYIndex(rectangles)).y;}
-	public static int findMaxY(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMaxYIndex(rectangles)).y;}
-	public static int findMinWidth(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinWidthIndex(rectangles)).width;}
-	public static int findMaxWidth(ArrayList<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMaxWidthIndex(rectangles)).height;}
+	/**Find the minimum X position in the specified list.
+	 * @param rectangles - the list of rectangles to check.
+	 * @return int - the minimum X position from the list.
+	 * @author 5som3 */
+	public static int findMinX(List<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinXIndex(rectangles)).x;}
+	
+	/**Find the maximum X position in the specified list.
+	 * @param rectangles - the list of rectangles to check.
+	 * @return int - the maximum X position from the list.
+	 * @author 5som3 */
+	public static int findMaxX(List<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMaxXIndex(rectangles)).x;}
+	
+	/**Find the minimum Y position in the specified list.
+	 * @param rectangles - the list of rectangles to check.
+	 * @return int - the minimum Y position from the list.
+	 * @author 5som3 */
+	public static int findMinY(List<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinYIndex(rectangles)).y;}
+	
+	/**Find the maximum Y position in the specified list.
+	 * @param rectangles - the list of rectangles to check.
+	 * @return int - the maximum Y position from the list.
+	 * @author 5som3 */
+	public static int findMaxY(List<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMaxYIndex(rectangles)).y;}
+	
+	/**Find the minimum width in the specified list.
+	 * @param rectangles - the list of rectangles to check.
+	 * @return int - the minimum width among the specified rectangles.
+	 * @author 5som3*/
+	public static int findMinWidth(List<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMinWidthIndex(rectangles)).width;}
+	
+	/**Find the minimum height in the specified list.
+	 * @param rectangles - the list of rectangles to check.
+	 * @return int - the minimum height among the specified rectangles.
+	 * @author 5som3*/
+	public static int findMinHeight(List<Rectangle> rectangles){return rectangles.get(UtilsMath.findMinHeightIndex(rectangles)).height;}
+	
+	/**Find the maximum width in the specified list.
+	 * @param rectangles - the list of rectangles to check.
+	 * @return int - the maximum width among the specified rectangles.
+	 * @author 5som3*/
+	public static int findMaxWidth(List<Rectangle> rectangles) {return rectangles.get(UtilsMath.findMaxWidthIndex(rectangles)).width;}
+	
+	/**Find the maximum height in the specified list.
+	 * @param rectangles - the list of rectangles to check.
+	 * @return int - the maximum height among the specified rectangles.
+	 * @author 5som3*/
+	public static int findMaxHeight(List<Rectangle> rectangles){return rectangles.get(UtilsMath.findMaxHeightIndex(rectangles)).height;}
 	
 	/**Find the index of the minimum value in the array.
 	 * @param values - the array of values to check.
@@ -1195,7 +1428,7 @@ public class UtilsMath {
 	 * @return int - the index of the minimum value in the array.
 	 * @apiNote returns -1 with error if array is null or empty
 	 * @author 5som3*/
-	public static int findMinIndex(ArrayList<Integer> values) {
+	public static int findMinIndex(List<Integer> values) {
 		if(values == null || values.size() == 0) {
 			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
 			return -1;
@@ -1309,7 +1542,7 @@ public class UtilsMath {
 	 * @return int - the index of the maximum value in the array.
 	 * @apiNote returns -1 with error if array is null or empty
 	 * @author 5som3 */
-	public static int findMaxIndex(ArrayList<Integer> values) {
+	public static int findMaxIndex(List<Integer> values) {
 		if(values == null || values.size() == 0) {
 			Console.err("UtilsMath -> findMinIndex() -> values array is null or empty");
 			return -1;
@@ -1326,7 +1559,7 @@ public class UtilsMath {
 	 * @param rectangles - an arrayList of the rectangles to check.
 	 * @return boolean - false if the array is null or contains null, else true.
 	 * @author 5som3*/
-	public static boolean validRectangles(ArrayList<Rectangle> rectangles) {
+	public static boolean validRectangles(List<Rectangle> rectangles) {
 		if(rectangles == null) {
 			Console.err("Maths -> findMinPosIndex(ArrayList<Rectangle>) -> passed null array as parameter ");
 			return false;
@@ -1343,7 +1576,7 @@ public class UtilsMath {
 	 * @return int - the index of the rectangle with the minimum X component.
 	 * @apiNote Will return -1 if rectangles is null or contains null.
 	 * @author 5som3*/
-	public static int findMinXIndex(ArrayList<Rectangle> rectangles) {
+	public static int findMinXIndex(List<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		
 		int result = 0; 
@@ -1362,7 +1595,7 @@ public class UtilsMath {
 	 * @return int - the index of the rectangle with the maximum X component.
 	 * @apiNote Will return -1 if rectangles is null or contains null.
 	 * @author 5som3*/
-	public static int findMaxXIndex(ArrayList<Rectangle> rectangles) {
+	public static int findMaxXIndex(List<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
 		Rectangle minRect = rectangles.get(0);
@@ -1380,7 +1613,7 @@ public class UtilsMath {
 	 * @return int - the index of the rectangle with the minimum Y component.
 	 * @apiNote Will return -1 if rectangles is null or contains null.
 	 * @author 5som3*/
-	public static int findMinYIndex(ArrayList<Rectangle> rectangles) {
+	public static int findMinYIndex(List<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		
 		int result = 0; 
@@ -1399,7 +1632,7 @@ public class UtilsMath {
 	 * @return int - the index of the rectangle with the maximum Y component.
 	 * @apiNote Will return -1 if rectangles is null or contains null.
 	 * @author 5som3*/
-	public static int findMaxYIndex(ArrayList<Rectangle> rectangles) {
+	public static int findMaxYIndex(List<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
 		Rectangle minRect = rectangles.get(0);
@@ -1417,7 +1650,7 @@ public class UtilsMath {
 	 * @return int - the index of the rectangle with the minimum width.
 	 * @apiNote Will return -1 if rectangles is null or contains null.
 	 * @author 5som3*/
-	public static int findMinWidthIndex(ArrayList<Rectangle> rectangles) {
+	public static int findMinWidthIndex(List<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
 		Rectangle minRect = rectangles.get(0);
@@ -1435,7 +1668,7 @@ public class UtilsMath {
 	 * @return int - the index of the rectangle with the maximum width.
 	 * @apiNote Will return -1 if rectangles is null or contains null.
 	 * @author 5som3*/
-	public static int findMaxWidthIndex(ArrayList<Rectangle> rectangles) {
+	public static int findMaxWidthIndex(List<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
 		Rectangle minRect = rectangles.get(0);
@@ -1453,7 +1686,7 @@ public class UtilsMath {
 	 * @return int - the index of the rectangle with the maximum height.
 	 * @apiNote Will return -1 if rectangles is null or contains null.
 	 * @author 5som3*/
-	public static int findMaxHeightIndex(ArrayList<Rectangle> rectangles) {
+	public static int findMaxHeightIndex(List<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
 		Rectangle minRect = rectangles.get(0);
@@ -1471,12 +1704,12 @@ public class UtilsMath {
 	 * @return int - the index of the rectangle with the minimum height.
 	 * @apiNote Will return -1 if rectangles is null or contains null.
 	 * @author 5som3*/
-	public static int findMinHeightIndex(ArrayList<Rectangle> rectangles) {
+	public static int findMinHeightIndex(List<Rectangle> rectangles) {
 		if(!validRectangles(rectangles)) return -1;
 		int result = 0; 
 		Rectangle minRect = rectangles.get(0);
 		for(int i = 0; i < rectangles.size(); i++) {
-			if(rectangles.get(i).height < minRect.height) {
+			if(rectangles.get(i).height < minRect.getHeight()) {
 				minRect = rectangles.get(i);
 				result = i;
 			}
@@ -1490,27 +1723,27 @@ public class UtilsMath {
 	 * @apiNote x/y components may be from different rectangles. 
 	 * @apiNote Example : will return (rectangles[1].x, rectangles[2].y) if rectangles[1] is minimum X, and rectangles[2] is minimum Y.
 	 * @author 5som3*/
-	public static VectorD findMinBounds(ArrayList<Rectangle> rectangles) {
-		VectorD result = new VectorD(findMinX(rectangles), findMinY(rectangles));		
+	public static VectorI findMinBounds(List<Rectangle> rectangles) {
+		VectorI result = new VectorI(findMinX(rectangles), findMinY(rectangles));		
 		return result;
 	}
 	
 	/**Get the maximum x/y components from the specified list of rectangles.
 	 * @param rectangles - an array of rectangles to check.
 	 * @return VectorD - a vector containing the maximum x and y components from the array. 
-	 * @apiNote NOTE: not the maximum width/height of the rectangles, calculates relative point based on x + width, y + height.
+	 * @apiNote NOTE: NOT the maximum width/height of the rectangles, calculates relative point based on x + width, y + height.
 	 * @apiNote x/y components may be from different rectangles. 
-	 * @apiNote Example : will return (rectangles[1].x + width, rectangles[2].y + height) if rectangles[1] + width is maximum, and rectangles[2] + height is maximum.
+	 * @apiNote Example : will return (rectangles[1].x + width, rectangles[2].y + height) if rectangles[1].x + width is maximum, and rectangles[2].y + height is maximum.
 	 * @author 5som3*/
-	public static VectorD findMaxBounds(ArrayList<Rectangle> rectangles) {
-		VectorD result = new VectorD();
-		double xMax = 0;
-		double yMax = 0;
+	public static VectorI findMaxBounds(List<Rectangle> rectangles) {
+		VectorI result = new VectorI();
+		int xMax = 0;
+		int yMax = 0;
 		
 		for(int i = 0; i < rectangles.size(); i++) {
 			Rectangle rect = rectangles.get(i);
-			double cx = rect.getX() + rect.getWidth();
-			double cy = rect.getY() + rect.getHeight();
+			int cx = rect.x + rect.width;
+			int cy = rect.y + rect.height;
 			
 			if(cx > xMax) xMax = cx;
 			if(cy > yMax) yMax = cy;
@@ -1520,6 +1753,8 @@ public class UtilsMath {
 		result.set(xMax, yMax);
 		return result;
 	}
+	
+
 	
 	
 }
