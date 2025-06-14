@@ -10,6 +10,7 @@ import warped.application.assemblys.InspectorInventory;
 import warped.application.state.ManagerItem;
 import warped.application.state.WarpedApplication;
 import warped.application.state.WarpedAudioFolder;
+import warped.application.state.WarpedCollisionManager;
 import warped.application.state.WarpedFramework2D;
 import warped.application.state.WarpedGroup;
 import warped.application.state.WarpedImageFolder;
@@ -168,12 +169,21 @@ public class ExampleApplication extends WarpedApplication {
 		CharacterSprite testSprite = new CharacterSprite(testSprites.getSheet(TestSprites.SPRITE_8DIR), AxisType.HORIZONTAL);
 		testSprite.setFrameRate(16);
 		
-		dude = new ExampleEntitie(testSprite);
-		dude.setPosition(900, 500);
 		
 		WarpedGroup<WarpedObject> testGroup = WarpedState.objectManager.addGroup();
-		testGroup.addMember(dude);
 		WarpedState.openGroup(testGroup);
+
+		WarpedGroup<WarpedObject> testGroup2 = WarpedState.objectManager.addGroup();
+		WarpedState.openGroup(testGroup2);
+		
+		dude = new ExampleEntitie(testSprite);
+		dude.setPosition(900, 500);
+		testGroup.addMember(dude);
+		testGroup.addMember(new ExampleProjectile(300, 300, 3.0, 0.0));
+		testGroup2.addMember(new ExampleProjectile(900, 300, -2.0, 0.0));	
+		
+		//WarpedCollisionManager.setInternalCollisionMode(false);
+		WarpedCollisionManager.addCrossGroupCollision(testGroup2, testGroup);
 		
 		hud = new ExampleHUD();	
 		hud.assemble();
@@ -205,3 +215,4 @@ public class ExampleApplication extends WarpedApplication {
 	}
 
 }
+

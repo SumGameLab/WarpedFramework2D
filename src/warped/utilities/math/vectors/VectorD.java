@@ -374,6 +374,7 @@ public class VectorD {
 	 * 						 vector[indices.get(1)] = values.get(1);
 	 * @apiNote The method will skip any index that is < 0 or index >= vector length().
 	 * @apiNote The method will fail if the size of indices and values do not match.
+	 * @implNote Will trigger the deltaAction once after setting the vector components.
 	 * @author 5som3*/
 	public final void set(List<Integer> indices, List<Double> values) {
 		if(indices.size() != values.size()) {
@@ -387,6 +388,24 @@ public class VectorD {
 				continue;
 			} else vec[index] = values.get(i);
 		}
+		deltaAction.action(this);
+	}
+	
+	/**Set the value of the vectors x component.
+	 * @param x - the value to set the component.
+	 * @implNote Will trigger the deltaAction once after setting the vector components.
+	 * @author 5som3*/
+	public final void setX(double x) {
+		vec[0] = x;
+		deltaAction.action(this);
+	}
+	
+	/**Set the value of the vectors x component.
+	 * @param x - the value to set the component.
+	 * @implNote Will trigger the deltaAction once after setting the vector components.
+	 * @author 5som3*/
+	public final void setY(double y) {
+		vec[1] = y;
 		deltaAction.action(this);
 	}
 		

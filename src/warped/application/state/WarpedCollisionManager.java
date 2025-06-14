@@ -118,14 +118,17 @@ public class WarpedCollisionManager {
 		int index = crossGroups.size();
 		
 		for(int i = 0; i < groups.length; i++) {
-			
 			for(int j = 0; j < groups.length; j++) {
-				if(j < i) continue; //Skip groups already checked
+				if(j <= i) continue; //Skip groups already checked
 				if(groups[i].getGroupID().isEqual(groups[j].getGroupID())) {
 					Console.err("WarpedCollisionManager -> addCrossGroupCollision() -> group list contains the same group more than once, for internal group collisions use addInternalPassiveCollision");
 					return -1;
 				}
 			}
+		}
+		
+		for(int k = 0; k < groups.length; k++) { //CHECK IF GROUPS ALREADY EXIST IN CROSS GROUPS
+			
 		}
 		
 		crossGroups.add(groups);
@@ -183,8 +186,28 @@ public class WarpedCollisionManager {
 			ArrayList<? extends WarpedObject> group = internalGroups.get(i).getMembers();
 			for(int j = 0; j < group.size(); j++) {
 				for(int k = 0; k < group.size(); k++) {
-					if(k < j) continue;
+					if(k <= j) continue;
 					if(collisionExact(group.get(j), group.get(k))) {
+						group.get(j).hit(group.get(k));
+						group.get(k).hit(group.get(j));
+					}
+				}	
+			}
+		}
+	}
+	
+	/**Update any internal passive collision
+	 * @implNote Uses pixel perfect collision 
+	 * @implNote For each group added collision will be checked internally between the objects.
+	 * @implNote Collision is not checked between members of different groups. 
+	 * @author 5som3*/
+	private static void updateInternalCollisionQuick() {
+		for(int i = 0; i < internalGroups.size(); i++) {
+			ArrayList<? extends WarpedObject> group = internalGroups.get(i).getMembers();
+			for(int j = 0; j < group.size(); j++) {
+				for(int k = 0; k < group.size(); k++) {
+					if(k <= j) continue;
+					if(collisionQuick(group.get(j), group.get(k))) {
 						group.get(j).hit(group.get(k));
 						group.get(k).hit(group.get(j));
 					}
@@ -211,27 +234,6 @@ public class WarpedCollisionManager {
 						}
 					}
 				}
-			}
-		}
-	}
-	
-	
-	/**Update any internal passive collision
-	 * @implNote Uses pixel perfect collision 
-	 * @implNote For each group added collision will be checked internally between the objects.
-	 * @implNote Collision is not checked between members of different groups. 
-	 * @author 5som3*/
-	private static void updateInternalCollisionQuick() {
-		for(int i = 0; i < internalGroups.size(); i++) {
-			ArrayList<? extends WarpedObject> group = internalGroups.get(i).getMembers();
-			for(int j = 0; j < group.size(); j++) {
-				for(int k = 0; k < group.size(); k++) {
-					if(k < j) continue;
-					if(collisionQuick(group.get(j), group.get(k))) {
-						group.get(j).hit(group.get(k));
-						group.get(k).hit(group.get(j));
-					}
-				}	
 			}
 		}
 	}
@@ -267,10 +269,10 @@ public class WarpedCollisionManager {
 	 * @implNote - Example, if both object rasters were filled with a circle collision would occur when the rectangular bounds of the circles overlap.
 	 * @author 5som3*/
 	private static boolean collisionQuick(WarpedObject a, WarpedObject b) {
-		if(a.getPosition().x() + a.getWidth() <= b.getPosition().x()  || //The tight of A is to the left of B
-		   a.getPosition().y() + a.getHeight() <= b.getPosition().y() || //The bottom of A is above the top of B
-		   a.getPosition().x() >= b.getPosition().x() + b.getWidth()  || //The left of A is to the right of B
-		   a.getPosition().y() >= b.getPosition().y() + b.getHeight()) //The top of A is bellow the bottom of B
+		if(a.x() + a.getWidth()  < b.x()  || //The right of A is to the left of B
+		   a.y() + a.getHeight() < b.y()  || //The bottom of A is above the top of B
+		   a.x() >= b.x() + b.getWidth()  || //The left of A is to the right of B
+		   a.y() >= b.y() + b.getHeight()) //The top of A is bellow the bottom of B
 			return false; else return true;			
 	}
 	
@@ -283,62 +285,57 @@ public class WarpedCollisionManager {
 	 * @author 5som3*/
 	private static boolean collisionExact(WarpedObject a, WarpedObject b) {
 		if(collisionQuick(a,b)) {
-			int ax1; //The coordinates for the overlapping area of a's raster
-			int ay1;			
-			int ax2;
-			int ay2;
 			
-			int bx1;//The coordinates for the overlapping area of b's raster
-			int by1;			
+			int a1x = (int)a.x();
+			int a1y = (int)a.y();// top left corner of a
+			int a2x = (int)a.x() + a.getWidth();
+			int a2y = (int)a.y() + a.getHeight(); //botom right corner of a
 			
-			if(a.getPosition().x() >= b.getPosition().x()) {
-				ax1 = 0;
-				bx1 = (int) (a.getPosition().x() - b.getPosition().x());
-			} else {
-				bx1 = 0;
-				ax1 = (int) (b.getPosition().x() - a.getPosition().x());
-			}
+			int b1x = (int)b.x();
+			int b1y = (int)b.y();//top left corner of b
+			int b2x = (int)b.x() + b.getWidth();
+			int b2y = (int)b.y() + b.getHeight(); //bottom right corner of b
 			
-			if(a.getPosition().y() >= b.getPosition().y()) {
-				ay1 = 0;
-				by1 = (int) (a.getPosition().y() - b.getPosition().y());
-			} else {
-				by1 = 0;
-				ay1 = (int) (b.getPosition().y() - a.getPosition().y());
-			}
+			int c1x = a1x >= b1x ? a1x : b1x; 
+			int c1y = a1y >= b1y ? a1y : b1y; //Top left corner of intersection in global space
+			int c2x = a2x <= b2x ? a2x : b2x;
+			int c2y = a2y <= b2y ? a2y : b2y; //Bottom right corner of intersection in global space
 			
-			if(a.getPosition().x() + a.getWidth() <= b.getPosition().x() + b.getWidth()) {
-				ax2 = a.getWidth();
-			} else {
-				ax2 = (int) (b.getPosition().x() + b.getWidth() - a.getPosition().x());				
-			}
+			int intersectionWidth = c2x - c1x;
+			int intersectionHeight = c2y - c1y;
 			
-			if(a.getPosition().y() + a.getHeight() <= b.getPosition().y() + b.getHeight()) {
-				ay2 = a.getHeight();
-			} else {
-				ay2 = (int) (b.getPosition().y() + b.getHeight() - a.getPosition().y());
-			}
+			int ca1x = c1x - a1x;
+			int ca1y = c1y - a1y; //Top left corner of intersection relative to A raster
+			//int ca2x = ca1x + intersectionWidth;
+			//int ca2y = ca1y + intersectionHeight; //Bottom right corner of intersection relative to A Raster
 			
-			int ax = ax1 - 1;
-			int ay = ay1 - 1;
-			int bx = bx1 - 1;
-			int by = by1 - 1;
+			int cb1x = c1x - b1x;
+			int cb1y = c1y - b1y;//Top left corner of intersection relative to B raster
+			//int cb2x = cb1x + intersectionWidth;
+			//int cb2y = cb1y + intersectionHeight;//Bottom right corner of intersection relative to A Raster
 			
-			for(int y = 0; y < ay2 - ay1; y++) {
-				ay++;
-				by++;
-				
-				for(int x = 0; x < ax2 - ax1; x++) { //Cross check each overlapping pixel, if both opacity are above threshold collision has occurred 
-					ax++;
-					bx++;
+			int ax = ca1x;
+			int ay = ca1y;
+			int bx = cb1x;
+			int by = cb1y;
+			
+			for(int y = 0; y < intersectionHeight - 1; y++) { //Compare pixels from A and B rasters	
+				ax = ca1x;
+				bx = cb1x;
+				for(int x = 0; x < intersectionWidth - 1; x++) {
 					
 					int aAlpha = UtilsImage.getAlpha(a.raster().getRGB(ax, ay));
 					int bAlpha = UtilsImage.getAlpha(b.raster().getRGB(bx, by));
 					
-					if(aAlpha > WarpedProperties.ALPHA_THRESHOLD && bAlpha > WarpedProperties.ALPHA_THRESHOLD) return true;	
+					if(aAlpha > WarpedProperties.ALPHA_THRESHOLD && bAlpha > WarpedProperties.ALPHA_THRESHOLD) return true;
+					
+					ax++;
+					bx++;
 				}
+				ay++;
+				by++;
 			}
-			return false; //No overlapping pixels in the overlapping area
+			return false; //No pixel overlap
 		} else return false;
 	}	
 	

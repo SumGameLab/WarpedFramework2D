@@ -165,6 +165,7 @@ public class VectorI {
 		return true;
 	}
 	
+		
 	/**Calculate the length of this vector
 	 * @return int - the length of the vector also known as the magnitude.
 	 * @author 5som3*/
@@ -382,7 +383,25 @@ public class VectorI {
 		deltaAction.action(this);
 	}
 	
-
+	/**Set the value of the vectors x component.
+	 * @param x - the value to set the component.
+	 * @implNote Will trigger the deltaAction once after setting the vector components.
+	 * @author 5som3*/
+	public final void setX(int x) {
+		vec[0] = x;
+		deltaAction.action(this);
+	}
+	
+	/**Set the value of the vectors x component.
+	 * @param x - the value to set the component.
+	 * @implNote Will trigger the deltaAction once after setting the vector components.
+	 * @author 5som3*/
+	public final void setY(int y) {
+		vec[1] = y;
+		deltaAction.action(this);
+	}
+		
+	
 	//--------
 	//---------------- Addition --------
 	//--------

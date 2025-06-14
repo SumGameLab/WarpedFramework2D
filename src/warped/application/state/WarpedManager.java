@@ -16,7 +16,7 @@ public class WarpedManager<T extends WarpedObject> {
 	protected ArrayList<WarpedGroup<T>> activeGroups = new ArrayList<>();																					
 
 	protected final int UNIQUE_ID; // A unique id for this manager, also doubles as the index of the manager in the state
-	private static int managerCount = 0; //Two managers exist by default, the GUI manager and Object manager
+	private static int managerCount = 0; //Two managersT exist by default, the GUI manager and Object manager
 	
 	/**A manager for extensions of the WarpedObject class
 	 * @param name - the name for the manager (not significant, used for debugging)

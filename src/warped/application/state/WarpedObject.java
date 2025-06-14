@@ -425,14 +425,41 @@ public abstract class WarpedObject {
 	//------------------- Interaction ---------------------
 	//--------
 	
-	
-	//Custom mouse functionality for all game objects -> everything is a button
+	/**Code here will be executed when the mouse enters the objects sprite.
+	 * @apiNote DO NO CALL! - Called automatically by the warped window.
+	 * @author 5som3*/
 	protected abstract void mouseEntered();
+	/**Code here will be executed when the mouse exits the objects sprite.
+	 * @apiNote DO NO CALL! - Called automatically by the warped window.
+	 * @author 5som3*/
 	protected abstract void mouseExited();
+	/**Code here will be executed when the mouse moves over the objects sprite. 
+	 * May trigger multiple times as the mouse traverses the sprite raster.
+	 * @param mouseEvent - the mouse event that triggered this code block.
+	 * @apiNote DO NO CALL! - Called automatically by the warped window
+	 * @author 5som3.*/
 	protected abstract void mouseMoved(WarpedMouseEvent mouseEvent);
+	/**Code here will be executed when the mouse moves over the objects sprite while dragging. 
+	 * May trigger multiple times as the mouse traverses the sprite raster.
+	 * @param mouseEvent - the mouse event that triggered this code block.
+	 * @apiNote DO NO CALL! - Called automatically by the warped window.
+	 * @author 5som3*/
 	protected abstract void mouseDragged(WarpedMouseEvent mouseEvent);
+	/**Code here will be executed when a mouse button is pressed while over the objects sprite.
+	 * @param mouseEvent - the mouse event that triggered this code block.
+	 * @apiNote DO NO CALL! - Called automatically by the warped window.
+	 * @author 5som3*/
 	protected abstract void mousePressed(WarpedMouseEvent mouseEvent);
+	/**Code here will be executed when the mouse is released after it has been pressed on the sprite.
+	 * May be triggered even if the mouse has already left the bounds of the sprite.
+	 * @param mouseEvent - the mouse event that triggered this code block.
+	 * @apiNote DO NO CALL! - Called automatically by the warped window.
+	 * @author 5som3*/
 	protected abstract void mouseReleased(WarpedMouseEvent mouseEvent);
+	/**Code here will be executed when the mouse wheel is rotated over the objects sprite.
+	 * @param mouseEvent - the mouse event that triggered this code block.
+	 * @apiNote DO NO CALL! - Called automatically by the warped window.
+	 * @author 5som3*/
 	protected abstract void mouseRotation(WarpedMouseEvent mouseEvent);
 	
 	//--------
