@@ -126,11 +126,7 @@ public class WarpedCollisionManager {
 				}
 			}
 		}
-		
-		for(int k = 0; k < groups.length; k++) { //CHECK IF GROUPS ALREADY EXIST IN CROSS GROUPS
-			
-		}
-		
+				
 		crossGroups.add(groups);
 		return index;
 	}
@@ -187,9 +183,12 @@ public class WarpedCollisionManager {
 			for(int j = 0; j < group.size(); j++) {
 				for(int k = 0; k < group.size(); k++) {
 					if(k <= j) continue;
-					if(collisionExact(group.get(j), group.get(k))) {
-						group.get(j).hit(group.get(k));
-						group.get(k).hit(group.get(j));
+					WarpedObject memberA = group.get(j);
+					WarpedObject memberB = group.get(k);
+					if(!memberA.isAlive || !memberB.isAlive) continue;
+					if(collisionExact(memberA, memberB)) {
+						memberA.hit(memberB);
+						memberB.hit(memberA);
 					}
 				}	
 			}
@@ -207,9 +206,12 @@ public class WarpedCollisionManager {
 			for(int j = 0; j < group.size(); j++) {
 				for(int k = 0; k < group.size(); k++) {
 					if(k <= j) continue;
-					if(collisionQuick(group.get(j), group.get(k))) {
-						group.get(j).hit(group.get(k));
-						group.get(k).hit(group.get(j));
+					WarpedObject memberA = group.get(j);
+					WarpedObject memberB = group.get(k);
+					if(!memberA.isAlive || !memberB.isAlive) continue;
+					if(collisionQuick(memberA, memberB)) {
+						memberA.hit(memberB);;
+						memberB.hit(memberA);
 					}
 				}	
 			}
@@ -225,12 +227,15 @@ public class WarpedCollisionManager {
 			WarpedGroup<? extends WarpedObject>[] collisionSet = crossGroups.get(i);
 			WarpedGroup<? extends WarpedObject> primaryGroup = collisionSet[0];
 			for(int j = 0; j < primaryGroup.size(); j++) {
-				WarpedObject member = primaryGroup.getMember(j);
+				WarpedObject memberA = primaryGroup.getMember(j);
+				if(!memberA.isAlive) continue;
 				for(int k = 1; k < collisionSet.length; k++) {
 					for(int l = 0; l < collisionSet[k].size(); l++) {
-						if(collisionExact(member, collisionSet[k].getMember(l))) {
-							member.hit(collisionSet[k].getMember(l));
-							collisionSet[k].getMember(l).hit(member);
+						WarpedObject memberB = collisionSet[k].getMember(l);
+						if(!memberB.isAlive) continue;
+						if(collisionExact(memberA, memberB)) {
+							memberA.hit(memberB);
+							memberB.hit(memberA);
 						}
 					}
 				}
@@ -247,12 +252,15 @@ public class WarpedCollisionManager {
 			WarpedGroup<? extends WarpedObject>[] collisionSet = crossGroups.get(i);
 			WarpedGroup<? extends WarpedObject> primaryGroup = collisionSet[0];
 			for(int j = 0; j < primaryGroup.size(); j++) {
-				WarpedObject member = primaryGroup.getMember(j);
+				WarpedObject memberA = primaryGroup.getMember(j);
+				if(!memberA.isAlive) continue;
 				for(int k = 1; k < collisionSet.length; k++) {
 					for(int l = 0; l < collisionSet[k].size(); l++) {
-						if(collisionQuick(member, collisionSet[k].getMember(l))) {
-							member.hit(collisionSet[k].getMember(l));
-							collisionSet[k].getMember(l).hit(member);
+						WarpedObject memberB = collisionSet[k].getMember(l);
+						 if(!memberB.isAlive) continue;
+						if(collisionQuick(memberA, memberB)) {
+							memberA.hit(memberB);
+							memberB.hit(memberA);
 							Console.blueln("WarpedCollisionManager -> updateCrossGroupCollisionQuick() -> collision");
 						}
 					}

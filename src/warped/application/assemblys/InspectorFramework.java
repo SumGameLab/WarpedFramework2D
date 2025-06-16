@@ -118,8 +118,6 @@ public class InspectorFramework extends GUIAssembly {
 					() -> {WarpedFramework2D.getWindow().setWindowResolution(1920, 1080);},
 					() -> {WarpedFramework2D.getWindow().setWindowResolution(3840, 2160);}));
 	private GUIButton exit		= new GUIButton("exit");
-
-	
 	
 	private GUITextBoxLined managerText  = new GUITextBoxLined(400, 580);	
 	
@@ -193,8 +191,6 @@ public class InspectorFramework extends GUIAssembly {
 				}				
 			});			
 		});
-		
-		
 		
 		
 		keybinds.setVisible(false);

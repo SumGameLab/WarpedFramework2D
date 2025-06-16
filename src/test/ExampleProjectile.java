@@ -33,6 +33,10 @@ public class ExampleProjectile extends WarpedObject {
 		pushGraphics();
 	}
 	
+	protected void hit(WarpedObject collider) {
+		//kill();
+	}
+	
 	@Override
 	protected void mouseEntered() {return;}
 

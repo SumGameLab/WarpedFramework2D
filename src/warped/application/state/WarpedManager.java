@@ -287,40 +287,16 @@ public class WarpedManager<T extends WarpedObject> {
 	}	
 	
 	/**Update 60 times per second*/
-	protected final void updateActive() {
-		for(int i = 0; i< activeGroups.size(); i++) {
-			activeGroups.get(i).updateActive();	
-		}
-	}
+	protected final void updateActive() {for(int i = 0; i< activeGroups.size(); i++) activeGroups.get(i).updateActive();}
 	
 	/**Update once per second*/
-	protected final void updateMid() {
-		 for(int i = 0; i< activeGroups.size(); i++) {
-			 	activeGroups.get(i).updateMid();	
-			}
-	}
+	protected final void updateMid() {for(int i = 0; i< activeGroups.size(); i++) activeGroups.get(i).updateMid();}
 	
 	/**Update once per minute*/
-	protected final void updateSlow() {
-		for(int i = 0; i< activeGroups.size(); i++) {	
-			activeGroups.get(i).updateSlow();
-		}
-	}
+	protected final void updateSlow() {for(int i = 0; i< activeGroups.size(); i++) activeGroups.get(i).updateSlow();}
 	
 	/**Update once per hour*/
-	protected final void updatePassive() {
-		for(int i = 0; i< activeGroups.size(); i++) {
-			activeGroups.get(i).updatePassive();	
-		}
-	}
-	
-	/**Called after each update active cycle*/
-	protected final void removeDead() {
-		for(int i = 0; i < activeGroups.size(); i++) {
-			activeGroups.get(i).removeDead();
-		}
-	}
-
+	protected final void updatePassive() {for(int i = 0; i< activeGroups.size(); i++) activeGroups.get(i).updatePassive();}
 	
 
 	@SuppressWarnings("unchecked")

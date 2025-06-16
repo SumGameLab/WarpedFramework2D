@@ -284,7 +284,9 @@ public class WarpedGroup<T extends WarpedObject> {
 	/**Update 60 times per second*/
 	protected void updateActive() {
 		for(int i = 0; i < members.size(); i++) {
-			members.get(i).updateActively();
+			T member = members.get(i);
+			if(!member.isAlive()) members.remove(i);
+			else member.updateActively();
 		}
 	}
 	
@@ -318,12 +320,14 @@ public class WarpedGroup<T extends WarpedObject> {
 		}
 	}
 
-	/**Called after each update active cycle*/
+	/*
+	/**Called after each update active cycle
 	protected void removeDead() {
 		for(int i = 0; i < members.size(); i++){
 			if(!members.get(i).isAlive()) members.remove(i);
 		}
 	}
+	 * */
 	
 
 	/**Will reset the member index for each objects ID in the group.

@@ -57,6 +57,8 @@ public class WarpedState {
 	public static FileExplorer 					fileExplorer;
 	public static ConsoleInput 					consoleInput;
 	
+	public static boolean pauseBreak = false;
+	
 	
 	/**The application state, only one instance should ever exist*/
 	protected WarpedState() {	
@@ -250,13 +252,14 @@ public class WarpedState {
 		long cycleStartTime = System.nanoTime();
 		cycleCount++;
 		
-		for(int i = 0; i < managers.length; i++) {
-			managers[i].updateActive();
-			managers[i].removeDead();
+		if(pauseBreak) {
+			Console.err("BREAK LINE");
 		}
 		
+		for(int i = 0; i < managers.length; i++) managers[i].updateActive();
 		for(WarpedAssembly assembly : assemblys) assembly.updateAssembly();
 		for(WarpedAudioFolder<?> folder : audioFolders) folder.update();
+		
 		FrameworkAudio.update();
 		WarpedFramework2D.getApp().persistentLogic();
 		

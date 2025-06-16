@@ -23,6 +23,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.JFrame;
@@ -89,17 +90,13 @@ public class WarpedWindow extends Canvas {
 	
 	private static ScheduledExecutorService executor;
 	private static Timer timer = new Timer("Timer Thread : Load Timer");
-	//private static Timer timer2 = new Timer("Timer Thread : Load Timer");
 	private static TimerTask updateLoadGraphics = new TimerTask(){public void run() {renderLoadscreen();}};
 	private static TimerTask renderLoadGraphics = new TimerTask(){public void run() {renderCanvas();}};
-	//private static TimerTask dispatchMouseEvents = new TimerTask() {public void run() {dispatchMouseEvent();}};
 	private static WindowListener stopListener = new WindowAdapter() {@Override public void windowClosing(WindowEvent e) {WarpedFramework2D.stop();}};	
 	
 	public static  BufferedImage frameIcon = UtilsImage.loadBufferedImage("res/framework/graphics/frame_icon.png");
 	private static JFrame frame;
 
-	//private static boolean isExecuting = false;
-	
 	private static AffineTransform at = new AffineTransform();
 	
 	private static Graphics2D bufferGraphics;
@@ -126,7 +123,7 @@ public class WarpedWindow extends Canvas {
 	private static BufferStrategy bs;
 	
 	private static Object[] renderHints = new Object[6];
-	
+		
 	private static short ups = 0;
 	private static short fps = 0;
 	
@@ -225,8 +222,7 @@ public class WarpedWindow extends Canvas {
 		setPreferredSize(size);
 		for(int i = 0; i < BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(windowResolution.x(), windowResolution.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
 		
-		//if(windowScale.x() != 1.0 || windowScale.y() != 1.0) isFullScreen = false;
-		//else isFullScreen = true;
+	
 		initializeFrame(isFullScreen);
 		setVisible(true);
 				
@@ -450,11 +446,14 @@ public class WarpedWindow extends Canvas {
 	 * @author SomeKid */
 	public synchronized void stop() {
 		Console.ln("WarpedWindow -> stop()");
+		stopExecutor();
+		/*
 		if(executor != null) {
 			executor.shutdown();
 			executor.close();
 		}
 		else Console.err("WarpedWindow -> stop() -> executor is already null");
+		 */
 		closeFrame();
 	}
 	
@@ -647,18 +646,18 @@ public class WarpedWindow extends Canvas {
 		bufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]);
 	}
 		
-	//private static boolean isExecuting = false;
+
 	/** Stops the executor that updates WarpedWindow and all of its viewports.
 	 * @author SomeKid*/
 	private static void stopExecutor() {
-	//	if(!isExecuting) return;
-		//dispatchMouseEvents.cancel();
 		if(executor!= null) {
-		//	isExecuting = false;
 			executor.shutdown();
-			executor.close();
+			if(executor.isTerminated()) {	//FIXME Executor doesn't shutdown properly when executed from a button, works fine when exectued by console command			
+				executor.close();
+			} else {
+				Console.err("WarpedWindow -> stopExecutor() -> executor failed to shutdown in time!");
+			}
 		}
-		//isExecuting = false;
 	}
 	
 	/** Starts the executor and schedules update tasks for the WarpedWindow and all of its viewports.
@@ -668,10 +667,7 @@ public class WarpedWindow extends Canvas {
 			Console.err("WarpedWindow -> startExecutor() -> the load screen is still being rendered, ");
 			return;
 		}
-		//isExecuting = true;
-		//isExecuting = true;
-	
-		//mer2.scheduleAtFixedRate(dispatchMouseEvents, 0, UtilsMath.convertHzToMillis(60));
+		
 		executor = Executors.newScheduledThreadPool(viewPorts.length + 3, new WarpedThreadFactory("Window Thread"));
 		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
 		executor.scheduleAtFixedRate(WarpedWindow::dispatchMouseEvent, 0, 16666666, TimeUnit.NANOSECONDS);
@@ -728,10 +724,8 @@ public class WarpedWindow extends Canvas {
 	 * @implNote Checks if the mouse event occurred in the bounds of any of the viewports and forwards the event to any relevant port
 	 * @author SomeKid*/
 	protected static void MouseEvent(WarpedMouseEvent mouseEvent) {
-		//Console.ln("WarpedWindow -> mouseEvent() -> " + mouseEvent.getPointRelativeToCanvas());
 		if(WarpedFramework2D.isLoading()) return;
 		
-		//for(int i = 0; i < viewPorts.length; i++) {
 		for(int i = viewPorts.length - 1; i >= 0; i--) {
 			WarpedViewport port = viewPorts[i];
 			if(port.isInteractive() && port.isVisible() && isHit(port, mouseEvent.getPointTrace())) {
@@ -751,7 +745,6 @@ public class WarpedWindow extends Canvas {
 	 * @author SomeKid
 	 * */
 	private static void dispatchMouseEvent() {
-		//if(!isExecuting) return;///
 		if(WarpedFramework2D.isLoading()) return;
 		for(int i = viewPorts.length - 1; i >= 0; i--) {
 			viewPorts[i].dispatchMouseEvents();

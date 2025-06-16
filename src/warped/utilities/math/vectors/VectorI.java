@@ -98,6 +98,10 @@ public class VectorI {
 		return result += ")";
 	}
 	
+	/**Print the vector to the console as a string.
+	 * @author 5som3*/
+	public final void print() {Console.ln(getString());}
+	
 	/**The number of components the vector contains.
 	 * @return int - the vector dimension
 	 * @author 5som3*/
@@ -247,13 +251,21 @@ public class VectorI {
 		return Math.acos(getDotProduct(vec1, vec2) / (vec1.getMagnitude() * vec2.getMagnitude()));
 	}
 	
-	/**Calculate the angle between the xAxis and this vector.
-	 * @apiNote As the +X axis is considered 0 in java this result is effectively the angle to rotate any object to match the vector direction. 
+	/**Calculate the rotation of a vector pointing from vecA to vecB.
+	 * @param vecA - the vector to measure from.
+	 * @param vecB - the vector to measure to.
+	 * @return double - the rotation of the vector pointing from vecA to vecB.
+	 * @apiNote rotation is measured clockwise in radians from the positive xAxis i.e. positive xAxis is 0.0 rotation.
+	 * @apiNote rotation is only calculated as 2D rotation around the z axis of the x,y plane.
 	 * @author 5som3*/
-	public final double getRotationAngle() {
-		VectorI xAxis = new VectorI(length());
-		xAxis.set(1);
-		return xAxis.getAngleBetweenVectors(this);
+	public static final double getRotationAngle(VectorD vecA, VectorD vecB) {
+		double cx = vecB.x() - vecA.x();
+		double cy = vecB.y() - vecA.y();		
+		
+		if(vecB.x() >= vecA.x() && vecB.y() >= vecA.y()) return Math.atan(cy / cx);
+		else if(vecB.x() <= vecA.x() && vecB.y() >= vecA.y()) return UtilsMath.PI_ON_TWO - Math.atan(cx / cy);
+		else if(vecB.x() <= vecA.x() && vecB.y() <= vecA.y()) return Math.atan(cy / cx) + UtilsMath.PI;
+		else return UtilsMath.THREE_PI_ON_TWO - Math.atan(cx / cy);	
 	}
 	
 	

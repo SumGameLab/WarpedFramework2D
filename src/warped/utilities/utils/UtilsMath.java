@@ -392,6 +392,7 @@ public class UtilsMath {
 	}
 
 	
+	
 	public static double angleBetweenVectors(Point p1, Point p2){
 		double result =	angleBetweenVectors(p1.x, p1.y, p2.x, p2.y);
 		if(Double.isNaN(result)) return 0.0;

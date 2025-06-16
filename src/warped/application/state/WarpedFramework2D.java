@@ -152,14 +152,15 @@ public abstract class WarpedFramework2D {
 	public static final void stop() {
 		Console.ln("WarpedFramework2D -> stop() -> stopping...");
 		isRunning = false;
+		
 		WarpedState.pause();
 
 		if(trayIcon != null) {
 			SystemTray.getSystemTray().remove(trayIcon);
 			Console.ln("WarpedFramework2D -> stop() -> removed trayIcon");
 		}
-		state.stop();
 		window.stop();
+		state.stop();
 		
 		Console.ln("WarpedFramework2D -> stop() -> stopped");
 		Console.stop();
