@@ -25,7 +25,8 @@ public abstract class WarpedObject {
 	protected boolean isVisible 	= true; //Visible 	   - objects that are invisible will not trigger mouse events and any mouse event in an invisible object will pass through it to hit an object behind
 	private boolean   isInteractive = true; // Interactive - objects that are interactive will not have mouse events triggers, however they will still 'absorb' mouse events that hit them, just no effect
 	private boolean   isHovered 	= false;
-	protected boolean isAlive 		= true;
+	private boolean   isAlive 		= true;
+	private boolean   isSolid       = true; //Solid objects can collide, non-solid objects will not collide
 	 
 	protected WarpedSprite sprite 	= new WarpedSprite(1, 1);
 	private WarpedMouseEvent mouseEvent;
@@ -102,13 +103,13 @@ public abstract class WarpedObject {
 	 * @author 5som3*/
 	public final boolean isEqual(WarpedObjectIdentity objID) {if(this.objectID.isEqualTo(objID)) return true; else return false;}
 	
-	/**
-	 * */
+	
 	public final boolean isAlive() {return isAlive;} 
 	public final boolean isVisible() {return isVisible;}
 	public final boolean isInteractive() {return isInteractive;}
 	public final boolean isExpress() {return isExpressEvents;}
-	
+	public final boolean isSolid() {return isSolid;}
+
 	
 	/**Edit the Graphics2D for this objects sprite with more advance features (slower).
 	 * @return Graphics2D - editable graphics2D object for the back buffer in the rasterBuffer.
@@ -144,6 +145,12 @@ public abstract class WarpedObject {
 	 * @implNote Any invisible object will also by definition not be able to be interact with the mouse.
 	 * @author 5som3*/
 	public final void setVisible(boolean isVisible) {this.isVisible = isVisible;}
+	
+	/**Set if the object is solid, only solid objects can collide.
+	 * @param isSolid - if true the object will be able to collide with other objects
+	 * @apiNote Collisions will only be check for groups added to the collision manager 
+	 * @author 5som3*/
+	public final void setSolid(boolean isSolid) {this.isSolid = isSolid;}
 	
 	/**Swap the state of invisibility - if visible will become invisible, if invisible will become visible
 	 * @apiNote Invisible Objects : receive update events, NOT receive mouse events, NOT not be drawn

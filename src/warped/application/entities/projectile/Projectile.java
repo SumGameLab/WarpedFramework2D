@@ -16,18 +16,18 @@ public class Projectile extends WarpedObject {
 		VELOCITY
 	}
 	
-	private LifeType lifeType = LifeType.TIME;
+	protected LifeType lifeType = LifeType.TIME;
 	
-	private VectorD velocity;
-	private VectorD acceleration;
-	private VectorD startPosition;
+	protected VectorD velocity;
+	protected VectorD acceleration;
+	protected VectorD startPosition;
 		
-	private int tick = 0;
-	private int timeOut = 1000; 
-	private double distanceOut = 0.0;
-	
+	protected int tick = 0;
+	protected int timeOut = 1000; 
+	protected double distanceOut = 0.0;
+		
 	protected void hit(WarpedObject collider) {
-		Console.blueln("Proejctile -> hit() -> projectile hit : " + collider.getClass().getSimpleName());
+		Console.ln("Proejctile -> hit() -> projectile hit : " + collider.getClass().getSimpleName());
 		kill();
 	}
 	
@@ -71,7 +71,10 @@ public class Projectile extends WarpedObject {
 		
 		switch(lifeType) {
 		case DISTANCE: if(startPosition.getDistanceBetweenVectors(getPosition()) > distanceOut) kill(); break;
-		case TIME:	if(tick++ > timeOut) kill();	break;
+		case TIME:
+			tick++;
+			if(tick > timeOut) kill();	
+			break;
 		case VELOCITY: 	break;
 		default:
 			Console.err("PropProjectile -> updateObject -> invalid life type : " + lifeType);

@@ -172,6 +172,16 @@ public class GUIListVertical extends WarpedGUI {
 		updateGraphics();
 	}
 	
+	/**Set the visibility of the scroll bar
+	 * @param isScrollBarVisible - if true the scroll bar will be rendered
+	 * @author 5som3*/
+	public void setScrollBarVisible(boolean isScrollBarVisible) {
+		if(this.isScrollBarVisible != isScrollBarVisible) {			
+			this.isScrollBarVisible = isScrollBarVisible;
+			updateGraphics();
+		}
+	}
+	
 	/**Set the size of the text for each option in the list.
 	 * @param size - the size of the font.
 	 * @author 5som3*/
@@ -276,7 +286,7 @@ public class GUIListVertical extends WarpedGUI {
 			g.fillRect(0, drawY, drawWidth, buttonHeight);
 			
 			g.setColor(buttonColor);
-			g.fillRect(buttonPadding, buttonPadding, drawWidth - buttonPadding * 2, buttonHeight - buttonPadding * 2);
+			g.fillRect(buttonPadding, drawY + buttonPadding, drawWidth - buttonPadding * 2, buttonHeight - buttonPadding * 2);
 			
 			g.setFont(font);
 			g.setColor(textColor);

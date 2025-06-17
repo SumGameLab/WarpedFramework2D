@@ -16,16 +16,19 @@ public class AnimatedSprite extends WarpedSprite {
 
 	private static Timer animationTimer = new Timer("Timer Thread : Animated Sprite");
 	private TimerTask updateTask;
+	private WarpedAction completeAction = () -> {Console.ln("AnimatedSprite -> default Completion action");};
 
 	private AnimationModeType mode = AnimationModeType.REPEAT;
+
 	private boolean isComplete = false;
 	private boolean isRepeatAction = false;
-	private WarpedAction completeAction = () -> {Console.ln("AnimatedSprite -> default Completion action");};
+	private boolean isPlaying = false;
+	private boolean mirror = false;
 		
 	private int frame = 0;
 	private int frameRate = 24; //frames per second
 	protected BufferedImage[] frames;
-	private boolean mirror = false;
+	
 
 	
 	/**An animation from a single series of frames.
@@ -53,8 +56,6 @@ public class AnimatedSprite extends WarpedSprite {
 		}
 		this.frames = frames;
 		setRasterFast(frames[0]);
-		
-		setAnimationMode(mode);
 	}
 	
 	/**Control repeating of the completeAction
@@ -74,6 +75,13 @@ public class AnimatedSprite extends WarpedSprite {
 		setRasterFast(frames[frame]);
 	}
 	
+	/**The number of frames in the animation.
+	 * @return int - the number of frames.
+	 * @author 5som3*/
+	public int length() {
+		return frames.length;
+	}
+	
 	/**Get the index of the frame that is currently the raster.
 	 * @return int - the index of the raster frame.
 	 * @author 5som3*/
@@ -81,11 +89,17 @@ public class AnimatedSprite extends WarpedSprite {
 	
 	/**Pause the animation
 	 * @author SomeKid*/
-	public void pause() {cancelUpdate();}
+	public void pause() {
+		isPlaying = false;
+		cancelUpdate();
+	}
 	
 	/**Resume the animation
 	 * @author SomeKid*/
-	public void play() {setAnimationMode(mode);}
+	public void play() {
+		isPlaying = true;
+		setAnimationMode(mode);
+	}
 	
 	/**Set the frame rate of the animation.
 	 * @param fps - the desired frame rate in frames per second.
@@ -119,30 +133,41 @@ public class AnimatedSprite extends WarpedSprite {
 	 * @author SomeKid*/
 	public void setAnimationMode(AnimationModeType mode) {
 		cancelUpdate();
-		
 		this.mode = mode;
 		switch(mode) {
-		case PLAY:			 updateTask = new TimerTask() {public void run() {updatePlay();}};			break;
-		case PLAY_MIRROR:	 updateTask = new TimerTask() {public void run() {updateMirror();}};		break;
-		case PLAY_REVERSE:	 updateTask = new TimerTask() {public void run() {updatePlayReverse();}};	break;
-		case REPEAT:		 updateTask = new TimerTask() {public void run() {updateRepeat();}};		break;
-		case REPEAT_MIRROR:	 updateTask = new TimerTask() {public void run() {updateRepeatMirror();}};	break;
-		case REPEAT_REVERSE: updateTask = new TimerTask() {public void run() {updateRepeatReverse();}};	break;
+		case PLAY:			 
+			updateTask = new TimerTask() {public void run() {updatePlay();}};	
+			break;
+		case PLAY_MIRROR:
+			updateTask = new TimerTask() {public void run() {updateMirror();}};		
+			break;
+		case PLAY_REVERSE:
+			updateTask = new TimerTask() {public void run() {updatePlayReverse();}};	
+			break;
+		case REPEAT:		 
+			updateTask = new TimerTask() {public void run() {updateRepeat();}};		
+			break;
+		case REPEAT_MIRROR:	
+			updateTask = new TimerTask() {public void run() {updateRepeatMirror();}};	
+			break;
+		case REPEAT_REVERSE:
+			updateTask = new TimerTask() {public void run() {updateRepeatReverse();}};	
+			break;
 		default:
 			Console.err("AnimatedSprite -> setAnimationMode() -> invalid case : " + mode);
 			break;
 		}
-		animationTimer.scheduleAtFixedRate(updateTask, 0, UtilsMath.convertHzToMillis(frameRate));
+		if(isPlaying) animationTimer.scheduleAtFixedRate(updateTask, 0, UtilsMath.convertHzToMillis(frameRate));
 	}
 
 	/**Is the animation currently playing in any mode.
 	 * @return boolean - true if the animation is being updated currently else false.
 	 * @author 5som3*/
-	public boolean isPlaying() {if(updateTask == null) return false; else return true;}
+	public boolean isPlaying() {return isPlaying;}
 	
 	private final void complete() {
-		isComplete = true;
 		if(isRepeatAction || !isComplete) completeAction.action();
+		isComplete = true;
 	}
 	
 	private final void cancelUpdate() {
@@ -154,8 +179,8 @@ public class AnimatedSprite extends WarpedSprite {
 	private final void updatePlay() {
 		frame++;
 		if(frame >= frames.length) {
-			complete();
 			cancelUpdate();
+			complete();
 		} else setRasterFast(frames[frame]);
 	}
 	

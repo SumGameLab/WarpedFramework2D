@@ -293,7 +293,7 @@ public class WarpedGroup<T extends WarpedObject> {
 	/**Update once per second*/
 	protected void updateMid() {
 		for(int i = 0; i < members.size(); i++) {
-			WarpedObject member = members.get(i);
+			T member = members.get(i);
 			member.updateActively();
 			member.updateMid();
 		}
@@ -302,7 +302,7 @@ public class WarpedGroup<T extends WarpedObject> {
 	/**Update once per minute*/
 	protected void updateSlow() {
 		for(int i = 0; i < members.size(); i++) {
-			WarpedObject member = members.get(i);
+			T member = members.get(i);
 			member.updateActively();
 			member.updateMid();
 			member.updateSlow();
@@ -312,7 +312,7 @@ public class WarpedGroup<T extends WarpedObject> {
 	/**Update once per hour*/
 	protected void updatePassive() {
 		for(int i = 0; i < members.size(); i++) {
-			WarpedObject member = members.get(i);
+			T member = members.get(i);
 			member.updateActively();
 			member.updateMid();
 			member.updateSlow();

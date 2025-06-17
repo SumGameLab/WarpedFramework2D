@@ -4,9 +4,11 @@ package test;
 import java.awt.Color;
 import java.awt.Rectangle;
 
+import warped.application.actionWrappers.ActionOption;
 import warped.application.gui.GUIButton;
 import warped.application.gui.GUIDialControl;
 import warped.application.gui.GUIDialDisplay;
+import warped.application.gui.GUIListVertical;
 import warped.application.gui.GUIProgressBar;
 import warped.application.gui.GUIScrollBar;
 import warped.application.gui.GUIShape;
@@ -18,6 +20,7 @@ import warped.audio.FrameworkAudio;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
+import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsMath;
 import warped.utilities.utils.UtilsString;
 
@@ -38,6 +41,7 @@ public class ExampleHUD extends GUIAssembly {
 	private GUIDialDisplay rotationDisplay = new GUIDialDisplay();
 	private GUIDialControl rotationControl = new GUIDialControl();
 	private GUITextBoxWrapped paragraph = new GUITextBoxWrapped(400, 250);
+	private GUIListVertical list = new GUIListVertical();
 	
 
 	/**The default constructor is fine for most purposes.
@@ -67,6 +71,7 @@ public class ExampleHUD extends GUIAssembly {
 		rotationDisplay.setOffset(50, 225);
 		rotationControl.setOffset(175, 225);
 		paragraph.setOffset(5, 345);
+		list.setOffset(300, 150);
 		
 		funny.offset(title);
 		inventA.offset(title);
@@ -77,6 +82,7 @@ public class ExampleHUD extends GUIAssembly {
 		rotationDisplay.offset(title);
 		rotationControl.offset(title);
 		paragraph.offset(title);
+		list.offset(title);
 		
 		background.addRectangle(borderRect, Color.BLACK);
 		background.addRectangle(backgroundRect, Colour.GREY_DARK);
@@ -87,6 +93,7 @@ public class ExampleHUD extends GUIAssembly {
 		paragraph.setTitle("A Story");
 		paragraph.setParagraph("There once was a man named bob. Who had a very big job. One day rained and so he refrained from working out in the bog./n/The quick brown fox jumps over the lazy dog. Last month I had a broken finger.. it wasn't very fun. I wonder how long this line can be. This is a new paragraph. I need to write at least a couple more sentences in order to fill up this area. We want to overflow the field with text in order to test out the fancy new scroll bars.");
 		paragraph.setParagraphTextSize(18);
+		paragraph.setBorderThickness(0);
 		
 		funny.setReleasedAction(mouseE -> {WarpedState.notify.note(UtilsString.getFunnyString());});
 
@@ -117,8 +124,13 @@ public class ExampleHUD extends GUIAssembly {
 			rotationDisplay.setHandRotation(1, rotationControl.getRotation());
 		});
 		
+		list.setListSize(100, 180);
+		list.setButtonSize(100, 80);
+		list.setOptions(new ActionOption("test1", () -> {Console.ln("TEST1");}), 
+						new ActionOption("test2", () -> {Console.ln("TEST2");}),
+						new ActionOption("test3", () -> {Console.ln("TEST3");}));
 		
-		
+	
 	}
 
 	/**Everything has to be added to the assembly.
@@ -138,6 +150,7 @@ public class ExampleHUD extends GUIAssembly {
 		addMember(rotationDisplay);
 		addMember(rotationControl);
 		addMember(paragraph);
+		addMember(list);
 	}
 
 	/**Here I override the default update method just to add quick rotation to test the rotation display.

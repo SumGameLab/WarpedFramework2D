@@ -270,6 +270,9 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 			isDragging = false;
 			mouseController.setCursorState(PLAIN);
 		}
+		if(e.getButton() == MouseEvent.BUTTON3) {
+			mouseController.resetCursor();
+		}
 	
 		if(WarpedState.isPaused()) FrameworkAudio.error.play();
 		WarpedWindow.MouseEvent(new WarpedMouseEvent(e, MouseEventType.BUTTON_RELEASE));

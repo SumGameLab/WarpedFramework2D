@@ -185,7 +185,7 @@ public class WarpedCollisionManager {
 					if(k <= j) continue;
 					WarpedObject memberA = group.get(j);
 					WarpedObject memberB = group.get(k);
-					if(!memberA.isAlive || !memberB.isAlive) continue;
+					if(!memberA.isSolid() || !memberB.isSolid()) continue;
 					if(collisionExact(memberA, memberB)) {
 						memberA.hit(memberB);
 						memberB.hit(memberA);
@@ -208,7 +208,7 @@ public class WarpedCollisionManager {
 					if(k <= j) continue;
 					WarpedObject memberA = group.get(j);
 					WarpedObject memberB = group.get(k);
-					if(!memberA.isAlive || !memberB.isAlive) continue;
+					if(!memberA.isSolid() || !memberB.isSolid()) continue;
 					if(collisionQuick(memberA, memberB)) {
 						memberA.hit(memberB);;
 						memberB.hit(memberA);
@@ -228,11 +228,11 @@ public class WarpedCollisionManager {
 			WarpedGroup<? extends WarpedObject> primaryGroup = collisionSet[0];
 			for(int j = 0; j < primaryGroup.size(); j++) {
 				WarpedObject memberA = primaryGroup.getMember(j);
-				if(!memberA.isAlive) continue;
+				if(!memberA.isSolid()) continue;
 				for(int k = 1; k < collisionSet.length; k++) {
 					for(int l = 0; l < collisionSet[k].size(); l++) {
 						WarpedObject memberB = collisionSet[k].getMember(l);
-						if(!memberB.isAlive) continue;
+						if(!memberB.isSolid()) continue;
 						if(collisionExact(memberA, memberB)) {
 							memberA.hit(memberB);
 							memberB.hit(memberA);
@@ -253,15 +253,14 @@ public class WarpedCollisionManager {
 			WarpedGroup<? extends WarpedObject> primaryGroup = collisionSet[0];
 			for(int j = 0; j < primaryGroup.size(); j++) {
 				WarpedObject memberA = primaryGroup.getMember(j);
-				if(!memberA.isAlive) continue;
+				if(!memberA.isSolid()) continue;
 				for(int k = 1; k < collisionSet.length; k++) {
 					for(int l = 0; l < collisionSet[k].size(); l++) {
 						WarpedObject memberB = collisionSet[k].getMember(l);
-						 if(!memberB.isAlive) continue;
+						if(!memberB.isSolid()) continue;
 						if(collisionQuick(memberA, memberB)) {
 							memberA.hit(memberB);
 							memberB.hit(memberA);
-							Console.blueln("WarpedCollisionManager -> updateCrossGroupCollisionQuick() -> collision");
 						}
 					}
 				}
