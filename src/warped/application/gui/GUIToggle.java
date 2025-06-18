@@ -25,6 +25,8 @@ public class GUIToggle extends WarpedGUI {
 	 * 		- optional repeating action that occurs while the toggle is turned on
 	 */
 	
+	//FIXME sometimes toggle can freeze the game, 
+	
 	private boolean toggle = false;
 	private boolean isLocked = false;
 	private boolean enteredDragging = false;
@@ -43,20 +45,17 @@ public class GUIToggle extends WarpedGUI {
 	public GUIToggle() {
 		sprite = new ToggleSprite(FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_CHECKED), FrameworkSprites.getStandardIcon(StandardIcons.CHECKBOX_UNCHECKED)); 
 		setSprite(sprite);
-		updateToggleState();
 	}
 	
 	public GUIToggle(BufferedImage toggleOffImage) {
 		sprite = new ToggleSprite(UtilsImage.generateTintedClone(toggleOffImage, 60, Colour.RED), toggleOffImage);  
 		setSprite(sprite);
-		updateToggleState();
 	}
 	
 	
 	public GUIToggle(BufferedImage toggleOnImage, BufferedImage toggleOffImage) {
 		sprite = new ToggleSprite(toggleOnImage, toggleOffImage); 
 		setSprite(sprite);
-		updateToggleState();
 	}	
 	
 	/**Set the toggle on action
@@ -174,9 +173,9 @@ public class GUIToggle extends WarpedGUI {
 		}
 		
 		if(toggle) { 
-			if(isHovered()) sprite.hoveredOn(); else sprite.toggleOn();
+			if(!isHovered()) sprite.hoveredOn(); else sprite.toggleOn(); //FIXME hovered cases are reversed for some reason, should be reversed in sprite so cases are correct 
 		} else {
-			if(isHovered()) sprite.hoveredOff(); else sprite.toggleOff();
+			if(!isHovered()) sprite.hoveredOff(); else sprite.toggleOff();
 		}		
 	}
 	

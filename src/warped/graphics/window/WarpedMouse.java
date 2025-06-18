@@ -75,12 +75,26 @@ public class WarpedMouse implements MouseListener, MouseMotionListener, MouseWhe
 	} 
 	
 	/**Set the intermediate cursor.
+	 * @apiNote The cursor will maintain the intermediate image until resetIntermediateCursor() is called.
 	 * @param image - the image for the cursor to have intermittently.
 	 * @implNote The cursor select point will be the top left corner pixel of the image
 	 * @implNote Image will be scaled to fit the the cursor size.
 	 * @author 5som3*/
 	public static void setIntermediateCursor(BufferedImage image) {
 		mouseController.setIntermediateCursor(image);
+		WarpedWindow.getFrame().setCursor(mouseController.getCursor());
+	}
+	
+	/**Set the intermediate cursor.
+	 * @apiNote The cursor will maintain the intermediate image until resetIntermediateCursor() is called.
+	 * @param offsetX - the x offset of the select point in pixels 
+	 * @param offsetY - the y offset of the select point in pixels
+	 * @param image - the image for the cursor to have intermittently.
+	 * @implNote The cursor select offset is measured from the top right corner of the cursor image in pixels.
+	 * @implNote Image will be scaled to fit the the cursor size.
+	 * @author 5som3*/
+	public static void setIntermediateCursor(BufferedImage image, short offsetX, short offsetY) {
+		mouseController.setIntermediateCursor(image, offsetX, offsetY);
 		WarpedWindow.getFrame().setCursor(mouseController.getCursor());
 	}
 	

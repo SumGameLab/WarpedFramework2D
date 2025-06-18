@@ -212,13 +212,16 @@ public class GUILabel  extends WarpedGUI {
 		Graphics g = getGraphics();
 		
 		if(isBackgroundVisible) {
-			g.setColor(borderColor);
-			g.fillRect(0, 0, getWidth(), getHeight());
-			g.setColor(backgroundColour);
-			g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
-			if(backgroundImage != null) {
-				g.drawImage(backgroundImage, borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2, null);
+			if(borderThickness > 0) {				
+				g.setColor(borderColor);
+				g.fillRect(0, 0, getWidth(), getHeight());
 			}
+			if(backgroundImage == null)	{
+				g.setColor(backgroundColour);
+				g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
+			}
+			else g.drawImage(backgroundImage, borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2, null);
+			
 		}
 		
 		g.setColor(textColor);

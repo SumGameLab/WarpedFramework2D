@@ -139,6 +139,18 @@ public abstract class WarpedMouseController {
 		cursor = intermediateCursor;
 	}
 	
+	public void setIntermediateCursor(BufferedImage img, short offsetX, short offsetY) {
+		if(offsetX >= 32 || offsetY >= 32) {
+			Console.err("WarpedMouseControler -> setIntermediateCursor() -> offset is out of bounds, must be less than curour bounds (32 on windows)");
+			if(offsetX >= 32) offsetX = 31;
+			if(offsetY >= 32) offsetY = 31;
+		}
+		isIntermediateCursor = true;
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
+		intermediateCursor = toolkit.createCustomCursor(img, new Point(offsetX, offsetY), "plainCursor");	
+		cursor = intermediateCursor;
+	}
+	
 	public void resetIntermediateCursor() {
 		isIntermediateCursor = false;
 		setCursorState(cursorState);

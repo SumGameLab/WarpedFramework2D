@@ -23,6 +23,8 @@ public enum Colour {
 	SNOW,
 	CORAL,
 	BROWN,
+	BROWN_DARK,
+	BROWN_LIGHT,
 	FIREBRICK,
 	MAROON,
 	RED_DARK,
@@ -110,7 +112,9 @@ public enum Colour {
 	private static final Color white 			= new Color(255, 255, 255, 255);          
 	private static final Color snow 			= new Color(255, 240, 240, 255);           
 	private static final Color coral	 		= new Color(255, 127,  80, 255);             
-	private static final Color brown 			= new Color(165,  42,  42, 255);          
+	private static final Color brown 			= new Color( 99,  72,  60, 255);
+	private static final Color brownDark		= new Color( 76,  55,  47, 255);
+	private static final Color brownLight		= new Color(142, 103,  87, 255);
 	private static final Color fireBrick 		= new Color(178,  34,  34, 255);    
 	private static final Color maroon 			= new Color(128,   0,   0, 255);         
 	private static final Color redDark 			= new Color( 80,   0,   0, 255);     
@@ -242,6 +246,8 @@ public enum Colour {
 		case CREAM: return cream;
 		case ROYAL: return royal;
 		case BROWN: return brown;
+		case BROWN_DARK: return brownDark;
+		case BROWN_LIGHT: return brownLight;
 		case CHOCOLATE: return chocolate;
 		case CORAL: return coral;
 		case CORNFLOWER: return cornflower;

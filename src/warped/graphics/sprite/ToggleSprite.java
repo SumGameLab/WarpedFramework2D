@@ -16,10 +16,10 @@ public class ToggleSprite extends WarpedSprite {
 	
 	/**
 	 * */
-	public ToggleSprite(BufferedImage toggleOnRaster) {
-		super(toggleOnRaster.getWidth(), toggleOnRaster.getHeight());
-		this.toggleOffRaster = toggleOnRaster;
-		this.toggleOffRaster = UtilsImage.generateTintedClone(toggleOnRaster, 80, Colour.RED);
+	public ToggleSprite(BufferedImage toggleOffRaster) {
+		super(toggleOffRaster.getWidth(), toggleOffRaster.getHeight());
+		this.toggleOffRaster = toggleOffRaster;
+		this.toggleOnRaster = UtilsImage.generateTintedClone(toggleOffRaster, 80, Colour.RED);
 		
 		hoveredOnRaster = UtilsImage.generateTintedClone(toggleOnRaster, 30, Colour.BLACK);
 		hoveredOffRaster = UtilsImage.generateTintedClone(toggleOffRaster, 30, Colour.BLACK);

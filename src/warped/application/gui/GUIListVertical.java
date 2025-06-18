@@ -62,6 +62,7 @@ public class GUIListVertical extends WarpedGUI {
 	private Color buttonHoverColor = new Color(110, 60, 60, 60);
 	private Color lockColor = new Color(30, 30, 30, 180);
 	
+	
 	private Color textColor = Color.YELLOW;
 	private Font font 		= UtilsFont.getPreferred();
 	
@@ -277,7 +278,7 @@ public class GUIListVertical extends WarpedGUI {
 		for(int i = 0; i < optionCount(); i++) {	// draw each button
 			ActionOption option = options.get(i);
 			
-			int drawY = (i * (buttonPadding + buttonHeight)) - scrollOffset;
+			int drawY = (i * buttonHeight) - scrollOffset;
 			int drawWidth = getWidth() - scrollBarThickness;
 			
 			if(drawY + buttonHeight < 0 || drawY > getHeight()) continue;
