@@ -439,7 +439,7 @@ public class WarpedMediaPane extends BorderPane {
             @Override
             public void handle(MouseEvent e) {
             	Console.ln("WarpedMediaPane -> onMouseRelase() -> mouse button : " + e.getButton());
-            	if(isSkippable && isMediaPlayerReady()) {
+            	if(isSkippable && isMediaPlayerReady() && WarpedFramework2D.getWindow() != null) {
             		Console.ln("WarpedMediaPane -> onMouseRelease() -> skipping media");
             		stop();
             		mediaEndAction.action();
