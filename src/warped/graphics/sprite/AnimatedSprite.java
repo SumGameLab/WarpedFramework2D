@@ -17,7 +17,10 @@ public class AnimatedSprite extends WarpedSprite {
 	private static Timer animationTimer = new Timer("Timer Thread : Animated Sprite");
 	private TimerTask updateTask;
 	private WarpedAction completeAction = () -> {Console.ln("AnimatedSprite -> default Completion action");};
-
+	
+	private WarpedAction frameAction = () -> {Console.ln("AnimatedSprite -> default frame action");};
+	private int actionFrame = -1;
+	
 	private AnimationModeType mode = AnimationModeType.REPEAT;
 
 	private boolean isComplete = false;
@@ -25,6 +28,8 @@ public class AnimatedSprite extends WarpedSprite {
 	private boolean isPlaying = false;
 	private boolean mirror = false;
 		
+	private int startFrame = 0;
+	private int endFrame = 0;
 	private int frame = 0;
 	private int frameRate = 24; //frames per second
 	protected BufferedImage[] frames;
@@ -55,7 +60,8 @@ public class AnimatedSprite extends WarpedSprite {
 			}
 		}
 		this.frames = frames;
-		setRasterFast(frames[0]);
+		endFrame = frames.length;
+		setRasterFast(frames[startFrame]);
 	}
 	
 	/**Control repeating of the completeAction
@@ -73,6 +79,68 @@ public class AnimatedSprite extends WarpedSprite {
 		} 
 		this.frame = frame;
 		setRasterFast(frames[frame]);
+	}
+	
+	/**Set an action to trigger when the animation reaches the specified frame.
+	 * @param actionFrame - the frame that the action will be triggered at.
+	 * @param frameAction - the action to trigger when the animation reaches the specified frame. 
+	 * @author 5som3*/
+	public void setActionFrame(int actionFrame, WarpedAction frameAction) {
+		if(actionFrame < 0 || actionFrame >= frames.length) {
+			Console.err("AnimatedSprite -> setActionFrame() -> frame is out of bounds, Domain : 0 <= frame <= frames.length" );
+			if(actionFrame < 0) actionFrame = 0;
+			if(actionFrame >= frames.length) actionFrame = frames.length -1;
+		}
+		this.actionFrame = actionFrame;
+		this.frameAction = frameAction;
+	}
+	
+	/**Set the bounds of the animation.
+	 * @param startFrame - the frame for the animation to start at (inclusive).
+	 * @param endFrame - the frame for the animation to end at (exclusive).
+	 * @apiNote If the animation repeats it will start and end at the specified frames for every repetition.
+	 * @apiNote Start frame must be 0 or greater and less than the length of the animation frames.
+	 * @apiNote EndFrame must be greater than 1 and less than or equal to length of animation frames.
+	 * @author 5som3*/
+	public void setFrameBounds(int startFrame, int endFrame) {
+		setStartFrame(startFrame);
+		setEndFrame(endFrame);
+	}
+	
+	/**Set the start frame of the animation
+	 * @param startFrame - the frame for the animation to start at (inclusive).
+	 * @apiNote If the animation repeats it will begin at the startFrame for every repetition.
+	 * @apiNote Start frame must be 0 or greater and less than the length of the animation frames. 
+	 * @author 5som3*/
+	public void setStartFrame(int startFrame) {
+		if(startFrame < 0 || startFrame >= frames.length) {
+			Console.err("AnimatedSprite -> setStartFrame() -> startFrame is out of bounds, Domain :  0 >= startFrame < " + frames.length);
+			if(startFrame < 0) startFrame = 0;
+			if(startFrame >= frames.length) startFrame = frames.length - 1;
+		}
+		if(startFrame > endFrame) {
+			Console.err("AnimatedSprite -> setStartFrame() -> startFrame must be less than end frame, EndFrame : " + endFrame);
+			startFrame = endFrame - 1;
+		}
+		this.startFrame = startFrame;
+	}
+	
+	/**Set the end frame of the animation.
+	 * @param endFrame - the frame for the animation to end at (exclusive).
+	 * @apiNote If the animation repeats it will end at the endFrame for every repetition.
+	 * @apiNote EndFrame must be greater than 1 and less than or equal to length of animation frames.
+	 * @author 5som3*/
+	public void setEndFrame(int endFrame) {
+		if(endFrame <= 0 || endFrame > frames.length) {
+			Console.err("AnimatedSprite -> setEndFrame() -> end frame is out of bounds, Domain : 0 > endFrame <= " + frames.length);
+			if(endFrame <= 0) endFrame = 1;
+			if(endFrame > frames.length) endFrame = frames.length;
+		}
+		if(endFrame <= startFrame) {
+			Console.err("AnimatedSprite -> setEndFrame() -> end frame must be greater than start frame, StartFrame : " + startFrame);
+			endFrame = startFrame + 1;
+		}
+		this.endFrame = endFrame;
 	}
 	
 	/**The number of frames in the animation.
@@ -127,6 +195,11 @@ public class AnimatedSprite extends WarpedSprite {
 		} else this.completeAction = completeAction;
 	}
 	
+	/**Has the animation completed.
+	 * @return boolean - true if the animation has complete. 
+	 * @author 5som3*/
+	public final boolean isComplete() {return isComplete;}
+	
 	/**Set how the animation will be played
 	 * @param mode - the animation mode type to use
 	 * 			   - see the AnimationModeType (above) for documentation on the what the different modes are
@@ -178,77 +251,76 @@ public class AnimatedSprite extends WarpedSprite {
 	
 	private final void updatePlay() {
 		frame++;
-		if(frame >= frames.length) {
+		if(frame >= endFrame) {
 			cancelUpdate();
 			complete();
 		} else setRasterFast(frames[frame]);
+		if(frame == actionFrame) frameAction.action();
 	}
 	
 	private final void updateMirror() {
 		if(mirror) {
 			frame--;
-			if(frame < 0) {
+			if(frame < startFrame) {
 				complete();
 				cancelUpdate();
 				return;
 			}
 		} else {
 			frame++;
-			if(frame >= frames.length) frame = frames.length - 1;
+			if(frame >= endFrame) frame = endFrame - 1;
 			mirror = true;
 		}
 		setRasterFast(frames[frame]);
+		if(frame == actionFrame) frameAction.action();
 	}
 	
 	private final void updatePlayReverse() {
 		frame--;
-		if(frame < 0) {
+		if(frame < startFrame) {
 			complete();
 			cancelUpdate();
 		} else setRasterFast(frames[frame]);
+		if(frame == actionFrame) frameAction.action();
 	}
 	
 	private final void updateRepeat() {
 		frame++;
-		if(frame >= frames.length) {
-			frame = 0;
+		if(frame >= endFrame) {
+			frame = startFrame;
 			complete();
 		}
 		setRasterFast(frames[frame]);
+		if(frame == actionFrame) frameAction.action();
 	}
 	
 	private final void updateRepeatMirror() {
 		if(mirror) {
 			frame--;
-			if(frame < 0) {
+			if(frame < startFrame) {
 				mirror = false;
-				frame = 1;
+				frame = startFrame + 1;
 				complete();
 			}
 		} else {
 			frame++;
-			if(frame >= frames.length) {
+			if(frame >= endFrame) {
 				mirror = true;
-				frame = frames.length - 2;
+				frame = endFrame - 2;
 			}
 		}
 		setRasterFast(frames[frame]);
+		if(frame == actionFrame) frameAction.action();
 	}
 	
 	private final void updateRepeatReverse() {
 		frame--;
-		if(frame < 0) {
-			frame = frames.length - 1;
+		if(frame < startFrame) {
+			frame = endFrame - 1;
 			complete();
 		}
 		setRasterFast(frames[frame]);
+		if(frame == actionFrame) frameAction.action();
 	}
-	
-	/**Has the animation completed.
-	 * @return boolean - true if the animation has complete. 
-	 * */
-	public final boolean isComplete() {return isComplete;}
-	
-	
 	
 }

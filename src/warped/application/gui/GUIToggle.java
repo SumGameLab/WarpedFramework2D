@@ -93,15 +93,7 @@ public class GUIToggle extends WarpedGUI {
 	 * @author SomeKid*/
 	public void setToggleOffSFX(WarpedAudioClip toggleOffSFX) {this.toggleOffSFX  = toggleOffSFX;}
 	
-	/**Set the toggle state
-	 * @param toggle - the new state for the toggle
-	 * @author SomeKid*/
-	public void setToggleState(boolean toggle) {
-		this.toggle = toggle;
-		updateToggleState();
-	}
-	
-	
+		
 	/**Toggle the locked state of the button; if the button is locked it will be unlocked and visa versa
 	 * @apiNote a locked toggle will not interact with the mouse
 	 * @author SomeKid*/
@@ -116,7 +108,7 @@ public class GUIToggle extends WarpedGUI {
 	public void lock() {
 		if(!isLocked) {			
 			isLocked = true;
-			updateToggleState();
+			sprite.locked();
 		}
 	}
 	
@@ -126,23 +118,36 @@ public class GUIToggle extends WarpedGUI {
 	public void unlock() {
 		if(isLocked) {			
 			isLocked = false;
-			updateToggleState();
+			if(toggle) {			
+				if(isHovered()) sprite.hoveredOn();
+				else sprite.toggleOn();
+			} else {
+				if(isHovered()) sprite.hoveredOff();
+				else sprite.toggleOff();
+			}
 		}
 	}
 	
 	/**Set the locked state for the toggle
-	 * @param toggle - the new state for the toggle
+	 * @param toggle - the new state for the toggle.
+	 * @apiNote Will not trigger any toggle on or toggle off actions.
 	 * @author SomeKid*/
 	public void setToggle(boolean toggle) {
 		this.toggle = toggle;
-		updateToggleState();
+		if(toggle) {			
+			if(isHovered()) sprite.hoveredOn();
+			else sprite.toggleOn();
+		} else {
+			if(isHovered()) sprite.hoveredOff();
+			else sprite.toggleOff();
+		}
+		
 	}
 	
 	
 	private void toggle(WarpedMouseEvent buttonEvent) {
 		if(toggle) toggleOff(buttonEvent);
 		else toggleOn(buttonEvent);
-		
 	}
 	
 	private void toggleOff(WarpedMouseEvent buttonEvent) {
@@ -151,7 +156,8 @@ public class GUIToggle extends WarpedGUI {
 			if(toggleOffAction == null ) Console.ln("GUIToggle -> toggleOff -> toggleOffAction is null");
 			else toggleOffAction.action(buttonEvent);
 			toggleOffSFX.play();
-			updateToggleState();
+			if(isHovered()) sprite.hoveredOff();
+			else sprite.toggleOff();
 		}
 	}
 	
@@ -161,23 +167,12 @@ public class GUIToggle extends WarpedGUI {
 			if(toggleOnAction == null) Console.ln("GUIToggle -> toggleOn -> toggleOnAction is null");
 			else toggleOnAction.action(buttonEvent);
 			toggleOnSFX.play();
-			updateToggleState();
+			if(isHovered()) sprite.hoveredOn();
+			else sprite.toggleOn();
 		}
 	}
 	
 	
-	private void updateToggleState() {
-		if(isLocked) {
-			sprite.locked();
-			return;
-		}
-		
-		if(toggle) { 
-			if(!isHovered()) sprite.hoveredOn(); else sprite.toggleOn(); //FIXME hovered cases are reversed for some reason, should be reversed in sprite so cases are correct 
-		} else {
-			if(!isHovered()) sprite.hoveredOff(); else sprite.toggleOff();
-		}		
-	}
 	
 	@Override
 	protected void mouseEntered() {
@@ -186,7 +181,8 @@ public class GUIToggle extends WarpedGUI {
 			return;
 		}
 		enteredSFX.play();
-		updateToggleState();
+		if(toggle) sprite.hoveredOn();
+		else sprite.hoveredOff();
 		
 	}
 
@@ -194,7 +190,8 @@ public class GUIToggle extends WarpedGUI {
 	protected void mouseExited() {
 		if(!enteredDragging) {			
 			exitedSFX.play();
-			updateToggleState();
+			if(toggle) sprite.toggleOn();
+			else sprite.toggleOff();
 		}
 		enteredDragging = false;
 	}

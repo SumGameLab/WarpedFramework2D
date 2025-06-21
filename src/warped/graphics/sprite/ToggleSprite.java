@@ -8,75 +8,75 @@ import warped.utilities.utils.UtilsImage;
 
 public class ToggleSprite extends WarpedSprite {
 	
-	private BufferedImage toggleOnRaster;
-	private BufferedImage toggleOffRaster;
-	private BufferedImage hoveredOnRaster;
-	private BufferedImage hoveredOffRaster;
-	private BufferedImage lockedImage;
+	private BufferedImage onRaster;   		// The raster when the toggle is in the on state but not hovered.
+	private BufferedImage onHoveredRaster;  // The raster when the toggle is in the on state and hovered.
+	private BufferedImage offRaster;  		// The raster when the toggle is in the off state but not hovered.
+	private BufferedImage offHoveredRaster; // The raster when the toggle is in the off state and hovered.
+	private BufferedImage lockedImage;	    // The raster when the toggle is locked and unable to be changed. 
 	
 	/**
 	 * */
-	public ToggleSprite(BufferedImage toggleOffRaster) {
-		super(toggleOffRaster.getWidth(), toggleOffRaster.getHeight());
-		this.toggleOffRaster = toggleOffRaster;
-		this.toggleOnRaster = UtilsImage.generateTintedClone(toggleOffRaster, 80, Colour.RED);
+	public ToggleSprite(BufferedImage offRaster) {
+		super(offRaster.getWidth(), offRaster.getHeight());
+		this.offRaster   = offRaster;
+		this.onRaster    = UtilsImage.generateTintedClone(offRaster, 80, Colour.RED);
 		
-		hoveredOnRaster = UtilsImage.generateTintedClone(toggleOnRaster, 30, Colour.BLACK);
-		hoveredOffRaster = UtilsImage.generateTintedClone(toggleOffRaster, 30, Colour.BLACK);
+		onHoveredRaster  = UtilsImage.generateTintedClone(onRaster, 30, Colour.BLACK);
+		offHoveredRaster = UtilsImage.generateTintedClone(offRaster, 30, Colour.BLACK);
 		
-		lockedImage = UtilsImage.generateTintedClone(toggleOffRaster, 120, Colour.BLACK);
+		lockedImage 	 = UtilsImage.generateTintedClone(offRaster, 120, Colour.BLACK);
 		
 		toggleOff();
 	}
 	
 
-	public ToggleSprite(BufferedImage toggleOnRaster, BufferedImage toggleOffRaster) {
-		super(toggleOnRaster.getWidth(), toggleOnRaster.getHeight());
-		if(toggleOnRaster.getWidth() != toggleOffRaster.getWidth() || toggleOnRaster.getHeight() != toggleOffRaster.getHeight()) {
+	public ToggleSprite(BufferedImage onRaster, BufferedImage offRaster) {
+		super(onRaster.getWidth(), onRaster.getHeight());
+		if(onRaster.getWidth() != offRaster.getWidth() || onRaster.getHeight() != offRaster.getHeight()) {
 			Console.err("ToggleSprite -> ToggleSprite() -> toggle rasters are inconsistent sizes, this could cause clipping of the toggle sprite or other issues" );
 			return;
 		}
-		this.toggleOnRaster = toggleOnRaster;
-		this.toggleOffRaster = toggleOffRaster;
+		this.onRaster    = onRaster;
+		this.offRaster   = offRaster;
 		
-		hoveredOnRaster = UtilsImage.generateTintedClone(toggleOnRaster, 30, Colour.BLACK);
-		hoveredOffRaster = UtilsImage.generateTintedClone(toggleOffRaster, 30, Colour.BLACK);
+		onHoveredRaster  = UtilsImage.generateTintedClone(onRaster, 30, Colour.BLACK);
+		offHoveredRaster = UtilsImage.generateTintedClone(offRaster, 30, Colour.BLACK);
 		
-		lockedImage = UtilsImage.generateTintedClone(toggleOffRaster, 120, Colour.BLACK);
+		lockedImage 	 = UtilsImage.generateTintedClone(offRaster, 120, Colour.BLACK);
 		
 		toggleOff();
 	}
 	
-	public ToggleSprite(BufferedImage toggleOnRaster, BufferedImage toggleOffRaster, BufferedImage hoveredOnRaster, BufferedImage hoveredOffRaster, BufferedImage lockedRaster) {
-		super(toggleOnRaster.getWidth(), toggleOnRaster.getHeight());
-		if(toggleOnRaster.getWidth() != toggleOffRaster.getWidth() || toggleOnRaster.getHeight() != toggleOffRaster.getHeight() || toggleOnRaster.getHeight() != hoveredOnRaster.getHeight() || toggleOnRaster.getHeight() != hoveredOffRaster.getHeight() || toggleOnRaster.getHeight() != lockedRaster.getHeight()) { 
+	public ToggleSprite(BufferedImage onRaster, BufferedImage offRaster, BufferedImage onHoveredRaster, BufferedImage offHoveredRaster, BufferedImage lockedRaster) {
+		super(onRaster.getWidth(), onRaster.getHeight());
+		if(onRaster.getWidth() != offRaster.getWidth() || onRaster.getHeight() != offRaster.getHeight() || onRaster.getHeight() != onHoveredRaster.getHeight() || onRaster.getHeight() != offHoveredRaster.getHeight() || onRaster.getHeight() != lockedRaster.getHeight()) { 
 			Console.err("ToggleSprite -> ToggleSprite() -> toggle rasters are inconsistent sizes, this could cause clipping of the toggle sprite or other issues" );
 			return;
 		}
-		this.toggleOnRaster = toggleOnRaster;
-		this.toggleOffRaster = toggleOffRaster;
-		this.hoveredOnRaster  = hoveredOnRaster;
-		this.hoveredOffRaster = hoveredOffRaster;
-		this.lockedImage 	 = lockedRaster;
+		this.onRaster  		  = onRaster;
+		this.offRaster 		  = offRaster;
+		this.onHoveredRaster  = onHoveredRaster;
+		this.offHoveredRaster = offHoveredRaster;
+		this.lockedImage 	  = lockedRaster;
 		
 		toggleOff();
 	}
 	
 	/**Set the toggle state to on.
 	 * @author SomeKid*/
-	public void toggleOn() {setRasterFast(toggleOnRaster);}
+	public void toggleOn() {setRasterFast(onRaster);}
 
 	/**Set the toggle state to off.
 	 * @author SomeKid*/
-	public void toggleOff() {setRasterFast(toggleOffRaster);}
+	public void toggleOff() {setRasterFast(offRaster);}
 	
 	/**Set the toggle state to hovered on.
 	 * @author SomeKid*/
-	public void hoveredOn() {setRasterFast(hoveredOnRaster);}
+	public void hoveredOn() {setRasterFast(onHoveredRaster);}
 	
 	/**Set the toggle state to hovered off.
 	 * @author SomeKid*/
-	public void hoveredOff() {setRasterFast(hoveredOffRaster);}
+	public void hoveredOff() {setRasterFast(offHoveredRaster);}
 	
 	/**Set the toggle state to locked
 	 * @author SomeKid*/
@@ -86,24 +86,24 @@ public class ToggleSprite extends WarpedSprite {
 	 * @return BufferedImage - the image set to the toggledOn state
 	 * @apiNote If you want to set this image to the sprite just call toggleOn();
 	 * @author SomeKid*/
-	public BufferedImage getOnRaster() {return toggleOnRaster;}
+	public BufferedImage getOnRaster() {return onRaster;}
 	
 	/**Get the image set for the toggleOff state
 	 * @return BufferedImage - the image set to the toggleOff state
 	 * @apiNote If you want to set this image to the sprite just call toggleOff();
 	 * @author SomeKid*/
-	public BufferedImage getOffRaster() {return toggleOffRaster;}
+	public BufferedImage getOffRaster() {return offRaster;}
 	
 	/**Get the image set for the toggleOff hovered state
 	 * @return BufferedImage - the image set to the toggledOff hovered state
 	 * @apiNote If you want to set this image to the sprite just call hoveredOff();
 	 * @author SomeKid*/
-	public BufferedImage getOffHoveredRaster() {return hoveredOffRaster;}
+	public BufferedImage getOffHoveredRaster() {return offHoveredRaster;}
 	
 	/**Get the image set for the toggleOn hovered state
 	 * @return BufferedImage - the image set to the toggledOn hovered state
 	 * @apiNote If you want to set this image to the sprite just call toggleOn();
 	 * @author SomeKid*/
-	public BufferedImage getOnHoveredRaster() {return hoveredOnRaster;}
+	public BufferedImage getOnHoveredRaster() {return onHoveredRaster;}
 	
 }
