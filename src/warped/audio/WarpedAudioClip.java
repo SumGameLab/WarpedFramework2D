@@ -205,7 +205,7 @@ public class WarpedAudioClip {
 		if(volumeCap > 6.0f) volumeCap = 6.0f;
 		if(volumeCap < -80.0f) volumeCap = -80.0f;
 		if(isFadeIn && isFadeOut) {
-			Console.err("AudioData -> fade() -> logically inconsisted -> can't fadeIn and fadeOut at the same time");
+			WarpedConsole.err("AudioData -> fade() -> logically inconsisted -> can't fadeIn and fadeOut at the same time");
 			isFadeIn = false;
 			isFadeOut = false;
 			return false;

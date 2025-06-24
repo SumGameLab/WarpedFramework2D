@@ -228,7 +228,7 @@ public class ManagerItem<T extends ItemBindable<? extends Enum<?>>> extends Warp
 	public boolean containsItem(WarpedGroupIdentity groupID, T type) {if(getItem(groupID, type) == null) return false; else return true;}
 	public WarpedItem<T> getItem(WarpedGroupIdentity groupID, T type) {
 		if(groupID.getManagerID() != UNIQUE_ID) {
-			Console.err("ItemManager -> containsItem() -> groupID is not an item group, it is a : " + groupID.getManagerID());
+			WarpedConsole.err("ItemManager -> containsItem() -> groupID is not an item group, it is a : " + groupID.getManagerID());
 			return null;
 		}			
 		
@@ -237,7 +237,7 @@ public class ManagerItem<T extends ItemBindable<? extends Enum<?>>> extends Warp
 		for(int i = 0; i < members.size(); i++) {
 			if(members.get(i).getItemType().isSameType(type)) return members.get(i);
 		}
-		Console.err("ItemManager-> getItem() -> invent doesn't contain any item of the type : " + type);
+		WarpedConsole.err("ItemManager-> getItem() -> invent doesn't contain any item of the type : " + type);
 		return null;
 	}
 		

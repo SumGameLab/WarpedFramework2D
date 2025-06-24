@@ -82,3 +82,5 @@ typeable
 projectiles
 collider
 unscaled
+projectile
+expiry

@@ -527,7 +527,7 @@ public class UtilsImage {
 	}
 	
 	public static BufferedImage generateRotatedSizedCloneRads(BufferedImage img, double radians) {
-		//Console.ln("ImageUtils -> generateRotatedCloneRads() -> angle of rotation : " + angle);
+		//WarpedConsole.ln("ImageUtils -> generateRotatedCloneRads() -> angle of rotation : " + angle);
 		
 		double angle = UtilsMath.clampRadianRotation(radians);
 		if(angle == 0) return generateClone(img);
@@ -851,7 +851,7 @@ public class UtilsImage {
 			
 			
 		default:
-			Console.err("TileGenerator -> generateTransitionNoise() -> invalid transition type case : " + transitionType);
+			WarpedConsole.err("TileGenerator -> generateTransitionNoise() -> invalid transition type case : " + transitionType);
 			return null;
 		
 		}

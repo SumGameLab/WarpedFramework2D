@@ -359,7 +359,7 @@ public abstract class WarpedObject {
 	/**DO NOT CALL! outside of ViewPortLayer
 	 * @author SomeKid*/
 	public final void mouseEvent(WarpedMouseEvent mouseEvent) {
-		//Console.ln("WarpedObject -> mouseEvent() " + getClass().getSimpleName() + " -> " + name);
+		//WarpedConsole.ln("WarpedObject -> mouseEvent() " + getClass().getSimpleName() + " -> " + name);
 		if(WarpedMouse.isFocused() ) return;
 		if(!isAlive) return;
 		if(!isVisible) return;

@@ -183,7 +183,7 @@ public abstract class WarpedFramework2D {
 	/*
 	public static final void finishedLoading() {
 		if(isLoading == false) {
-			Console.err("WarpedFramework -> finishedLoading() -> already finished loading");
+			WarpedConsole.err("WarpedFramework -> finishedLoading() -> already finished loading");
 			return;
 		}
 		isLoading = false;

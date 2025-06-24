@@ -303,7 +303,7 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
     			return tileType;
     		}
     		T result = transitionRules.get(tileType).get(UtilsMath.random(transitionRules.get(tileType).size())); 
-    		//Console.ln("TileSet -> generateRandomTransition() -> generating transition to " + result);
+    		//WarpedConsole.ln("TileSet -> generateRandomTransition() -> generating transition to " + result);
     		return result;
     	}
     	
@@ -441,7 +441,7 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
     		for(int i = 0; i < tileTypes.size(); i++){
     			TileType type = tileTypes.get(i);
     			if(type != primaryType && !transitionRules.containsKey(type)) {
-    				Console.ln("TileSet -> validate() -> warning, no transition rules were set for the type : " + type + ", primary transition rule will be created");
+    				WarpedConsole.ln("TileSet -> validate() -> warning, no transition rules were set for the type : " + type + ", primary transition rule will be created");
     				transitionRules.put(type, Arrays.asList(primaryType));			
     			}
     		}
@@ -500,19 +500,19 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
     	/*
     	public void addScatterTile(TileType tileType, TileType scatterTile) {
     		if(tileType == null || scatterTile == null) {
-    			Console.err("TileSet -> addScatterTile() -> passed null variable as parameter");
+    			WarpedConsole.err("TileSet -> addScatterTile() -> passed null variable as parameter");
     			return;
     		}
     		if(tileType == scatterTile) {
-    			Console.err("TileSet -> addScatterTile() -> tile type must be different to scatter type : " + tileType);
+    			WarpedConsole.err("TileSet -> addScatterTile() -> tile type must be different to scatter type : " + tileType);
     			return;
     		}
     		if(!tileTypes.contains(tileType)) {
-    			Console.err("TileSet -> addScatterTile() -> tile type is not contained in the set :  " + tileType);
+    			WarpedConsole.err("TileSet -> addScatterTile() -> tile type is not contained in the set :  " + tileType);
     			return;
     		}
     		if(!tileTypes.contains(scatterTile)) {
-    			Console.err("TileSet -> addScatterTile() -> scatter tile type is not contained in the set :  " + scatterTile);
+    			WarpedConsole.err("TileSet -> addScatterTile() -> scatter tile type is not contained in the set :  " + scatterTile);
     			return;
     		}
     		if(scatterRules.get(tileType) == null) {
@@ -520,7 +520,7 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
     			return;
     		}
     		if(scatterRules.get(tileType).contains(scatterTile)) {
-    			Console.err("TileSet -> addScatterTile() -> tile type already has scatter tile (tileType, scatterTile)  :  (" + tileType + ", " + scatterTile + ")");
+    			WarpedConsole.err("TileSet -> addScatterTile() -> tile type already has scatter tile (tileType, scatterTile)  :  (" + tileType + ", " + scatterTile + ")");
     			return;
     		}			
     		
@@ -530,32 +530,32 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
     	
     	public void addScatterTileSet(TileType tileType, List<TileType> scatterTiles) {
     		if(tileType == null || scatterTiles == null) {
-    			Console.err("TileSet -> addScatterTileSet() -> passed null value as variable");
+    			WarpedConsole.err("TileSet -> addScatterTileSet() -> passed null value as variable");
     			return;
     		}
     		
     		if(scatterRules.get(tileType) != null) {
-    			Console.err("TileSet -> addScatterTileSet() -> scatterTileRules already exist for " + tileType + " ");
+    			WarpedConsole.err("TileSet -> addScatterTileSet() -> scatterTileRules already exist for " + tileType + " ");
     		}
     		
     		for(int i = 0; i < scatterTiles.size(); i++) {
     			TileType scatterTile = scatterTiles.get(i);
     			if(scatterTile == null) {				
-    				Console.err("TileSet -> addScatterTileSet() -> scatter tile set contains null value");
+    				WarpedConsole.err("TileSet -> addScatterTileSet() -> scatter tile set contains null value");
     				return;
     			}
     			if(tileType == scatterTile) {
-    				Console.err("TileSet -> addScatterTileSet() -> can not scatter the same tile into itself : " + tileType);
+    				WarpedConsole.err("TileSet -> addScatterTileSet() -> can not scatter the same tile into itself : " + tileType);
     				return;
     			}
     			if(!tileTypes.contains(scatterTile)) {
-    				Console.err("TileSet -> addScatterTileSet() -> tile set does not contain the type : " + scatterTile);
+    				WarpedConsole.err("TileSet -> addScatterTileSet() -> tile set does not contain the type : " + scatterTile);
     				return;
     			}
     		}
     		
     		if(!tileTypes.contains(tileType)) {
-    			Console.err("TileSet -> addScatterTileSet() -> tile set does not contain the type : " + tileType);
+    			WarpedConsole.err("TileSet -> addScatterTileSet() -> tile set does not contain the type : " + tileType);
     			return;
     		}
     		
@@ -570,7 +570,7 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
 	/*
 	public TileType getRandomScatterType() {
 		if(!isValid()) {
-			Console.err("TileSet -> getRandomScatterType() -> tileSet must be valid");
+			WarpedConsole.err("TileSet -> getRandomScatterType() -> tileSet must be valid");
 			return null;
 		}
 		 int rn = Maths.random.nextInt(scatterTypes.size());
@@ -579,7 +579,7 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
 	
 	public TileType getRandomScatterVariantType() {
 		if(!isValid()) {
-			Console.err("TileSet -> getRandomScatterVariantype() -> tileSet must be valid");
+			WarpedConsole.err("TileSet -> getRandomScatterVariantype() -> tileSet must be valid");
 			return null;
 		}
 		
@@ -590,11 +590,11 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
 	
 	public TileType getScatterVariantType(TileType type) {
 		if(!isValid()) {
-			Console.err("TileSet -> getRandomScatterVariantype() -> tileSet must be valid");
+			WarpedConsole.err("TileSet -> getRandomScatterVariantype() -> tileSet must be valid");
 			return null;
 		}
 		if(!scatterTypes.contains(type)) {
-			Console.err("TileSet -> getScatterVariantType() -> set does not contain scatter tiles for the type : " + type);
+			WarpedConsole.err("TileSet -> getScatterVariantType() -> set does not contain scatter tiles for the type : " + type);
 			return null;
 		}
 		int rn = Maths.random.nextInt(scatterRules.get(type).size());
@@ -609,14 +609,14 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
 	/*
 	 public TileCelestial generateCelestialTile(EntitieCelestial parent, TileType tileType) {
 		if(!containsTileType(tileType)) {
-			Console.err("TileSet : " + name + " -> generateCelestialTile() -> set does not contain the tile type : " + tileType);
+			WarpedConsole.err("TileSet : " + name + " -> generateCelestialTile() -> set does not contain the tile type : " + tileType);
 			return null;
 		} else return new TileCelestial(parent, this, tileType);
 	}
 	
 	public TileCelestial generateCelestialTile(EntitieCelestial parent, TileType primaryType, TileTransitionType transitionType) {
 		if(!containsTileType(primaryType)) {
-			Console.err("TileSet : " + name + " -> generateCelestailTransitionTile() -> set does not contain the tile type : " + primaryType);
+			WarpedConsole.err("TileSet : " + name + " -> generateCelestailTransitionTile() -> set does not contain the tile type : " + primaryType);
 			return null;
 		} else return new TileCelestial(parent, this, primaryType, transitionType);
 	}
@@ -627,7 +627,7 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
 	
 	public TileCelestial generateRandomCelestialTile(EntitieCelestial parent) {
 		if(!isValid()) {
-			Console.err("TileSet : " + name + " -> generateRandomTile() -> tileSet must be valid");
+			WarpedConsole.err("TileSet : " + name + " -> generateRandomTile() -> tileSet must be valid");
 			return null;
 		}
 		TileType type = getRandomType();
@@ -645,7 +645,7 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
 	/*
 	public Tile generateRandomScatterTile() {
 		if(!isValid()) {
-			Console.err("TileSet -> generateRandomScatterTile() -> tileSet must be valid");
+			WarpedConsole.err("TileSet -> generateRandomScatterTile() -> tileSet must be valid");
 			return null;
 		}
 		TileType type = getRandomScatterVariantType();
@@ -654,7 +654,7 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
 	
 	public Tile generateRandomScatterVariant(TileType type) {
 		if(!isValid()) {
-			Console.err("TileSet -> generateRandomScatterVariant() -> tileSet must be valid");
+			WarpedConsole.err("TileSet -> generateRandomScatterVariant() -> tileSet must be valid");
 			return null;
 		}
 		TileType scatterType = getScatterVariantType(type);
@@ -670,11 +670,11 @@ public class TerrainTileSet<T extends TileableGenerative<? extends Enum<?>>> ext
 	/*
 	public void setTileTypes(List<TileType> tileTypes) {
 		if(tileTypes.contains(null)) {
-			Console.err("TileSet -> setTileTypes() -> tileTypes list contains a null value");
+			WarpedConsole.err("TileSet -> setTileTypes() -> tileTypes list contains a null value");
 			return;
 		}
 		if(tileTypes.size() > tileSheet.getSpriteCount()) {
-			Console.err("TileSheet -> setTileTypes -> more tile types than tiles (tileTypes, tileCount)  :  (" + tileTypes.size() + ", " + tileSheet.getSpriteCount() + ")");
+			WarpedConsole.err("TileSheet -> setTileTypes -> more tile types than tiles (tileTypes, tileCount)  :  (" + tileTypes.size() + ", " + tileSheet.getSpriteCount() + ")");
 			return;
 		}
 

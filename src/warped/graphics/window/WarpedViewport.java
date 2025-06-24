@@ -396,7 +396,7 @@ public class WarpedViewport {
 	 * @author 5som3
 	public void addAnimation(WarpedAnimation animation) {
 		if(renderType != RenderType.ANIMATION) {
-			Console.err("WarpedViewport -> " + name + " -> addAnimation() -> this viewport is not set to render animations, change render method before adding animations");
+			WarpedConsole.err("WarpedViewport -> " + name + " -> addAnimation() -> this viewport is not set to render animations, change render method before adding animations");
 			return;
 		} else animations.add(animation);
 	}
@@ -406,7 +406,7 @@ public class WarpedViewport {
 	 * @author 5som3
 	public void clearAnimations() {
 		if(renderType != RenderType.ANIMATION) {
-			Console.err("WarpedViewport -> " + name + " -> clearAnimations() -> this viewport is not set to render animations, change render method before clearing animations");
+			WarpedConsole.err("WarpedViewport -> " + name + " -> clearAnimations() -> this viewport is not set to render animations, change render method before clearing animations");
 			return;
 		} else animations.clear();
 	}

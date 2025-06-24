@@ -302,7 +302,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 			
 			characterIndex++;
 			if(characterIndex >= paragraph.length()) {
-				//Console.ln("GUITextBoxWrapped -> updateParagraphLines() -> index exceeded paragraph length, " + textLines.size() + " text lines were added");
+				//WarpedConsole.ln("GUITextBoxWrapped -> updateParagraphLines() -> index exceeded paragraph length, " + textLines.size() + " text lines were added");
 				finished = true;
 				String line = paragraph.substring(lastLineIndex, characterIndex);
 				if(metrics.stringWidth(line) >= drawableWidth) { // need to start new line

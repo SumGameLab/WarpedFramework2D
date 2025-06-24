@@ -146,7 +146,7 @@ public class UtilsPath {
 		List<WarpedPathNode> openList = new ArrayList<>();
 		List<WarpedPathNode> closeList = new ArrayList<>();
 		
-		//Console.ln("UtilsPath -> findPathNoDiagonal -> looking for path from " + start.getString() + ", to " + goal.getString());
+		//WarpedConsole.ln("UtilsPath -> findPathNoDiagonal -> looking for path from " + start.getString() + ", to " + goal.getString());
 		
 		if(start.x() < -1 || start.y() < -1 || start.x() >= mapDim.x() || start.y() >= mapDim.y()) {
 			Console.err("UtilsPath -> findPath() -> start coord is invalid : " + start.getString());
@@ -166,7 +166,7 @@ public class UtilsPath {
 		
 		while(openList.size() > 0) {
 			
-		//	Console.ln("Utils -> findPathNoDiagonal() -> looking for path");			
+		//	WarpedConsole.ln("Utils -> findPathNoDiagonal() -> looking for path");			
 			
 			Collections.sort(openList, nodeSorter);
 			current = openList.get(0);
@@ -232,7 +232,7 @@ public class UtilsPath {
 		List<WarpedPathNode> openList = new ArrayList<>();
 		List<WarpedPathNode> closeList = new ArrayList<>();
 		
-		//Console.ln("UtilsPath -> findPathNoDiagonal -> looking for path from " + start.getString() + ", to " + goal.getString());
+		//WarpedConsole.ln("UtilsPath -> findPathNoDiagonal -> looking for path from " + start.getString() + ", to " + goal.getString());
 		
 		if(start.x() < -1 || start.y() < -1 || start.x() >= mapDim.x() || start.y() >= mapDim.y()) {
 			Console.err("UtilsPath -> findPath() -> start coord is invalid : " + start.getString());
@@ -252,7 +252,7 @@ public class UtilsPath {
 		
 		while(openList.size() > 0) {
 			
-		//	Console.ln("Utils -> findPathNoDiagonal() -> looking for path");			
+		//	WarpedConsole.ln("Utils -> findPathNoDiagonal() -> looking for path");			
 			
 			Collections.sort(openList, nodeSorter);
 			current = openList.get(0);

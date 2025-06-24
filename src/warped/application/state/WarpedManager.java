@@ -342,21 +342,21 @@ public class WarpedManager<T extends WarpedObject> {
 	 
 	/*
 	private void putActiveGroup(int index, Integer groupIndex) {
-		Console.err("ContextManager -> putActiveGroup() -> index, groupIndex : " + index + ", " + groupIndex);
+		WarpedConsole.err("ContextManager -> putActiveGroup() -> index, groupIndex : " + index + ", " + groupIndex);
 		 
 		if(FrameworkProperties.DEBUG) {			
 			if(groupIndex < 0 || groupIndex >= groups.size()) {
-				Console.err("ContextManager -> putActiveGroup() ->  group does not exist in manager : " + groupIndex);
+				WarpedConsole.err("ContextManager -> putActiveGroup() ->  group does not exist in manager : " + groupIndex);
 				return;
 			} 
 			
 			if(groups.get(groupIndex) == null) {
-				Console.err("ContextManager -> putActiveGroup -> tried to add a null group to the manager");
+				WarpedConsole.err("ContextManager -> putActiveGroup -> tried to add a null group to the manager");
 				return;
 			}
 			
 			if(index < 0 || index >= activeGroups.size()) { 
-				Console.err("ContextManager -> putActiveGroup() -> invalid index : " + index);
+				WarpedConsole.err("ContextManager -> putActiveGroup() -> invalid index : " + index);
 				return;
 			}
 		}

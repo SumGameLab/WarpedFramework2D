@@ -147,7 +147,7 @@ public class WarpedGroup<T extends WarpedObject> {
 				@SuppressWarnings("unchecked")
 				K member = (K) members.get(i);
 				result.add(member);
-			} else Console.err("ContextGroup -> getMembers(Class K) -> members are not of the cast type : " + K);
+			} else WarpedConsole.err("ContextGroup -> getMembers(Class K) -> members are not of the cast type : " + K);
 		}
 		return result;
 	}
@@ -185,7 +185,7 @@ public class WarpedGroup<T extends WarpedObject> {
 	/*
 	public void addMember(T member, int index) {
 		if(index < 0 || index > members.size()) {
-			Console.err("ContextGroup -> addMember() -> index is out of bounds : 0 < " +  index + " < " + members.size());
+			WarpedConsole.err("ContextGroup -> addMember() -> index is out of bounds : 0 < " +  index + " < " + members.size());
 			return;
 		}
 		
@@ -204,7 +204,7 @@ public class WarpedGroup<T extends WarpedObject> {
 	
 	
 	public void replaceMember(int memberIndex, T member) {
-		Console.ln("ContextGroup -> replaceMember() -> replacing member at index : " + memberIndex);
+		WarpedConsole.ln("ContextGroup -> replaceMember() -> replacing member at index : " + memberIndex);
 		T old = members.get(memberIndex);
 		member.initObjectIdentity(old.getObjectID());
 		member.setPosition(old.getPosition());
@@ -238,15 +238,15 @@ public class WarpedGroup<T extends WarpedObject> {
 	@SuppressWarnings("unchecked")
 	public <K extends WarpedObject> K getMemberAs(int index, Class<K> type) {
 		if(members.size() <= 0) {
-			Console.err("ContextGroup -> getMember() -> group " + groupID.getManagerType() + " has no members");
+			WarpedConsole.err("ContextGroup -> getMember() -> group " + groupID.getManagerType() + " has no members");
 			return null;
 		}
 		if(index < 0 || index >= members.size()) {
-			Console.err("ContextGroup -> getMember() -> tried to get index outside of the arrays domain : ( 0 <= " + index + " <= " + members.size() + " )");
+			WarpedConsole.err("ContextGroup -> getMember() -> tried to get index outside of the arrays domain : ( 0 <= " + index + " <= " + members.size() + " )");
 			return null;
 		}
 		if(members.get(index) == null) {
-			Console.err("ContextGroup -> getMember() -> found a null member at (manager, group, index) : ( " + groupID.getManagerType() + ", " + groupID.getGroupIndex() + ", " + index + " )");
+			WarpedConsole.err("ContextGroup -> getMember() -> found a null member at (manager, group, index) : ( " + groupID.getManagerType() + ", " + groupID.getGroupIndex() + ", " + index + " )");
 			return null;
 		}
 		return (K) members.get(index);

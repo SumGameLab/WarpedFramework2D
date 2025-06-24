@@ -74,6 +74,7 @@ public abstract class Console {
 	
 	private static Scanner scanner = new Scanner(System.in);
 	private static boolean isLogging = false;
+	private static boolean isDebugging = true;
 	private static Timer consoleTimer = new Timer("Timer Thread : Console");
 	
 	private static TimerTask logTask = new TimerTask(){public void run() {updateLog();}};
@@ -97,7 +98,7 @@ public abstract class Console {
 	
 
 	
-	/**Add a new command to the console.
+	/**Add a new command to the WarpedConsole.
 	 * @param key - the string that will trigger the command when entered into the terminal or command line (GUI command line or eclipse console).
 	 * @param command - the command to execute when the key is entered.
 	 * @author 5som3*/
@@ -108,7 +109,7 @@ public abstract class Console {
 	 * @author 5som3*/
 	public static Set<String> getCommandKeys() {return frameworkCommands.keySet();}
 	
-	/**Remove a command from the console.
+	/**Remove a command from the WarpedConsole.
 	 * @param key - the key of the command to remove.
 	 * @author 5som3*/
 	public static void removeCommand(String key) {
@@ -157,68 +158,81 @@ public abstract class Console {
 		} 
 	}
 	
+	/**Set if print statements and errors should be printed to the Console / Terminal.
+	 * @param isDebugging - if true print statements and errors will be printed else they will not.
+	 * @apiNote Print statements and errors may still be logged if isDebugging is false.
+	 * @author 5som3*/
+	public static final void setDebugging(boolean isDebugging) {
+		Console.isDebugging = isDebugging;
+	}
+	
 	/**Is the console currently being logged.
 	 * @return boolean - if true the console is being logged to text file else it is not logged.
 	 * @author 5som3*/
 	public static final boolean isLogging() {return isLogging;}
 	
+	/**Are print statements and errors being printed to the Console / Terminal.
+	 * @return boolean - true if the print statements and errors are being printed. 
+	 * @author 5som3*/
+	public static final boolean isDebugging() {return isDebugging;}
+	
 	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed in the console. (does not add a new line)
+	 * @param text - the text will be printed in the WarpedConsole. (does not add a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
 	public static final void pr(String text) {
-		System.out.print(text);
+		if(isDebugging) System.out.print(text);
 		if(isLogging) log(PRINT + text);
 	}
 	
 	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed WHITE in the console. (adds a new line)
+	 * @param text - the text will be printed WHITE in the WarpedConsole. (adds a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
 	public static final void ln(String text) {
-		System.out.println(text);
+		if(isDebugging) System.out.println(text);
 		if(isLogging) log(LINE + text);
 	}
 	
 	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed YELLOW in the console. (adds a new line)
+	 * @param text - the text will be printed YELLOW in the WarpedConsole. (adds a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
 	public static final void condition(String text) {
-		ln(ConsoleColour.YELLOW, text);
+		if(isDebugging) ln(ConsoleColour.YELLOW, text);
 		if(isLogging) log(CONDITION + text);
 	};
 	
 	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed GREEN in the console. (adds a new line)
+	 * @param text - the text will be printed GREEN in the WarpedConsole. (adds a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
 	public static final void met(String text)  {
-		ln(ConsoleColour.GREEN, text);
+		if(isDebugging) ln(ConsoleColour.GREEN, text);
 		if(isLogging) log(MET + text);
 	};
 	
 	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed RED in the console. (adds a new line)
+	 * @param text - the text will be printed RED in the WarpedConsole. (adds a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
 	public static final void err(String text) {
-		System.err.println(text);
+		if(isDebugging) System.err.println(text);
 		if(isLogging) log(ERROR + text);
 	}
 
 	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed BLUE in the console. (adds a new line)
+	 * @param text - the text will be printed BLUE in the WarpedConsole. (adds a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
 	public static final void blueln(String text)   {
-		ln(ConsoleColour.CYAN, text);
+		if(isDebugging) ln(ConsoleColour.CYAN, text);
 		if(isLogging) log(BLUE + text);
 	};
 	
 	/**Print a colour line of text to the console / terminal.
 	 * @param consoleColour - the colour of the line of text.
-	 * @param text - the text will be printed GREEN in the console. (adds a new line)
+	 * @param text - the text will be printed GREEN in the WarpedConsole. (adds a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
 	public static final void ln(ConsoleColour consoleColour, String text) {System.out.println(getAnsi(consoleColour) + text + ANSI_RESET);}
@@ -228,7 +242,7 @@ public abstract class Console {
 	 * @apiNote if logging the text will be logged in a text file. 
 	 * @author 5som3*/
 	public static final void stackTrace(URISyntaxException exception) {
-		ln(ConsoleColour.PURPLE, "URI SYNTAX EXCEPTION");
+		if(isDebugging) ln(ConsoleColour.PURPLE, "URI SYNTAX EXCEPTION");
 		if(isLogging) {
 			log("URI SYNTAX EXCEPTION");
 			logStackTrace(exception.getStackTrace());
@@ -246,7 +260,7 @@ public abstract class Console {
 		else if(exception instanceof UnsupportedOperationException) unsupportedOperationException((UnsupportedOperationException)exception);
 		else if(exception instanceof NullPointerException) nullPointerException((NullPointerException) exception);
 		else {			
-			ln(ConsoleColour.PURPLE, "? RUNTIME EXCEPTION");
+			if(isDebugging) ln(ConsoleColour.PURPLE, "? RUNTIME EXCEPTION");
 			if(isLogging) {
 				log("? RUNTIME EXCEPTION");
 				logStackTrace(exception.getStackTrace());
@@ -264,7 +278,7 @@ public abstract class Console {
 		else if(exception instanceof IOException) ioException((IOException) exception);
 		else if(exception instanceof LineUnavailableException) lineUnavailableException((LineUnavailableException) exception);
 		else {
-			ln(ConsoleColour.PURPLE, "? RUNTIME EXCEPTION");
+			if(isDebugging) ln(ConsoleColour.PURPLE, "? RUNTIME EXCEPTION");
 			if(isLogging) {
 				log("? RUNTIME EXCEPTION");
 				logStackTrace(exception.getStackTrace());
@@ -278,7 +292,7 @@ public abstract class Console {
 	 * @apiNote if logging the text will be logged in a text file. 
 	 * @author 5som3*/
 	public static final void lineUnavailableException(LineUnavailableException exception) {
-		ln(ConsoleColour.PURPLE, "LINE UNAVALIABLE EXCEPTION");
+		if(isDebugging) ln(ConsoleColour.PURPLE, "LINE UNAVALIABLE EXCEPTION");
 		if(isLogging) {
 			log("LINE UNAVALIABLE EXCEPTION");
 			logStackTrace(exception.getStackTrace());
@@ -291,7 +305,7 @@ public abstract class Console {
 	 * @apiNote if logging the text will be logged in a text file. 
 	 * @author 5som3*/
 	public static final void ioException(IOException exception) {
-		ln(ConsoleColour.PURPLE, "IO EXCEPTION");
+		if(isDebugging) ln(ConsoleColour.PURPLE, "IO EXCEPTION");
 		if(isLogging) {
 			log("IO EXCEPTION");
 			logStackTrace(exception.getStackTrace());
@@ -304,7 +318,7 @@ public abstract class Console {
 	 * @apiNote if logging the text will be logged in a text file. 
 	 * @author 5som3*/
 	public static final void unsupportedAudioFileException(UnsupportedAudioFileException exception) {
-		ln(ConsoleColour.PURPLE, "UNSUPPORTED AUDIO FILE EXCEPTION");
+		if(isDebugging) ln(ConsoleColour.PURPLE, "UNSUPPORTED AUDIO FILE EXCEPTION");
 		if(isLogging) {
 			log("UNSUPPORTED AUDIO FILE EXCEPTION");
 			logStackTrace(exception.getStackTrace());
@@ -317,7 +331,7 @@ public abstract class Console {
 	 * @apiNote if logging the text will be logged in a text file. 
 	 * @author 5som3*/
 	public static final void mediaException(MediaException exception) {
-		ln(ConsoleColour.PURPLE, "MEDIA EXCEPTION");
+		if(isDebugging) ln(ConsoleColour.PURPLE, "MEDIA EXCEPTION");
 		if(isLogging) {
 			log("MEDIA EXCEPTION");
 			logStackTrace(exception.getStackTrace());
@@ -330,7 +344,7 @@ public abstract class Console {
 	 * @apiNote if logging the text will be logged in a text file. 
 	 * @author 5som3*/
 	public static final void illegalArgumentException(IllegalArgumentException exception) {
-		ln(ConsoleColour.PURPLE, "ILLEGAL ARGUMENT EXCEPTION");
+		if(isDebugging) ln(ConsoleColour.PURPLE, "ILLEGAL ARGUMENT EXCEPTION");
 		if(isLogging) {
 			log("ILLEGAL ARGUMENT EXCEPTION");
 			logStackTrace(exception.getStackTrace());
@@ -343,7 +357,7 @@ public abstract class Console {
 	 * @apiNote if logging the text will be logged in a text file. 
 	 * @author 5som3*/
 	public static final void unsupportedOperationException(UnsupportedOperationException exception) {
-		ln(ConsoleColour.PURPLE, "UNSUPPORTED OPPERATION EXCEPTION");
+		if(isDebugging) ln(ConsoleColour.PURPLE, "UNSUPPORTED OPPERATION EXCEPTION");
 		if(isLogging) {
 			log("UNSUPPORTED OPPERATION EXCEPTION");
 			logStackTrace(exception.getStackTrace());
@@ -356,7 +370,7 @@ public abstract class Console {
 	 * @apiNote if logging the text will be logged in a text file. 
 	 * @author 5som3*/
 	public static final void nullPointerException(NullPointerException exception) {
-		ln(ConsoleColour.PURPLE, "NULL POINTER EXCEPTION");
+		if(isDebugging) ln(ConsoleColour.PURPLE, "NULL POINTER EXCEPTION");
 		if(isLogging) {
 			log("NULL POINTER EXCEPTION");
 			logStackTrace(exception.getStackTrace());
@@ -395,7 +409,7 @@ public abstract class Console {
 		
 		
 		if(writeLog.size() == 0) {
-			//Console.ln("Console -> updateLog() -> no log events to write");
+			//WarpedConsole.ln("Console -> updateLog() -> no log events to write");
 			return;
 		}
 
@@ -404,7 +418,7 @@ public abstract class Console {
 				Files.write(Paths.get(logFilePath), (writeLog.get(i) + "\n").getBytes(), StandardOpenOption.APPEND);
 			}
 			writeLog.clear();
-			//Console.met("Console -> updateLog() -> finished writing log");
+			//WarpedConsole.met("Console -> updateLog() -> finished writing log");
 			return;
 		}catch (IOException e) {
 		    //TODO implement exception handling

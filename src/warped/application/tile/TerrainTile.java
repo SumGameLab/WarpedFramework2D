@@ -103,7 +103,7 @@ public class TerrainTile<T extends TileableGenerative<? extends Enum<?>>> extend
 		return;
 		
 		if(!isRiver) {
-			Console.err("Tile -> setRiver() -> tried to join rivers with a tile that is not a river");
+			WarpedConsole.err("Tile -> setRiver() -> tried to join rivers with a tile that is not a river");
 			return;
 		}
 		riverSegment.setSegmentType(RiverSegmentType.getTributarySegment(joiningDirection));

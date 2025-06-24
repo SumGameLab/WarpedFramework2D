@@ -79,7 +79,7 @@ class PrintLogger extends Logger {
      *
      * This way we don't cause the console to scroll far vertically in the case of fast
      * pulses. We do this so that relevant information (pulses that exceed the threshold)
-     * is easy to find and remains visible as long as possible in the console. However,
+     * is easy to find and remains visible as long as possible in the WarpedConsole. However,
      * we don't want to scroll too far off to the right either, so we keep track of
      * how many "quick pulses" have happened in a row. When we've exceeded some fixed
      * number (20, say) then we will insert a newline into the log.

@@ -216,7 +216,7 @@ public enum TerrainTileTransitionType {
 			break;		
 		}
 		
-		//Console.ln("TIleTransitionType -> getConnectingTile() -> (primaryType, secondaryType, transition) :  ( " + primaryType + ", " + secondaryType + ", " +  resultTransition + ") ");
+		//WarpedConsole.ln("TIleTransitionType -> getConnectingTile() -> (primaryType, secondaryType, transition) :  ( " + primaryType + ", " + secondaryType + ", " +  resultTransition + ") ");
 		TerrainTileSet<K> set = tileType.getParentTerrain();
 		return set.generateTerrainTile(primaryType, secondaryType, resultTransition);		
 	}

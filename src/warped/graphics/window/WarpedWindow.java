@@ -452,7 +452,7 @@ public class WarpedWindow extends Canvas {
 			executor.shutdown();
 			executor.close();
 		}
-		else Console.err("WarpedWindow -> stop() -> executor is already null");
+		else WarpedConsole.err("WarpedWindow -> stop() -> executor is already null");
 		 */
 		closeFrame();
 	}

@@ -380,7 +380,7 @@ public class WarpedMediaPane extends BorderPane {
 		
 		/*
 	    if(mediaPlayer.getStatus() != MediaPlayer.Status.READY) {
-	    	Console.ln("WarpedMediaPane -> loadMedia() -> preparing media..");
+	    	WarpedConsole.ln("WarpedMediaPane -> loadMedia() -> preparing media..");
 	    	synchronized(this) {
 	    		try {
 	    			isPreparingMedia = true;
@@ -686,7 +686,7 @@ public class WarpedMediaPane extends BorderPane {
 	
 	/*
 	protected void setFrameSize(double x, double y) {
-		Console.ln("WarpedMediaPane -> setFrameSize() -> frame size set to : " + frameSize.getString());
+		WarpedConsole.ln("WarpedMediaPane -> setFrameSize() -> frame size set to : " + frameSize.getString());
 		frameSize.set(x, y);
 		if(media != null) offsetMedia();
 	}

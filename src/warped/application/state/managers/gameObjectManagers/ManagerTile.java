@@ -114,7 +114,7 @@ public class ManagerTile<T extends WarpedTile> extends WarpedManager<T> {
 		WarpedTile<K> tile = (WarpedTile<K>) getTile(groupID, xCord, yCord);
 		
 		if(group == null || tile == null) {
-			Console.err("TileManager -> findNearestInstance() -> group or tile is null");
+			WarpedConsole.err("TileManager -> findNearestInstance() -> group or tile is null");
 			return null;
 		}
 		
@@ -149,7 +149,7 @@ public class ManagerTile<T extends WarpedTile> extends WarpedManager<T> {
 		}
 		
 		if(nearest == null) {
-			Console.err("TileManager -> findNearestInstance() -> the set contains no instances of the tile type : " + type);
+			WarpedConsole.err("TileManager -> findNearestInstance() -> the set contains no instances of the tile type : " + type);
 			return null;
 		}
 		
