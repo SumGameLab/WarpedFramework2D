@@ -77,6 +77,15 @@ public abstract class WarpedGUI extends WarpedObject {
 	@Override
 	public void updatePassive() {return;};
 	
+	/**This will generate new buffered images for the sprite of the specified size.
+	 * @apiNote the updateGraphics() method will execute after the sprite has been resized. 
+	 *@author SomeKid*/
+	public void setSize(int width, int height) {
+		sprite.setSize(width, height);
+		updateGraphics();
+	}
+	
+	protected abstract void updateGraphics();
 
 
 	

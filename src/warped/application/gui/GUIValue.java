@@ -259,7 +259,7 @@ public class GUIValue extends WarpedGUI {
 	/**Update the graphics by running the corresponding updateGraphicsAction.
 	 * @implNote The updateGraphicsAction is set automatically to be the corresponding action when the setValue() function is called
 	 * @author 5som3*/
-	private void updateGraphics() {
+	protected void updateGraphics() {
 		Graphics2D g2d = getGraphics();
 		
 		if(isBackgroundVisible) {

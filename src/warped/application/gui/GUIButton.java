@@ -375,6 +375,12 @@ public class GUIButton extends WarpedGUI {
 	
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
+	@Override
+	protected void updateGraphics() {// Unused
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 }

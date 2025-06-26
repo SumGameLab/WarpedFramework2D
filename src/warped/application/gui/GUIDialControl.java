@@ -65,9 +65,9 @@ public class GUIDialControl extends WarpedGUI {
 	/**A new dial control with the default parameters.
 	 * @author 5som3*/
 	public GUIDialControl() {
-		setSize(100, 100 + labelPadding);
 		face = new RotationSprite(FrameworkSprites.dialIcons.getSprite(4, 0));
 		dial = new RotationSprite(FrameworkSprites.dialIcons.getSprite(4, 1));
+		setSize(100, 100 + labelPadding);
 		updateGraphics();
 	}
 	
@@ -76,9 +76,9 @@ public class GUIDialControl extends WarpedGUI {
 	 * @param face - the image to use for the face.
 	 * @author 5som3*/
 	public GUIDialControl(BufferedImage dial, BufferedImage face) {
-		setSize(face.getWidth(), face.getHeight() + labelPadding);
 		this.face = new RotationSprite(face);
 		this.dial = new RotationSprite(dial);
+		setSize(face.getWidth(), face.getHeight() + labelPadding);
 		updateGraphics();
 	}
 		
@@ -235,7 +235,7 @@ public class GUIDialControl extends WarpedGUI {
 		updateGraphics();		
 	}
 	
-	private void updateGraphics() {
+	protected void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		g.drawImage(face.raster(), 0, 0, getWidth(), getHeight() - labelPadding, null);

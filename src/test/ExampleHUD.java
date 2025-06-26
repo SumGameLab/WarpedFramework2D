@@ -124,7 +124,7 @@ public class ExampleHUD extends GUIAssembly {
 			rotationDisplay.setHandRotation(1, rotationControl.getRotation());
 		});
 		
-		list.setListSize(100, 180);
+		list.setSize(100, 180);
 		list.setButtonSize(100, 80);
 		list.setOptions(new ActionOption("test1", () -> {Console.ln("TEST1");}), 
 						new ActionOption("test2", () -> {Console.ln("TEST2");}),

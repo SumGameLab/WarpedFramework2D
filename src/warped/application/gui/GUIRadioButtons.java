@@ -216,7 +216,7 @@ public class GUIRadioButtons extends WarpedGUI {
 	}
 
 
-	private void updateGraphics() {
+	protected void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		if(borderThickness > 0) {

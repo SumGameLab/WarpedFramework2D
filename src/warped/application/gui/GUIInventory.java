@@ -129,7 +129,8 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 
 		
 	/***/
-	private void updateGraphics() {	
+	protected void updateGraphics() {	
+		if(selectInvent == null) return; // No inventory to draw
 		Graphics g = getGraphics();
 		
 		g.setColor(backgroundColor);

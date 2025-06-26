@@ -50,12 +50,12 @@ public class GUIIcon extends WarpedGUI {
 		
 	
 	public GUIIcon(int width, int height) {
-		setIconSize(width, height);	
+		setSize(width, height);	
 		maxFrameSize();
 	}
 	
 	public GUIIcon(int width, int height, WarpedObject target) {
-		setIconSize(width, height);
+		setSize(width, height);
 		setTarget(target);
 	}
 
@@ -195,8 +195,8 @@ public class GUIIcon extends WarpedGUI {
 	 * @param height - the height of the icon in pixels.
 	 * @apiNote updates the graphics to fill the new size after changing it.
 	 * @author 5som3*/
-	public void setIconSize(int width, int height) {
-		setSize(width,height);
+	public void setSize(int width, int height) {
+		sprite.setSize(width,height);
 		updateFramingParameters();
 		updateGraphics();
 	}
@@ -271,7 +271,7 @@ public class GUIIcon extends WarpedGUI {
 	}
 	
 	
-	private void updateGraphics() {		
+	protected void updateGraphics() {		
 		Graphics g = getGraphics();
 		
 		if(isBackground) {			

@@ -64,7 +64,6 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @author 5som3*/
 	public GUITextBoxWrapped() {
 		setSize(300, 400);
-		updateGraphics();
 	}
 	
 	/**A text textBox with the specified parameters.
@@ -72,7 +71,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @param height - the height of the textBox in pixels.
 	 * @author 5som3*/
 	public GUITextBoxWrapped(int width, int height) {
-		setTextBoxSize(width, height);
+		setSize(width, height);
 	}
 	
 	/**A text textBox with the specified parameters.
@@ -84,9 +83,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	public GUITextBoxWrapped(int width, int height, String title, String paragraph) {
 		this.title = title;
 		this.paragraph = paragraph;
-		setTextBoxSize(width, height);
-		updateParagraphLines();
-		updateGraphics();
+		setSize(width, height);
 	}
 	
 	/**Set the title for the textBox
@@ -271,8 +268,8 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @param width - the width of the text box in pixels.
 	 * @param height - the height of the text box in pixels.
 	 * @author 5som3*/
-	public void setTextBoxSize(int width, int height) {
-		setSize(width, height);
+	public void setSize(int width, int height) {
+		sprite.setSize(width, height);
 		updateParagraphLines();
 		updateGraphics();
 	}
@@ -361,7 +358,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		
 	}
 	
-	private void updateGraphics() {
+	protected void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		g.setColor(backgroundColor);

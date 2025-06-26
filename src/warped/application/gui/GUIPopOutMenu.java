@@ -315,7 +315,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 	
 	
 	
-	private void updateGraphics() {		
+	protected void updateGraphics() {		
 		Graphics g = getGraphics();
 		
 		switch(popDirection) {

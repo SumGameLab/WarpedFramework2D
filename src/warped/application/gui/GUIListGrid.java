@@ -66,7 +66,7 @@ public class GUIListGrid<T> extends WarpedGUI {
 	 * @author 5som3 */
 	public GUIListGrid(int columns, int rows) {
 		gridSize.set(columns, rows);	
-		updateGridSize();
+		setSize(gridSize.x() * entrySize.x() + scrollBarThickness, gridSize.y() * entrySize.y());
 		updateGraphics();
 	}
 	
@@ -77,15 +77,12 @@ public class GUIListGrid<T> extends WarpedGUI {
 	 * @author 5som3 */
 	public GUIListGrid(int columns, int rows, boolean drawNames) {
 		gridSize.set(columns, rows);
-		updateGridSize();
+		setSize(gridSize.x() * entrySize.x() + scrollBarThickness, gridSize.y() * entrySize.y());
 		this.drawNames = drawNames;
 		updateGraphics();
 	}
 
-	private void updateGridSize() {
-		setSize(gridSize.x() * entrySize.x() + scrollBarThickness, gridSize.y() * entrySize.y());
-		updateScrollParameters();
-	}
+
 	
 	/**Clear all entrys in the grid.
 	 * @author 5som3*/
@@ -121,6 +118,17 @@ public class GUIListGrid<T> extends WarpedGUI {
 	 * @return int - the number of entrys in the list.
 	 * @author 5som3*/
 	public int size() {return list.size();}
+	
+	/**Set the size of the list's sprite.
+	 * @param width - the width of the list in pixels.
+	 * @param height - the height of the list in pixels.
+	 * @apiNote will also update the scroll parameters and graphics to match the new size.
+	 * @author 5som3*/
+	public void setSize(int width, int height) {
+		sprite.setSize(width, height);
+		updateScrollParameters();
+		updateGraphics();
+	}
 	
 	/**Get the selected entry.
 	 * @return T - returns the selected instance of the same type as this list.
@@ -161,7 +169,7 @@ public class GUIListGrid<T> extends WarpedGUI {
 	 *@author 5som3*/
 	public void setEntrySize(int width, int height) {
 		entrySize.set(width, height);
-		updateGridSize();
+		setSize(gridSize.x() * entrySize.x() + scrollBarThickness, gridSize.y() * entrySize.y());
 		updateGraphics();
 	}
 	
@@ -191,7 +199,7 @@ public class GUIListGrid<T> extends WarpedGUI {
 		}
 	}
 
-	public void updateGraphics() {
+	protected void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		g.setColor(scrollBarColor);

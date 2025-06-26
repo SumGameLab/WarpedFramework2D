@@ -51,7 +51,8 @@ public class GUIShape extends WarpedGUI {
 		sprite.clearBuffers();
 	}
 
-	private void updateGraphics() {
+	
+	protected void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		for(int i = 0; i < rectangles.size(); i++) {

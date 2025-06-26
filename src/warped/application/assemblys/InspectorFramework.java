@@ -194,7 +194,7 @@ public class InspectorFramework extends GUIAssembly {
 		
 		
 		keybinds.setVisible(false);
-		keybinds.setListSize(400, 400);
+		keybinds.setSize(400, 400);
 		updateKeybindOptions();
 		
 		ArrayList<ActionOption> pageOptions = new ArrayList<>();

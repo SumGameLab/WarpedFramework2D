@@ -293,10 +293,16 @@ public class GUIScrollBar extends WarpedGUI {
 	}
 	
 	
+	public void setSize(int width, int height) {
+		initRaster(width, height);
+		updateButtonPosition();
+		updateGraphics();
+	}
+	
 	private void initRaster(int length, int thickness) {		
 		switch(scrollAxis) {
-		case HORIZONTAL: setSize(length, thickness); break;
-		case VERTICAL:   setSize(thickness, length); break;
+		case HORIZONTAL: sprite.setSize(length, thickness); break;
+		case VERTICAL:   sprite.setSize(thickness, length); break;
 		default: Console.err("GUIScrollBar -> initRaster () -> invalid Case : " + scrollAxis); break;
 		}
 	}
@@ -329,7 +335,7 @@ public class GUIScrollBar extends WarpedGUI {
 		}
 	}
 	
-	private void updateGraphics() {
+	protected void updateGraphics() {
 		Graphics2D g = getGraphics();
 		
 		g.setColor(borderColor);

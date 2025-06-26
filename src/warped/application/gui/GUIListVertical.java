@@ -78,7 +78,7 @@ public class GUIListVertical extends WarpedGUI {
 	 * @param height - The maximum height of the list in pixels. (list may appear smaller if the number of buttons don't fill the list). 
 	 * @author 5som3*/
 	public GUIListVertical(int width, int height) {
-		setListSize(width, height);
+		setSize(width, height);
 	}
 	
 	
@@ -88,7 +88,7 @@ public class GUIListVertical extends WarpedGUI {
 	 * @author 5som3*/
 	public GUIListVertical(int width, int height, int buttonHeight) {
 		this.buttonHeight = buttonHeight;
-		setListSize(width, height);
+		setSize(width, height);
 		
 	}
 	
@@ -96,8 +96,8 @@ public class GUIListVertical extends WarpedGUI {
 	 * @param width - The width of the list in pixels. (also the width of each button). 
 	 * @param height - The maximum height of the list in pixels. (list may appear smaller if the number of buttons don't fill the list). 
 	 * @author 5som3*/
-	public void setListSize(int width, int height) {
-		setSize(width, height);
+	public void setSize(int width, int height) {
+		sprite.setSize(width, height);
 		updateScrollParameters();
 		updateGraphics();
 	}
@@ -270,7 +270,7 @@ public class GUIListVertical extends WarpedGUI {
 		
 	}
 	
-	private void updateGraphics() {		
+	protected void updateGraphics() {		
 		if(options == null) return;
 
 		Graphics g = getGraphics();		

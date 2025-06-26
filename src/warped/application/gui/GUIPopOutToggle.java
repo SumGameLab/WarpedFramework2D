@@ -337,7 +337,7 @@ public class GUIPopOutToggle extends WarpedGUI {
 		updateGraphics();
 	}
 	
-	private void updateGraphics() {		
+	protected void updateGraphics() {		
 		Graphics g = getGraphics();
 		
 		switch(popDirection) {

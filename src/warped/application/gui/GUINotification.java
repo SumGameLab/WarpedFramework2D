@@ -280,13 +280,13 @@ public class GUINotification extends WarpedGUI {
 	 * @param width - the width of the notification in pixels.
 	 * @param height - the height of the notification in pixels.
 	 * @author 5som3 */
-	public void setNotificationSize(int width, int height) {
+	public void setSize(int width, int height) {
 		if(width <= 0 || height <= 0) {
 			Console.err("GUINotification -> setNotificationSize() -> the width or height is too small, must be positive");
 			if(width <= 0) width = 200;
 			else height = 40;
 		}
-		setSize(width, height);
+		sprite.setSize(width, height);
 		updateGraphics();
 	}
 	
@@ -341,7 +341,7 @@ public class GUINotification extends WarpedGUI {
 	public boolean isExpired() {return isExpired;}
 	
 	
-	private void updateGraphics() {
+	protected void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		if(isBackgroundVisible) {

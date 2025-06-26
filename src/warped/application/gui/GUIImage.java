@@ -237,7 +237,7 @@ public class GUIImage extends WarpedGUI {
 		return;
 	}
 	
-	private void updateGraphics() {
+	protected void updateGraphics() {
 		Graphics g = getGraphics();
 
 		if(isBackgroundVisible) {			

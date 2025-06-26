@@ -215,6 +215,12 @@ public class GUIToggle extends WarpedGUI {
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
+	@Override
+	protected void updateGraphics() {//Unused
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 
 	

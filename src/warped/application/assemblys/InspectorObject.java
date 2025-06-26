@@ -106,7 +106,7 @@ public class InspectorObject extends GUIAssembly {
 		
 		details.setInteractive(false);
 		
-		icon.setIconSize(100, 100);
+		icon.setSize(100, 100);
 		icon.setBackgroundColor(Colour.GREY_LIGHT.getColor());
 		icon.setPreserveAspectRatio(true);
 		

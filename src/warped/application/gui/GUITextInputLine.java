@@ -68,13 +68,13 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	
 	/**A text input line with the default parameters.
 	 * @author 5som3*/
-	public GUITextInputLine() {setTextLineSize(250, 46);}
+	public GUITextInputLine() {setSize(250, 46);}
 	
 	/**A text input line with the specified parameters.
 	 * @param width - the width of the text line in pixels.
 	 * @param height - the height of the text line in pixels.
 	 * @author 5som3*/
-	public GUITextInputLine(int width, int height) {setTextLineSize(width, height);}
+	public GUITextInputLine(int width, int height) {setSize(width, height);}
 	
 	/**A text input line with the specified parameters.
 	 * @param width - the width of the text line in pixels.
@@ -82,7 +82,7 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	 * @param blankText - the text to display in the line when their is no input text.
 	 * @author 5som3*/
 	public GUITextInputLine(int width, int height, String blankText) {
-		setTextLineSize(width, height);
+		setSize(width, height);
 		setBlankText(blankText);
 	}
 	
@@ -96,20 +96,6 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	 * @author 5som3*/
 	public void setBlankText(String blankText) {
 		this.blankText = blankText;
-		updateGraphics();
-	}
-	
-	/**Set the size of the text line (the drawable area).
-	 * @param width - the width in pixels.
-	 * @param height - the height in pixels.
-	 * @author 5som3*/
-	public void setTextLineSize(int width, int height) {
-		if(width <= 0 || height <= 0) {
-			Console.err("GUITextInputLine -> setTextLineSize() -> width and height must be postive");
-			if(width <= 0) width = 250; 
-			else height = 46;
-		}
-		setSize(width, height);
 		updateGraphics();
 	}
 	
