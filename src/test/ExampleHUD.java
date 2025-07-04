@@ -129,9 +129,7 @@ public class ExampleHUD extends GUIAssembly {
 		list.setOptions(new ActionOption("test1", () -> {Console.ln("TEST1");}), 
 						new ActionOption("test2", () -> {Console.ln("TEST2");}),
 						new ActionOption("test3", () -> {Console.ln("TEST3");}));
-		
-	
-	}
+		}
 
 	/**Everything has to be added to the assembly.
 	 * Each member should only be added once.

@@ -31,9 +31,11 @@ public class GUIToggle extends WarpedGUI {
 	private boolean isLocked = false;
 	private boolean enteredDragging = false;
 	
-	private WarpedButtonAction toggleOnAction;
-	private WarpedButtonAction toggleOffAction;
+	private WarpedButtonAction toggleOnAction  = (btn) -> {Console.ln("GUIToggle -> toggleOn -> toggleOn is default");};
+	private WarpedButtonAction toggleOffAction = (btn) -> {Console.ln("GUIToggle -> toggleOff -> toggleOffAction is default");};
 	private WarpedAction repeatingAction;	
+	private WarpedAction enteredAction = () -> {Console.ln("GUIToggle -> enteredAction -> enteredAction is default");};
+	private WarpedAction exitedAction = () -> {Console.ln("GUIToggle -> exitedAction -> exitedAction is default");};;
 	
 	private WarpedAudioClip enteredSFX    = FrameworkAudio.defaultHover;
 	private WarpedAudioClip exitedSFX     = FrameworkAudio.defaultUnhover;
@@ -72,6 +74,16 @@ public class GUIToggle extends WarpedGUI {
 	 * @param repeatingAction - this action will be triggered once every second for as long as the toggle is in the on state
 	 * @author SomeKid*/
 	public void setRepeatingAction(WarpedAction repeatingAction) {this.repeatingAction = repeatingAction;}
+	
+	/**Set an action to execute when the mouse enters the toggle
+	 * @param enteredAction - the action to execute;
+	 * @author 5som3*/
+	public void setEnteredAction(WarpedAction enteredAction) {this.enteredAction = enteredAction;}
+	
+	/**Set an action to execute when the mouse exits the toggle
+	 * @param exitedAction - the action to execute;
+	 * @author 5som3*/
+	public void setExitedAction(WarpedAction exitedAction) {this.exitedAction = exitedAction;}
 	
 	/**Set toggle sound effect
 	 * @param enteredSFX - the clip will play (once) each time the mouse enters the toggle
@@ -153,8 +165,7 @@ public class GUIToggle extends WarpedGUI {
 	private void toggleOff(WarpedMouseEvent buttonEvent) {
 		if(toggle) {
 			toggle = false;
-			if(toggleOffAction == null ) Console.ln("GUIToggle -> toggleOff -> toggleOffAction is null");
-			else toggleOffAction.action(buttonEvent);
+			toggleOffAction.action(buttonEvent);
 			toggleOffSFX.play();
 			if(isHovered()) sprite.hoveredOff();
 			else sprite.toggleOff();
@@ -180,6 +191,7 @@ public class GUIToggle extends WarpedGUI {
 			enteredDragging = true;
 			return;
 		}
+		enteredAction.action();
 		enteredSFX.play();
 		if(toggle) sprite.hoveredOn();
 		else sprite.hoveredOff();
@@ -190,6 +202,7 @@ public class GUIToggle extends WarpedGUI {
 	protected void mouseExited() {
 		if(!enteredDragging) {			
 			exitedSFX.play();
+			exitedAction.action();
 			if(toggle) sprite.toggleOn();
 			else sprite.toggleOff();
 		}

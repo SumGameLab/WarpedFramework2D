@@ -143,7 +143,7 @@ public abstract class Console {
 	}
 
 	/**Set if the console will be recorded to text file
-	 * @param isLogging - if true all console lines will also be written to a text file in the log dirrectory.
+	 * @param isLogging - if true all console lines will also be written to a text file in the log directory.
 	 * @author 5som3*/
 	public static final void setLogging(boolean isLogging) {
 		if(Console.isLogging != isLogging) {
@@ -195,24 +195,6 @@ public abstract class Console {
 	}
 	
 	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed YELLOW in the WarpedConsole. (adds a new line)
-	 * @apiNote if logging the text will be logged in a text file.
-	 * @author 5som3*/
-	public static final void condition(String text) {
-		if(isDebugging) ln(ConsoleColour.YELLOW, text);
-		if(isLogging) log(CONDITION + text);
-	};
-	
-	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed GREEN in the WarpedConsole. (adds a new line)
-	 * @apiNote if logging the text will be logged in a text file.
-	 * @author 5som3*/
-	public static final void met(String text)  {
-		if(isDebugging) ln(ConsoleColour.GREEN, text);
-		if(isLogging) log(MET + text);
-	};
-	
-	/**Print a line of text to the console / terminal.
 	 * @param text - the text will be printed RED in the WarpedConsole. (adds a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
@@ -220,22 +202,35 @@ public abstract class Console {
 		if(isDebugging) System.err.println(text);
 		if(isLogging) log(ERROR + text);
 	}
-
-	/**Print a line of text to the console / terminal.
-	 * @param text - the text will be printed BLUE in the WarpedConsole. (adds a new line)
-	 * @apiNote if logging the text will be logged in a text file.
-	 * @author 5som3*/
-	public static final void blueln(String text)   {
-		if(isDebugging) ln(ConsoleColour.CYAN, text);
-		if(isLogging) log(BLUE + text);
-	};
 	
 	/**Print a colour line of text to the console / terminal.
 	 * @param consoleColour - the colour of the line of text.
 	 * @param text - the text will be printed GREEN in the WarpedConsole. (adds a new line)
 	 * @apiNote if logging the text will be logged in a text file.
 	 * @author 5som3*/
-	public static final void ln(ConsoleColour consoleColour, String text) {System.out.println(getAnsi(consoleColour) + text + ANSI_RESET);}
+	public static final void ln(ConsoleColour consoleColour, String text) {
+		if(isDebugging) System.out.println(getAnsi(consoleColour) + text + ANSI_RESET);
+		if(isLogging) log(BLUE + text);
+	}
+	
+	/**Print a line of text to the console / terminal.
+	 * @param text - the text will be printed YELLOW in the WarpedConsole. (adds a new line)
+	 * @apiNote if logging the text will be logged in a text file.
+	 * @author 5som3*/
+	public static final void condition(String text) {ln(ConsoleColour.GREEN, text);	};
+	
+	/**Print a line of text to the console / terminal.
+	 * @param text - the text will be printed GREEN in the WarpedConsole. (adds a new line)
+	 * @apiNote if logging the text will be logged in a text file.
+	 * @author 5som3*/
+	public static final void met(String text)  {ln(ConsoleColour.GREEN, text);};
+
+	/**Print a line of text to the console / terminal.
+	 * @param text - the text will be printed BLUE in the WarpedConsole. (adds a new line)
+	 * @apiNote if logging the text will be logged in a text file.
+	 * @author 5som3*/
+	public static final void blueln(String text) {ln(ConsoleColour.CYAN, text);};
+	
 	
 	/**Print an exception to the console / terminal.
 	 * @param exception - the exception to log.

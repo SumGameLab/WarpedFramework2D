@@ -13,7 +13,6 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsMath;
 
 public class GUIListGrid<T> extends WarpedGUI {
 
@@ -31,6 +30,7 @@ public class GUIListGrid<T> extends WarpedGUI {
 	protected ArrayList<BufferedImage> entryIcons = new ArrayList<>();
 	
 	boolean drawNames = true;
+	boolean isScrolling = false;
 	
 	private int scrollOffset 		= 0; //number of pixels items in grid are shifted down
 	private int scrollMax 			= 0; //pixels - maximum size of scroll offset - the difference between the height of the grid and the theoretical max height of current entrys 
@@ -51,13 +51,13 @@ public class GUIListGrid<T> extends WarpedGUI {
 	
 	private Font font = UtilsFont.getPreferred();
 	
-	private int scrollButtonHeight;
-	private int scrollBarThickness;
-	private int scrollButtonY;
+	private int scrollButtonHeight = 20;
+	private int scrollBarThickness = 10;
 	
 	private WarpedAction selectAction = () -> {Console.ln("GUIListGridScroll -> default select action");};
-	private WarpedAction dragAction = () -> {Console.ln("GUIListGridScroll -> default select action");};
-	private WarpedAction enteredAction = () -> {Console.ln("GUIListGridScroll -> default select action");};
+	private WarpedAction dragAction = () -> {Console.ln("GUIListGridScroll -> default dragged action");};
+	private WarpedAction enteredAction = ()-> {Console.ln("GUIListGridScroll -> default entered action");};
+	private WarpedAction exitedAction = ()-> {Console.ln("GUIListGridScroll -> default exited action");};
 	
 	
 	/**A list with the specified number of rows and columns.
@@ -67,7 +67,6 @@ public class GUIListGrid<T> extends WarpedGUI {
 	public GUIListGrid(int columns, int rows) {
 		gridSize.set(columns, rows);	
 		setSize(gridSize.x() * entrySize.x() + scrollBarThickness, gridSize.y() * entrySize.y());
-		updateGraphics();
 	}
 	
 	/**A list with the specified number of rows and columns.
@@ -77,9 +76,8 @@ public class GUIListGrid<T> extends WarpedGUI {
 	 * @author 5som3 */
 	public GUIListGrid(int columns, int rows, boolean drawNames) {
 		gridSize.set(columns, rows);
-		setSize(gridSize.x() * entrySize.x() + scrollBarThickness, gridSize.y() * entrySize.y());
 		this.drawNames = drawNames;
-		updateGraphics();
+		setSize(gridSize.x() * entrySize.x() + scrollBarThickness, gridSize.y() * entrySize.y());
 	}
 
 
@@ -92,6 +90,8 @@ public class GUIListGrid<T> extends WarpedGUI {
 		list = null;
 		entryNames.clear(); 
 		scrollOffset = 0;
+		updateScrollParameters();
+		updateGraphics();
 	}
 	
 	/**Set an action to be executed when the grid is selected.
@@ -108,6 +108,11 @@ public class GUIListGrid<T> extends WarpedGUI {
 	 * @param enteredAction - the action will execute once when the mouse enters the grid.
 	 * @author 5som3*/
 	public void setEnteredAction(WarpedAction enteredAction) {this.enteredAction = enteredAction;}
+	
+	/**Set an action to occur when the mouse enters the grid
+	 * @param enteredAction - the action will execute once when the mouse enters the grid.
+	 * @author 5som3*/
+	public void setExitedAction(WarpedAction exitedAction) {this.exitedAction = exitedAction;}
 	
 	/**Get the list of entrys in this grid.
 	 * @return ArrayList<T> - a list of all the entrys.
@@ -161,6 +166,8 @@ public class GUIListGrid<T> extends WarpedGUI {
 		}
 		if(modifyOriginal && selectIndex < list.size()) list.remove(selectIndex);
 		if(selectIndex < entryNames.size()) entryNames.remove(selectIndex);		
+		updateScrollParameters();
+		updateGraphics();
 	}
 	
 	/**Set the size of each cell in the grid.
@@ -169,44 +176,38 @@ public class GUIListGrid<T> extends WarpedGUI {
 	 *@author 5som3*/
 	public void setEntrySize(int width, int height) {
 		entrySize.set(width, height);
-		setSize(gridSize.x() * entrySize.x() + scrollBarThickness, gridSize.y() * entrySize.y());
+		updateScrollParameters();
 		updateGraphics();
 	}
 	
 	/**Set the scroll for the grid.
 	 * @param scrollOffset - the amount that the grid is scrolled (if possible).
-	 * @author 5som3 */
 	public void setScroll(int scrollOffset) {
 		if(scrollMax <= 0) return;
 		if(scrollOffset > 0 && scrollOffset < scrollMax) {
 			this.scrollOffset = scrollOffset;
-			scrollProgress = scrollOffset / scrollMax;
-			scrollProgress = UtilsMath.divide(scrollOffset, scrollMax);	
+				
 			updateGraphics();
 		} else Console.err("GUIScrollList -> setScroll() -> scroll is outside of domain : (min, scroll, max) : (" + 0 + ", " + scrollOffset + ", " + scrollMax + ")");
 	}
+	 * @author 5som3 */
 	
 	
-	private void updateScrollParameters() {
-		scrollMax = (Math.floorDiv(size(), gridSize.y()) * entrySize.y()) - getHeight(); 
-		Console.ln("GUIListGridScroll -> setScrollParemeters() -> scrollMax : " + scrollMax);
+	protected void updateScrollParameters() {
+		int drawableHeight = getHeight();
+		int listHeight = Math.ceilDiv(size(), gridSize.x()) * entrySize.y();
+		scrollMax = listHeight - drawableHeight; 
 		if(scrollMax < 0) scrollMax = 0;
+
 		scrollButtonHeight = getHeight() - scrollMax;
 		if(scrollButtonHeight < 20) scrollButtonHeight = 20;
-		if(scrollOffset > scrollMax) {
-			scrollOffset = scrollMax;
-			updateGraphics();
-		}
+		
+		if(scrollOffset > scrollMax) scrollOffset = scrollMax;		
+		Console.ln("GUIListGridScroll -> setScrollParemeters() -> scrollMax : " + scrollMax);
 	}
 
 	protected void updateGraphics() {
 		Graphics g = getGraphics();
-		
-		g.setColor(scrollBarColor);
-		g.fillRect(getWidth() - scrollBarThickness, 0, scrollBarThickness, getHeight());
-		
-		g.setColor(scrollButtonColor);
-		g.fillRect(getWidth() - scrollBarThickness, scrollButtonY, scrollBarThickness, scrollButtonHeight);
 		
 		for(int i = 0; i < list.size(); i++) {
 			int xCoord = i % gridSize.x();
@@ -235,6 +236,14 @@ public class GUIListGrid<T> extends WarpedGUI {
 			}
 		}
 		
+		if(scrollMax > 0) {			
+			g.setColor(scrollBarColor);
+			g.fillRect(getWidth() - scrollBarThickness, 0, scrollBarThickness, getHeight());
+			
+			g.setColor(scrollButtonColor);
+			g.fillRect(getWidth() - scrollBarThickness + 1, scrollOffset, scrollBarThickness - 2, scrollButtonHeight);
+		}
+		
 		g.dispose();
 		pushGraphics();
 	}
@@ -246,7 +255,11 @@ public class GUIListGrid<T> extends WarpedGUI {
 	
 
 	@Override
-	protected void mouseExited() {hoverCoordinate.set(-1);}
+	protected void mouseExited() {
+		hoverCoordinate.set(-1);
+		updateGraphics();
+		exitedAction.action();
+	}
 	@Override
 	protected void mouseMoved(WarpedMouseEvent mouseEvent) {
 		int hx = Math.floorDiv( mouseEvent.getPointRelativeToObject().x, entrySize.x());
@@ -264,26 +277,33 @@ public class GUIListGrid<T> extends WarpedGUI {
 	protected void mouseDragged(WarpedMouseEvent mouseEvent) {
 		//TODO make dragging in a designated region, dragging at the moment will drag action and drag entrys at the same time
 		
-		int sx = Math.floorDiv( mouseEvent.getPointRelativeToObject().x, entrySize.x());
-		int sy = Math.floorDiv((mouseEvent.getPointRelativeToObject().y + scrollOffset), entrySize.y());
+		if(isScrolling || mouseEvent.getPointRelativeToObject().x > getWidth() - scrollBarThickness) {
+			if(scrollMax <= 0) return;
+			isScrolling = true;
+			double selectY = mouseEvent.getPointRelativeToObject().y;		
+			isDragging = true;
+			scrollProgress = selectY / getHeight();
+			scrollOffset = (int)(scrollProgress * scrollMax);
+			updateGraphics();
+
+			Console.ln("GUIListGridScroll -> mouseDragged -> selectY : " + selectY);			
+		} else {
+			int sx = Math.floorDiv( mouseEvent.getPointRelativeToObject().x, entrySize.x());
+			int sy = Math.floorDiv((mouseEvent.getPointRelativeToObject().y + scrollOffset), entrySize.y());
+			
+			selectIndex = sx + sy * gridSize.x();
+			if(sx < 0 || sy < 0 || sx >= gridSize.x() || sy >= gridSize.y() || selectIndex >= size()) return;
+			selectCoordinate.set(sx, sy);	
+			selectEntry = list.get(selectIndex);
+			
+			dragAction.action();	
+		}		
 		
-		selectIndex = sx + sy * gridSize.x();
-		if(sx < 0 || sy < 0 || sx >= gridSize.x() || sy >= gridSize.y() || selectIndex >= size()) return;
-		//if(sx < 0 || sy < 0 || sx >= gridSize.x() || sy > size() / gridSize.x() || sx + (sy * gridSize.x()) >= size()) return;		
-		selectCoordinate.set(sx, sy);	
-		selectEntry = list.get(selectIndex);
-		
-		dragAction.action();
-		
-		if(scrollMax <= 0) return;
-		double selectY = mouseEvent.getPointRelativeToObject().y;		
-		isDragging = true;
-		setScroll((int)((selectY / getHeight()) * scrollMax));
-		Console.ln("GUIListGridScroll -> mouseDragged -> selectY : " + selectY);
 	}
 
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
+		isScrolling = false;
 		if(isDragging) {
 			isDragging = false;
 			return;
@@ -300,9 +320,14 @@ public class GUIListGrid<T> extends WarpedGUI {
 		
 		selectAction.action();		
 	}
+	
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {
-	
+		int val = mouseEvent.getWheelRotation();
+		if(val > 0) scrollOffset += 5;
+		if(val > 0) scrollOffset -= 5;
+		scrollProgress = scrollOffset / scrollMax;
+		updateGraphics();
 	}
 
 

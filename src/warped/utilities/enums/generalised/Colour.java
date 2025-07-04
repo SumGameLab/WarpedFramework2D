@@ -52,6 +52,7 @@ public enum Colour {
 	KHAKI_DARK,
 	YELLOW,
 	YELLOW_LIGHT,
+	YELLOW_DULL,
 	YELLOW_DARK,
 	YELLOW_GREEN,
 	OLIVE,
@@ -143,7 +144,8 @@ public enum Colour {
 	private static final Color yellow 			= new Color(255, 255,   0, 255);         
 	private static final Color yellowLight 		= new Color(255, 255, 180, 255);   
 	private static final Color yellowDark 		= new Color(200, 200,   0, 255);    
-	private static final Color yellowGreen		= new Color(154, 205,  50, 255);   
+	private static final Color yellowGreen		= new Color(154, 205,  50, 255);
+	private static final Color yellowDull		= new Color(232, 202,  83, 255);   
 	private static final Color olive 			= new Color(128, 128,   0, 255);          
 	private static final Color oliveDark 		= new Color( 85, 107,  47, 255);     
 	private static final Color lawn 			= new Color(124, 252,   0, 255);           
@@ -322,6 +324,7 @@ public enum Colour {
 		case YELLOW_DARK: return yellowDark;
 		case YELLOW_GREEN: return yellowGreen;
 		case YELLOW_LIGHT: return yellowLight;
+		case YELLOW_DULL: return yellowDull;
 		
 		case HOVER: return hover;
 		case EMPTY: return empty; 

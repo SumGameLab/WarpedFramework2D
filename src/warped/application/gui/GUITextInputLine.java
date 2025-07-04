@@ -254,7 +254,6 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 				setReceiving(true);
 				updateGraphics();				
 			} else setReceiving(false);
-			
 		}
 
 	}
@@ -384,9 +383,6 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 		buttonAction.action(inputString);
 		keyLog.clear();
 		inputString = "";
-		setInputState(false);
-		promptIndex = 0;
-		isPrompt = false;
 		tick = 0;
 	}
 

@@ -416,13 +416,16 @@ public abstract class WarpedObject {
 	
 	/**DO NOT CALL! outside of ViewPortLayer
 	 * @author SomeKid*/
-	public final void unhovered() {
-		//if(isDraggable && WarpedMouse.isDragging()) return;
-	
+	public final void unhovered() {	
 		if(isHovered) {		
 			mouseExited();
 			isHovered = false;
-			if(hasToolTip() && WarpedState.toolTip.isSelected(this)) WarpedState.toolTip.close();	
+			if(hasToolTip()) {
+				if(WarpedState.toolTip.isSelected(this)) {
+					WarpedState.toolTip.close();
+					WarpedState.toolTip.cancelTipOpening();
+				}
+			}
 		}		
 	}
 	 

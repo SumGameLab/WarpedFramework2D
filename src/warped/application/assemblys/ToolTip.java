@@ -53,7 +53,12 @@ public class ToolTip extends GUIAssembly {
 	public void queueTipOpening() {
 		Console.ln("AssemblyToolTip -> queueTipOpening() -> queued opening tool tip");
 		isTipOpeningQueued = true;
-	}	
+	}
+	
+	public void cancelTipOpening() {
+		isTipOpeningQueued = false;
+		openingTick = 0;
+	}
 	
 	/**Set the time between hovering an object and the tool tip appearing.
 	 * @param delay - the delay in ticks (typically 58 ticks is approximately 1 second).
@@ -86,10 +91,10 @@ public class ToolTip extends GUIAssembly {
 		if(WarpedMouse.isDragging()) close();
 		
 		mousePoint = WarpedMouse.getPoint();
-		if(mousePoint.x > WarpedWindow.getWindowWidth() / 2) labelPoint.x = mousePoint.x - label.getWidth();
-		else labelPoint.x = mousePoint.x;
-		if(mousePoint.y > WarpedWindow.getWindowHeight()/2) labelPoint.y = mousePoint.y - label.getHeight();
-		else labelPoint.y = mousePoint.y + 30;
+		if(mousePoint.x > WarpedWindow.getWindowWidth() / 2) labelPoint.x = mousePoint.x - label.getWidth() - 5;
+		else labelPoint.x = mousePoint.x + 5;
+		if(mousePoint.y > WarpedWindow.getWindowHeight()/2) labelPoint.y = mousePoint.y - label.getHeight() - 5;
+		else labelPoint.y = mousePoint.y + 5;
 		label.setPosition(labelPoint.x, labelPoint.y);
 		
 		

@@ -84,3 +84,6 @@ collider
 unscaled
 projectile
 expiry
+capitalised
+enum
+

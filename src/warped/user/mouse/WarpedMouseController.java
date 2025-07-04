@@ -20,7 +20,7 @@ public abstract class WarpedMouseController {
 	private short cursorState = 0;
 	
 	protected short loadTick   = 0;
-	protected static final short LOAD_DELAY  = 16; 
+	protected static final short LOAD_DELAY  = 5; 
 	protected short dropTick = 0;
 	protected static final short DROP_DELAY = 1;
 	

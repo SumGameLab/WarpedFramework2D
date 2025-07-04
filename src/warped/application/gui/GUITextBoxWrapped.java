@@ -41,14 +41,16 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	private int linePadding     = 2;	
 	private int marginPadding   = 12;
 	
-	private Color borderColor 	  = Colour.BLACK.getColor();
-	private Color backgroundColor = Colour.GREY_DARK.getColor();
-	private Color paragraphColor  = Color.WHITE;
-	private Color titleColor 	  = Colour.YELLOW_LIGHT.getColor();
-	private Color scrollBarColor  = Colour.GREY_DARK_DARK.getColor();
-	private Color scrollButtonColor = Colour.GREY.getColor(); 
+	private Color borderColor 	  	 = Colour.BLACK.getColor();
+	private Color backgroundColor 	 = Colour.GREY_DARK.getColor();
+	private Color titleBannerColor 	 = Colour.GREY_DARK_DARK.getColor();
+	private Color paragraphTextColor = Color.WHITE;
+	private Color titleTextColor 	 = Colour.YELLOW_LIGHT.getColor();
+	private Color scrollBarColor  	 = Colour.GREY_DARK_DARK.getColor();
+	private Color scrollButtonColor  = Colour.GREY.getColor(); 
 	
 	private boolean isScrollBarVisible = false; 
+	private boolean isBackgroundVisible = true;
 	
 	private double scroll = 0.0;
 	private int scrollMax = 0;
@@ -91,6 +93,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @author 5som3*/
 	public void setTitle(String title) {
 		this.title = title;
+		updateParagraphLines();
 		updateGraphics();
 	}
 	
@@ -108,11 +111,19 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	/**Clears the title (if any).
 	 * @author 5som3
 	 * */
-	public void clearTitle() {title = null;}
+	public void clearTitle() {
+		title = null;
+		updateParagraphLines();
+		updateGraphics();
+	}
 		
 	/**Clears any text from the paragraph.
 	 * @author 5som3*/
-	public void clearParagraph() {paragraph = "";}
+	public void clearParagraph() {
+		paragraph = "";
+		updateParagraphLines();
+		updateGraphics();
+	}
 	
 	/**Set the text to display in the paragraph portion of the text box.
 	 * @param text - the text to display.
@@ -133,7 +144,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		
 		for(int i = 0; i < lines.size(); i++) {
 			result += lines.get(i);
-			result += "/n/";
+			if(i != lines.size() - 1) result += "/n/";
 		}
 		
 		setParagraph(result);
@@ -239,7 +250,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		updateGraphics();
 	}
 	
-	/**Set the colour to render behind the text.
+	/** Set the colour to render behind the text.
 	 * @param backgroundColor - the color of the background.
 	 * @author 5som3*/
 	public void setBackgroundColor(Color backgroundColor) {
@@ -247,11 +258,27 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		updateGraphics();
 	}
 	
+	/** Set the background colour behind the title.
+	 * @param bannerColor - the color to use for the title banner.
+	 * @author 5som3*/
+	public void setBannerColor(Color bannerColor) {
+		this.titleBannerColor = bannerColor;
+		updateGraphics();
+	}
+	
+	/**Set if the background color will be rendered behind the text
+	 * @param isBackgroundVisible - if true the background will be rendered.
+	 * @author 5som3*/
+	public void setBackgroundVisible(boolean isBackgroundVisible) {
+		this.isBackgroundVisible = isBackgroundVisible;
+		updateGraphics();
+	}
+	
 	/**Set the color of the text in the paragraph.
 	 * @param fontColor - the color to render the 
 	 * */
 	public void setParagraphColor(Color paragraphColor) {
-		this.paragraphColor = paragraphColor;
+		this.paragraphTextColor = paragraphColor;
 		updateGraphics();
 	}
 	
@@ -259,7 +286,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @param titleColor - the color of the title text.
 	 * @author 5som3*/
 	public void setTitleColor(Color titleColor) {
-		this.titleColor = titleColor;
+		this.titleTextColor = titleColor;
 		updateGraphics();
 	}
 	
@@ -276,17 +303,18 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	
 	private void updateParagraphLines() {
 		textLines.clear();
+		scroll = 0.0;
 		
 		Graphics g = getGraphics();
 		g.setFont(titleFont);
 		titleHeight = g.getFontMetrics().getHeight();
 		g.setFont(paragraphFont);
 		FontMetrics metrics = g.getFontMetrics();
-		lineHeight = metrics.getHeight() + linePadding;
+		lineHeight = g.getFontMetrics().getHeight() + linePadding;
 		
-		drawableWidth = getWidth() - borderThickness * 3 - marginPadding * 2 - scrollBarWidth;
+		drawableWidth = getWidth() - borderThickness * 2 - marginPadding * 2 - scrollBarWidth;
 		if(title == null) drawableHeight = getHeight() - borderThickness * 2;
-		else drawableHeight = getHeight() - borderThickness * 2 - titlePadding * 3;
+		else drawableHeight = getHeight() - borderThickness * 2 - titlePadding - titleHeight;
 		
 		Console.blueln("GUITextBoxWrapped -> updateParagraphLines() -> drawableWidth : " + drawableWidth);
 		
@@ -361,11 +389,13 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	protected void updateGraphics() {
 		Graphics g = getGraphics();
 		
-		g.setColor(backgroundColor);
-		g.fillRect(0, 0, getWidth(), getHeight());		
+		if(isBackgroundVisible) {			
+			g.setColor(backgroundColor);
+			g.fillRect(0, 0, getWidth(), getHeight());		
+		}
 		
 		g.setFont(paragraphFont);
-		g.setColor(paragraphColor);
+		g.setColor(paragraphTextColor);
 		int x = borderThickness + marginPadding;
 		int y = borderThickness + titlePadding + titleHeight + lineHeight;		
 		if(title == null) y = borderThickness +  lineHeight;
@@ -377,11 +407,11 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		
 		
 		if(title != null) {			
-			g.setColor(backgroundColor);
+			g.setColor(titleBannerColor);
 			g.fillRect(0, 0, getWidth(), titleHeight + titlePadding);
 			
 			g.setFont(titleFont);
-			g.setColor(titleColor);
+			g.setColor(titleTextColor);
 			g.drawString(title, borderThickness + marginPadding + titleOffset.x(), borderThickness + titlePadding + titleOffset.y());			
 		}
 		
@@ -402,9 +432,9 @@ public class GUITextBoxWrapped extends WarpedGUI {
 				g.fillRect(0, getHeight() - borderThickness, getWidth(), borderThickness);
 			} else {
 				g.setColor(scrollBarColor);
-				g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness + titlePadding * 2, scrollBarWidth, drawableHeight);
+				g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness + titlePadding + titleHeight, scrollBarWidth, drawableHeight);
 				g.setColor(scrollButtonColor);
-				g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness + titlePadding * 2 + (int)((drawableHeight - scrollButtonHeight) * scroll), scrollBarWidth, scrollButtonHeight);
+				g.fillRect(getWidth() - borderThickness * 2 - scrollBarWidth, borderThickness + titlePadding + titleHeight + (int)((drawableHeight - scrollButtonHeight) * scroll), scrollBarWidth, scrollButtonHeight);
 				g.setColor(borderColor);
 				g.fillRect(0, getHeight() - borderThickness, getWidth(), borderThickness);
 			}
@@ -433,6 +463,13 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {return;}
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {
+		if(scrollMax == 0) {
+			if(scroll != 0) {
+				scroll = 0.0;
+				updateGraphics();
+			}
+			return;
+		}
 		if(mouseEvent.getWheelRotation() > 0) {
 			scroll += 0.04325;
 			if(scroll > 1.0) scroll = 1.0;

@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import warped.WarpedProperties;
@@ -26,6 +27,8 @@ public class UtilsString {
 	public static boolean isValidFileName(String fileName) {if(fileName.contains("/") || fileName.contains("'\'") || fileName.contains(" ") || fileName.contains(".")) return false; else return true;}
 	
 	public static String getFunnyString() {return funnyMessages.get(UtilsMath.random(funnyMessages.size()));}
+	
+	public static Calendar calendar = Calendar.getInstance(); 
 	
 	static {
 		System.out.println("UtilsString -> static -> generateing funny messages");
@@ -273,22 +276,36 @@ public class UtilsString {
 		return result;
 	}
 	
-	
+	/**Convert the specified enumeration to standard format text.
+	 * @param type - the enum to convert.
+	 * @return string - a string representation of the specified enum
+	 * @apiNote Each word in the enum will be capitalised.
+	 * @apiNote Underscores will be replaced with spaces.
+	 * @apiNote Text subsequent to a double underscore will not be excluded from the returned string.
+	 * @author 5som3*/
 	public static <E extends Enum<?>> String convertEnumToString(E type) {return convertEnumStringToString(type.toString());}
-	private static String convertEnumStringToString(String string) {
+	
+	/**Convert the specified string in enumeration format to standard format text.
+	 * @param enumString - the string in enum format to convert.
+	 * @return string - a string representation of the specified enum
+	 * @apiNote Each word in the enum will be capitalised.
+	 * @apiNote Underscores will be replaced with spaces.
+	 * @apiNote Text subsequent to a double underscore will not be excluded from the returned string.
+	 * @author 5som3*/
+	private static String convertEnumStringToString(String enumString) {
 		String result = "";;
 		boolean nextWord = false;
-		for(int i = 0; i < string.length(); i++) {
-			String character = string.substring(i, i + 1);
+		for(int i = 0; i < enumString.length(); i++) {
+			String character = enumString.substring(i, i + 1);
 			if(i == 0) {
 				result += character.toUpperCase();
 				continue;
 			}
 			if(character.equals(UNDERSCORE)) {
-				if(i < string.length() - 1) {
-					String nextCharacter = string.substring(i + 1, i + 2);
+				if(i < enumString.length() - 1) {
+					String nextCharacter = enumString.substring(i + 1, i + 2);
 					if(nextCharacter.equals(UNDERSCORE)) {
-						i = string.length();
+						i = enumString.length();
 						continue;
 					}
 				}
@@ -306,6 +323,118 @@ public class UtilsString {
 		return result;
 	}
 		
+	
+	/**Get the English suffix that follows the specified value.
+	 * @param val - the numeric value to get the suffix for.
+	 * @return String - the suffix that follows the value.
+	 * @apiNote examples: 1 returns "st", 11 returns "th", 22 returns "nd", 33 returns "rd".
+	 * @author 5som3*/
+	public static String getNumericSuffix(int val) {
+		String v = "" + val;
+		if(v.length() == 2 && v.substring(v.length() - 2, v.length() - 1).equals("1")) return "th";
+		String character = v.substring(v.length() - 1, v.length());
+		if(character.equals("1")) return "st";
+		if(character.equals("2")) return "nd";
+		if(character.equals("3")) return "rd";
+		if(character.equals("4") || character.equals("5") || character.equals("6") || character.equals("7") || character.equals("8") || character.equals("9") || character.equals("0")) return "th";
+		
+		Console.err("UtilsString -> getNumericSuffix() -> value doesn't end with a numeric : " + character);
+		return "ERROR";
+	}
+	
+	/**Get the day of the week at the users locale.
+	 * @return String - the day of the week.
+	 * @author 5som3*/
+	public static String getLocalDayOfWeek() {
+		switch(calendar.get(Calendar.DAY_OF_WEEK)) {
+		case 1: return "Sunday";
+		case 2: return "Monday";
+		case 3: return "Tuesday";
+		case 4: return "Wednesday";
+		case 5: return "Thursday";
+		case 6: return "Friday";
+		case 7: return "Saturday";
+		default:
+			Console.err("UtilsString -> convertIntToDay() -> invalid case : " + calendar.get(Calendar.DAY_OF_WEEK));
+			return "Error!";
+		}
+	}
+	
+	/**Get the time in am/pm format at the users locale.
+	 * @return String - the current time including hours and minutes, excluding seconds.
+	 * @author 5som3*/
+	public static String getLocalTime() {
+		String result = "";
+		int hr = calendar.get(Calendar.HOUR_OF_DAY);
+		
+		String suffix = "am";
+		if(hr > 11 && hr < 24) suffix = "pm";
+		
+		if(hr < 10) result += " ";
+		if(hr > 12 && hr < 22) result += " ";
+		if(hr > 12) hr -= 12;
+		result += hr + ":";
+		
+		int min = + calendar.get(Calendar.MINUTE);
+		if(min < 10) result += "0";
+		result += min + suffix;
+				
+		return result;
+	}
+	
+	/**Get the time in am/pm format at the users locale. 
+	 * @return String - the current time including hours, minutes and seconds.
+	 * @author 5som3*/
+	public static String getLocalTimePrecise() {
+		String result = getLocalTime();
+		String suffix = result.substring(result.length() - 2, result.length());
+		result = result.substring(0, result.length() - 2);
+		
+		result += ":";
+		int sec = calendar.get(Calendar.SECOND);
+		if(sec < 10) result += "0";
+		result += sec + suffix;		
+		
+		return result;
+	}
+	
+	/**Get the hour of the day at the users locale.
+	 * @return String - the hour of the day in 12 hour time format.
+	 * @author 5som3*/
+	public static String getLocalHourOfDay() {
+		switch(calendar.get(Calendar.HOUR_OF_DAY)){
+		case 1:  return " 1am";
+		case 2:  return " 2am";
+		case 3:  return " 3am";
+		case 4:  return " 4am";
+		case 5:  return " 5am";
+		case 6:  return " 6am";
+		case 7:  return " 7am";
+		case 8:  return " 8am";
+		case 9:  return " 9am";
+		case 10: return "10am";
+		case 11: return "11am";
+		case 12: return "12pm";
+		case 13: return " 1pm";
+		case 14: return " 2pm";
+		case 15: return " 3pm";
+		case 16: return " 4pm";
+		case 17: return " 5pm";
+		case 18: return " 6pm";
+		case 19: return " 7pm";
+		case 20: return " 8pm";
+		case 21: return " 9pm"; 
+		case 22: return "10pm";
+		case 23: return "11pm";
+		case 24: return "12am";
+		default:
+			Console.err("UtilsString -> getLocalHourOfDay() -> invalid case : " + calendar.get(Calendar.HOUR_OF_DAY));
+			return "ERROR!";
+		}
+	}
+	
+	/**
+	 * */
 	public static String convertDoubleToString(double value) {return String.valueOf(value);}
 
 	public static String convertDoubleToString(double value, int decimals) {

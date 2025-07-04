@@ -26,7 +26,7 @@ public class ConsoleInput extends GUIAssembly {
 		inputLine.setPosition(0, WarpedWindow.getWindowHeight() - inputLine.getHeight());
 		inputLine.setButtonAction(line -> {
 			Console.executeCommand(line);
-			inputLine.setInputState(true);
+			//inputLine.setInputState(false);
 		});
 		inputLine.setMaxCharacters(150);
 	}
