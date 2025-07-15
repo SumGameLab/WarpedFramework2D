@@ -766,7 +766,7 @@ public class WarpedViewport {
 			obj.setRenderTransformations();
 			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
 			if(obj.isVisible() && !isClipped(obj)) {			
-				at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
+				at.setTransform(1.0, 0.0, 0.0, 1.0, obj.x(), obj.y());
 				g.drawRenderedImage(obj.raster(), at);	
 			}
 			handleMouse(obj);

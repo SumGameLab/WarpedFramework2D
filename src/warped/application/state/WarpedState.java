@@ -28,7 +28,7 @@ public class WarpedState {
 	public static long passiveCycleDuration = 0;
 	
 	public static short cycleCount = 0;
-	
+		
 	private static Timer activeTimer  	 = new Timer("Timer Thread : State Timer");
 	private static TimerTask activeTask  = new TimerTask() {public void run() {updateActive();}};
 	private static TimerTask midTask 	 = new TimerTask() {public void run() {updateMid();}};
@@ -62,7 +62,7 @@ public class WarpedState {
 	
 	/**The application state, only one instance should ever exist*/
 	protected WarpedState() {	
-		activeTimer.scheduleAtFixedRate(activeTask, 0, 17);
+		activeTimer.scheduleAtFixedRate(activeTask, 0, 12);
 		activeTimer.scheduleAtFixedRate(midTask, 0, 1000);
 		activeTimer.scheduleAtFixedRate(slowTask, 0, 60000);
 		activeTimer.scheduleAtFixedRate(passiveTask, 0, 3600000);

@@ -337,10 +337,7 @@ public abstract class WarpedObject {
 	/**DO NOT CALL THIS METHOD
 	  *Updating is controlled by the group that this member belongs to
 	  *@author SomeKid*/
-	protected final void updateActively() {
-		if(!isAlive) return;
-		updateObject();	
-	};
+	protected final void updateActively() {updateObject();};
 
 	
 	/**The graphics object for this warped object

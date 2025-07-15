@@ -24,10 +24,11 @@ import javafx.scene.media.MediaException;
 import warped.application.state.WarpedFramework2D;
 import warped.application.state.WarpedState;
 import warped.functionalInterfaces.WarpedAction;
+import warped.graphics.window.WarpedWindow;
 
 public abstract class Console {
 
-	private static final String LOG_DIRECTORY = "dat/log";
+	private static final String LOG_DIRECTORY = "dat/log/console";
 	private static final String PREFIX = "/WarpedLog_";
 	private static final String SUFFIX = "_wldat.txt";
 	
@@ -94,6 +95,7 @@ public abstract class Console {
 		frameworkCommands.put("/setRes4k", () -> {WarpedFramework2D.getWindow().setWindowResolution(3840, 2160);});
 		frameworkCommands.put("/command", () -> {consoleCommands.keySet().forEach(k -> {WarpedState.notify.note(k);});});
 		frameworkCommands.put("/help", () -> {frameworkCommands.keySet().forEach(k -> {WarpedState.notify.note(k);});});
+		frameworkCommands.put("/dumpWindowGraphics", () -> {WarpedWindow.setLogFrames(60);});
 	}
 	
 

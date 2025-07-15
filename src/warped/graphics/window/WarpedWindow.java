@@ -19,13 +19,16 @@ import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
 import warped.WarpedProperties;
@@ -103,6 +106,11 @@ public class WarpedWindow extends Canvas {
 	private static Graphics bsGraphics;
 	protected static final int BUFFER_SIZE = 3;
 
+	protected static File outputFolder;
+	protected static String outputPath;
+	protected static boolean isLoggingFrames = false;
+	protected static int frameLogCount = 0;
+	protected static ArrayList<BufferedImage> frameLog = new ArrayList<>(); 
 	
 	private static int width  = 1920; 
 	private static int height = 1080; 
@@ -114,7 +122,6 @@ public class WarpedWindow extends Canvas {
 	private static BufferedImage raster = new BufferedImage(1, 1, 1);
 	private static BufferedImage buffer = new BufferedImage(1, 1, 1);
 	private static int bufferIndex = 0;
-	
 
 	private static int   loadBarBorderThickness = 5;
 	private static VectorI loadBarSize = new VectorI((int)(WarpedWindow.width - 200), 50);
@@ -144,12 +151,12 @@ public class WarpedWindow extends Canvas {
 		
 		System.setProperty("sun.java2d.opengl", "True");
 		
-		renderHints[RenderHints.RENDERING.ordinal()] 			 = RenderingHints.VALUE_RENDER_SPEED;
-		renderHints[RenderHints.ANTIALIASING.ordinal()] 		 = RenderingHints.VALUE_ANTIALIAS_OFF;
-		renderHints[RenderHints.COLOR.ordinal()] 				 = RenderingHints.VALUE_COLOR_RENDER_SPEED;
-		renderHints[RenderHints.INTERPOLATION.ordinal()] 		 = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
-		renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]   = RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;
-		renderHints[RenderHints.DITHERING.ordinal()]			 = RenderingHints.VALUE_DITHER_DISABLE;
+		renderHints[RenderHints.RENDERING.ordinal()] 			 = RenderingHints.VALUE_RENDER_QUALITY;
+		renderHints[RenderHints.ANTIALIASING.ordinal()] 		 = RenderingHints.VALUE_ANTIALIAS_ON;
+		renderHints[RenderHints.COLOR.ordinal()] 				 = RenderingHints.VALUE_COLOR_RENDER_QUALITY;
+		renderHints[RenderHints.INTERPOLATION.ordinal()] 		 = RenderingHints.VALUE_INTERPOLATION_BICUBIC;
+		renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]   = RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;
+		renderHints[RenderHints.DITHERING.ordinal()]			 = RenderingHints.VALUE_DITHER_ENABLE;
 		
 		WarpedWindow.windowName = windowName;
 		WarpedWindow.width  = applicationWidth;
@@ -316,6 +323,40 @@ public class WarpedWindow extends Canvas {
 		Console.ln("WarpedWindow -> toggleFullscreen()");
 		if(isFullScreen) windowed();
 		else fullScreen();
+	}
+	
+	/**Set then number of frames to log to hard drive.
+	 * @param frameCount - the number of frames to log.
+	 * @apiNote Frames will be logged to a new subfolder in the directory dat -> log -> windowDump
+	 * @author 5som3*/
+	public static void setLogFrames(int frameCount) {
+		if(frameCount < 1) {
+			Console.err("WarpedWindow -> setLogFrames() -> must log at least 1 frame, frame count will be set to 1.");
+			frameCount = 1;
+		}
+		if(frameCount > 1800) {
+			Console.err("WarpedWindow -> setLogFrames() -> must log at less than 1800 frames, frame count will be set to 1800.");
+			frameCount = 1800;
+		}
+		
+		File folder = new File("dat/log/graphics/window");
+		if(!folder.exists()) {
+			if(!folder.mkdirs()) {
+				Console.err("WarpedWindow -> setLogFrames() -> failed to create graphics log folder, unable to proceede");
+				return;
+			} else Console.ln("WarpedWindow -> setLogFrames() -> created new graphics log folder, proceeding..");
+		} else Console.ln("WarpedWindow -> setLogFrames() -> graphics log folder exist, proceeding...");
+		File[] subFolders = folder.listFiles();
+		File outputFolder = new File("dat/log/graphics/window/frameDump_" + subFolders.length);
+		outputPath = "dat/log/graphics/window/frameDump_" + subFolders.length +"/"; 
+		if(!outputFolder.mkdir()) {
+			Console.err("WarpedWindow -> setLogFrames() -> failed to create graphics log subfolder " + subFolders.length);
+			return;
+		} else Console.ln("WarpedWindow -> setLogFrames() -> created graphics log subfolder " + subFolders.length);
+		
+		WarpedWindow.outputFolder = outputFolder;
+		frameLogCount = frameCount;
+		isLoggingFrames = true;
 	}
 	
 	/**Get the time taken to update the window.
@@ -596,6 +637,26 @@ public class WarpedWindow extends Canvas {
 			}
 		}
 		bufferGraphics.dispose();
+		
+		if(isLoggingFrames) {
+			frameLog.add(UtilsImage.generateClone(buffer));
+			frameLogCount--;
+			Console.ln("WarpedWindow -> renderViewports() -> logging frame : " + frameLog.size());
+			
+			if(frameLogCount < 1) {
+				isLoggingFrames = false;
+				Console.ln("WarpedWindow -> renderViewports() -> writing frame dump...");
+				for(int i = 0; i < frameLog.size(); i++) {
+					File logFrame = new File(outputPath + "frame_" + i + ".png");
+					try {
+						ImageIO.write(frameLog.get(i), "png", logFrame);
+					} catch (IOException e) {
+						Console.stackTrace(e);
+					}
+				}
+				frameLog.clear();
+			}
+		}
 		pushGraphics();
 	}
 	
@@ -750,6 +811,9 @@ public class WarpedWindow extends Canvas {
 			viewPorts[i].dispatchMouseEvents();
 		}
 	}	
+	
+	
+	
 	
 	
 }
