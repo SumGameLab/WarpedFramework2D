@@ -48,10 +48,11 @@ public class WarpedVoidObject extends WarpedObject {
 		
 	}
 	@Override
-	public void updatePassive() {
+	protected void updatePosition(double deltaTime) {
 		// TODO Auto-generated method stub
 		
 	}
+
 
 	
 }

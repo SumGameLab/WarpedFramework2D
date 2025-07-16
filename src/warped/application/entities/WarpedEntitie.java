@@ -5,7 +5,6 @@ package warped.application.entities;
 import java.util.ArrayList;
 
 import warped.application.actionWrappers.ActionOption;
-import warped.application.entities.projectile.EntitieProjectile;
 import warped.application.state.WarpedObject;
 import warped.application.state.WarpedState;
 import warped.graphics.window.WarpedMouseEvent;
@@ -33,9 +32,6 @@ public abstract class WarpedEntitie extends WarpedObject {
 	protected final void addSelectOption(ActionOption option) {selectOptions.add(option);}
 	protected final void clearSelectOptions() {selectOptions.clear();}
 	
-	public void projectileCollision(EntitieProjectile collider) {
-		System.out.println("WarpedEntitie -> projectileCollision() -> projectile hit entitie");
-	}
 	
 	
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
@@ -50,6 +46,4 @@ public abstract class WarpedEntitie extends WarpedObject {
 	@Override
 	public void updateSlow() {return;}; 
 
-	@Override
-	public void updatePassive() {return;};
 }

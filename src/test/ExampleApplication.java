@@ -179,8 +179,8 @@ public class ExampleApplication extends WarpedApplication {
 		dude = new ExampleEntitie(testSprite);
 		dude.setPosition(900, 500);
 		testGroup.addMember(dude);
-		testGroup.addMember(new ExampleProjectile(300, 300, 8, 0.0));
-		testGroup2.addMember(new ExampleProjectile(900, 300, -0.5, 0.0));	
+		testGroup.addMember(new ExampleProjectile(300, 300, 750, 0.0));
+		testGroup2.addMember(new ExampleProjectile(900, 300, -500, 0.0));	
 		
 		//WarpedCollisionManager.setInternalCollisionMode(false);
 		WarpedCollisionManager.addCrossGroupCollision(testGroup2, testGroup);

@@ -60,18 +60,27 @@ public class ExampleProjectile extends WarpedObject {
 
 	@Override
 	protected void updateObject() {
-		move(velocity);
-		if (x() > 1920 - getWidth() || x() < 0) velocity.setX(-velocity.x());
-		if (y() > 1080 - getHeight() || y() < 0) velocity.setY(-velocity.y());		
+		if (x() > 1920 - getWidth()) {
+			velocity.setX(-velocity.x());
+			getPosition().setX(1920 - getWidth());
+		}
+		if(x() < 0) {
+			velocity.setX(-velocity.x());
+			getPosition().setX(0);
+		}
 	}
 
+	@Override
+	protected void updatePosition(double deltaTime) {
+		move(velocity.x() * deltaTime, velocity.y() * deltaTime);	
+	}
+	
 	@Override
 	protected void updateMid() {return;}
 
 	@Override
 	protected void updateSlow() {return;}
 
-	@Override
-	protected void updatePassive() {return;}
+
 
 }

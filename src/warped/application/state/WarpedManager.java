@@ -287,6 +287,9 @@ public class WarpedManager<T extends WarpedObject> {
 	}	
 	
 	/**Update 60 times per second*/
+	protected final void updatePosition(double deltaTime) {for(int i = 0; i< activeGroups.size(); i++) activeGroups.get(i).updatePosition(deltaTime);}
+	
+	/**Update 60 times per second*/
 	protected final void updateActive() {for(int i = 0; i< activeGroups.size(); i++) activeGroups.get(i).updateActive();}
 	
 	/**Update once per second*/
@@ -294,10 +297,7 @@ public class WarpedManager<T extends WarpedObject> {
 	
 	/**Update once per minute*/
 	protected final void updateSlow() {for(int i = 0; i< activeGroups.size(); i++) activeGroups.get(i).updateSlow();}
-	
-	/**Update once per hour*/
-	protected final void updatePassive() {for(int i = 0; i< activeGroups.size(); i++) activeGroups.get(i).updatePassive();}
-	
+		
 
 	@SuppressWarnings("unchecked")
 	/**Get the specified group cast as the declared classType.

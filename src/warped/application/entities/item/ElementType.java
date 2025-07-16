@@ -521,5 +521,10 @@ public enum ElementType implements ItemBindable<ElementType>{
 			return FrameworkSprites.error;
 		}
 	}
+	@Override
+	public boolean isDropable(ElementType itemType) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 	
 }

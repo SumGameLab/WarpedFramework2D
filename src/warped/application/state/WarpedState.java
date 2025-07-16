@@ -27,13 +27,16 @@ public class WarpedState {
 	public static long slowCycleDuration	= 0;
 	public static long passiveCycleDuration = 0;
 	
+	private static double deltaTime = 0;
+	private static long lastTime = System.nanoTime();
+	
 	public static short cycleCount = 0;
 		
-	private static Timer activeTimer  	 = new Timer("Timer Thread : State Timer");
-	private static TimerTask activeTask  = new TimerTask() {public void run() {updateActive();}};
-	private static TimerTask midTask 	 = new TimerTask() {public void run() {updateMid();}};
-	private static TimerTask slowTask 	 = new TimerTask() {public void run() {updateSlow();}};
-	private static TimerTask passiveTask = new TimerTask() {public void run() {updatePassive();}};
+	private static Timer activeTimer  	  = new Timer("Timer Thread : State Timer");
+	private static TimerTask positionTask = new TimerTask() {public void run() {updatePosition();}};
+	private static TimerTask activeTask   = new TimerTask() {public void run() {updateActive();}};
+	private static TimerTask midTask 	  = new TimerTask() {public void run() {updateMid();}};
+	private static TimerTask slowTask 	  = new TimerTask() {public void run() {updateSlow();}};
 	
 	private static boolean pause = true;
 	private static boolean isInitialized = false;
@@ -62,10 +65,10 @@ public class WarpedState {
 	
 	/**The application state, only one instance should ever exist*/
 	protected WarpedState() {	
-		activeTimer.scheduleAtFixedRate(activeTask, 0, 12);
+		activeTimer.scheduleAtFixedRate(positionTask, 0, 4);
+		activeTimer.scheduleAtFixedRate(activeTask, 0, 17);
 		activeTimer.scheduleAtFixedRate(midTask, 0, 1000);
 		activeTimer.scheduleAtFixedRate(slowTask, 0, 60000);
-		activeTimer.scheduleAtFixedRate(passiveTask, 0, 3600000);
 	}
 	
 	/**The duration of the last active update cycle
@@ -112,7 +115,6 @@ public class WarpedState {
 		activeTask.cancel();
 		midTask.cancel();
 		slowTask.cancel();
-		passiveTask.cancel();
 		
 		activeTimer.cancel();
 	
@@ -246,17 +248,20 @@ public class WarpedState {
 	 * @author 5som3*/
 	public static boolean isPaused() {return pause;}
 	
+	
+	private static void updatePosition() {
+		deltaTime = (System.nanoTime() - lastTime) / 1000000000.0; // seconds
+		for(int i = 0; i < managers.length; i++) managers[i].updatePosition(deltaTime);
+		lastTime = System.nanoTime();
+	}
+
 	/**Update 60 times per second*/
 	private static void updateActive() {
 		if(pause) return;
 		long cycleStartTime = System.nanoTime();
 		cycleCount++;
-		
-		if(pauseBreak) {
-			Console.err("BREAK LINE");
-		}
-		
-		for(int i = 0; i < managers.length; i++) managers[i].updateActive();
+				
+		for(int i = 0; i < managers.length; i++) managers[i].updateActive();				
 		for(WarpedAssembly assembly : assemblys) assembly.updateAssembly();
 		for(WarpedAudioFolder<?> folder : audioFolders) folder.update();
 		
@@ -264,6 +269,7 @@ public class WarpedState {
 		WarpedFramework2D.getApp().persistentLogic();
 		
 		activeCycleDuration = System.nanoTime() - cycleStartTime;
+		
 	}
 	
 	/**Update once per second*/
@@ -276,19 +282,14 @@ public class WarpedState {
 	
 	/**Update once per minute*/
 	private static void updateSlow() {
-		System.gc();
+		//System.gc();
 		if(pause) return; 
 		long cycleStartTime = System.nanoTime();
 		for(int i = 0; i < managers.length; i++) managers[i].updateSlow();
 		slowCycleDuration = System.nanoTime() - cycleStartTime;
 	}
 
-	/**Update once per hour*/
-	private static void updatePassive() {
-		long cycleStartTime = System.nanoTime();
-		for(int i = 0; i < managers.length; i++) managers[i].updatePassive();
-		passiveCycleDuration = System.nanoTime() - cycleStartTime;
-	}
+
 	
 	/**Initialize the default assemblys*/
 	protected void initializeAssemblys() {

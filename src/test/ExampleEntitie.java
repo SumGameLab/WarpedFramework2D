@@ -6,13 +6,16 @@ import warped.application.state.WarpedState;
 import warped.graphics.sprite.CharacterSprite;
 import warped.graphics.sprite.CharacterSprite.AnimationType;
 import warped.graphics.window.WarpedMouseEvent;
+import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsMath;
 
 public class ExampleEntitie extends WarpedEntitie {
 
 
+	private double speed = 61.621;
 	CharacterSprite characterSprite;
+	VectorD velocity = new VectorD(speed, speed);
 	
 	public ExampleEntitie(CharacterSprite sprite) {
 		setSprite(sprite);
@@ -42,20 +45,16 @@ public class ExampleEntitie extends WarpedEntitie {
 		else speed -= 0.1;
 	}
 
-	private double speed = 1.621;
-	/**
-	 * */
 	@Override
 	public void updateObject() {
-		
-		if(characterSprite.getAnimation() == AnimationType.MOVE_DOWN) move(0.0, speed * 1.5);
-		if(characterSprite.getAnimation() == AnimationType.MOVE_DOWN_LEFT) move(-speed, speed);
-		if(characterSprite.getAnimation() == AnimationType.MOVE_DOWN_RIGHT) move(speed, speed);
-		if(characterSprite.getAnimation() == AnimationType.MOVE_UP) move(0.0, -speed * 1.5);
-		if(characterSprite.getAnimation() == AnimationType.MOVE_UP_LEFT) move(-speed, -speed);
-		if(characterSprite.getAnimation() == AnimationType.MOVE_UP_RIGHT) move(speed, -speed);
-		if(characterSprite.getAnimation() == AnimationType.MOVE_LEFT) move(-speed * 1.5, 0.0);
-		if(characterSprite.getAnimation() == AnimationType.MOVE_RIGHT) move(speed, 0.0);
+		if(characterSprite.getAnimation() == AnimationType.MOVE_DOWN) velocity.set(0.0, speed * 1.5);
+		if(characterSprite.getAnimation() == AnimationType.MOVE_DOWN_LEFT) velocity.set(-speed, speed);
+		if(characterSprite.getAnimation() == AnimationType.MOVE_DOWN_RIGHT) velocity.set(speed, speed);
+		if(characterSprite.getAnimation() == AnimationType.MOVE_UP) velocity.set(0.0, -speed * 1.5);
+		if(characterSprite.getAnimation() == AnimationType.MOVE_UP_LEFT) velocity.set(-speed, -speed);
+		if(characterSprite.getAnimation() == AnimationType.MOVE_UP_RIGHT) velocity.set(speed, -speed);
+		if(characterSprite.getAnimation() == AnimationType.MOVE_LEFT) velocity.set(-speed * 1.5, 0.0);
+		if(characterSprite.getAnimation() == AnimationType.MOVE_RIGHT) velocity.set(speed, 0.0);
 		
 		if(x() < -getWidth()) setPosition(1920, y());
 		if(x() > 1920) setPosition(- getWidth(), y());
@@ -74,5 +73,11 @@ public class ExampleEntitie extends WarpedEntitie {
 		if(rnd == 6)characterSprite.setAnimation(AnimationType.MOVE_UP_RIGHT);
 		if(rnd == 7)characterSprite.setAnimation(AnimationType.MOVE_LEFT);
 		if(rnd == 8)characterSprite.setAnimation(AnimationType.MOVE_RIGHT);
+	}
+
+	@Override
+	protected void updatePosition(double deltaTime) {
+		move(velocity.x() * deltaTime, velocity.y() * deltaTime);
+		
 	}
 }

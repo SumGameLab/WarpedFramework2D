@@ -87,9 +87,12 @@ public class WarpedTile extends WarpedObject {
 	public void updateMid() {return;};
 	
 	@Override
-	public void updateSlow() {return;}; 
+	public void updateSlow() {return;}
 
 	@Override
-	public void updatePassive() {return;};
-	
+	protected void updatePosition(double deltaTime) {
+		// TODO Auto-generated method stub
+		
+	}; 
+
 }

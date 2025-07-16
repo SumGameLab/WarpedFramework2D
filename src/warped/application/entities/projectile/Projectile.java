@@ -101,10 +101,7 @@ public class Projectile extends WarpedObject {
 	public void setExpireAction(WarpedAction expireAction) {this.expireAction = expireAction;}
 
 	@Override
-	public void updateObject() {
-		velocity.add(acceleration);
-		move(velocity);
-		
+	public void updateObject() {		
 		switch(lifeType) {
 		case DISTANCE:
 			if(startPosition.getDistanceBetweenVectors(getCenter()) > distanceOut) {
@@ -126,13 +123,17 @@ public class Projectile extends WarpedObject {
 	}
 	
 	@Override
+	protected void updatePosition(double deltaTime) {
+		velocity.add(acceleration);
+		move(velocity.x() * deltaTime, velocity.y() * deltaTime);
+		
+	}
+	
+	@Override
 	public void updateMid() {return;}
 
 	@Override
 	public void updateSlow() {return;}
-
-	@Override
-	public void updatePassive() {return;}
 
 	@Override
 	protected void mouseEntered() {return;}
@@ -154,5 +155,7 @@ public class Projectile extends WarpedObject {
 
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {return;}
+
+
 
 }

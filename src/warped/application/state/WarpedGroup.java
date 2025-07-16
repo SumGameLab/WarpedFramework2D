@@ -282,43 +282,26 @@ public class WarpedGroup<T extends WarpedObject> {
 	 * */
 
 	/**Update 60 times per second*/
+	protected void updatePosition(double deltaTime) {
+		for(int i = 0; i < members.size(); i++) {
+			members.get(i).updatePosition(deltaTime);
+		}
+	}
+	
+	/**Update 60 times per second*/
 	protected void updateActive() {
 		for(int i = 0; i < members.size(); i++) {
 			T member = members.get(i);
 			if(!member.isAlive()) members.remove(i);
-			else member.updateActively();
+			else member.updateObject();
 		}
 	}
 	
 	/**Update once per second*/
-	protected void updateMid() {
-		for(int i = 0; i < members.size(); i++) {
-			T member = members.get(i);
-			member.updateActively();
-			member.updateMid();
-		}
-	}
+	protected void updateMid() {for(int i = 0; i < members.size(); i++)	members.get(i).updateMid();}
 	
 	/**Update once per minute*/
-	protected void updateSlow() {
-		for(int i = 0; i < members.size(); i++) {
-			T member = members.get(i);
-			member.updateActively();
-			member.updateMid();
-			member.updateSlow();
-		}
-	}
-	
-	/**Update once per hour*/
-	protected void updatePassive() {
-		for(int i = 0; i < members.size(); i++) {
-			T member = members.get(i);
-			member.updateActively();
-			member.updateMid();
-			member.updateSlow();
-			member.updatePassive();
-		}
-	}
+	protected void updateSlow() {for(int i = 0; i < members.size(); i++) members.get(i).updateSlow();}
 
 	/*
 	/**Called after each update active cycle

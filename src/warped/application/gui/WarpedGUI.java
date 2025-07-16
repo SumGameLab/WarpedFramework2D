@@ -69,14 +69,14 @@ public abstract class WarpedGUI extends WarpedObject {
 	public void updateObject() {return;}
 	
 	@Override
+	public void updatePosition(double deltaTime) {return;}
+	
+	@Override
 	public void updateMid() {return;};
 	
 	@Override
 	public void updateSlow() {return;}; 
 
-	@Override
-	public void updatePassive() {return;};
-	
 	/**This will generate new buffered images for the sprite of the specified size.
 	 * @apiNote the updateGraphics() method will execute after the sprite has been resized. 
 	 *@author SomeKid*/
@@ -87,6 +87,7 @@ public abstract class WarpedGUI extends WarpedObject {
 	
 	protected abstract void updateGraphics();
 
+	
 
 	
 }

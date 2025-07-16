@@ -334,11 +334,8 @@ public abstract class WarpedObject {
 	//--------
 	//------------------- Update ---------------------
 	//--------
-	/**DO NOT CALL THIS METHOD
-	  *Updating is controlled by the group that this member belongs to
-	  *@author SomeKid*/
-	protected final void updateActively() {updateObject();};
 
+	protected abstract void updatePosition(double deltaTime);
 	
 	/**The graphics object for this warped object
 	 * @author SomeKid*/
@@ -494,13 +491,6 @@ public abstract class WarpedObject {
 	 * @implNote Objects will only be updated if the group they are in is 'Open'. 
 	 * @author SomeKid*/
 	protected abstract void updateSlow(); 
-	
-	/**DO NOT CALL! - This method is called automatically by the group that it belongs to.
-	 * @apiNote Is called once per hour.
-	 * @apiNote For very complex regular recurring updates.
-	 * @implNote Objects will only be updated if the group they are in is 'Open'. 
-	 * @author SomeKid*/
-	protected abstract void updatePassive();
 	
 	//--------
 	//------------------- Save ---------------------

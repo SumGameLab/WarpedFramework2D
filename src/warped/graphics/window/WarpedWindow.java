@@ -94,7 +94,7 @@ public class WarpedWindow extends Canvas {
 	private static ScheduledExecutorService executor;
 	private static Timer timer = new Timer("Timer Thread : Load Timer");
 	private static TimerTask updateLoadGraphics = new TimerTask(){public void run() {renderLoadscreen();}};
-	private static TimerTask renderLoadGraphics = new TimerTask(){public void run() {renderCanvas();}};
+	//private static TimerTask renderLoadGraphics = new TimerTask(){public void run() {renderCanvas();}};
 	private static WindowListener stopListener = new WindowAdapter() {@Override public void windowClosing(WindowEvent e) {WarpedFramework2D.stop();}};	
 	
 	public static  BufferedImage frameIcon = UtilsImage.loadBufferedImage("res/framework/graphics/frame_icon.png");
@@ -189,7 +189,7 @@ public class WarpedWindow extends Canvas {
 		viewPorts[1] = new WarpedViewport("GUI", WarpedState.guiManager, 0, 0, width, height); 
 				
         timer.scheduleAtFixedRate(updateLoadGraphics, 0, 16);
-        timer.scheduleAtFixedRate(renderLoadGraphics, 0, 16);
+        //timer.scheduleAtFixedRate(renderLoadGraphics, 0, 16);
 	}
 	
 
@@ -613,15 +613,6 @@ public class WarpedWindow extends Canvas {
 		buffer = rasterBuffer[bufferIndex];
 	}
 	
-	private static void renderCanvas() {
-		long cycleStartTime = System.nanoTime();
-		bsGraphics = bs.getDrawGraphics();
-		bsGraphics.drawImage(raster, 0, 0, width, height, null);
-		bsGraphics.dispose();
-		bs.show();
-		fps++;
-		renderDuration = System.nanoTime() - cycleStartTime;
-	}
 
 	/**Gets the next image in the buffer and fills it with black, then draws the viewports onto the image, finally the composite of viewports is drawn into this canvas
 	 * @author SomeKid*/
@@ -658,6 +649,14 @@ public class WarpedWindow extends Canvas {
 			}
 		}
 		pushGraphics();
+		
+		long cycleStartTime = System.nanoTime();
+		bsGraphics = bs.getDrawGraphics();
+		bsGraphics.drawImage(raster, 0, 0, width, height, null);
+		bsGraphics.dispose();
+		bs.show();
+		fps++;
+		renderDuration = System.nanoTime() - cycleStartTime;
 	}
 	
 	/**This method is not called it is scheduled when the WarpedWindow is constructed. Draws the load screen into the canvas while WarpedFramework2D is initialized.
@@ -685,6 +684,14 @@ public class WarpedWindow extends Canvas {
 		bufferGraphics.dispose();
 		
 		pushGraphics();
+		
+		long cycleStartTime = System.nanoTime();
+		bsGraphics = bs.getDrawGraphics();
+		bsGraphics.drawImage(raster, 0, 0, width, height, null);
+		bsGraphics.dispose();
+		bs.show();
+		fps++;
+		renderDuration = System.nanoTime() - cycleStartTime;
 	}
 	
 	/** Get the graphics for the next image in the buffer.
@@ -729,10 +736,9 @@ public class WarpedWindow extends Canvas {
 			return;
 		}
 		
-		executor = Executors.newScheduledThreadPool(viewPorts.length + 3, new WarpedThreadFactory("Window Thread"));
+		executor = Executors.newScheduledThreadPool(viewPorts.length + 2, new WarpedThreadFactory("Window Thread"));
 		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
 		executor.scheduleAtFixedRate(WarpedWindow::dispatchMouseEvent, 0, 16666666, TimeUnit.NANOSECONDS);
-		executor.scheduleAtFixedRate(WarpedWindow::renderCanvas, 0, 16666666, TimeUnit.NANOSECONDS);
 		for(int i = 0; i < viewPorts.length; i++) {			
 			executor.scheduleAtFixedRate(viewPorts[i]::update, 0, 16666666, TimeUnit.NANOSECONDS);
 		}		

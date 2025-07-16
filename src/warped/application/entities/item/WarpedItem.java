@@ -238,6 +238,12 @@ public class WarpedItem <T extends ItemBindable<? extends Enum<?>>>extends Warpe
 			updateDrop();
 		}
 	}
+
+	@Override
+	protected void updatePosition(double deltaTime) {
+		// TODO Auto-generated method stub
+		
+	}
 	
 	
 	

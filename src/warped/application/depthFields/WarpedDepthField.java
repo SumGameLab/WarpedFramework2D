@@ -42,11 +42,14 @@ public class WarpedDepthField extends WarpedObject {
 	
 	@Override
 	public void updateSlow() {return;}; 
-
-	@Override
-	public void updatePassive() {return;}
 	
 	@Override
 	public void updateObject() {return;}
+
+	@Override
+	protected void updatePosition(double deltaTime) {
+		// TODO Auto-generated method stub
+		
+	}
 }
 

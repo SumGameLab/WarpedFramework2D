@@ -54,7 +54,7 @@ public class GUIScrollInventory extends WarpedGUI {
 	}
 	
 	
-	private void updateGraphics() {
+	protected void updateGraphics() {
 		
 	}
 	
