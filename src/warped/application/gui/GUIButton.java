@@ -361,6 +361,8 @@ public class GUIButton extends WarpedGUI {
 		}		
 	}
 	
+	
+	
 	protected void mouseMoved(WarpedMouseEvent mouseEvent) {
 		if(isLocked) return;
 		if(!isDragging) {	

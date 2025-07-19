@@ -337,6 +337,7 @@ public class WarpedCamera {
 	/**This update method should be called by its parent view port
 	 * when that viewport renders it should update the camera once*/
 	protected void update() {
+		/*
 		if(path != null) {
 			if(path.isComplete(this)) {
 				path = null;
@@ -346,6 +347,7 @@ public class WarpedCamera {
 				}
 			}		
 		}
+		*/
 	}
 	
 	/**Update camera position if target position changes*/

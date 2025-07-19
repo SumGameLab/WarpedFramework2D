@@ -505,91 +505,104 @@ public class WarpedWindow extends Canvas {
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintRenderingQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
+	public static void hintViewportsRenderingQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
+	public static void hintRenderingQuality() {renderHints[RenderHints.RENDERING.ordinal()] = RenderingHints.VALUE_RENDER_QUALITY;}
 	/**Reduced render quality but faster.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintRenderingSpeed()   {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingSpeed();}
+	public static void hintViewportsRenderingSpeed()   {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingSpeed();}
+	public static void hintRenderingSpeed() {renderHints[RenderHints.RENDERING.ordinal()] = RenderingHints.VALUE_RENDER_SPEED;}
 	/**Better colour quality but slower.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored. 
 	 * @author SomeKid*/
-	public void hintColorQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorQuality();}
+	public static void hintViewportsColorQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorQuality();}
+	public static void hintColorQuality() {renderHints[RenderHints.COLOR.ordinal()] = RenderingHints.VALUE_COLOR_RENDER_QUALITY;}
 	/**Reduced colour quality but faster.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintColorSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorSpeed();}
+	public static void hintViewportsColorSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorSpeed();}
+	public static void hintColorSpeed() {renderHints[RenderHints.COLOR.ordinal()] = RenderingHints.VALUE_COLOR_RENDER_SPEED;}
 	/**Turn on antialiasing for images.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/            
-	public void hintAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
+	public static void hintViewportsAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
+	public static void hintAntialiasingOn() {renderHints[RenderHints.ANTIALIASING.ordinal()] = RenderingHints.VALUE_ANTIALIAS_ON;}
 	/**Turn off antialiasing for images.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
-	public void hintAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOff();}
+	public static void hintViewportsAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOff();}
+	public static void hintAntialiasingOff() {renderHints[RenderHints.ANTIALIASING.ordinal()] = RenderingHints.VALUE_ANTIALIAS_OFF;}
 	/**Turn on antialiasing for text.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
-	public void hintTextAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
+	public static void hintViewportsTextAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
+	//public static void hintTextAntialiasingOn() {renderHints[RenderHints..ordinal()] = RenderingHints.VALUE_ANTIALIAS_ON;}
 	/**Turn off antialiasing for text.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
-	public void hintTextAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
+	public static void hintViewportsTextAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
 	            
 	/**Scale images using NearestNeighbour algorithm - fast but low quality.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
-	public void hintInterpolationNearestNeighbour() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationNearestNeighbour();}
+	public static void hintViewportsInterpolationNearestNeighbour() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationNearestNeighbour();}
+	public static void hintInterpolationNearestNeighbour() {renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;}
 	/**Scale images using Bilinear algorithm - better quality than NearestNeighbour but slower.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
-	public void hintInterpolationBilinear() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBilinear();}
+	public static void hintViewportsInterpolationBilinear() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBilinear();}
+	public static void hintInterpolationBilinear() {renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;}
 	/**Scale images using Bicubic algorithm - slow but accurate scaling.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
-	public void hintInterpolationBicubic() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBicubic();}
-	            
+	public static void hintViewportsInterpolationBicubic() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBicubic();}
+	public static void hintInterpolationBicubic() {renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_BICUBIC;}
 	/**Best quality alpha blending, slowest
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintAlphaInterpolationQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationQuality();}
+	public static void hintViewportsAlphaInterpolationQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationQuality();}
+	public static void hintAlphaInterpolationQuality() {renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()] = RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;}
 	/**Fast, reduced fidelity 
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintAlphaInterpolationSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationSpeed();}
+	public static void hintViewportsAlphaInterpolationSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationSpeed();}
+	public static void hintAlphaInterpolationSpeed() {renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()] = RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;}
 	            
 	/**Not sure what this does, lol.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintStrokeNormalise() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintStrokeNormalise();}
+	public static void hintViewportsStrokeNormalise() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintStrokeNormalise();}
 	/**Not sure what this does, lol.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintStrokePure() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintStrokePure();}
+	public static void hintViewportsStrokePure() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintStrokePure();}
 	            
 	/**Improves the quality of edges of rotated images, increases render time.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintDitheringOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOn();}
+	public static void hintViewportsDitheringOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOn();}
+	public static void hintDitheringOn() {renderHints[RenderHints.DITHERING.ordinal()] = RenderingHints.VALUE_DITHER_ENABLE;}
 	/**Skip dithering, increase render time.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
-	public void hintDitheringOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOff();}
+	public static void hintViewportsDitheringOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOff();}
+	public static void hintDitheringOff() {renderHints[RenderHints.DITHERING.ordinal()] = RenderingHints.VALUE_DITHER_DISABLE;}
 	
 	
 	//--------
@@ -739,6 +752,7 @@ public class WarpedWindow extends Canvas {
 		executor = Executors.newScheduledThreadPool(viewPorts.length + 2, new WarpedThreadFactory("Window Thread"));
 		executor.scheduleAtFixedRate(WarpedWindow::update, 0, 16666666, TimeUnit.NANOSECONDS);
 		executor.scheduleAtFixedRate(WarpedWindow::dispatchMouseEvent, 0, 16666666, TimeUnit.NANOSECONDS);
+		
 		for(int i = 0; i < viewPorts.length; i++) {			
 			executor.scheduleAtFixedRate(viewPorts[i]::update, 0, 16666666, TimeUnit.NANOSECONDS);
 		}		

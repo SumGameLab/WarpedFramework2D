@@ -96,6 +96,8 @@ public abstract class Console {
 		frameworkCommands.put("/command", () -> {consoleCommands.keySet().forEach(k -> {WarpedState.notify.note(k);});});
 		frameworkCommands.put("/help", () -> {frameworkCommands.keySet().forEach(k -> {WarpedState.notify.note(k);});});
 		frameworkCommands.put("/dumpWindowGraphics", () -> {WarpedWindow.setLogFrames(60);});
+		frameworkCommands.put("/runGarbageCollector", () -> {System.gc();});
+		
 	}
 	
 

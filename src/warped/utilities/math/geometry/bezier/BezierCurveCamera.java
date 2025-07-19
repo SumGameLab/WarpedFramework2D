@@ -93,7 +93,7 @@ public class BezierCurveCamera extends BezierCurveLinearD {
 	}
 	
 	
-	
+	/*
 	public boolean isComplete(WarpedCamera camera) {
 		if(complete) {
 			pf = null;
@@ -122,4 +122,5 @@ public class BezierCurveCamera extends BezierCurveLinearD {
 		if(complete) return true;
 		else return false;
 	}
+	*/
 }

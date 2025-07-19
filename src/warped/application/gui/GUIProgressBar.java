@@ -98,9 +98,33 @@ public class GUIProgressBar extends WarpedGUI {
 		setFillDirection(fillDirection);
 		updateGraphics();
 	}
+	
+	/**Set the colour to fill the bar with. This is the color the bar will appear if progress is 100%.
+	 * @param fullColor - the colour to draw progress with.
+	 * @author 5som3*/
+	public void setFullColor(Color fullColor) {
+		this.fullColor = fullColor;
+		updateGraphics();
+	}
+	
+	/**Set the colour to show lack of progress. This is the colour the bar will appear if progress is 0%.
+	 * @param emptyColor - the colour to draw lack of progress with.
+	 * @author 5som3*/
+	public void setEmptyColor(Color emptyColor) {
+		this.emptyColor = emptyColor;
+		updateGraphics();
+	}
+	
+	/**Set the colour to draw the border of the progress bar.
+	 * @param borderColor - the colour to draw the border.
+	 * @author 5som3*/
+	public void setBorderColor(Color borderColor) {
+		this.borderColor = borderColor;
+		updateGraphics();
+	}
 		
 	/**Set if the progress should be displayed as text
-	 * */
+	 * @author 5som3 */
 	public void setProgressTextVisible(boolean isProgressTextVisible) {
 		if(this.isProgressTextVisible != isProgressTextVisible) {
 			this.isProgressTextVisible = isProgressTextVisible;

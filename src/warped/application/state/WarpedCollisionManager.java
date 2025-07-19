@@ -189,6 +189,7 @@ public class WarpedCollisionManager {
 					if(collisionExact(memberA, memberB)) {
 						memberA.hit(memberB);
 						memberB.hit(memberA);
+						break;
 					}
 				}	
 			}
@@ -212,6 +213,7 @@ public class WarpedCollisionManager {
 					if(collisionQuick(memberA, memberB)) {
 						memberA.hit(memberB);;
 						memberB.hit(memberA);
+						break;
 					}
 				}	
 			}
@@ -236,6 +238,7 @@ public class WarpedCollisionManager {
 						if(collisionExact(memberA, memberB)) {
 							memberA.hit(memberB);
 							memberB.hit(memberA);
+							break;
 						}
 					}
 				}
@@ -261,6 +264,7 @@ public class WarpedCollisionManager {
 						if(collisionQuick(memberA, memberB)) {
 							memberA.hit(memberB);
 							memberB.hit(memberA);
+							break;
 						}
 					}
 				}

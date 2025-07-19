@@ -66,7 +66,7 @@ public class WarpedState {
 	/**The application state, only one instance should ever exist*/
 	protected WarpedState() {	
 		activeTimer.scheduleAtFixedRate(positionTask, 0, 4);
-		activeTimer.scheduleAtFixedRate(activeTask, 0, 17);
+		activeTimer.scheduleAtFixedRate(activeTask, 0, 16);
 		activeTimer.scheduleAtFixedRate(midTask, 0, 1000);
 		activeTimer.scheduleAtFixedRate(slowTask, 0, 60000);
 	}
@@ -151,7 +151,7 @@ public class WarpedState {
 	
 	/**Add a manager to the state
 	 * @author 5som3*/
-	protected static void addManager(WarpedManager<?> manager) {
+	public static void addManager(WarpedManager<?> manager) {
 		for(int i = 0; i < managers.length; i++) {
 			if(managers[i].UNIQUE_ID == manager.UNIQUE_ID) {
 				Console.err("WarpedState -> addManager() -> manager already exist in state");
@@ -250,6 +250,7 @@ public class WarpedState {
 	
 	
 	private static void updatePosition() {
+		if(pause) return;
 		deltaTime = (System.nanoTime() - lastTime) / 1000000000.0; // seconds
 		for(int i = 0; i < managers.length; i++) managers[i].updatePosition(deltaTime);
 		lastTime = System.nanoTime();

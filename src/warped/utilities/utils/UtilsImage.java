@@ -13,6 +13,7 @@ import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -88,7 +89,75 @@ public class UtilsImage {
 		return FrameworkSprites.error;
 		
 	}
-		 
+		
+	/**Generate a sprite sheet from a folder of animation frames.
+	 * @param path - the path of the folder containing the animation frames.
+	 * @return BufferedImage - returns a buffered image containing the sprite strip.
+	 * @apiNote frames are loaded by file name alphabetically. 
+	 * @author 5som3*/
+	public static BufferedImage generateSpriteSheet(String path) {
+		BufferedImage result = null;
+		
+		File folder = new File(path);
+		if(!folder.exists()) {
+			Console.err("UtilsImage -> constructSpriteSheet() -> no folder exists at path : " + path);
+			return result;
+		}
+		
+		File[] imageFiles = folder.listFiles();
+		if(imageFiles.length == 0) {
+			Console.err("UtilsImage -> constructSpriteSheet() -> folder exists but contains no files");
+			return result;
+		}
+		
+		int frameWidth  = 0;
+		int frameHeight = 0;
+		ArrayList<BufferedImage> frames = new ArrayList<>();
+		for(int i = 0; i < imageFiles.length; i++) {
+			try {
+				frames.add(ImageIO.read(imageFiles[i]));
+			} catch (IOException e) {
+				Console.err("UtilsImage -> constructSpriteSheet() -> failed to load frame from file : " + i);
+				Console.stackTrace(e);
+			}
+			if(i == 0) {
+				frameWidth  = frames.get(0).getWidth();
+				frameHeight = frames.get(0).getHeight();
+			}
+			if(frames.get(i).getWidth() != frameWidth) {
+				Console.err("UtilsImage -> constructSpriteSheet() -> animation inconsistent, width of image " + i + " does not match the frameWidth : " + frameWidth);
+				return result;
+			}
+			if(frames.get(i).getHeight() != frameHeight) {
+				Console.err("UtilsImage -> constructSpriteSheet() -> animation inconsistent, height of image " + i + " does not match the frameHeight : " + frameHeight);
+				return result;
+			}
+		}
+		
+		result = new BufferedImage(frameWidth * frames.size(), frameHeight, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		Graphics g = result.getGraphics();
+		for(int i = 0; i < frames.size(); i++) g.drawImage(frames.get(i), i * frameWidth, 0, frameWidth, frameHeight, null);
+		g.dispose();
+		return result;
+	}
+	
+	/**Write a buffered image to file.
+	 * @param image - the image to write to file.
+	 * @param outputFileNamePath - the file path and file name as a string i.e. /folder/file_name
+	 * @return boolean - true if the file was written to file, else false.  
+	 * @apiNote Function assumes that the folder already exists, will fail if location doesn't exist.  
+	 * @author 5som3*/
+	public static boolean writeImageToFile(BufferedImage image, String outputFileNamePath) {		
+		File output = new File(outputFileNamePath + ".png");
+		try {
+			ImageIO.write(image, "png", output);
+		} catch (IOException e) {
+			Console.err("UtilsImage -> writeImageToFile() -> failed to write file");
+			Console.stackTrace(e);
+			return false;
+		}
+		return true;
+	}
 	
 	//--------
 	//---------------- Folder Macros ---------------

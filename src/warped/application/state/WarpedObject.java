@@ -335,7 +335,7 @@ public abstract class WarpedObject {
 	//------------------- Update ---------------------
 	//--------
 
-	protected abstract void updatePosition(double deltaTime);
+	
 	
 	/**The graphics object for this warped object
 	 * @author SomeKid*/
@@ -471,9 +471,8 @@ public abstract class WarpedObject {
 	//--------	
 
 	/**DO NOT CALL! - This method is called automatically by the group that it belongs to.
-	 * @apiNote Is called once per tick. 
-	 * @apiNote Game logic should be event based not updated per tick but it is possible.
-	 * @apiNote Avoid using this method unless absolutely necessary. 
+	 * @apiNote Is called sixty 58-59 times per second. 
+	 * @apiNote Game logic should be event based not updated per tick but it is possible. 
 	 * @implNote Objects will only be updated if the group they are in is 'Open'.
 	 * @author SomeKid*/
 	protected abstract void updateObject();
@@ -491,6 +490,13 @@ public abstract class WarpedObject {
 	 * @implNote Objects will only be updated if the group they are in is 'Open'. 
 	 * @author SomeKid*/
 	protected abstract void updateSlow(); 
+	
+	/**DO NOT CALL! - This method is called automatically by the group that it belongs to.
+	 * @apiNote Is called approximately 250 times per second. 
+	 * @apiNote ONLY use this method to update position of objects, have complex logic in this method will cause serious latency issues. 
+	 * @implNote Objects will only be updated if the group they are in is 'Open'.
+	 * @author SomeKid*/
+	protected abstract void updatePosition(double deltaTime);
 	
 	//--------
 	//------------------- Save ---------------------

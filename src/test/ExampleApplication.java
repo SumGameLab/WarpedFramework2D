@@ -26,6 +26,7 @@ import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.enums.WarpedLinkable;
 import warped.utilities.enums.generalised.AxisType;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsImage;
 
 public class ExampleApplication extends WarpedApplication {
 	
@@ -143,6 +144,8 @@ public class ExampleApplication extends WarpedApplication {
 	 * */
 	@Override
 	protected void initializeApplication() {
+		//UtilsImage.writeImageToFile(UtilsImage.generateSpriteSheet("dat/tree_12"), "dat/tree_12_wf2d_68_144_wf");
+		
 		itemManager = new ManagerItem<ExampleItems>();
 		itemDropGroup = itemManager.addGroup();
 		

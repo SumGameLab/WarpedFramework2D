@@ -37,6 +37,7 @@ public class WarpedVoidObject extends WarpedObject {
 		// TODO Auto-generated method stub
 		
 	}
+	
 	@Override
 	public void updateMid() {
 		// TODO Auto-generated method stub

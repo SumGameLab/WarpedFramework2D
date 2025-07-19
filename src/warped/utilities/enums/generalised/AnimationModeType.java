@@ -47,7 +47,15 @@ public enum AnimationModeType {
 	 * When frame[0] is reached the completeAction will be triggered once
 	 * If repeatAction() function is called the completeAction will trigger every time the animation completes
 	 * @author SomeKid*/
-	REPEAT_MIRROR;
+	REPEAT_MIRROR,
+	
+	
+	/**The animation will play indefinitely.
+	 * The animation will play for a random number of frames less than the length and more than length / 4.
+	 * When the random frame is reached the direction of the animation will be reversed.
+	 * If the animation reaches the end frame it will play reversed and then continue to count frames until the random number is reached.
+	 * */
+	RANDOMISE;
 	
 	
 }

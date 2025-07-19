@@ -26,7 +26,9 @@ public class AnimatedSprite extends WarpedSprite {
 	private boolean isComplete = false;
 	private boolean isRepeatAction = false;
 	private boolean isPlaying = false;
+	
 	private boolean mirror = false;
+	private boolean pause = false;
 		
 	private int startFrame = 0;
 	private int endFrame = 0;
@@ -34,6 +36,7 @@ public class AnimatedSprite extends WarpedSprite {
 	private int frameRate = 24; //frames per second
 	protected BufferedImage[] frames;
 	
+	private int randomCount = 0;
 
 	
 	/**An animation from a single series of frames.
@@ -208,24 +211,13 @@ public class AnimatedSprite extends WarpedSprite {
 		cancelUpdate();
 		this.mode = mode;
 		switch(mode) {
-		case PLAY:			 
-			updateTask = new TimerTask() {public void run() {updatePlay();}};	
-			break;
-		case PLAY_MIRROR:
-			updateTask = new TimerTask() {public void run() {updateMirror();}};		
-			break;
-		case PLAY_REVERSE:
-			updateTask = new TimerTask() {public void run() {updatePlayReverse();}};	
-			break;
-		case REPEAT:		 
-			updateTask = new TimerTask() {public void run() {updateRepeat();}};		
-			break;
-		case REPEAT_MIRROR:	
-			updateTask = new TimerTask() {public void run() {updateRepeatMirror();}};	
-			break;
-		case REPEAT_REVERSE:
-			updateTask = new TimerTask() {public void run() {updateRepeatReverse();}};	
-			break;
+		case PLAY:	updateTask = new TimerTask() {public void run() {updatePlay();}};					break;
+		case PLAY_MIRROR:updateTask = new TimerTask() {public void run() {updateMirror();}};			break;
+		case PLAY_REVERSE:	updateTask = new TimerTask() {public void run() {updatePlayReverse();}};	break;
+		case REPEAT: updateTask = new TimerTask() {public void run() {updateRepeat();}};				break;
+		case REPEAT_MIRROR:	updateTask = new TimerTask() {public void run() {updateRepeatMirror();}};	break;
+		case REPEAT_REVERSE: updateTask = new TimerTask() {public void run() {updateRepeatReverse();}}; break;
+		case RANDOMISE:	updateTask = new TimerTask() {public void run() {updateRandomise();}}; 			break;
 		default:
 			Console.err("AnimatedSprite -> setAnimationMode() -> invalid case : " + mode);
 			break;
@@ -253,7 +245,7 @@ public class AnimatedSprite extends WarpedSprite {
 		frame++;
 		if(frame >= endFrame) {
 			cancelUpdate();
-			complete();
+			complete();			
 		} else setRasterFast(frames[frame]);
 		if(frame == actionFrame) frameAction.action();
 	}
@@ -323,4 +315,32 @@ public class AnimatedSprite extends WarpedSprite {
 		if(frame == actionFrame) frameAction.action();
 	}
 	
+	private final void updateRandomise() {
+		randomCount--;
+		if(randomCount < 0) {
+			if(pause) pause = false;
+			randomCount = UtilsMath.random(frames.length / 4, frames.length * 2 + 1);
+			if(UtilsMath.coinFlip()) {				
+				if(mirror) mirror = false;
+				else mirror = true;
+			} else pause = true;
+		}
+		
+		if(pause) return;
+		if(mirror) {
+			frame--;
+			if(frame < startFrame) {
+				mirror = false;
+				frame = startFrame + 1;
+			}
+		} else {
+			frame++;
+			if(frame >= endFrame) {
+				mirror = true;
+				frame = endFrame - 2;
+			}
+		}
+		
+		setRasterFast(frames[frame]);
+	}
 }
