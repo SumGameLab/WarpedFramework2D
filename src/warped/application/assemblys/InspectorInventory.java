@@ -46,7 +46,7 @@ public class InspectorInventory<T extends ItemBindable<?>> extends GUIAssembly {
 
 	@Override
 	protected void defineAssembly() {
-		title.setButtonSize(invent.getWidth() - 150, 30);
+		title.setSize(invent.getWidth() - 150, 30);
 		title.setPosition(100, 100);
 		
 		close.setOffset(invent.getWidth() - 30, 0);       

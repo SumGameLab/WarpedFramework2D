@@ -16,6 +16,7 @@ import java.util.List;
 import javax.sound.sampled.FloatControl;
 
 import warped.audio.WarpedAudioClip;
+import warped.functionalInterfaces.WarpedAction;
 import warped.utilities.enums.WarpedLinkable;
 import warped.utilities.utils.Console;
 
@@ -88,6 +89,12 @@ public class WarpedAudioFolder<T extends WarpedLinkable<? extends Enum<?>>> exte
 		}			
 		
 		setVolume(0.5);
+	}
+	
+	public void setEndAudioAction(WarpedAction action) {
+		clips.forEach((T,C) -> {
+			C.setEndClipAction(action);
+		});
 	}
 	
 	protected void loadDataFromFolder() {
@@ -253,7 +260,7 @@ public class WarpedAudioFolder<T extends WarpedLinkable<? extends Enum<?>>> exte
 		else Console.err("WarpedAudioFolder -> " + folderName + " -> play() -> there is no audio clip called : " + clip);
 	}
 	public void stop(T clip) {
-		if(clips.containsKey(clip))clips.get(clip).stop();
+		if(clips.containsKey(clip)) clips.get(clip).stop();
 		else Console.err("WarpedAudioFolder -> " + folderName + " -> stop() -> there is no audio clip called : " + clip);
 	}
 	public WarpedAudioClip get(T clip) {

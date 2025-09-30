@@ -415,6 +415,15 @@ public class UtilsMath {
 						/ (magnitude(vec1X, vec1Y) * magnitude(vec2X, vec2Y)) );
 	}
 	
+	/**Rotates the vector by the specified rotation
+	 * @param vector - the vector to rotate.
+	 * @param rotation - the amount to rotate the vector.
+	 * @apiNote if the vector contains more than 2 components only the x and y component will be modified.
+	 * @author 5som3*/
+	public static void rotate2DVector(VectorD vec, double rotation) {
+		vec.set(Math.cos(rotation) * vec.x() - Math.sin(rotation) * vec.y(), Math.sin(rotation) * vec.x() + Math.cos(rotation) * vec.y());
+	}
+	
 	//--------
 	//---------------- Vector Math --------
 	//--------

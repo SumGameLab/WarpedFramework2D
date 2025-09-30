@@ -36,6 +36,7 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 
 	private int borderThickness   	= 2;
 	private int maxCharacters 		= 25;
+	private boolean isInputAfterEnter = false;
 	
 	private boolean isPrompt = true;
 	private int tick = 0;
@@ -84,6 +85,13 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	public GUITextInputLine(int width, int height, String blankText) {
 		setSize(width, height);
 		setBlankText(blankText);
+	}
+	
+	/**Set if the text line should continue to receive key press input after the entry has been entered.
+	 * @param isInputAfterEnter - if true the text line will continue to input after enter is pressed else the input line will be deselected after entry. 
+	 * @author 5som3*/
+	public void setInputAfterEnter(boolean isInputAfterEnter) {
+		this.isInputAfterEnter = isInputAfterEnter;
 	}
 	
 	/**Get the inputString.
@@ -384,6 +392,7 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 		keyLog.clear();
 		inputString = "";
 		tick = 0;
+		if(!isInputAfterEnter) setInputState(false);
 	}
 
 	@Override

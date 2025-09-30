@@ -13,6 +13,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import warped.application.state.WarpedFramework2D;
+import warped.functionalInterfaces.WarpedAction;
 import warped.utilities.utils.Console;
 
 public class WarpedAudioClip {
@@ -24,10 +25,12 @@ public class WarpedAudioClip {
 	
 	private boolean isFrameworkAudio = false;
 	private boolean isFileLoaded = false;
-	private boolean isLooping;
+	private boolean isLooping = false;
 	private boolean isFading = false;
 	private boolean isFadeOut;
 	private boolean isFadeIn;
+	
+	private WarpedAction endClipAction = () -> {Console.ln("Finished clip : " + path);};
 	
 	private float volume = 1.0f;
 	
@@ -66,6 +69,10 @@ public class WarpedAudioClip {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void setEndClipAction(WarpedAction action) {
+		this.endClipAction = action;
 	}
 	
 	
@@ -115,9 +122,15 @@ public class WarpedAudioClip {
 		else if(!audioClip.isOpen()) return;
 		else if(audioClip.isActive()) return;
 		else {
+			if(audioClip.getFramePosition() == audioClip.getFrameLength() && isLooping) {
+				audioClip.setFramePosition(0);
+				audioClip.start();
+				return;
+			}
 			timeOutTick++;
 			if(timeOutTick > TIME_OUT) {
 				timeOutTick = 0;
+				if(audioClip.getFramePosition() == audioClip.getFrameLength()) endClipAction.action();
 				audioClip.close();
 			}
 		}
@@ -166,6 +179,7 @@ public class WarpedAudioClip {
 			setClipVolume();
 		}	
 		
+		if(audioClip.isActive()) return;
 		timeOutTick = 0;
 		audioClip.setFramePosition(0);
 		audioClip.start();
@@ -174,8 +188,7 @@ public class WarpedAudioClip {
 	
 	public void stop() {
 		if(audioClip == null) return;
-		else if(!audioClip.isOpen()) return;
-		else audioClip.stop();
+		else if(audioClip.isActive()) audioClip.stop();
 	}
 	
 	public void close() {

@@ -52,6 +52,11 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	private boolean isScrollBarVisible = false; 
 	private boolean isBackgroundVisible = true;
 	
+	private boolean isAutoAnimate = false;
+	private boolean isAnimating = false;
+	private int tick = 0;
+	private int drawCharacters = 0;
+	
 	private double scroll = 0.0;
 	private int scrollMax = 0;
 	private int scrollBarWidth = 10;
@@ -86,6 +91,13 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		this.title = title;
 		this.paragraph = paragraph;
 		setSize(width, height);
+	}
+	
+	/**Start the text animation when ever the paragraph text is set. 
+	 * @param isAutoAnimate - if true the paragraph will be animated when ever it is set.
+	 * @author 5som3*/
+	public void setAutoAnimate(boolean isAutoAnimate) {
+		this.isAutoAnimate = isAutoAnimate;
 	}
 	
 	/**Set the title for the textBox
@@ -131,6 +143,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @author 5som3*/
 	public void setParagraph(String text) {
 		this.paragraph = text;
+		if(isAutoAnimate) playTextAnimation();
 		updateParagraphLines();
 		updateGraphics();
 	}
@@ -146,7 +159,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 			result += lines.get(i);
 			if(i != lines.size() - 1) result += "/n/";
 		}
-		
+
 		setParagraph(result);
 	}
 	
@@ -301,9 +314,34 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		updateGraphics();
 	}
 	
+	
+	/**Write out the text in the text box one character at a time.
+	 * Similar to 'anime' style text box.
+	 * Restarts the animation from the first character. 
+	 * @author 5som3*/
+	public void playTextAnimation() {
+		isAnimating = true;		
+		drawCharacters = 0;
+		tick = 0;
+	}
+	
+	public void updateObject() {
+		if(!isAnimating) return;
+		tick++;
+		if(tick > 1) {
+			tick = 0;
+			drawCharacters++;
+			if(drawCharacters > paragraph.length()) {
+				isAnimating = false;
+				return;
+			}
+			updateGraphics();
+		}
+	}
+	
 	private void updateParagraphLines() {
 		textLines.clear();
-		scroll = 0.0;
+		if(!isAnimating) scroll = 0.0;
 		
 		Graphics g = getGraphics();
 		g.setFont(titleFont);
@@ -399,12 +437,27 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		int x = borderThickness + marginPadding;
 		int y = borderThickness + titlePadding + titleHeight + lineHeight;		
 		if(title == null) y = borderThickness +  lineHeight;
-		for(int i = 0; i < textLines.size(); i++) {
-			int yr =  y + i * lineHeight - (int)(scrollMax * scroll);
-			if(yr < - titleHeight - titlePadding) continue;
-			g.drawString(textLines.get(i), x, yr);
+		if(isAnimating) {			
+			int remainingCharacters = drawCharacters;
+			for(int i = 0; i < textLines.size(); i++) {
+				int yr =  y + i * lineHeight - (int)(scrollMax * scroll);
+				if(yr < - titleHeight - titlePadding) continue;
+				if(remainingCharacters > textLines.get(i).length()) {
+					g.drawString(textLines.get(i), x, yr);
+					remainingCharacters -= textLines.get(i).length();
+				} else {
+					g.drawString(textLines.get(i).substring(0, remainingCharacters), x, yr);
+					break;
+				}	
+			}
+		} else {
+			for(int i = 0; i < textLines.size(); i++) {
+				int yr =  y + i * lineHeight - (int)(scrollMax * scroll);
+				if(yr < - titleHeight - titlePadding) continue;
+				g.drawString(textLines.get(i), x, yr);
+			}
 		}
-		
+
 		
 		if(title != null) {			
 			g.setColor(titleBannerColor);
@@ -455,7 +508,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	@Override
 	protected void mouseDragged(WarpedMouseEvent mouseEvent) {
 		scroll = UtilsMath.divide(mouseEvent.getPointRelativeToObject().y, getHeight());
-		updateGraphics();
+		if(!isAnimating)updateGraphics();
 	}
 	@Override
 	protected void mousePressed(WarpedMouseEvent mouseEvent) {return;}
@@ -466,7 +519,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		if(scrollMax == 0) {
 			if(scroll != 0) {
 				scroll = 0.0;
-				updateGraphics();
+				if(!isAnimating)updateGraphics();
 			}
 			return;
 		}
@@ -477,7 +530,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 			scroll -= 0.04325;
 			if(scroll < 0.0) scroll = 0.0;
 		}
-		updateGraphics();
+		if(!isAnimating)updateGraphics();
 		
 	}
 

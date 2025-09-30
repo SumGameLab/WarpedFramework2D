@@ -2,9 +2,10 @@
 
 package warped.application.state.managers.gameObjectManagers;
 
+import warped.application.state.WarpedObject;
 
 @FunctionalInterface
-public interface WarpedObjectAction<T> {
+public interface WarpedObjectAction<T extends WarpedObject> {
 	public void action(T obj);
 
 }

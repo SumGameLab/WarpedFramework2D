@@ -62,6 +62,18 @@ public class UtilsImage {
 		
 	}
 	
+	public static BufferedImage basicLoadBufferedImage(String path) {
+		BufferedImage image = null;
+        try {
+            File file = new File(path);
+            image = ImageIO.read(file);
+        } catch (IOException e) {
+            System.err.println("Error loading image from file: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return image;
+	}
+	
 	public static BufferedImage loadBufferedImage(String path) {
 		BufferedImage image = null;
 		URL url = null;
@@ -139,6 +151,32 @@ public class UtilsImage {
 		for(int i = 0; i < frames.size(); i++) g.drawImage(frames.get(i), i * frameWidth, 0, frameWidth, frameHeight, null);
 		g.dispose();
 		return result;
+	}
+	
+	/**Remove all opacity from an image
+	 * @param image - the image to remove opacity from
+	 * @return BufferedImage - a new image based on the input but all pixels have 255 alpha (solid colour)
+	 * @apiNote Doesn't modify the original image, returns a new buffered image based on the input image.
+	 * @author 5som3*/
+	public static BufferedImage removeOpacity(BufferedImage image) {
+		BufferedImage result = new BufferedImage(image.getWidth(), image.getHeight(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		for(int y = 0; y < image.getHeight(); y++) {
+			for(int x = 0; x < image.getWidth(); x++) {
+				int ogColour = image.getRGB(x, y);
+				
+				int alpha = (ogColour >> 24) & 0xFF;
+				int red   = (ogColour >> 16) & 0xFF;
+			    int green = (ogColour >> 8) & 0xFF;
+			    int blue  = ogColour & 0xFF;
+				
+			    int paintColour = 0;
+			    if(alpha < 10) paintColour = (0 << 24) | (0 << 16) | (0 << 8) | 0;
+			    else paintColour = (255 << 24) | (red << 16) | (green << 8) | blue;
+				
+				result.setRGB(x, y, paintColour);
+			}
+		}
+		return result;		
 	}
 	
 	/**Write a buffered image to file.

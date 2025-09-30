@@ -148,8 +148,9 @@ public class GUIButton extends WarpedGUI {
 	 * @param width -the width of the button in pixels
 	 * @param height - the height of the button in pixels.
 	 * @author 5som3*/
-	public void setButtonSize(int width, int height) {
+	public void setSize(int width, int height) {
 		sprite.setButtonSize(width, height);
+		updateGraphics();
 	}
 	
 	/**Set button sound effect

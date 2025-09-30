@@ -26,6 +26,7 @@ public class WarpedSprite {
 	private int bufferIndex = 0;
 	private BufferedImage raster; //Graphic output - points to the active raster in the rasterBuffer
 	private BufferedImage buffer; //Graphic input - points to the inactive raster in the rasterBuffer -> safe to edit 
+	
 	private VectorI size = new VectorI(1, 1);
 	
 	private WarpedAction deltaAction = () -> {return;};

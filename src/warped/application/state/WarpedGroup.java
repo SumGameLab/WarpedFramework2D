@@ -4,6 +4,7 @@ package warped.application.state;
 
 import java.util.ArrayList;
 
+import warped.application.state.managers.gameObjectManagers.WarpedGroupAction;
 import warped.application.state.managers.gameObjectManagers.WarpedObjectAction;
 import warped.application.state.managers.gameObjectManagers.WarpedObjectCheckAction;
 import warped.utilities.utils.Console;
@@ -263,7 +264,7 @@ public class WarpedGroup<T extends WarpedObject> {
 			method.action(members.get(i));
 		}
 	}
-	
+		
 	public boolean forEachReverse(WarpedObjectCheckAction<T> method) {
 		for(int i = members.size() - 1; i > 0; i--) {
 			if(method.action(members.get(i))) return true;

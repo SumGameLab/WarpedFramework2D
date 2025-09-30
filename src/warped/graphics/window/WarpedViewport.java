@@ -201,6 +201,15 @@ public class WarpedViewport {
 		return val;
 	}
 
+	public final void clearMouseEvents() {
+		mouseEvent.handle();
+		for(int i = 0; i < mouseEvents.size(); i++) {
+			mouseEvents.get(i).handle();
+		}
+		mouseEvents.clear();
+		mouseEvent = null;
+		eventObject = null;
+	}
 	
 	/**For the currently targeted manager, set which groups should be viewed by this viewport.
 	 * @param groups - a list of the groups within the current targeted manager to draw.
@@ -614,7 +623,7 @@ public class WarpedViewport {
 	protected void handleMouse(WarpedObject renderObject) {
 		if(mouseEvent == null) return;
 		else if(mouseEvent.isHandled()) return;
-		if(renderObject.isVisible() && isOverObject(renderObject)) eventObjects.add(renderObject);
+		if(renderObject.isInteractive() && renderObject.isVisible() && isOverObject(renderObject)) eventObjects.add(renderObject);
 		else renderObject.unhovered();
 	}
 	
@@ -761,6 +770,7 @@ public class WarpedViewport {
 	 * @author 5som3 */
 	private final WarpedAction render = () -> {
 		Graphics2D g = getGraphics();
+				
 		setRenderHints(g);
 		target.forEachActiveGroup(obj -> {
 			obj.setRenderTransformations();

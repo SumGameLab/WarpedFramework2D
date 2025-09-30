@@ -362,7 +362,8 @@ public abstract class WarpedObject {
 		mouseEvent.updateTrace(renderPosition);
 		if(isExpressEvents)  executeMouseEvent(mouseEvent);
 		else if(WarpedState.isPaused()) return;
-		else executeMouseEvent(mouseEvent);		
+		else executeMouseEvent(mouseEvent);	
+		
 	}
 		
 	public final void executeMouseEvent(WarpedMouseEvent mouseEvent) {

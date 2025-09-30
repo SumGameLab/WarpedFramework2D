@@ -275,6 +275,9 @@ public class WarpedWindow extends Canvas {
 	public void fullScreen() {
 		if(isFullScreen) return;
 		Console.ln("WarpedWindow -> fullscreen()");
+		for(int i = 0; i < viewPorts.length; i++) {
+			viewPorts[i].clearMouseEvents();
+		}
 		initializeFrame(true);
 		setVisible(true);
 
@@ -290,6 +293,9 @@ public class WarpedWindow extends Canvas {
 	public void windowed() {
 		if(!isFullScreen) return;
 		Console.ln("WarpedWindow -> windowed()");
+		for(int i = 0; i < viewPorts.length; i++) {
+			viewPorts[i].clearMouseEvents();
+		}
 		initializeFrame(false);
 		setVisible(true);
 	}

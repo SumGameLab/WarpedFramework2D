@@ -144,7 +144,7 @@ public class ExampleApplication extends WarpedApplication {
 	 * */
 	@Override
 	protected void initializeApplication() {
-		//UtilsImage.writeImageToFile(UtilsImage.generateSpriteSheet("dat/tree_12"), "dat/tree_12_wf2d_68_144_wf");
+		UtilsImage.writeImageToFile(UtilsImage.removeOpacity(UtilsImage.basicLoadBufferedImage("dat/smokes_wf2d_64_64_wf.png")), "dat/smokes_wf2d_64_64_wf");
 		
 		itemManager = new ManagerItem<ExampleItems>();
 		itemDropGroup = itemManager.addGroup();

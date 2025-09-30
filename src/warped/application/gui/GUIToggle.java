@@ -156,11 +156,13 @@ public class GUIToggle extends WarpedGUI {
 		
 	}
 	
+	public boolean getToggleState() {return toggle;}
 	
 	private void toggle(WarpedMouseEvent buttonEvent) {
 		if(toggle) toggleOff(buttonEvent);
 		else toggleOn(buttonEvent);
 	}
+	
 	
 	private void toggleOff(WarpedMouseEvent buttonEvent) {
 		if(toggle) {

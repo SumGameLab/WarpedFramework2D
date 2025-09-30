@@ -346,6 +346,7 @@ public class UtilsString {
 	 * @return String - the day of the week.
 	 * @author 5som3*/
 	public static String getLocalDayOfWeek() {
+		calendar = Calendar.getInstance();
 		switch(calendar.get(Calendar.DAY_OF_WEEK)) {
 		case 1: return "Sunday";
 		case 2: return "Monday";
@@ -360,10 +361,17 @@ public class UtilsString {
 		}
 	}
 	
-	/**Get the time in am/pm format at the users locale.
-	 * @return String - the current time including hours and minutes, excluding seconds.
+	/**Get the time in 24 hour time format.
+	 * @return String - The time as a string.
+	 * @author 5som3
+	 * */
+	public static String getLocalTime24Hour() {return calendar.get(Calendar.HOUR_OF_DAY) + " : " + calendar.get(Calendar.MINUTE);}
+	
+	/**Get the time in 12hram/pm format at the users locale.
+	 * @return String - the current time including hours and minutes, includes am or pm, excluding seconds.
 	 * @author 5som3*/
 	public static String getLocalTime() {
+		calendar = Calendar.getInstance();
 		String result = "";
 		int hr = calendar.get(Calendar.HOUR_OF_DAY);
 		
@@ -386,6 +394,7 @@ public class UtilsString {
 	 * @return String - the current time including hours, minutes and seconds.
 	 * @author 5som3*/
 	public static String getLocalTimePrecise() {
+		calendar = Calendar.getInstance();
 		String result = getLocalTime();
 		String suffix = result.substring(result.length() - 2, result.length());
 		result = result.substring(0, result.length() - 2);
@@ -402,6 +411,7 @@ public class UtilsString {
 	 * @return String - the hour of the day in 12 hour time format.
 	 * @author 5som3*/
 	public static String getLocalHourOfDay() {
+		calendar = Calendar.getInstance();
 		switch(calendar.get(Calendar.HOUR_OF_DAY)){
 		case 1:  return " 1am";
 		case 2:  return " 2am";

@@ -78,6 +78,7 @@ public class ButtonSprite extends WarpedSprite {
 	 * @author 5som3*/
 	public ButtonSprite(BufferedImage image) {
 		super(image.getWidth(), image.getHeight());
+		isColourButton = false;
 		originalRaster = image;
 		generateRasterClones();
 		setRasterFast(plainRaster);	
@@ -125,8 +126,6 @@ public class ButtonSprite extends WarpedSprite {
 		g.dispose();
 		
 		plainRaster = getBackBuffer();
-		//swapBuffers();
-		
 		hoveredRaster  = UtilsImage.generateTintedClone(plainRaster, 30, Colour.RED);
 		pressedRaster  = UtilsImage.generateTintedClone(plainRaster, 60, Colour.RED);
 		lockedRaster   = UtilsImage.generateTintedClone(plainRaster, 90, Colour.BLACK);

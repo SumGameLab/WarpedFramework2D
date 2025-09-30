@@ -28,12 +28,14 @@ public class AnimatedSprite extends WarpedSprite {
 	private boolean isPlaying = false;
 	
 	private boolean mirror = false;
-	private boolean pause = false;
+	private boolean pause = true;
 		
 	private int startFrame = 0;
 	private int endFrame = 0;
 	private int frame = 0;
 	private int frameRate = 24; //frames per second
+	private int randomiseMin;
+	private int randomiseMax;
 	protected BufferedImage[] frames;
 	
 	private int randomCount = 0;
@@ -65,6 +67,8 @@ public class AnimatedSprite extends WarpedSprite {
 		this.frames = frames;
 		endFrame = frames.length;
 		setRasterFast(frames[startFrame]);
+		randomiseMin = frames.length / 4;
+		randomiseMax = frames.length * 2;
 	}
 	
 	/**Control repeating of the completeAction
@@ -186,6 +190,11 @@ public class AnimatedSprite extends WarpedSprite {
 		setAnimationMode(mode);		
 	}
 	
+	public void setRandomise(int min, int max) {
+		this.randomiseMin = min;
+		this.randomiseMax = max;
+	}
+
 	/**Set an action to occur when the animation completes.
 	 * @param completeAction - The action to execute at completion.
 	 * @apiNote See AnimationModeType (above) for documentation on when the completeAction will be executed.
@@ -246,6 +255,7 @@ public class AnimatedSprite extends WarpedSprite {
 		if(frame >= endFrame) {
 			cancelUpdate();
 			complete();			
+			setRasterFast(frames[endFrame - 1]);
 		} else setRasterFast(frames[frame]);
 		if(frame == actionFrame) frameAction.action();
 	}
@@ -319,7 +329,7 @@ public class AnimatedSprite extends WarpedSprite {
 		randomCount--;
 		if(randomCount < 0) {
 			if(pause) pause = false;
-			randomCount = UtilsMath.random(frames.length / 4, frames.length * 2 + 1);
+			randomCount = UtilsMath.random(randomiseMin, randomiseMax);
 			if(UtilsMath.coinFlip()) {				
 				if(mirror) mirror = false;
 				else mirror = true;

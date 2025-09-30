@@ -6,6 +6,8 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 
+import javax.swing.SwingUtilities;
+
 import warped.user.mouse.MouseEventType;
 import warped.user.mouse.WarpedMouseHandler;
 import warped.utilities.math.vectors.VectorD;
@@ -71,7 +73,13 @@ public class WarpedMouseEvent {
 	 * @return 2 - The button assigned to middle mouse button is the event button (mouse wheel button).
 	 * @return 3 - The button assigned to right mouse button is the event button.
 	 * @author 5som3*/
-	public int getButton() {return e.getButton();}
+	public int getButton() {
+		if(SwingUtilities.isLeftMouseButton(e))   return MouseEvent.BUTTON1;
+		if(SwingUtilities.isMiddleMouseButton(e)) return MouseEvent.BUTTON2;
+		if(SwingUtilities.isRightMouseButton(e))  return MouseEvent.BUTTON3;
+		Console.err("WarpedMouse -> getButton() -> unknown button event");
+		return 0;
+	}
 	
 	/**Get the type of mouse event.
 	 * @return MouseEventType - the type of mouse event 

@@ -315,7 +315,7 @@ public class VectorD {
 	 * @implNote Will trigger the deltaAction once after inverting the vector components.
 	 *@author 5som3 */
 	public final void inverse() {scale(-1);}
-	
+		
 	/**Set the values of this vector
 	 * @param val - a list of doubles that will be indexed in the vector as the are listed.
 	 * @param     - example : (a, b, c) -> vec[0] = a 
@@ -650,6 +650,7 @@ public class VectorD {
 		}
 		deltaAction.action(this);
 	}
+	
 	
 	//--------
 	//---------------- Clamp --------

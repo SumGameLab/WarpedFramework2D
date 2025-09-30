@@ -11,12 +11,14 @@ import java.util.Map;
 
 import warped.application.actionWrappers.ActionOption;
 import warped.application.gui.GUIButton;
+import warped.application.gui.GUIClock;
 import warped.application.gui.GUIListVertical;
 import warped.application.gui.GUIPopOutMenu;
 import warped.application.gui.GUIRadioButtons;
 import warped.application.gui.GUIShape;
 import warped.application.gui.GUITextBoxLined;
 import warped.application.gui.GUIToggle;
+import warped.application.gui.GUIClock.ClockModeType;
 import warped.application.state.GUIAssembly;
 import warped.application.state.WarpedFramework2D;
 import warped.application.state.WarpedState;
@@ -106,12 +108,14 @@ public class InspectorFramework extends GUIAssembly {
 	private Rectangle borderRect = new Rectangle(0, 0, 410, 620);
 	private Rectangle backgroundRect = new Rectangle(borderThickness, borderThickness, borderRect.width - borderThickness * 2, borderRect.height - borderThickness * 2);
 	
-	private GUIButton title     = new GUIButton(borderRect.width - borderThickness - (30 * 4) - 90, 30, "  WarpedFramework2D  ");
+	private GUIButton title     = new GUIButton(borderRect.width - borderThickness - (30 * 4) - 160, 30, "  WarpedFramework2D  ");
 	private GUIButton next      = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.POINT_RIGHT));
 	private GUIButton previous  = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.POINT_LEFT));
 	private GUIToggle refresh   = new GUIToggle(FrameworkSprites.getStandardIcon(StandardIcons.REFRESH));
 	private GUIButton close     = new GUIButton(FrameworkSprites.getStandardIcon(StandardIcons.CLOSE));
 	private GUIPopOutMenu pages = new GUIPopOutMenu("page");
+	
+	private GUIClock clock = new GUIClock();
 	
 	private GUIRadioButtons resolution = new GUIRadioButtons(Arrays.asList("720p", "1080p", "  4K "), 
 			Arrays.asList(() -> {WarpedFramework2D.getWindow().setWindowResolution(1280, 720);},
@@ -142,6 +146,7 @@ public class InspectorFramework extends GUIAssembly {
 		next.setOffset(refresh.getOffsetX() - 30, 0);
 		previous.setOffset(next.getOffsetX() - 30, 0);
 		pages.setOffset(previous.getOffsetX() - 90, 0);
+		clock.setOffset(pages.getOffsetX() - 70, 0);
 		keybinds.setOffset(10, 40);
 		
 		managerText.setOffset(5, 35);
@@ -158,6 +163,7 @@ public class InspectorFramework extends GUIAssembly {
 		refresh.offset(title);
 		pages.offset(title);
 		keybinds.offset(title);
+		clock.offset(title);
 		
 		resolution.offset(title);
 		exit.offset(title);
@@ -176,6 +182,7 @@ public class InspectorFramework extends GUIAssembly {
 		previous.setToolTip("Previous");
 		managerText.setToolTip("Refresh to update");
 		
+		clock.setClockMode(ClockModeType.HOUR_12_WITH_SECONDS);
 		
 		background.addRectangle(borderRect, Color.BLACK);
 		background.addRectangle(backgroundRect, Colour.GREY_DARK);
@@ -374,6 +381,7 @@ public class InspectorFramework extends GUIAssembly {
 		addMember(screenParameters);
 		addMember(resolution);
 		addMember(exit);
+		addMember(clock);
 
 		addMember(keybinds);
 		addMember(pages);
