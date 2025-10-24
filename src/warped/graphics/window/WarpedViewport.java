@@ -6,8 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.RenderingHints;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,9 +53,9 @@ public class WarpedViewport {
 	private VectorI position 	= new VectorI();
 	private VectorI cornerPoint = new VectorI();
 	
-	private BufferedImage buffer; //graphic input
-	private BufferedImage raster;    //graphic output
-	private BufferedImage[] rasterBuffer;
+	private VolatileImage buffer; //graphic input
+	private VolatileImage raster;    //graphic output
+	private VolatileImage[] rasterBuffer;
 	private int bufferIndex = 0;
 	
 	private short fps = 0;
@@ -66,23 +65,11 @@ public class WarpedViewport {
 	private ArrayList<WarpedMouseEvent> mouseEvents = new ArrayList<>();;
 	private ArrayList<WarpedObject> eventObjects = new ArrayList<>();
 	
-	//private ArrayList<WarpedAnimation> animations = new ArrayList<>();
-
-	protected Object[] renderHints = new Object[8];
+	private RenderingHints rh = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 	
 	private RenderType renderType = RenderType.ACTIVE;
 	private WarpedAction renderMethod;
 	
-	AffineTransform at = new AffineTransform();
-	
-	public static final int RENDERING 			   = 0;
-	public static final int COLOR                  = 1;
-	public static final int TEXT_ANTIALIASING      = 2;
-	public static final int ANTIALIASING		   = 3;
-	public static final int INTERPOLATION          = 4;
-	public static final int ALPHA_INTERPOLATION    = 5;
-	public static final int STROKE                 = 6;
-	public static final int DITHERING              = 7;
 	
 	public enum RenderType {
 		//ANIMATION,
@@ -113,8 +100,8 @@ public class WarpedViewport {
 
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
-		rasterBuffer = new BufferedImage[WarpedWindow.BUFFER_SIZE];
-		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new VolatileImage[WarpedWindow.BUFFER_SIZE];
+		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = UtilsImage.generateVolatileImage(size.x(), size.y());
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);	
@@ -138,8 +125,8 @@ public class WarpedViewport {
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
-		rasterBuffer = new BufferedImage[WarpedWindow.BUFFER_SIZE];
-		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new VolatileImage[WarpedWindow.BUFFER_SIZE];
+		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = UtilsImage.generateVolatileImage(size.x(), size.y());
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
@@ -159,8 +146,8 @@ public class WarpedViewport {
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
-		rasterBuffer = new BufferedImage[WarpedWindow.BUFFER_SIZE];
-		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new VolatileImage[WarpedWindow.BUFFER_SIZE];
+		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = UtilsImage.generateVolatileImage(size.x(), size.y());
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(RenderType.ACTIVE);
@@ -181,8 +168,8 @@ public class WarpedViewport {
 		
 		Console.ln("WarpedViewPort -> " + name + " Constructing..");
 		
-		rasterBuffer = new BufferedImage[WarpedWindow.BUFFER_SIZE];
-		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new VolatileImage[WarpedWindow.BUFFER_SIZE];
+		for(int i = 0; i < WarpedWindow.BUFFER_SIZE; i++) rasterBuffer[i] = UtilsImage.generateVolatileImage(size.x(), size.y());
 		pushGraphics();
 		setDefaultRenderHints();
 		setRenderMethod(renderType);
@@ -202,7 +189,7 @@ public class WarpedViewport {
 	}
 
 	public final void clearMouseEvents() {
-		mouseEvent.handle();
+		if(mouseEvent != null) mouseEvent.handle();
 		for(int i = 0; i < mouseEvents.size(); i++) {
 			mouseEvents.get(i).handle();
 		}
@@ -254,25 +241,27 @@ public class WarpedViewport {
 	 * @author SomeKid*/
 	public void bakeGroups(boolean isScaledAndTransformed) {		
 		renderType = RenderType.BAKED;
-		BufferedImage baked = new BufferedImage(size.x(), size.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		VolatileImage baked = UtilsImage.generateVolatileImage(size.x(), size.y());
 		Graphics2D g = baked.createGraphics();
-		setRenderHints(g);
+		g.setRenderingHints(rh);
 		
 		if(isScaledAndTransformed) {	
 			for(int i = 0; i < targetGroups.size(); i++) {
 				targetGroups.get(i).forEach((obj) -> {
 					obj.setRenderTransformations(camera);
 					if(obj.isVisible() && !isClipped(obj)) {			
-						at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
-						g.drawRenderedImage(obj.raster(), at);	
+						//at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
+						//g.drawRenderedImage(obj.raster(), at);
+						g.drawImage(obj.raster(), (int)obj.getPosition().x(), (int)obj.getPosition().y(), obj.getWidth(), obj.getHeight(), null);
 					}
 				});
 			}
 		} else for(int i = 0; i < targetGroups.size(); i++) {
 			targetGroups.get(i).forEach((obj) -> {
 				if(obj.isVisible() && !isClipped(obj)) {			
-					at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
-					g.drawRenderedImage(obj.raster(), at);	
+					//at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
+					//g.drawRenderedImage(obj.raster(), at);
+					g.drawImage(obj.raster(), (int)obj.getPosition().x(), (int)obj.getPosition().y(), obj.getWidth(), obj.getHeight(), null);
 				}
 			});
 		}
@@ -477,115 +466,121 @@ public class WarpedViewport {
 	 * @apiNote Call this function if you have changed the render settings and want to reset them.
 	 * @author SomeKid*/
 	public void setDefaultRenderHints() {
-		renderHints[RENDERING] 			 = RenderingHints.VALUE_RENDER_QUALITY;
-		renderHints[COLOR] 				 = RenderingHints.VALUE_COLOR_RENDER_QUALITY;
-		renderHints[ANTIALIASING] 		 = RenderingHints.VALUE_ANTIALIAS_ON;
-		renderHints[TEXT_ANTIALIASING]   = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;
-		renderHints[INTERPOLATION]    	 = RenderingHints.VALUE_INTERPOLATION_BICUBIC;
-		renderHints[ALPHA_INTERPOLATION] = RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;
-		renderHints[STROKE] 			 = RenderingHints.VALUE_STROKE_PURE;
-		renderHints[DITHERING] 		     = RenderingHints.VALUE_DITHER_ENABLE;
+		
+		rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		rh.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+		rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		rh.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+		rh.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+		rh.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		rh.put(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
 	}
 	
 	/**Better render quality but slower.
 	 * @apiNote primitive render methods will ignore these hints. 
 	 * @author SomeKid*/
-	public void hintRenderingQuality() {renderHints[RENDERING] = RenderingHints.VALUE_RENDER_QUALITY;}
+	public void hintRenderingQuality() {rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);}
 	/**Reduced render quality but faster.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/
-	public void hintRenderingSpeed()   {renderHints[RENDERING] = RenderingHints.VALUE_RENDER_SPEED;}
+	public void hintRenderingSpeed() {rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);}
 	/**Better colour quality but slower.
 	 * @apiNote primitive render methods will ignore these hints. 
 	 * @author SomeKid*/
-	public void hintColorQuality() {renderHints[COLOR] = RenderingHints.VALUE_COLOR_RENDER_QUALITY;}
+	public void hintColorQuality() {rh.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);}
 	/**Reduced colour quality but faster.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/
-	public void hintColorSpeed() {renderHints[COLOR] = RenderingHints.VALUE_COLOR_RENDER_SPEED;}
+	public void hintColorSpeed() {rh.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);}
 	/**Turn on antialiasing for images.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/            
-	public void hintAntialiasingOn() {renderHints[ANTIALIASING] = RenderingHints.VALUE_ANTIALIAS_ON;}
+	public void hintAntialiasingOn() {rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);}
 	/**Turn off antialiasing for images.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/      
-	public void hintAntialiasingOff() {renderHints[ANTIALIASING] = RenderingHints.VALUE_ANTIALIAS_OFF;}
+	public void hintAntialiasingOff() {rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);}
 	/**Turn on antialiasing for text.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/      
-	public void hintTextAntialiasingOn() {renderHints[TEXT_ANTIALIASING] = RenderingHints.VALUE_TEXT_ANTIALIAS_ON;}
+	public void hintTextAntialiasingOn() {rh.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);}
 	/**Turn off antialiasing for text.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/      
-	public void hintTextAntialiasingOff() {renderHints[TEXT_ANTIALIASING] = RenderingHints.VALUE_TEXT_ANTIALIAS_OFF;}
+	public void hintTextAntialiasingOff() {rh.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);}
 	
 	/**Scale images using NearestNeighbour algorithm - fast but low quality.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/      
-	public void hintInterpolationNearestNeighbour() {renderHints[INTERPOLATION] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;}
+	public void hintInterpolationNearestNeighbour() {rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);}
 	/**Scale images using Bilinear algorithm - better quality than NearestNeighbour but slower.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/      
-	public void hintInterpolationBilinear() {renderHints[INTERPOLATION] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;}
+	public void hintInterpolationBilinear() {rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);}
 	/**Scale images using Bicubic algorithm - slow but accurate scaling.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/      
-	public void hintInterpolationBicubic() {renderHints[INTERPOLATION] = RenderingHints.VALUE_INTERPOLATION_BICUBIC;}
+	public void hintInterpolationBicubic() {rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);}
 	            
 	/**Best quality alpha blending, slowest
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/
-	public void hintAlphaInterpolationQuality() {renderHints[ALPHA_INTERPOLATION] = RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;}
+	public void hintAlphaInterpolationQuality() {rh.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);}
 	/**Fast, reduced fidelity 
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/
-	public void hintAlphaInterpolationSpeed() {renderHints[ALPHA_INTERPOLATION] = RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;}
+	public void hintAlphaInterpolationSpeed() {rh.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);}
 	            
 	/**Not sure what this does, lol.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/
-	public void hintStrokeNormalise() {renderHints[STROKE] = RenderingHints.VALUE_STROKE_NORMALIZE;}
+	public void hintStrokeNormalise() {rh.put(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_NORMALIZE);}
 	/**Not sure what this does, lol.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/
-	public void hintStrokePure() {renderHints[STROKE] = RenderingHints.VALUE_STROKE_PURE;}
+	public void hintStrokePure() {rh.put(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);}
 	            
 	/**Improves the quality of edges of rotated images, increases render time.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/
-	public void hintDitheringOn() {renderHints[DITHERING] = RenderingHints.VALUE_DITHER_ENABLE;}
+	public void hintDitheringOn() {rh.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);}
 	/**Skip dithering, increase render time.
 	 * @apiNote primitive render methods will ignore these hints.
 	 * @author SomeKid*/
-	public void hintDitheringOff() {renderHints[DITHERING] = RenderingHints.VALUE_DITHER_DISABLE;}
+	public void hintDitheringOff() {rh.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);}
 	
 	/**The graphic output for this viewport
 	 * @return BufferedImage - this image is the current frame of viewport at the time this function is called.
 	 * @implNote You should not try to edit the viewport raster manually. 
 	 * @implNote Editing this image will possibly cause momentary graphical artifacts.
 	 * @author SomeKid*/
-	protected BufferedImage raster() {return raster;}
+	protected VolatileImage raster() {return raster;}
 		
 	
 	/**DO NOT CALL - this method is scheduled for automatic execution by the WarpedWindow.
 	 * @implNote redraws the viewport based on the current target / targets.
 	 * @author SomeKid*/
 	protected final void update() {
-		long cycleStartTime = System.nanoTime();
-		camera.update();
-		if(mouseEvents.size() > 0) {
-			if(mouseEvent== null) mouseEvent = mouseEvents.getLast();
-			mouseEvents.clear();
+		try {			
+			long cycleStartTime = System.nanoTime();
+			camera.update();
+			if(mouseEvents.size() > 0) {
+				if(mouseEvent == null) mouseEvent = mouseEvents.getLast();
+				mouseEvents.clear();
+			}
+			render();
+			if(eventObjects.size() > 0) {
+				if(eventObject == null) eventObject = eventObjects.getLast();
+				for(int i = 0; i < eventObjects.size() - 1; i++) eventObjects.get(i).unhovered();
+				eventObjects.clear();
+			}
+			fps++;
+			updateDuration = System.nanoTime() - cycleStartTime;		
+		} catch (Exception e) {
+			Console.ln(Console.ConsoleColour.PURPLE, "WarpedViewport -> update() -> Exception occured");
+			Console.stackTrace(e);
 		}
-		render();
-		if(eventObjects.size() > 0) {
-			if(eventObject == null) eventObject = eventObjects.getLast();
-			for(int i = 0; i < eventObjects.size() - 1; i++) eventObjects.get(i).unhovered();
-			eventObjects.clear();
-		}
-		fps++;
-		updateDuration = System.nanoTime() - cycleStartTime;		
 	}
 	
 	
@@ -621,9 +616,10 @@ public class WarpedViewport {
 	 * The last object in eventObjects will be the object that actually receives a mouse event when dispactMouseEvent() triggers. 
 	 * 	@author 5som3*/
 	protected void handleMouse(WarpedObject renderObject) {
-		if(mouseEvent == null) return;
-		else if(mouseEvent.isHandled()) return;
-		if(renderObject.isInteractive() && renderObject.isVisible() && isOverObject(renderObject)) eventObjects.add(renderObject);
+		WarpedMouseEvent me = mouseEvent;
+		if(me == null) return;
+		else if(me.isHandled()) return;
+		if(renderObject.isInteractive() && renderObject.isVisible() && isOverObject(renderObject, me)) eventObjects.add(renderObject);
 		else renderObject.unhovered();
 	}
 	
@@ -637,7 +633,7 @@ public class WarpedViewport {
 	}
 	
 	/**Check if the mouse event is over the specified object*/
-	protected boolean isOverObject(WarpedObject renderObject){
+	protected boolean isOverObject(WarpedObject renderObject, WarpedMouseEvent mouseEvent){
 		Point point = mouseEvent.getPointRelativeToViewPort();
 		
 		int traceX = (int)(point.x - renderObject.getRenderPosition().x());
@@ -681,19 +677,6 @@ public class WarpedViewport {
 	 * @author SomeKid*/
 	private void render() {renderMethod.action();}
 	
-	/**Sets the render hints for a graphical context to the render hint parameters of this Viewport.
-	 * @author SomeKid*/
-	private void setRenderHints(Graphics2D g) {
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, 		   renderHints[RENDERING]);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 	   renderHints[ANTIALIASING]); 
-		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,   renderHints[TEXT_ANTIALIASING]); 
-		g.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 	   renderHints[COLOR]); 
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 	   renderHints[INTERPOLATION]); 
-		g.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, renderHints[ALPHA_INTERPOLATION]); 
-		g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, 	   renderHints[STROKE]); 
-		g.setRenderingHint(RenderingHints.KEY_DITHERING, 		   renderHints[DITHERING]); 
-	}
-
 	
 	/**ANIMATION                                                                             
    	 * - This render method will not draw warpedObjects
@@ -770,14 +753,15 @@ public class WarpedViewport {
 	 * @author 5som3 */
 	private final WarpedAction render = () -> {
 		Graphics2D g = getGraphics();
-				
-		setRenderHints(g);
+		g.setRenderingHints(rh);
+		
 		target.forEachActiveGroup(obj -> {
 			obj.setRenderTransformations();
 			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
 			if(obj.isVisible() && !isClipped(obj)) {			
-				at.setTransform(1.0, 0.0, 0.0, 1.0, obj.x(), obj.y());
-				g.drawRenderedImage(obj.raster(), at);	
+				//at.setTransform(1.0, 0.0, 0.0, 1.0, obj.x(), obj.y());
+				//g.drawRenderedImage(obj.raster(), at);
+				g.drawImage(obj.raster(), (int)obj.getPosition().x(), (int)obj.getPosition().y(), obj.getWidth(), obj.getHeight(), null);
 			}
 			handleMouse(obj);
 		});		
@@ -794,13 +778,14 @@ public class WarpedViewport {
 	 * @author 5som3*/
 	private final WarpedAction renderTransformedScaled = () -> {
 		Graphics2D g = getGraphics();
-		setRenderHints(g);
+		g.setRenderingHints(rh);
 		target.forEachActiveGroup(obj -> {
 			obj.setRenderTransformations(camera);
 			if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
 			if(obj.isVisible() && !isClipped(obj)) {			
-				at.setTransform(camera.getZoom() * obj.getRenderScale(), 0.0, 0.0, camera.getZoom() * obj.getRenderScale(), obj.getRenderPosition().x(), obj.getRenderPosition().y());
-				g.drawRenderedImage(obj.raster(), at);	
+				//at.setTransform(camera.getZoom() * obj.getRenderScale(), 0.0, 0.0, camera.getZoom() * obj.getRenderScale(), obj.getRenderPosition().x(), obj.getRenderPosition().y());
+				//g.drawRenderedImage(obj.raster(), at);
+				g.drawImage(obj.raster(), (int)obj.getRenderPosition().x(), (int)obj.getRenderPosition().y(), (int)obj.getRenderSize().x(), (int)obj.getRenderSize().y(), null);
 			}
 			handleMouse(obj);
 		});		
@@ -817,14 +802,15 @@ public class WarpedViewport {
 	 * @author 5som3*/
 	private final WarpedAction renderTargets = () -> {
 		Graphics2D g = getGraphics();
-		setRenderHints(g);
+		g.setRenderingHints(rh);
 		for(int i = 0; i < targetGroups.size(); i++) {
 			targetGroups.get(i).forEach(obj -> {
 				obj.setRenderTransformations();
 				if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
 				if(obj.isVisible() && !isClipped(obj)) {			
-					at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
-					g.drawRenderedImage(obj.raster(), at);	
+					//at.setTransform(1.0, 0.0, 0.0, 1.0, obj.getPosition().x(), obj.getPosition().y());
+					//g.drawRenderedImage(obj.raster(), at);	
+					g.drawImage(obj.raster(), (int)obj.getPosition().x(), (int)obj.getPosition().y(), obj.getWidth(), obj.getHeight(), null);
 				}
 				handleMouse(obj);
 			});
@@ -842,14 +828,15 @@ public class WarpedViewport {
 	 * @author 5som3*/
 	private final WarpedAction renderTargetsTransformedScaled = () -> {
 		Graphics2D g = getGraphics();
-		setRenderHints(g);
+		g.setRenderingHints(rh);
 		for(int i = 0; i < targetGroups.size(); i++) {
 			targetGroups.get(i).forEach(obj -> {
 				obj.setRenderTransformations(camera);
 				if(camera.isTracking() && obj.isEqualTo(camera.getTarget())) camera.updateTracking(obj);		
 				if(obj.isVisible() && !isClipped(obj)) {			
-					at.setTransform(camera.getZoom() * obj.getRenderScale(), 0.0, 0.0, camera.getZoom() * obj.getRenderScale(), obj.getRenderPosition().x(), obj.getRenderPosition().y());
-					g.drawRenderedImage(obj.raster(), at);	
+					//at.setTransform(camera.getZoom() * obj.getRenderScale(), 0.0, 0.0, camera.getZoom() * obj.getRenderScale(), obj.getRenderPosition().x(), obj.getRenderPosition().y());
+					//g.drawRenderedImage(obj.raster(), at);	
+					g.drawImage(obj.raster(), (int)obj.getRenderPosition().x(), (int)obj.getRenderPosition().y(), (int)obj.getRenderSize().x(), (int)obj.getRenderSize().y(), null);
 				}
 				handleMouse(obj);
 			});

@@ -49,7 +49,7 @@ public class InspectorItem extends GUIAssembly {
 
 
 	@Override
-	protected void defineAssembly() {
+	public void defineAssembly() {
 		title.setPosition(100, 100);
 		item.setOffset(35, 35);
 		details.setOffset(5, 100);

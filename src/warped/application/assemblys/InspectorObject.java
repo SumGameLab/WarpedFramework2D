@@ -48,7 +48,7 @@ public class InspectorObject extends GUIAssembly {
 		super();
 	}
 	
-	protected void defineAssembly() {
+	public void defineAssembly() {
 		background.addRectangle(new Rectangle(0, 0, 400, 600), Colour.GREY_DARK);
 		
 		close.setOffset(370, 0);

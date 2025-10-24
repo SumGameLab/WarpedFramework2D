@@ -61,7 +61,7 @@ public class ExampleHUD extends GUIAssembly {
 	 * Then I set up a bunch of test elements for the HUD.
 	 * */
 	@Override
-	protected void defineAssembly() { 
+	public void defineAssembly() { 
 		funny.setOffset(50, 60);
 		inventA.setOffset(210, 15);
 		inventB.setOffset(210, 50);

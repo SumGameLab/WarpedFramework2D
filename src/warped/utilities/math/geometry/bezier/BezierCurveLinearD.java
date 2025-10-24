@@ -3,7 +3,6 @@ package warped.utilities.math.geometry.bezier;
 
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Vector;
 
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;

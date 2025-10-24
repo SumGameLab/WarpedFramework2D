@@ -21,7 +21,7 @@ public class GUIClock extends WarpedGUI {
 	
 	private boolean isBackgroundVisible = true;
 	
-	private Font font = UtilsFont.getPreferred();
+	private Font font = UtilsFont.getDefault();
 	private VectorI textOffset = new VectorI(0, font.getSize());
 	private int borderThickness = 2;
 	
@@ -72,6 +72,13 @@ public class GUIClock extends WarpedGUI {
 		}
 		this.font = new Font(font.getName(), font.getStyle(), textSize);
 		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		return;
 	}
 	
 	/**Set if the background and border should be rendered behind the time text.
@@ -127,7 +134,7 @@ public class GUIClock extends WarpedGUI {
 	
 	
 	@Override
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics2D g = getGraphics();
 		
 		if(isBackgroundVisible) {			

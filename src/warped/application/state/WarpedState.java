@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import warped.application.assemblys.AssemblyHotBar;
 import warped.application.assemblys.AssemblyPopUpDialogueBox;
 import warped.application.assemblys.ConsoleInput;
 import warped.application.assemblys.FileExplorer;
@@ -19,6 +18,7 @@ import warped.application.assemblys.ToolTip;
 import warped.application.gui.WarpedGUI;
 import warped.audio.FrameworkAudio;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
 
 public class WarpedState {
 	
@@ -55,7 +55,7 @@ public class WarpedState {
 	public static Selector 						selector;
 	public static ToolTip 						toolTip;
 	public static Notify 						notify;
-	public static AssemblyHotBar 				hotBar;	
+	
 	public static AssemblyPopUpDialogueBox 		dialogue;
 	public static FileExplorer 					fileExplorer;
 	public static ConsoleInput 					consoleInput;
@@ -69,6 +69,30 @@ public class WarpedState {
 		activeTimer.scheduleAtFixedRate(activeTask, 0, 16);
 		activeTimer.scheduleAtFixedRate(midTask, 0, 1000);
 		activeTimer.scheduleAtFixedRate(slowTask, 0, 60000);
+	}
+	
+	/**Updates all graphics in all assemblys.
+	 * @author 5som3*/
+	public static void updateAssemblyGraphics() {
+		for(int i = 0; i < assemblys.size(); i++) {
+			assemblys.get(i).updateGraphics();
+		}
+	}
+	
+	/**Calls the define method on all assemblys. 
+	 * @apiNote Call this after changing languages. 
+	 * @author 5som3*/
+	public static void redefineAssemblys() {
+		for(int i = 0; i < assemblys.size(); i++) {
+			assemblys.get(i).defineAssembly();
+		}
+	}
+	
+	public static void setLanguage(String languageLocale) {
+		UtilsFont.setLanguage(languageLocale);
+		for(int i = 0; i < assemblys.size(); i++) {
+			assemblys.get(i).updateLanguage();
+		}
 	}
 	
 	/**The duration of the last active update cycle
@@ -324,9 +348,6 @@ public class WarpedState {
 
 		consoleInput = new ConsoleInput();
 		consoleInput.assemble();
-				
-		hotBar = new AssemblyHotBar();
-		hotBar.assemble();
 		
 		fileExplorer = new FileExplorer();
 		fileExplorer.assemble();

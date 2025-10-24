@@ -4,7 +4,6 @@ package warped.application.state;
 
 import java.util.ArrayList;
 
-import warped.application.state.managers.gameObjectManagers.WarpedGroupAction;
 import warped.application.state.managers.gameObjectManagers.WarpedObjectAction;
 import warped.application.state.managers.gameObjectManagers.WarpedObjectCheckAction;
 import warped.utilities.utils.Console;

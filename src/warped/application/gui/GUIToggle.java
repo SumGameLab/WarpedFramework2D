@@ -14,6 +14,7 @@ import warped.graphics.window.WarpedMouse;
 import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsImage;
 
 public class GUIToggle extends WarpedGUI {
@@ -59,6 +60,11 @@ public class GUIToggle extends WarpedGUI {
 		sprite = new ToggleSprite(toggleOnImage, toggleOffImage); 
 		setSprite(sprite);
 	}	
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {return;}
 	
 	/**Set the toggle on action
 	 * @param toggleOnAction - The action will be triggered (once) each time the toggle is toggled on.
@@ -231,7 +237,7 @@ public class GUIToggle extends WarpedGUI {
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
 	@Override
-	protected void updateGraphics() {//Unused
+	public void updateGraphics() {//Unused
 		// TODO Auto-generated method stub
 		
 	}

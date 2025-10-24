@@ -144,7 +144,7 @@ public class WarpedPath {
 	}
 	public void offsetPath(double x, double y) {positions.forEach(c -> {c.add(x, y);});}
 	
-	public <T extends WarpedPathable> boolean follow(T pathable, double moveValue) {return follow(this, pathable, scale);}
+	public <T extends WarpedPathable> boolean follow(T pathable, double moveValue) {return follow(this, pathable, scale / moveValue);}
 	public <T extends WarpedPathable> boolean follow(T pathable) {return follow(this, pathable, scale);}
 	public  <T extends WarpedPathable> boolean follow(WarpedPath path, T pathable, double scale) {
 		if(path.getCurrentNode() < 0) return true;

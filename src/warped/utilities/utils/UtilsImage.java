@@ -7,9 +7,13 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
+import java.awt.Transparency;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -19,7 +23,6 @@ import javax.imageio.ImageIO;
 
 import warped.WarpedProperties;
 import warped.application.state.WarpedFramework2D;
-import warped.application.tile.TerrainTileTransitionType;
 import warped.graphics.sprite.spriteSheets.FrameworkSprites;
 import warped.utilities.enums.generalised.ColorComponentType;
 import warped.utilities.enums.generalised.Colour;
@@ -30,6 +33,23 @@ public class UtilsImage {
 
 	public static final Composite clearComposite = AlphaComposite.getInstance(AlphaComposite.CLEAR);
 	public static final Composite drawComposite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER);
+	
+	private static final GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice().getDefaultConfiguration();
+	
+	public static final VolatileImage generateVolatileImage(int width, int height) {
+		VolatileImage image = gc.createCompatibleVolatileImage(width, height, Transparency.TRANSLUCENT);
+		clearImage(image);
+		return image;
+	}
+	
+	
+	public static void clearImage(VolatileImage image) {
+		Graphics2D g2d = image.createGraphics();
+		g2d.setComposite(UtilsImage.clearComposite);
+		g2d.fillRect(0, 0, image.getSnapshot().getWidth(), image.getSnapshot().getHeight());
+		g2d.setComposite(UtilsImage.drawComposite);
+		g2d.dispose();
+	}
 	
 	//--------
 	//---------------- Loading ---------------
@@ -817,49 +837,7 @@ public class UtilsImage {
 	}
 	
 	
-	//--------
-	//---------------- Transitions / Fade ---------------
-	//--------
-	/**
-	 * creates a buffered image that transitions between the two input images
-	 * @param 
-	 * @param image1 : transition from this tile
-	 * @param image2 : transition two this tile
-	 */
-	public static BufferedImage generateTileTransitionImage(BufferedImage image1, BufferedImage image2, TerrainTileTransitionType transitionType) {		
-		if(image1 == null || image2 == null) {
-			Console.err("UtilsImage -> generateTransitionImage() -> passed null image as parameter");
-			return null;
-		}
-		if(image1.getWidth() != image2.getWidth() || image1.getHeight() != image2.getHeight()) { //Check for tile size compatibility 
-			Console.err("UtilsImage -> generateTransitionTile() -> can not generate a transition tile because tiles are incompatible sizes");
-			return null;
-		}
-		
-		int width = image1.getWidth();
-		int height = image1.getHeight();
-		
-		BufferedImage overlay = new BufferedImage(width, height, WarpedProperties.BUFFERED_IMAGE_TYPE);		
-		BufferedImage transition = transitionType.getTileTransition();
-		
-		for(int y = 0; y < height; y++) {
-			for(int x = 0; x < width; x++) {
-				int alpha = (transition.getRGB(x, y) >> 24) & 0xff;
-				int pixel = image2.getRGB(x, y);
-				int r = ((pixel >> 16) & 0xff);
-				int g = ((pixel >>  8) & 0xff);
-				int b = ((pixel >>  0) & 0xff);
-				int argb =  (alpha << 24) | (r << 16) | (g << 8) | b;
-			    overlay.setRGB(x, y, argb);
-			}
-		}
-		
-		BufferedImage result = UtilsImage.generateClone(image1);
-		Graphics g = result.createGraphics();
-		g.drawImage(overlay, 0, 0, width, height, null);
-		g.dispose();
-		return result;
-	}
+
 	
 	
 	/* ---------------------- Noise ---------------------- */

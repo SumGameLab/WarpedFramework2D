@@ -32,7 +32,7 @@ public class FileExplorer  extends GUIAssembly {
 
 
 	@Override
-	protected void defineAssembly() {
+	public void defineAssembly() {
 		close.setOffset(400 - 30, 0);
 		forward.setOffset(400 - 60, 0);
 		back.setOffset(400 - 90,  0);

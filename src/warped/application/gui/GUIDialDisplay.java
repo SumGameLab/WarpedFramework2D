@@ -30,7 +30,7 @@ public class GUIDialDisplay extends WarpedGUI {
 	private String text = "0.0";
 	private Colour textColour 			= Colour.YELLOW;
 	private Colour textBackgroundColour	= Colour.BLACK;
-	public Font textFont = UtilsFont.getPreferred();
+	public Font textFont = UtilsFont.getDefault();
 	private VectorI textOffset			= new VectorI(12, 12);
 	private VectorI textBackgroundSize = new VectorI(60, 30);
 	
@@ -66,6 +66,13 @@ public class GUIDialDisplay extends WarpedGUI {
 		faceSprite = new RotationSprite(dialImage);
 		addHand(handImage);
 		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		return;
 	}
 	
 	/**Add a rotatable hand to the dial
@@ -212,7 +219,7 @@ public class GUIDialDisplay extends WarpedGUI {
 	}
 	
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics2D g = getGraphics();
 		
 		g.setComposite(UtilsImage.drawComposite);

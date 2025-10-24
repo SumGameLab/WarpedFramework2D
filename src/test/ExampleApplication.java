@@ -18,7 +18,6 @@ import warped.application.state.WarpedInventory;
 import warped.application.state.WarpedObject;
 import warped.application.state.WarpedSpriteFolder;
 import warped.application.state.WarpedState;
-import warped.application.tile.TileableGenerative;
 import warped.graphics.sprite.CharacterSprite;
 import warped.graphics.window.WarpedWindow;
 import warped.user.keyboard.WarpedKeyBind;
@@ -26,7 +25,6 @@ import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.enums.WarpedLinkable;
 import warped.utilities.enums.generalised.AxisType;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsImage;
 
 public class ExampleApplication extends WarpedApplication {
 	
@@ -63,32 +61,7 @@ public class ExampleApplication extends WarpedApplication {
 		public Map<Integer, TestImage> getMap() {return map;}
 	}
 	
-	public enum TestTiles implements TileableGenerative<TestTiles>{
-		WATER,
-		SAND,
-		GRASS,
-		DIRT,
-		STONE,
-		;public static Map<Integer, TestTiles> map = new HashMap<>();
-		static {for(TestTiles tile : TestTiles.values()) map.put(tile.ordinal(), tile);}
-		
-		@Override
-		public Map<Integer, TestTiles> getMap() {return map;}
 
-		@Override
-		public double getRoughness(TestTiles tileType) {
-			switch(tileType) {
-			case DIRT: return 0.75;
-			case GRASS: return 0.9;
-			case SAND: return 0.6;
-			case STONE: return 0.95;
-			case WATER: return 0.5;
-			default:
-				Console.err("ExampleApplication -> TestTiles -> getRoughness() -> invalid case : " + tileType);
-				return 0.25;			
-			}
-		}		
-	}
 	
 
 	/*Here I created some public folders so that I can access the assets across the project
@@ -144,7 +117,18 @@ public class ExampleApplication extends WarpedApplication {
 	 * */
 	@Override
 	protected void initializeApplication() {
-		UtilsImage.writeImageToFile(UtilsImage.removeOpacity(UtilsImage.basicLoadBufferedImage("dat/smokes_wf2d_64_64_wf.png")), "dat/smokes_wf2d_64_64_wf");
+		//UtilsImage.writeImageToFile(UtilsImage.removeOpacity(UtilsImage.basicLoadBufferedImage("dat/smokes_wf2d_64_64_wf.png")), "dat/smokes_wf2d_64_64_wf");
+		/*
+		String result = "";
+		try {
+			result = UtilsString.translate("en", "fr", "Hello World");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Console.ln(Console.ConsoleColour.YELLOW, result);
+		*/
+		
 		
 		itemManager = new ManagerItem<ExampleItems>();
 		itemDropGroup = itemManager.addGroup();
@@ -169,8 +153,6 @@ public class ExampleApplication extends WarpedApplication {
 		exampleInventoryB.produce(ExampleItems.ROCK, 5);
 		exampleInventoryB.produce(ExampleItems.ROCK, 1);
 		
-		CharacterSprite testSprite = new CharacterSprite(testSprites.getSheet(TestSprites.SPRITE_8DIR), AxisType.HORIZONTAL);
-		testSprite.setFrameRate(16);
 		
 		
 		WarpedGroup<WarpedObject> testGroup = WarpedState.objectManager.addGroup();
@@ -179,9 +161,13 @@ public class ExampleApplication extends WarpedApplication {
 		WarpedGroup<WarpedObject> testGroup2 = WarpedState.objectManager.addGroup();
 		WarpedState.openGroup(testGroup2);
 		
-		dude = new ExampleEntitie(testSprite);
-		dude.setPosition(900, 500);
-		testGroup.addMember(dude);
+		for(int i = 0; i < 10000; i++) {			
+			CharacterSprite testSprite = new CharacterSprite(testSprites.getSheet(TestSprites.SPRITE_8DIR), AxisType.HORIZONTAL);
+			testSprite.setFrameRate(16);
+			dude = new ExampleEntitie(testSprite);
+			dude.setPosition(900, 500);
+			testGroup.addMember(dude);
+		}
 		testGroup.addMember(new ExampleProjectile(300, 300, 750, 0.0));
 		testGroup2.addMember(new ExampleProjectile(900, 300, -500, 0.0));	
 		
@@ -215,6 +201,12 @@ public class ExampleApplication extends WarpedApplication {
 	@Override
 	protected void stopApplication() {
 		//example : saveState();
+	}
+
+	@Override
+	public void endWarpedCinematic() {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

@@ -13,6 +13,7 @@ import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsMath;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUILabel  extends WarpedGUI {
 	
@@ -29,7 +30,9 @@ public class GUILabel  extends WarpedGUI {
 	
 	private Color backgroundColour = Colour.GREY_DARK.getColor();
 	private Color textColor = Color.WHITE;
-	private Font textFont = UtilsFont.getPreferred();
+	private Font textFont = UtilsFont.getDefault();
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
+	
 	
 	private BufferedImage backgroundImage;  
 	private boolean isBackgroundVisible = false;
@@ -94,6 +97,7 @@ public class GUILabel  extends WarpedGUI {
 	public void pointToFormat(GUILabel label) {
 		this.borderColor     = label.borderColor;
 		this.borderThickness = label.borderThickness;
+		this.isBackgroundVisible = label.isBackgroundVisible;
 		this.textColor 		 = label.textColor;
 		this.textFont 		 = label.textFont;
 		this.textOffset 	 = label.textOffset;
@@ -115,7 +119,7 @@ public class GUILabel  extends WarpedGUI {
 		this.borderThickness = borderThickness;
 		updateGraphics();
 	}
-	
+		
 	/**The colour of the border
 	 *@param borderColor - the color to use
 	 *@apiNote Will also make the background visible.
@@ -147,9 +151,16 @@ public class GUILabel  extends WarpedGUI {
 	 * 					- 1 bold
 	 * 					- 2 italic
 	 * @author SomeKid*/
-	public void setTextStyle(int textStyle) {
-		textStyle = UtilsMath.clamp(0, textStyle, 2);
-		textFont = new Font(textFont.getFontName(), textStyle, textFont.getSize());
+	public void setTextStyle(FontStyleType fontStyle) {
+		this.fontStyle = fontStyle;
+		updateLanguage();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
 		updateGraphics();
 	}
 	
@@ -158,7 +169,7 @@ public class GUILabel  extends WarpedGUI {
 	 * @author SomeKid*/
 	public void setTextSize(int textSize) {
 		textSize = UtilsMath.clampMin(textSize, 1);
-		textFont = new Font(textFont.getFontName(), textFont.getStyle(), textSize);
+		textFont = textFont.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
 	

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
+import warped.utilities.utils.UtilsFont;
 
 public class GUIShape extends WarpedGUI {
 
@@ -51,8 +52,12 @@ public class GUIShape extends WarpedGUI {
 		sprite.clearBuffers();
 	}
 
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {return;}
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		for(int i = 0; i < rectangles.size(); i++) {

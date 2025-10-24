@@ -15,6 +15,7 @@ import warped.graphics.window.WarpedWindow;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
 
 public class GUIButton extends WarpedGUI {
 	
@@ -152,6 +153,11 @@ public class GUIButton extends WarpedGUI {
 		sprite.setButtonSize(width, height);
 		updateGraphics();
 	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {sprite.updateFont();}
 	
 	/**Set button sound effect
 	 * @param enteredSFX - The sound effect will trigger (once) when the mouse enters the button
@@ -379,7 +385,7 @@ public class GUIButton extends WarpedGUI {
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
 
 	@Override
-	protected void updateGraphics() {// Unused
+	public void updateGraphics() {// Unused
 		// TODO Auto-generated method stub
 		
 	}

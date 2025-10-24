@@ -22,7 +22,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 	private Color backgroundColor = new Color(50,50,50);
 	
 	private Color textColor = Color.YELLOW;
-	private Font font = UtilsFont.getPreferred();
+	private Font font = UtilsFont.getDefault();
 
 	private int columns = 8; 
 	private int rows = 8;
@@ -126,10 +126,16 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 		updateGraphics();
 	}
 	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		return;
+	}
 
 		
 	/***/
-	protected void updateGraphics() {	
+	public void updateGraphics() {	
 		if(selectInvent == null) return; // No inventory to draw
 		Graphics g = getGraphics();
 		

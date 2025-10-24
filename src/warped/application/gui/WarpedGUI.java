@@ -2,6 +2,8 @@
 package warped.application.gui;
 
 
+import java.awt.RenderingHints;
+
 import warped.application.state.WarpedObject;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
@@ -12,6 +14,8 @@ public abstract class WarpedGUI extends WarpedObject {
 
 	protected boolean isLocked 			= false;
 	protected boolean isDraggable 		= false;
+	
+
 		
 	/**Set the offset for this GUI.
 	 * Use in conjunction with offset() to position elements within an assembly.
@@ -85,7 +89,14 @@ public abstract class WarpedGUI extends WarpedObject {
 		updateGraphics();
 	}
 	
-	protected abstract void updateGraphics();
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public abstract void updateLanguage();
+	
+	/**Define what changes are made when the graphics are updated.
+	 * */
+	public abstract void updateGraphics();
 
 	
 

@@ -14,6 +14,8 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIPopOutMenu extends WarpedGUI {
 	
@@ -51,8 +53,9 @@ public class GUIPopOutMenu extends WarpedGUI {
 	private Color hoverColor 	= Colour.RED_DARK.getColor(100); 
 	private Color pressColor 	= Colour.RED.getColor(100);
 	
-	private Font optionFont 		= new Font("ButtonFont", Font.PLAIN, 12);
-	private Font labelFont 			= new Font("DropDownToggleFont", Font.PLAIN, 12);
+	private Font optionFont 		= UtilsFont.getDefault();
+	private Font labelFont 			= UtilsFont.getDefault();
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 		
 	/**A menu with the specified label and no options.
 	 * @param menuLabel - the label for the button that will show/hide the options.
@@ -96,6 +99,15 @@ public class GUIPopOutMenu extends WarpedGUI {
 	public void setOptions(ActionOption... options) {
 		this.options = new ArrayList<>(Arrays.asList(options));
 		initializeRasters();
+		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		optionFont = UtilsFont.getFont(fontStyle, optionFont.getSize());
+		labelFont = UtilsFont.getFont(fontStyle, labelFont.getSize());
 		updateGraphics();
 	}
 	
@@ -315,7 +327,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 	
 	
 	
-	protected void updateGraphics() {		
+	public void updateGraphics() {		
 		Graphics g = getGraphics();
 		
 		switch(popDirection) {

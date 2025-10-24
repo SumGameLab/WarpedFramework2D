@@ -34,6 +34,10 @@ public abstract class WarpedApplication  {
 	 * This method may be used to queue animations or events that should start immediately after loading*/
 	public abstract void startApplication();
 	
+	/**This method is called when the warped2D cinematic finishes playing.
+	 * */
+	public abstract void endWarpedCinematic();
+	
 	/**Do Not, call this manually, it is called automatically.
 	 * This method will be called at framerate -> typically 60 times a second
 	 * This method should be used to check persistent game logic i.e. has a set of win conditions been met*/

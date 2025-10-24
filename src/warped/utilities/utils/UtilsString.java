@@ -5,6 +5,15 @@ package warped.utilities.utils;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -149,6 +158,95 @@ public class UtilsString {
 		
 		funnyMessages.add("What it doesn't know isn't worth knowing.");
 		funnyMessages.add("What it doesn't have isn't worth having.");
+	}
+	
+	
+	public static String translate(String langFrom, String langTo, String text) throws IOException {
+        String urlStr = "https://script.google.com/macros/s/AKfycbxTVUVurxA051YGLHzX7i3JQsjMXIufGs1Bd8bztBJW0ok_GfYveiaJAVIYhfnwnDF-/exec" +
+                "?q=" + URLEncoder.encode(text, "UTF-8") +
+                "&target=" + langTo +
+                "&source=" + langFrom;
+        URL url = new URL(urlStr);
+        StringBuilder response = new StringBuilder();
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        con.setRequestProperty("User-Agent", "Mozilla/5.0");
+        con.setRequestProperty("Content-Type", "application/json; utf-8");
+        con.setConnectTimeout(5000);
+        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null) {
+        	response.append(inputLine);
+        }
+        in.close();
+        con.disconnect();        	
+        String result = response.toString();
+        result = result.replace("&#39;", "'");
+        result = result.replace("&quot;", "\"");
+        return result; 
+    }
+	
+	public static void translateResourceBundle(String langFrom, String langTo, String folderPath, String bundleBaseName) {
+		ArrayList<String> textLines = new ArrayList<>();
+		String completePath = "" + folderPath + bundleBaseName + "_" + langFrom + ".txt";
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(completePath));
+			String line = br.readLine();
+			
+		    while (line != null) {
+		    	textLines.add(line);
+		        line = br.readLine();
+		    }
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		ArrayList<String> translated = new ArrayList<>();
+		for(int i = 0; i < textLines.size(); i++) {
+			String line = textLines.get(i);
+			if(line.startsWith("#")) {
+				translated.add(line);
+				continue;
+			}
+			int subIndex = 0;
+			for(int j = 0; j < line.length() - 1; j++) {
+				String character = line.substring(j, j + 1);
+				if(character.equals("=")) subIndex = j + 1;
+			}
+			String key = line.substring(0, subIndex);
+			String text = line.substring(subIndex, line.length());
+			String translatedLine = "" + key;
+			try {
+				translatedLine += translate(langFrom, langTo, text);
+			} catch (Exception e) {
+				i--;
+				if(i < 0) i = 0;
+				Console.stackTrace(e);
+				continue;
+			}
+			if(translatedLine.contains("Exception: Service invoked too many times for one day: translate")) {
+				i--;
+				if(i < 0) i = 0;
+				Console.err("UtilsString -> translateResourceBundle() -> Exception: Service invoked too many times for one day: translate -> trying to translate line again.");
+				continue;
+			}
+			Console.ln(Console.ConsoleColour.YELLOW, "Translate " + langFrom + "->" + langTo + " : " + translatedLine);
+			translated.add(translatedLine);
+		}
+		
+		String outFile = "" + folderPath + bundleBaseName + "_" + langTo + ".txt";
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFile))) {
+            for (String str : translated) {
+                writer.write(str);
+                writer.newLine(); // Writes a new line character after each string
+            }
+            //System.out.println("ArrayList successfully written to " + filePath);
+        } catch (IOException e) {
+            //System.err.println("An error occurred while writing to the file: " + e.getMessage());
+            e.printStackTrace();
+        }
+		
 	}
 	
 	public static int getStringWidth(String string, Font font) {

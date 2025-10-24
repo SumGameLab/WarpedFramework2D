@@ -79,7 +79,7 @@ public class Notify extends GUIAssembly {
 	}
 	
 	@Override
-	protected void defineAssembly() {return;}
+	public void defineAssembly() {return;}
 
 	@Override
 	protected void addAssembly() {return;}	

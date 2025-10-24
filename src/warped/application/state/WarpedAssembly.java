@@ -71,8 +71,11 @@ public abstract class WarpedAssembly {
 	
 	protected void updateAssembly() {return;}
 	
-	protected abstract void defineAssembly();
+	public abstract void updateGraphics();
+	
+	public abstract void defineAssembly();
 	protected abstract void addAssembly();
+	public abstract void updateLanguage();
 	
 
 	

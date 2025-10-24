@@ -11,6 +11,7 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIIcon extends WarpedGUI {
 
@@ -43,10 +44,11 @@ public class GUIIcon extends WarpedGUI {
 	private Color textColor;
 
 	private String textOverlay; 
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private int borderThickness = 2;
 	
-	private Font textFont = UtilsFont.getPreferred();
+	private Font textFont = UtilsFont.getDefault();
 		
 	
 	public GUIIcon(int width, int height) {
@@ -87,6 +89,14 @@ public class GUIIcon extends WarpedGUI {
 		}
 		this.borderThickness = borderThickness;
 		updateFramingParameters();
+		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
 		updateGraphics();
 	}
 	
@@ -271,7 +281,7 @@ public class GUIIcon extends WarpedGUI {
 	}
 	
 	
-	protected void updateGraphics() {		
+	public void updateGraphics() {		
 		Graphics g = getGraphics();
 		
 		if(isBackground) {			

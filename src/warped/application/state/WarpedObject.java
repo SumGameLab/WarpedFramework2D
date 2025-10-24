@@ -81,7 +81,8 @@ public abstract class WarpedObject {
 	 * @apiNote The collider will also receive a hit() with this object as it's collider. 
 	 * @author 5som3*/
 	protected void hit(WarpedObject collider) {
-		Console.err("WarpedObject -> hit() -> object hit by : " + collider.getClass().getSimpleName());
+		return;
+		//Console.err("WarpedObject -> hit() -> object hit by : " + collider.getClass().getSimpleName());
 	}
 	
 	

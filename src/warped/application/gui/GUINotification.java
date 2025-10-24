@@ -12,6 +12,8 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.geometry.bezier.BezierCurveObject;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUINotification extends WarpedGUI {
 
@@ -51,6 +53,7 @@ public class GUINotification extends WarpedGUI {
 	private VectorI iconOffset 		 = new VectorI(notificationSize.x() - borderThickness * 2 - iconSize.x(), notificationSize.y() - iconSize.y() / 2);
 	
 	private Font font 				 = new Font("Notification", Font.PLAIN, 12); 
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private BezierCurveObject outCurve = new BezierCurveObject(-notificationSize.x(), 0, 0, 0, getPosition(), () -> {isStarted = true;});
 	private BezierCurveObject inCurve  = new BezierCurveObject(0, 0, -notificationSize.x(), 0, getPosition(), () -> {kill();});
@@ -161,6 +164,14 @@ public class GUINotification extends WarpedGUI {
 		setKeyFrames(startX, startY, finishX, finishY);
 	}
 
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		font = UtilsFont.getFont(fontStyle, font.getSize());
+		updateGraphics();
+	}
+	
 	/**Set the start and finish position for the notification.
 	 * @param startX - the start point x coordinate.
 	 * @param startY - the start point y coordinate.
@@ -341,7 +352,7 @@ public class GUINotification extends WarpedGUI {
 	public boolean isExpired() {return isExpired;}
 	
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		if(isBackgroundVisible) {

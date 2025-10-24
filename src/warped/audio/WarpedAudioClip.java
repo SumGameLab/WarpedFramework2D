@@ -30,6 +30,13 @@ public class WarpedAudioClip {
 	private boolean isFadeOut;
 	private boolean isFadeIn;
 	
+	public boolean isPlaying() {
+		if(audioClip == null) return false;
+		if(!audioClip.isOpen()) return false;
+		if(!audioClip.isActive()) return false;
+		return true;
+	}
+	
 	private WarpedAction endClipAction = () -> {Console.ln("Finished clip : " + path);};
 	
 	private float volume = 1.0f;

@@ -19,19 +19,16 @@ import java.awt.event.WindowListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 
-import warped.WarpedProperties;
 import warped.application.state.WarpedFramework2D;
 import warped.application.state.WarpedManager;
 import warped.application.state.WarpedState;
@@ -75,10 +72,7 @@ public class WarpedWindow extends Canvas {
 	 * */ 
 	
 	private static final VectorI MIN_WINDOW_RESOLUTION = new VectorI(400, 300);
-	private static final VectorI MAX_WINDOW_RESOLUTION = new VectorI(3840, 2160);
-	
 	private static final VectorI MIN_APPLICATION_RESOLUTION = new VectorI(320, 200);
-	private static final VectorI MAX_APPLICATION_RESOLUTION = new VectorI(1920, 1080);
 	
 	private static VectorI applicationResolution = new VectorI(MIN_APPLICATION_RESOLUTION.x(), MIN_APPLICATION_RESOLUTION.y()); //Resolution of the application, not the displayed resolution
 	private static VectorI windowResolution = new VectorI(MIN_APPLICATION_RESOLUTION.x(), MIN_APPLICATION_RESOLUTION.y());//Resolution of the window, the displayed resolution
@@ -94,7 +88,7 @@ public class WarpedWindow extends Canvas {
 	private static ScheduledExecutorService executor;
 	private static Timer timer = new Timer("Timer Thread : Load Timer");
 	private static TimerTask updateLoadGraphics = new TimerTask(){public void run() {renderLoadscreen();}};
-	//private static TimerTask renderLoadGraphics = new TimerTask(){public void run() {renderCanvas();}};
+
 	private static WindowListener stopListener = new WindowAdapter() {@Override public void windowClosing(WindowEvent e) {WarpedFramework2D.stop();}};	
 	
 	public static  BufferedImage frameIcon = UtilsImage.loadBufferedImage("res/framework/graphics/frame_icon.png");
@@ -110,17 +104,16 @@ public class WarpedWindow extends Canvas {
 	protected static String outputPath;
 	protected static boolean isLoggingFrames = false;
 	protected static int frameLogCount = 0;
-	protected static ArrayList<BufferedImage> frameLog = new ArrayList<>(); 
 	
 	private static int width  = 1920; 
 	private static int height = 1080; 
 	private static VectorI center = new VectorI(width / 2, height / 2);
 			
 	private static WarpedViewport[] viewPorts = new WarpedViewport[2];
-	private static BufferedImage[] rasterBuffer = new BufferedImage[1];
+	private static VolatileImage[] rasterBuffer = new VolatileImage[1];
 	
-	private static BufferedImage raster = new BufferedImage(1, 1, 1);
-	private static BufferedImage buffer = new BufferedImage(1, 1, 1);
+	private static VolatileImage raster = UtilsImage.generateVolatileImage(1, 1);
+	private static VolatileImage buffer = UtilsImage.generateVolatileImage(1, 1);
 	private static int bufferIndex = 0;
 
 	private static int   loadBarBorderThickness = 5;
@@ -129,19 +122,11 @@ public class WarpedWindow extends Canvas {
 	private static Font  font = new Font("FunnyFlont", Font.PLAIN, 20);
 	private static BufferStrategy bs;
 	
-	private static Object[] renderHints = new Object[6];
+	private static RenderingHints rh = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
 		
 	private static short ups = 0;
 	private static short fps = 0;
 	
-	public enum RenderHints {
-		RENDERING, 			
-		COLOR,               
-		ANTIALIASING,		
-		INTERPOLATION,
-		ALPHA_INTERPOLATION, 
-		DITHERING           
-	}
 	
 	public WarpedWindow(String windowName, int applicationWidth, int applicationHeight, String iconPath) {
 		Console.ln("WarpedWindow -> Creating window with Settings : ");
@@ -151,12 +136,14 @@ public class WarpedWindow extends Canvas {
 		
 		System.setProperty("sun.java2d.opengl", "True");
 		
-		renderHints[RenderHints.RENDERING.ordinal()] 			 = RenderingHints.VALUE_RENDER_QUALITY;
-		renderHints[RenderHints.ANTIALIASING.ordinal()] 		 = RenderingHints.VALUE_ANTIALIAS_ON;
-		renderHints[RenderHints.COLOR.ordinal()] 				 = RenderingHints.VALUE_COLOR_RENDER_QUALITY;
-		renderHints[RenderHints.INTERPOLATION.ordinal()] 		 = RenderingHints.VALUE_INTERPOLATION_BICUBIC;
-		renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]   = RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;
-		renderHints[RenderHints.DITHERING.ordinal()]			 = RenderingHints.VALUE_DITHER_ENABLE;
+		rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		rh.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+		rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+		rh.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+		rh.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+		rh.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);		
+		rh.put(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
 		
 		WarpedWindow.windowName = windowName;
 		WarpedWindow.width  = applicationWidth;
@@ -169,8 +156,8 @@ public class WarpedWindow extends Canvas {
 		
 		if(iconPath != null) frameIcon = UtilsImage.loadBufferedImage(iconPath);
 		
-		rasterBuffer = new BufferedImage[BUFFER_SIZE];
-		for(int i = 0; i < BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(applicationWidth, applicationHeight, WarpedProperties.BUFFERED_IMAGE_TYPE);
+		rasterBuffer = new VolatileImage[BUFFER_SIZE];
+		for(int i = 0; i < BUFFER_SIZE; i++) rasterBuffer[i] = UtilsImage.generateVolatileImage(applicationWidth, applicationHeight);
 		
 		
 		addKeyListener(WarpedUserInput.keyboard);
@@ -201,9 +188,8 @@ public class WarpedWindow extends Canvas {
 	 * @implNote NOTE : 4k applications not supported. Rendering a window larger than 1440p is not advised. 
 	 * @author SomeKid*/
 	public final void setWindowResolution(int x, int y) {
-		if(x < MIN_WINDOW_RESOLUTION.x() || y < MIN_WINDOW_RESOLUTION.y() || x > MAX_WINDOW_RESOLUTION.x() || y > MAX_WINDOW_RESOLUTION.y()) {
+		if(x < MIN_WINDOW_RESOLUTION.x() || y < MIN_WINDOW_RESOLUTION.y()) {
 			Console.err("WarpedWindow -> setWindowResolution() -> window resolution is out of bounds -> min : " + MIN_WINDOW_RESOLUTION.getString());
-			Console.err("WarpedWindow -> setWindowResolution() -> window resolution is out of bounds -> max : " + MAX_WINDOW_RESOLUTION.getString());
 			Console.err("WarpedWindow -> setWindowResolution() -> window resolution is out of bounds -> value : ( " + x + ", " + y + ")");
 			return;
 		}
@@ -222,14 +208,14 @@ public class WarpedWindow extends Canvas {
 		Console.ln("WarpedWindow -> setWindowResolution() -> setting resolution to : " + x + ", " + y);
 		Console.ln("WarpedWindow -> setWindowResolution() -> setting resolution scale to : " + windowScale.getString());
 		
-		if(windowScale.x() >= 1.0 || windowScale.y() >= 1.0) renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;
-		else renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;
 		
 		Dimension size = new Dimension(WarpedWindow.width, WarpedWindow.height);
 		setPreferredSize(size);
-		for(int i = 0; i < BUFFER_SIZE; i++) rasterBuffer[i] = new BufferedImage(windowResolution.x(), windowResolution.y(), WarpedProperties.BUFFERED_IMAGE_TYPE);
+		for(int i = 0; i < BUFFER_SIZE; i++) rasterBuffer[i] = UtilsImage.generateVolatileImage(windowResolution.x(), windowResolution.y());
 		
-	
+		for(int i = 0; i < viewPorts.length; i++) {
+			viewPorts[i].clearMouseEvents();
+		}
 		initializeFrame(isFullScreen);
 		setVisible(true);
 				
@@ -512,79 +498,80 @@ public class WarpedWindow extends Canvas {
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
 	public static void hintViewportsRenderingQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
-	public static void hintRenderingQuality() {renderHints[RenderHints.RENDERING.ordinal()] = RenderingHints.VALUE_RENDER_QUALITY;}
+	public static void hintRenderingQuality() {rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);}
 	/**Reduced render quality but faster.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
 	public static void hintViewportsRenderingSpeed()   {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingSpeed();}
-	public static void hintRenderingSpeed() {renderHints[RenderHints.RENDERING.ordinal()] = RenderingHints.VALUE_RENDER_SPEED;}
+	public static void hintRenderingSpeed() {rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);}
 	/**Better colour quality but slower.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored. 
 	 * @author SomeKid*/
 	public static void hintViewportsColorQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorQuality();}
-	public static void hintColorQuality() {renderHints[RenderHints.COLOR.ordinal()] = RenderingHints.VALUE_COLOR_RENDER_QUALITY;}
+	public static void hintColorQuality() {rh.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);}
 	/**Reduced colour quality but faster.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
 	public static void hintViewportsColorSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintColorSpeed();}
-	public static void hintColorSpeed() {renderHints[RenderHints.COLOR.ordinal()] = RenderingHints.VALUE_COLOR_RENDER_SPEED;}
+	public static void hintColorSpeed() {rh.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_SPEED);}
 	/**Turn on antialiasing for images.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/            
 	public static void hintViewportsAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
-	public static void hintAntialiasingOn() {renderHints[RenderHints.ANTIALIASING.ordinal()] = RenderingHints.VALUE_ANTIALIAS_ON;}
+	public static void hintAntialiasingOn() {rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);}
 	/**Turn off antialiasing for images.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
 	public static void hintViewportsAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOff();}
-	public static void hintAntialiasingOff() {renderHints[RenderHints.ANTIALIASING.ordinal()] = RenderingHints.VALUE_ANTIALIAS_OFF;}
+	public static void hintAntialiasingOff() {rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);}
 	/**Turn on antialiasing for text.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
 	public static void hintViewportsTextAntialiasingOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAntialiasingOn();}
-	//public static void hintTextAntialiasingOn() {renderHints[RenderHints..ordinal()] = RenderingHints.VALUE_ANTIALIAS_ON;}
+	public static void hintTextAntialiasingOn() {rh.put(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);}
 	/**Turn off antialiasing for text.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
 	public static void hintViewportsTextAntialiasingOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintRenderingQuality();}
-	            
+	public static void hintTextAntialiasingOff() {rh.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_OFF);}
+	
 	/**Scale images using NearestNeighbour algorithm - fast but low quality.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
 	public static void hintViewportsInterpolationNearestNeighbour() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationNearestNeighbour();}
-	public static void hintInterpolationNearestNeighbour() {renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR;}
+	public static void hintInterpolationNearestNeighbour() {rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);}
 	/**Scale images using Bilinear algorithm - better quality than NearestNeighbour but slower.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
 	public static void hintViewportsInterpolationBilinear() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBilinear();}
-	public static void hintInterpolationBilinear() {renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_BILINEAR;}
+	public static void hintInterpolationBilinear() {rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);}
 	/**Scale images using Bicubic algorithm - slow but accurate scaling.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/      
 	public static void hintViewportsInterpolationBicubic() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintInterpolationBicubic();}
-	public static void hintInterpolationBicubic() {renderHints[RenderHints.INTERPOLATION.ordinal()] = RenderingHints.VALUE_INTERPOLATION_BICUBIC;}
+	public static void hintInterpolationBicubic() {rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);}
 	/**Best quality alpha blending, slowest
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
 	public static void hintViewportsAlphaInterpolationQuality() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationQuality();}
-	public static void hintAlphaInterpolationQuality() {renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()] = RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY;}
+	public static void hintAlphaInterpolationQuality() {rh.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);}
 	/**Fast, reduced fidelity 
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
 	public static void hintViewportsAlphaInterpolationSpeed() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintAlphaInterpolationSpeed();}
-	public static void hintAlphaInterpolationSpeed() {renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()] = RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED;}
+	public static void hintAlphaInterpolationSpeed() {rh.put(RenderingHints.KEY_ALPHA_INTERPOLATION,  RenderingHints.VALUE_ALPHA_INTERPOLATION_SPEED);}
 	            
 	/**Not sure what this does, lol.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
@@ -602,13 +589,13 @@ public class WarpedWindow extends Canvas {
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
 	public static void hintViewportsDitheringOn() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOn();}
-	public static void hintDitheringOn() {renderHints[RenderHints.DITHERING.ordinal()] = RenderingHints.VALUE_DITHER_ENABLE;}
+	public static void hintDitheringOn() {rh.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);}
 	/**Skip dithering, increase render time.
 	 * @apiNote Applied to all viewports in the window. Each viewport can also be set individually.
 	 * @apiNote If hintOverallPrimitive() this hint will be ignored.
 	 * @author SomeKid*/
 	public static void hintViewportsDitheringOff() {for(int i = 0; i < viewPorts.length; i++) viewPorts[i].hintDitheringOff();}
-	public static void hintDitheringOff() {renderHints[RenderHints.DITHERING.ordinal()] = RenderingHints.VALUE_DITHER_DISABLE;}
+	public static void hintDitheringOff() {rh.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_DISABLE);}
 	
 	
 	//--------
@@ -619,10 +606,15 @@ public class WarpedWindow extends Canvas {
 	/**This method is not called it is scheduled for execution when the JFrame is initialized.
 	 * @author SomeKid*/
 	private static final void update() {
-		long cycleStartTime = System.nanoTime();
-		renderViewports();
-		ups++;
-		updateDuration = System.nanoTime() - cycleStartTime;
+		try {			
+			long cycleStartTime = System.nanoTime();
+			renderViewports();
+			ups++;
+			updateDuration = System.nanoTime() - cycleStartTime;
+		} catch (Exception e) {
+			Console.ln(Console.ConsoleColour.PURPLE, "WarpedWindow -> update() -> exception occured");
+			Console.stackTrace(e);
+		}
 	}
 	
 	private static void pushGraphics() {
@@ -637,36 +629,16 @@ public class WarpedWindow extends Canvas {
 	 * @author SomeKid*/
 	private static void renderViewports() {
 		bufferGraphics = getBufferGraphics();			
-		setRenderHints(bufferGraphics);
+		bufferGraphics.setRenderingHints(rh);
 			
 		for(int i = 0; i < viewPorts.length; i++) {
 			WarpedViewport port = viewPorts[i];
 			if(port.isVisible()) {
 				at.setTransform(windowScale.x(), 0.0, 0.0, windowScale.y(), port.getX(), port.getY());
-				bufferGraphics.drawRenderedImage(port.raster(), at);
+				bufferGraphics.drawImage(port.raster(), at, null);
 			}
 		}
 		bufferGraphics.dispose();
-		
-		if(isLoggingFrames) {
-			frameLog.add(UtilsImage.generateClone(buffer));
-			frameLogCount--;
-			Console.ln("WarpedWindow -> renderViewports() -> logging frame : " + frameLog.size());
-			
-			if(frameLogCount < 1) {
-				isLoggingFrames = false;
-				Console.ln("WarpedWindow -> renderViewports() -> writing frame dump...");
-				for(int i = 0; i < frameLog.size(); i++) {
-					File logFrame = new File(outputPath + "frame_" + i + ".png");
-					try {
-						ImageIO.write(frameLog.get(i), "png", logFrame);
-					} catch (IOException e) {
-						Console.stackTrace(e);
-					}
-				}
-				frameLog.clear();
-			}
-		}
 		pushGraphics();
 		
 		long cycleStartTime = System.nanoTime();
@@ -721,18 +693,7 @@ public class WarpedWindow extends Canvas {
 		g2d.fillRect(0, 0, width, height);
 		return g2d;
 	}
-	
-	/** Sets the rendering hints for a graphics context using the hint parameters set in the WarpedWindow.
-	 * @author SomeKid*/
-	private static void setRenderHints(Graphics2D g) {
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING,	   		renderHints[RenderHints.RENDERING.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, 		renderHints[RenderHints.ANTIALIASING.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, 	renderHints[RenderHints.COLOR.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, 		renderHints[RenderHints.INTERPOLATION.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_DITHERING, 			renderHints[RenderHints.DITHERING.ordinal()]);
-		bufferGraphics.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, renderHints[RenderHints.ALPHA_INTERPOLATION.ordinal()]);
-	}
-		
+			
 
 	/** Stops the executor that updates WarpedWindow and all of its viewports.
 	 * @author SomeKid*/

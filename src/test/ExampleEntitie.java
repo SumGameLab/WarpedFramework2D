@@ -24,7 +24,7 @@ public class ExampleEntitie extends WarpedEntitie {
 	
 	@Override
 	protected void mouseEntered() {
-		Console.ln("TestEntitie -> mouseEntered()");
+		//Console.ln("TestEntitie -> mouseEntered()");
 	}
 
 	@Override

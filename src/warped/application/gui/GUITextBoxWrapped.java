@@ -12,7 +12,9 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsMath;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUITextBoxWrapped extends WarpedGUI {
 
@@ -31,8 +33,9 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	private String paragraph = "";
 	private ArrayList<String> textLines = new ArrayList<>();
 	
-	private Font paragraphFont  = new Font("TextBox", Font.PLAIN, 14);
-	private Font titleFont		= new Font("Title", Font.BOLD, 18);
+	private Font paragraphFont  = UtilsFont.getDefault(14);
+	private Font titleFont		= UtilsFont.getDefault(18);
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private VectorI titleOffset = new VectorI(30, 10);
 	
@@ -81,6 +84,22 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		setSize(width, height);
 	}
 	
+	/**Is the paragraph text currently being animated.
+	 * @return boolean - returns true if the text is being animated else returns false.
+	 * @author 5som3*/
+	public boolean isAnimating() {
+		return isAnimating;
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		paragraphFont = UtilsFont.getFont(fontStyle, paragraphFont.getSize());
+		titleFont = UtilsFont.getFont(fontStyle, titleFont.getSize());
+		updateGraphics();
+	}
+	
 	/**A text textBox with the specified parameters.
 	 * @param width - the width of the text box in pixels.
 	 * @param height - the height of the textBox in pixels.
@@ -98,6 +117,13 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @author 5som3*/
 	public void setAutoAnimate(boolean isAutoAnimate) {
 		this.isAutoAnimate = isAutoAnimate;
+	}
+	
+	/**Get the paragraph text.
+	 * @return String - returns the string that the paragraph is derived from. 
+	 * @author 5som3*/
+	public String getParagraph() {
+		return paragraph;
 	}
 	
 	/**Set the title for the textBox
@@ -142,6 +168,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @apiNote Use the text '/n/' to enter a blank line. [example : setParagraph("This is on line one./n/This is on line three.");]
 	 * @author 5som3*/
 	public void setParagraph(String text) {
+		scroll = 0.0;
 		this.paragraph = text;
 		if(isAutoAnimate) playTextAnimation();
 		updateParagraphLines();
@@ -424,7 +451,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		
 	}
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		if(isBackgroundVisible) {			

@@ -15,6 +15,7 @@ import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsMath;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIProgressBar extends WarpedGUI {
 
@@ -29,7 +30,8 @@ public class GUIProgressBar extends WarpedGUI {
 	private String label		 = "";
 	private VectorI textOffset = new VectorI(5, 5);
 	private Colour textColor  = Colour.YELLOW_LIGHT;
-	private Font  textFont 	 = UtilsFont.getPreferred();
+	private Font  textFont 	 = UtilsFont.getDefault();
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private double progress		= 0.0;
 	private int borderThickness = 3;
@@ -96,6 +98,14 @@ public class GUIProgressBar extends WarpedGUI {
 		at.rotate(UtilsMath.PI_ON_TWO);
 		this.fullColor = fullColor;
 		setFillDirection(fillDirection);
+		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
 		updateGraphics();
 	}
 	
@@ -245,7 +255,7 @@ public class GUIProgressBar extends WarpedGUI {
 	}
 	
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics2D g2d = getGraphics();
 		
 		g2d.setColor(borderColor);

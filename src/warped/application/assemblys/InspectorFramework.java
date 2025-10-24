@@ -140,7 +140,7 @@ public class InspectorFramework extends GUIAssembly {
 	}
 	
 	@Override
-	protected void defineAssembly() {
+	public void defineAssembly() {
 		close.setOffset(borderRect.width- 30 - borderThickness, 0);
 		refresh.setOffset(close.getOffsetX() - 30, 0);
 		next.setOffset(refresh.getOffsetX() - 30, 0);

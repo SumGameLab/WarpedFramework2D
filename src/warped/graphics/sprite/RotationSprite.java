@@ -5,6 +5,7 @@ package warped.graphics.sprite;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 
 import warped.WarpedProperties;
@@ -16,18 +17,11 @@ public class RotationSprite extends WarpedSprite {
 	private double rotation = 0.0;
 	private BufferedImage unrotatedImage;
 			
-	private static RenderingHints aliasHint  = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-	private static RenderingHints alphaHint  = new RenderingHints(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-	private static RenderingHints interpHint = new RenderingHints(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-	private static RenderingHints renderHint = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
-	private static RenderingHints colorHint  = new RenderingHints(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-	private static RenderingHints ditherHint = new RenderingHints(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-	
 	private AffineTransform at = new AffineTransform();
 	
 	public RotationSprite(int width, int height) {
 		super(width, height);
-		unrotatedImage =  new BufferedImage(width, height, WarpedProperties.BUFFERED_IMAGE_TYPE);		
+		unrotatedImage =  new BufferedImage(width, height, WarpedProperties.BUFFERED_IMAGE_TYPE);
 		updateGraphics();
 	}
 	
@@ -35,8 +29,9 @@ public class RotationSprite extends WarpedSprite {
 		super(image.getWidth(), image.getHeight());
 		unrotatedImage = image;
 		updateGraphics();
-	
 	}
+	
+
 
 	/**Set the image to be rotated by this sprite
 	 * @param unrotateImage - the new image for the sprite
@@ -84,14 +79,9 @@ public class RotationSprite extends WarpedSprite {
 		int rotationOriginY = (getHeight() / 2);
 		
 		at.setToRotation(rotation, rotationOriginX, rotationOriginY);
-			
-		g2d.setRenderingHints(renderHint);
-		g2d.setRenderingHints(colorHint);
-		g2d.setRenderingHints(aliasHint);
-		g2d.setRenderingHints(interpHint);
-		g2d.setRenderingHints(alphaHint);
-		g2d.setRenderingHints(ditherHint);
-		g2d.drawRenderedImage(unrotatedImage, at);
+		AffineTransformOp op = new AffineTransformOp(at, rh);
+		
+		g2d.drawImage(op.filter(unrotatedImage, null), 0, 0, null);
 		g2d.dispose();
 		
 		pushGraphics();		

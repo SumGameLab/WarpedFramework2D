@@ -18,6 +18,7 @@ import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsMath;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIScrollBar extends WarpedGUI {
 	
@@ -41,14 +42,15 @@ public class GUIScrollBar extends WarpedGUI {
 
 	private boolean isLabelVisible 	  = false;
 	private String label 			  = "default";
-	private Font labelFont			  = UtilsFont.getPreferred();
+	private Font labelFont			  = UtilsFont.getDefault();
 	
 	private AffineTransform at 		  = new AffineTransform();
 	
 	private boolean showProgressText  = true;
 	private String progressText 	  = "0.50";
 	private VectorI textOffset		  = new VectorI(4, 4);
-	private Font progressFont		  = UtilsFont.getPreferred();
+	private Font progressFont		  = UtilsFont.getDefault();
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private boolean isButtonHovered   = false;
 	private boolean isProgressVisible = true; 
@@ -108,6 +110,14 @@ public class GUIScrollBar extends WarpedGUI {
 		isLabelVisible = true;
 		this.progressColor = progressColor;
 		this.backgroundColor = backgroundColor;
+		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		progressFont = UtilsFont.getFont(fontStyle, progressFont.getSize());
 		updateGraphics();
 	}
 	
@@ -335,7 +345,7 @@ public class GUIScrollBar extends WarpedGUI {
 		}
 	}
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics2D g = getGraphics();
 		
 		g.setColor(borderColor);

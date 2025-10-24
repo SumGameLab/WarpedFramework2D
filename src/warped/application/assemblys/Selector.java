@@ -84,7 +84,7 @@ public class Selector extends GUIAssembly {
 	}	
 	
 	@Override
-	protected void defineAssembly() {
+	public void defineAssembly() {
 		optionButtons.setExitAction(() -> {
 			close();
 		});

@@ -13,6 +13,7 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIListGrid<T> extends WarpedGUI {
 
@@ -49,7 +50,8 @@ public class GUIListGrid<T> extends WarpedGUI {
 	
 	private VectorI textOffset = new VectorI();
 	
-	private Font font = UtilsFont.getPreferred();
+	private Font font = UtilsFont.getDefault();
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private int scrollButtonHeight = 20;
 	private int scrollBarThickness = 10;
@@ -91,6 +93,14 @@ public class GUIListGrid<T> extends WarpedGUI {
 		entryNames.clear(); 
 		scrollOffset = 0;
 		updateScrollParameters();
+		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		font = UtilsFont.getFont(fontStyle, font.getSize());
 		updateGraphics();
 	}
 	
@@ -206,7 +216,7 @@ public class GUIListGrid<T> extends WarpedGUI {
 		Console.ln("GUIListGridScroll -> setScrollParemeters() -> scrollMax : " + scrollMax);
 	}
 
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		for(int i = 0; i < list.size(); i++) {

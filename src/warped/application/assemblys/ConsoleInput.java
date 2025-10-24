@@ -17,7 +17,7 @@ public class ConsoleInput extends GUIAssembly {
 	}
 
 	@Override
-	protected void defineAssembly() {
+	public void defineAssembly() {
 		inputLine.setSize(WarpedWindow.getWindowWidth(), 40);
 		inputLine.setBorderColor(Colour.BLACK.getColor(120));
 		inputLine.setBackgroundColor(Colour.GREY_DARK.getColor(120));

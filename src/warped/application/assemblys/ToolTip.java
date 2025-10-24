@@ -77,7 +77,7 @@ public class ToolTip extends GUIAssembly {
 	public GUILabel getLabel() {return label;} 
 	
 	@Override
-	protected void defineAssembly() {	
+	public void defineAssembly() {	
 		label.setLabelSize(120, 30);
 	}
 

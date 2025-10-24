@@ -45,7 +45,8 @@ public class GUIValue extends WarpedGUI {
 	
 	private int decimals = 0;
 		
-	private Font font = UtilsFont.getPreferred();
+	private Font font = UtilsFont.getDefault();
+	
 	private VectorI textOffset = new VectorI(borderThickness, borderThickness + font.getSize()); 
 	
 	private Winteger  winteger;
@@ -78,6 +79,11 @@ public class GUIValue extends WarpedGUI {
 			isGraphicsQueued = false;
 		}
 	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {return;}
 	
 	/**Set the font for the text
 	 * @param font - the new font to render the text with
@@ -259,7 +265,7 @@ public class GUIValue extends WarpedGUI {
 	/**Update the graphics by running the corresponding updateGraphicsAction.
 	 * @implNote The updateGraphicsAction is set automatically to be the corresponding action when the setValue() function is called
 	 * @author 5som3*/
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics2D g2d = getGraphics();
 		
 		if(isBackgroundVisible) {

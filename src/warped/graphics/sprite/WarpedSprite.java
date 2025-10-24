@@ -6,6 +6,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 import warped.WarpedProperties;
@@ -28,6 +29,18 @@ public class WarpedSprite {
 	private BufferedImage buffer; //Graphic input - points to the inactive raster in the rasterBuffer -> safe to edit 
 	
 	private VectorI size = new VectorI(1, 1);
+	
+	protected static RenderingHints rh = new RenderingHints(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+	static {
+		rh.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		rh.put(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+		rh.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		rh.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		rh.put(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+		rh.put(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+		rh.put(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);		
+		rh.put(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_DEFAULT);
+	}
 	
 	private WarpedAction deltaAction = () -> {return;};
 	
@@ -98,6 +111,7 @@ public class WarpedSprite {
 		g2d.setComposite(UtilsImage.clearComposite);
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 		g2d.setComposite(UtilsImage.drawComposite);
+		g2d.setRenderingHints(rh);
 		return g2d;
 		
 	}

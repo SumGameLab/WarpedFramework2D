@@ -3,7 +3,7 @@ package warped.application.gui;
 
 import java.awt.Color;
 import java.awt.Font;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -15,6 +15,7 @@ import warped.user.keyboard.WarpedTypeable;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
 
 public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	
@@ -32,7 +33,7 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	private String inputString = "";
 	private String prompt = "|";
 	private String blankText = "Click here...";
-	private Font font = new Font(Font.SANS_SERIF, Font.PLAIN, 24);
+	private Font font = UtilsFont.getDefault(24);
 
 	private int borderThickness   	= 2;
 	private int maxCharacters 		= 25;
@@ -86,6 +87,11 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 		setSize(width, height);
 		setBlankText(blankText);
 	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {return;}
 	
 	/**Set if the text line should continue to receive key press input after the entry has been entered.
 	 * @param isInputAfterEnter - if true the text line will continue to input after enter is pressed else the input line will be deselected after entry. 
@@ -276,7 +282,7 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	
 	
 	public void updateGraphics() {
-		Graphics g = getGraphics();
+		Graphics2D g = getGraphics();
 		
 		g.setColor(borderColor); //Draw background
 		g.fillRect(0, 0, getWidth(), getHeight());

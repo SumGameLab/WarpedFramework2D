@@ -89,7 +89,7 @@ public class AssemblyPopUpDialogueBox extends GUIAssembly  {
 
 
 	@Override
-	protected void defineAssembly() {
+	public void defineAssembly() {
 		character.setOffset(characterOffset);
 		dialogue.setOffset(dialogueOffset);
 		close.setOffset(closeOffset);

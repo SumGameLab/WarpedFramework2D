@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 import warped.application.state.WarpedObjectIdentity;
 import warped.graphics.window.WarpedMouseEvent;
+import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIScrollInventory extends WarpedGUI {
 	
@@ -32,7 +34,7 @@ public class GUIScrollInventory extends WarpedGUI {
 	private int titleTextStyle 	  	= Font.PLAIN;
 	private int titleTextSize 	 	= 16;
 	private Font titleFont = new Font("Invent Title", titleTextStyle, titleTextSize);
-
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private BufferedImage inventory;
 
@@ -43,6 +45,13 @@ public class GUIScrollInventory extends WarpedGUI {
 		
 	}
 
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		titleFont = UtilsFont.getFont(fontStyle, titleFont.getSize());
+		updateGraphics();
+	}
 	
 	public void setTitleTextSize(int titleTextSize) {
 		this.titleTextSize = titleTextSize;
@@ -54,7 +63,7 @@ public class GUIScrollInventory extends WarpedGUI {
 	}
 	
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		
 	}
 	

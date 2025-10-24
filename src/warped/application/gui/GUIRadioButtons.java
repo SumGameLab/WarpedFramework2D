@@ -20,6 +20,7 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIRadioButtons extends WarpedGUI {
 	
@@ -45,13 +46,15 @@ public class GUIRadioButtons extends WarpedGUI {
 	private int trueIndex = 0;
 	private int hoveredIndex = -1;
 	
+	private boolean isBackgroundVisible = true;
 	private Color backgroundColor = Colour.GREY_DARK.getColor();
 	private Color borderColor = Color.BLACK;
 	
 	private VectorI buttonSize = new VectorI();
 	
 	private Color textColor = Color.WHITE;
-	private Font textFont = UtilsFont.getPreferred();
+	private Font textFont = UtilsFont.getDefault();
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 
 	
 	public GUIRadioButtons(WarpedAction... buttonActions) {		
@@ -95,7 +98,14 @@ public class GUIRadioButtons extends WarpedGUI {
 		updateRadioSize();
 		updateGraphics();
 	}
-	
+
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
+		updateGraphics();
+	}
 
 	/**Set the axis that the buttons will spread across.
 	 * @param axis - the axis that will be applied.
@@ -154,8 +164,16 @@ public class GUIRadioButtons extends WarpedGUI {
 	 * @implNote Do not use colors with alpha less than 255.
 	 * @implNote The background and border are used to clear graphic data and this could be broken with semi transparent colors
 	 * @author SomeKid*/
-	public void setBackgroudnColor(Color color) {
+	public void setBackgroundColor(Color color) {
 		this.backgroundColor = color;
+		updateGraphics();
+	}
+	
+	/**Set if the background and background border will be rendered.
+	 * @param isBackgroundVisible - if true the background and background border will be rendered.
+	 * @author 5som3*/
+	public void setBackgroundVisible(boolean isBackgroundVisible) {
+		this.isBackgroundVisible = isBackgroundVisible;
 		updateGraphics();
 	}
 	
@@ -216,16 +234,18 @@ public class GUIRadioButtons extends WarpedGUI {
 	}
 
 
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
-		if(borderThickness > 0) {
-			g.setColor(borderColor);
-			g.fillRect(0, 0, getWidth(), getHeight());
+		if(isBackgroundVisible) {			
+			if(borderThickness > 0) {
+				g.setColor(borderColor);
+				g.fillRect(0, 0, getWidth(), getHeight());
+			}
+			
+			g.setColor(backgroundColor);
+			g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
 		}
-		
-		g.setColor(backgroundColor);
-		g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
 		
 		g.setColor(textColor);
 		for(int i = 0; i < buttonActions.size(); i++) {

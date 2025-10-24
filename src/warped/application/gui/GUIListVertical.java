@@ -16,6 +16,7 @@ import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsMath;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIListVertical extends WarpedGUI {
 	
@@ -26,6 +27,7 @@ public class GUIListVertical extends WarpedGUI {
 	 * 		- Set the border, background and text color for each option.
 	 * 		- Set the font for the options.
 	 * 		- Set the size of the list.
+	 * 		- Each option can have its own font set allowing for list entrys in various languages. 
 	 * 		- If options are too big to fit in the list a scroll bar will be added automatically. 	
 	 * 
 	 * */
@@ -34,6 +36,7 @@ public class GUIListVertical extends WarpedGUI {
 
 	private int buttonHeight = 30;
 	
+	private ArrayList<Font> optionFonts;
 	private ArrayList<ActionOption> options; 
 	private ArrayList<Boolean> optionLocks;
 		
@@ -62,9 +65,12 @@ public class GUIListVertical extends WarpedGUI {
 	private Color buttonHoverColor = new Color(110, 60, 60, 60);
 	private Color lockColor = new Color(30, 30, 30, 180);
 	
+	private FontStyleType optionFontStyle = FontStyleType.REGULAR;
+	private int optionFontSize = 14;
 	
-	private Color textColor = Color.YELLOW;
-	private Font font 		= UtilsFont.getPreferred();
+	private Color labelTextColor = Color.YELLOW;
+	private Font labelFont 		= UtilsFont.getDefault();
+	private FontStyleType labelFontStyle = FontStyleType.REGULAR;
 	
 	
 	/**A vertical list with the default parameters.
@@ -102,6 +108,14 @@ public class GUIListVertical extends WarpedGUI {
 		updateGraphics();
 	}
 	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		labelFont = UtilsFont.getFont(labelFontStyle, labelFont.getSize());
+		updateGraphics();
+	}
+	
 	/**Will make the list invisible after an option has been selected.
 	 * @author 5som3*/
 	public void autoHide() {isAutoHidden = true;}
@@ -131,7 +145,7 @@ public class GUIListVertical extends WarpedGUI {
 	 * @param textColor - the color of each option in the list
 	 * @author 5som3*/
 	public void setTextColor(Color textColor) {
-		this.textColor = textColor;
+		this.labelTextColor = textColor;
 		updateGraphics();
 	}
 	
@@ -187,7 +201,7 @@ public class GUIListVertical extends WarpedGUI {
 	 * @param size - the size of the font.
 	 * @author 5som3*/
 	public void setTextSize(int size) {
-		font = new Font(font.getFontName(), font.getStyle(), size);
+		labelFont = new Font(labelFont.getFontName(), labelFont.getStyle(), size);
 		updateGraphics();
 	}
 	
@@ -207,11 +221,32 @@ public class GUIListVertical extends WarpedGUI {
 	 * @param options - an array list of options that the list will be display.
 	 * @implNote Will update the scroll parameters and graphics.
 	 * @author 5som3*/
-	public void setOptions(ArrayList<ActionOption> options) {
-		this.options = options;
-		updateScrollParameters();
-		updateGraphics();
+	public void setOptions(ArrayList<ActionOption> options) {setOptions(options, null, null);}
+	
+	/**Set the options that the list will contain as well as the language font to write the option in.
+	 * @param languageCodes - the language locale code for the font.
+	 * @param options - an array list of options that the list will be display.
+	 * @implNote Will update the scroll parameters and graphics.
+	 * @author 5som3*/
+	public void setOptions(ArrayList<ActionOption> options, String... languageCodes) {
+		if(languageCodes.length > options.size()) Console.err("GUIListVertical -> setOptions() -> more option fonts specified than options, extra fonts will be ignored");
+		ArrayList<Font> fonts = new ArrayList<>();
+		for(int i = 0; i < options.size(); i++) {
+			if(i >= languageCodes.length) fonts.add(UtilsFont.getFont("en", optionFontStyle, optionFontSize));
+			else fonts.add(UtilsFont.getFont(languageCodes[i], optionFontStyle, optionFontSize));
+		}
+		setOptions(options, fonts, null);
 	}
+	
+	public void setOptions(ArrayList<ActionOption> options, ArrayList<Font> optionFonts, ArrayList<Boolean> optionLocks) {
+		this.optionFonts = optionFonts;
+		this.options = options;
+		this.optionLocks = optionLocks;
+		updateScrollParameters();
+		updateGraphics();		
+	}
+	
+	
 	
 	/**Set the options that this list will contain.
 	 * @param options - a list of options that the list will be display.
@@ -270,7 +305,7 @@ public class GUIListVertical extends WarpedGUI {
 		
 	}
 	
-	protected void updateGraphics() {		
+	public void updateGraphics() {		
 		if(options == null) return;
 
 		Graphics g = getGraphics();		
@@ -289,9 +324,10 @@ public class GUIListVertical extends WarpedGUI {
 			g.setColor(buttonColor);
 			g.fillRect(buttonPadding, drawY + buttonPadding, drawWidth - buttonPadding * 2, buttonHeight - buttonPadding * 2);
 			
-			g.setFont(font);
-			g.setColor(textColor);
-			g.drawString(option.getName(), textOffset.x(), drawY + textOffset.y() + font.getSize());
+			if(optionFonts != null) g.setFont(optionFonts.get(i));
+			else g.setFont(labelFont);
+			g.setColor(labelTextColor);
+			g.drawString(option.getName(), textOffset.x(), drawY + textOffset.y() + labelFont.getSize());
 			
 			if(i == hoverIndex) {
 				if(optionLocks != null && optionLocks.get(i));					
@@ -374,5 +410,6 @@ public class GUIListVertical extends WarpedGUI {
 	}
 	@Override
 	protected void mouseRotation(WarpedMouseEvent mouseEvent) {return;}
+
 
 }

@@ -9,6 +9,7 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
 
 public class GUIImage extends WarpedGUI {
 	
@@ -94,6 +95,12 @@ public class GUIImage extends WarpedGUI {
 		updateGraphics();
 	}
 
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		return;
+	}
 	
 	/**The set image will be drawn at the specified size.
 	 * @param width, height - the width and height the GUI will be fixed to
@@ -237,7 +244,7 @@ public class GUIImage extends WarpedGUI {
 		return;
 	}
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics g = getGraphics();
 
 		if(isBackgroundVisible) {			

@@ -35,6 +35,7 @@ public abstract class WarpedFramework2D {
 	private static boolean isRunning = true;
 	private static boolean isLoading = true;
 	private static double  loadProgress = 0.0;
+	private static boolean isCinematicFinished = false;
 	
 	private static boolean isDebugging = true;
 	
@@ -64,6 +65,10 @@ public abstract class WarpedFramework2D {
 			mediaPlayer.setVisible(false);
 			mediaPlayer.unload();
 			mediaPlayer.close();
+			isCinematicFinished = true;
+			if(loadProgress == 1.0) {				
+				app.endWarpedCinematic();
+			}
 		});
 		mediaPlayer.loadMP4("/framework/graphics/warped_framework.mp4");
 		
@@ -128,6 +133,8 @@ public abstract class WarpedFramework2D {
 			}
 		}
 	}
+	
+	public static final boolean isCinematicFinished() {return isCinematicFinished;}
 	
 	/**Call this function on the second line of your main function.
 	 * It will prepare and start your application.

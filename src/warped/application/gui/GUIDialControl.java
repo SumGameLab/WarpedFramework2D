@@ -15,6 +15,7 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
+import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsMath;
 
 public class GUIDialControl extends WarpedGUI {
@@ -88,6 +89,13 @@ public class GUIDialControl extends WarpedGUI {
 	public void setFont(Font font) {
 		this.font = font;
 		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateLanguage() {
+		return;
 	}
 	
 	/**Set the size of the text.
@@ -235,7 +243,7 @@ public class GUIDialControl extends WarpedGUI {
 		updateGraphics();		
 	}
 	
-	protected void updateGraphics() {
+	public void updateGraphics() {
 		Graphics g = getGraphics();
 		
 		g.drawImage(face.raster(), 0, 0, getWidth(), getHeight() - labelPadding, null);

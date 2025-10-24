@@ -14,6 +14,7 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.UtilsFont.FontStyleType;
 import warped.utilities.utils.UtilsImage;
 import warped.utilities.utils.UtilsMath;
 
@@ -30,8 +31,9 @@ public class ButtonSprite extends WarpedSprite {
 	
 	private List<String> text;
 	private Color textColor  = Color.YELLOW;
-	private Font textFont 	 = UtilsFont.getPreferred();
+	private Font textFont 	 = UtilsFont.getDefault();
 	private VectorI textOffset = new VectorI(8, textFont.getSize() + 5);
+	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private BufferedImage originalRaster;
 	
@@ -208,6 +210,14 @@ public class ButtonSprite extends WarpedSprite {
 		textOffset.set(x, y);
 		this.textFont = font;
 		this.textColor = color;
+		updateGraphics();
+	}
+	
+	/**Updates the font based on the language set in UtilsFont.
+	 * @apiNote new font will have the style and size set in this object 
+	 * @author 5som3*/
+	public void updateFont() {
+		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
 		updateGraphics();
 	}
 	
