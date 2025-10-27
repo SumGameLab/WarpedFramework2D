@@ -235,19 +235,22 @@ public class WarpedSpriteSheet {
 	 * @author 5som3*/
 	public ToggleSprite    generateToggleSprite(int x, int y) {return new ToggleSprite(getSprite(x, y));}
 	
+	
 	/**A new ButtonSprite based on a sprite in this sheet.
 	 * @param x - the x coordinate of the sprite.
 	 * @param y - the y coordinate of the sprite.
 	 * @return ButtonSprite - a new ButtonSprite based on the specified sprite
 	 * @apiNote (x, y) are measured in sprite count i.e. (3, 2) = 3 sprites across, 2 sprites down. 
-	 * @author 5som3*/
+	 * @author 5som3
 	public ButtonSprite    generateButtonSprite(int x, int y) {return new ButtonSprite(getSprite(x,y));}
+	 * */
 	
 	/**A new ButtonSprite based on a sprite in this sheet.
 	 * @param index - the index of the sprite in the rawSprites array.
 	 * @return ButtonSprite - a new ButtonSprite based on the specified sprite
-	 * @author 5som3*/
+	 * @author 5som3
 	public ButtonSprite    generateButtonSprite(int index) {return new ButtonSprite(getSprite(index));}
+	 * */
 	
 	/**A new RotationSprite based on a sprite in this sheet.
 	 * @param x - the x coordinate of the sprite.

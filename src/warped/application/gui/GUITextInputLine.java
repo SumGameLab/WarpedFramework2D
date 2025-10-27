@@ -15,7 +15,7 @@ import warped.user.keyboard.WarpedTypeable;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.FontMatrix;
 
 public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	
@@ -33,7 +33,7 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 	private String inputString = "";
 	private String prompt = "|";
 	private String blankText = "Click here...";
-	private Font font = UtilsFont.getDefault(24);
+	private Font font = fontMatrix.getDynamic(24);
 
 	private int borderThickness   	= 2;
 	private int maxCharacters 		= 25;
@@ -64,7 +64,7 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 		
 	private VectorI buttonSize	 	  = new VectorI( 40, 40);
 	private VectorI buttonOffset      = new VectorI(207,  3);
-	private VectorI textOffset 		  = new VectorI( 24, 28);
+	private VectorI textOffset 		  = new VectorI( 24, 0);
 
 	private StringAction buttonAction = str -> {Console.ln("GUITextInputLine -> inputString :" + inputString);}; 	
 	
@@ -299,12 +299,12 @@ public class GUITextInputLine extends WarpedGUI implements WarpedTypeable {
 		g.setFont(font);//Draw text
 		if(isInput) {
 			g.setColor(inputTextColor);
-			g.drawString(inputString, textOffset.x(), textOffset.y());
+			g.drawString(inputString, textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());
 			if(promptIndex > inputString.length()) promptIndex = inputString.length();
-			if(isPrompt) g.drawString(prompt, font.getSize() + g.getFontMetrics().stringWidth(inputString.substring(0, promptIndex)) - 2, font.getSize()); // draw prompt
+			if(isPrompt) g.drawString(prompt, font.getSize() + g.getFontMetrics().stringWidth(inputString.substring(0, promptIndex)) - 2, g.getFontMetrics().getMaxAscent()); // draw prompt
 		} else {
 			g.setColor(blankTextColor);
-			g.drawString(blankText, textOffset.x(), textOffset.y());
+			g.drawString(blankText, textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());
 		}
 				
 		if(isButtonVisible) { //Draw button

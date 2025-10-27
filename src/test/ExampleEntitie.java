@@ -7,7 +7,6 @@ import warped.graphics.sprite.CharacterSprite;
 import warped.graphics.sprite.CharacterSprite.AnimationType;
 import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.math.vectors.VectorD;
-import warped.utilities.utils.Console;
 import warped.utilities.utils.UtilsMath;
 
 public class ExampleEntitie extends WarpedEntitie {

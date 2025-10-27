@@ -4,16 +4,17 @@ package warped.application.gui;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsMath;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUILabel  extends WarpedGUI {
 	
@@ -30,14 +31,18 @@ public class GUILabel  extends WarpedGUI {
 	
 	private Color backgroundColour = Colour.GREY_DARK.getColor();
 	private Color textColor = Color.WHITE;
-	private Font textFont = UtilsFont.getDefault();
+	private FontMatrix fontMatrix = new FontMatrix();
+	private Font textFont = fontMatrix.getDynamic();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	
 	private BufferedImage backgroundImage;  
 	private boolean isBackgroundVisible = false;
+	private boolean isShrinkToFit = false;	
+	private boolean isCenteredHorizontally = false;
+	private boolean isCenteredVertically = false;
 	
-	private VectorI textOffset = new VectorI(8, textFont.getSize() + 6);
+	private VectorI textOffset = new VectorI(8, 6);
 	
 	/**A label with the default parameters.
 	 * @author 5som3*/
@@ -75,6 +80,38 @@ public class GUILabel  extends WarpedGUI {
 		}
 	}
 	
+	/**Set if the text should shrink to fit within the bounds of the label.
+	 * @param isShrinkToFit - If true the font size will be reduced until the text fits within the label. 
+	 * @author 5som3*/
+	public void setShrinkToFit(boolean isShrinkToFit) {
+		if(this.isShrinkToFit != isShrinkToFit) {			
+			this.isShrinkToFit = isShrinkToFit;
+			updateGraphics();
+		}
+	}
+	
+	/**Set if the text should be centered horizontally in the label.
+	 * @param isCenteredHorizontally - if true the label's text will be centered horizontally.
+	 * @apiNote Will override the text offset x component so that their is equal padding on the left and right of the text.
+	 * @author 5som3*/
+	public void setCenterHorizontally(boolean isCenteredHorizontally) {
+		if(this.isCenteredHorizontally != isCenteredHorizontally) {
+			this.isCenteredHorizontally = isCenteredHorizontally;
+			updateGraphics();
+		}
+	}
+	
+	/**Set if the text should be centered vertically in the label.
+	 * @param isCenteredVertically - if true the label's text will be centered vertically
+	 * @apiNote Will override the text offset y component so that their is equal padding on above and below the text.
+	 * @author 5som3*/
+	public void setCenterVertically(boolean isCenteredVertically) {
+		if(this.isCenteredVertically != isCenteredVertically) {
+			this.isCenteredVertically = isCenteredVertically;
+			updateGraphics();
+		}
+	}
+	
 	/**Set the background to be an image.
 	 * @param backgroundImage - a buffered image to render behind the label text.
 	 * @author 5som3 */
@@ -93,15 +130,22 @@ public class GUILabel  extends WarpedGUI {
 	
 	/**Useful if you have many labels that you want to have the same format
 	 * @param label- the label to copy the format from
+	 * @apiNote The label will copy the following parameters:
+	 * @apiNote borderColor, borderThickness, backgroundVisiblity, textColor, textFont, textOffest, isShrinkToFit, fontMatrix, spriteSize
+	 * @apiNote graphics will update after copying the format. 
 	 * @author SomeKid*/
 	public void pointToFormat(GUILabel label) {
-		this.borderColor     = label.borderColor;
-		this.borderThickness = label.borderThickness;
-		this.isBackgroundVisible = label.isBackgroundVisible;
-		this.textColor 		 = label.textColor;
-		this.textFont 		 = label.textFont;
-		this.textOffset 	 = label.textOffset;
-		this.setSize(label.getSize().x(), label.getSize().x());
+		this.borderColor     		= label.borderColor;
+		this.borderThickness 		= label.borderThickness;
+		this.isBackgroundVisible	= label.isBackgroundVisible;
+		this.textColor 		 		= label.textColor;
+		this.textFont 		 		= label.textFont.deriveFont(Font.PLAIN, label.textFont.getSize());
+		this.textOffset 	 		= new VectorI(label.textOffset);
+		this.isShrinkToFit 	 		= label.isShrinkToFit;
+		this.fontMatrix 	 		= label.fontMatrix;
+		this.isCenteredHorizontally = label.isCenteredHorizontally;
+		this.isCenteredVertically 	= label.isCenteredVertically;
+		this.setSize(label.getSize());
 		updateGraphics();
 	}
 	
@@ -146,29 +190,16 @@ public class GUILabel  extends WarpedGUI {
 		updateGraphics();
 	}
 	
-	/**Set the style of the text
-	 * @param textStyle - 0 plain
-	 * 					- 1 bold
-	 * 					- 2 italic
-	 * @author SomeKid*/
-	public void setTextStyle(FontStyleType fontStyle) {
-		this.fontStyle = fontStyle;
-		updateLanguage();
-	}
-	
+
 	/**Updates the font based on the language set in UtilsFont.
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
-	public void updateLanguage() {
-		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
-		updateGraphics();
-	}
+	public void updateLanguage() {textFont = fontMatrix.getDynamic(fontStyle, textFont.getSize());}
 	
 	/**Set the size of the text
 	 * @param textSize - the size of the text, must be at least 1
 	 * @author SomeKid*/
 	public void setTextSize(int textSize) {
-		textSize = UtilsMath.clampMin(textSize, 1);
 		textFont = textFont.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
@@ -232,12 +263,40 @@ public class GUILabel  extends WarpedGUI {
 				g.fillRect(borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2);
 			}
 			else g.drawImage(backgroundImage, borderThickness, borderThickness, getWidth() - borderThickness * 2, getHeight() - borderThickness * 2, null);
-			
 		}
 		
 		g.setColor(textColor);
+		FontMetrics fm = g.getFontMetrics(textFont);
+		Rectangle2D bounds = fm.getStringBounds(text, g);
+		if(isCenteredHorizontally) textOffset.setX(0);
+		if(isCenteredVertically) textOffset.setY(0);
+		if(isShrinkToFit) {
+			if(bounds.getWidth() + textOffset.x() + borderThickness > sprite.getWidth() || bounds.getHeight() + textOffset.y()+ fm.getMaxDescent() + borderThickness > sprite.getHeight()) {
+				boolean fits = false;
+				int checkSize = textFont.getSize();
+				while(!fits) {
+					checkSize -= 1;
+					if(checkSize <= 0) {
+						fits = true;
+						Console.err("GUILabel -> updateGraphics() -> text is not able to be fit inside the sprite");
+						break;
+					}
+					Font nFont = textFont.deriveFont(Font.PLAIN, checkSize);
+					FontMetrics nfm = g.getFontMetrics(nFont);
+					Rectangle2D cBounds = nfm.getStringBounds(text, g);
+					if(cBounds.getWidth() + textOffset.x() + borderThickness <= sprite.getWidth() && cBounds.getHeight() + textOffset.y() + nfm.getMaxDescent() + borderThickness <= sprite.getHeight()) {
+						fits = true;
+						textFont = nFont;
+					}
+				}
+			}			
+		}
+		
+		if(isCenteredHorizontally && bounds.getWidth() < sprite.getWidth()) textOffset.setX((int)( (sprite.getWidth() - bounds.getWidth()) / 2));
+		if(isCenteredVertically && bounds.getHeight() < sprite.getHeight()) textOffset.setY((int)( (sprite.getHeight() - bounds.getHeight()) / 2));
+		
 		g.setFont(textFont);
-		g.drawString(text, textOffset.x(), textOffset.y());
+		g.drawString(text, textOffset.x(), (int)(textOffset.y() + g.getFontMetrics().getMaxAscent()));
 		
 		g.dispose();
 		pushGraphics();		

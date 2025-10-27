@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
-import warped.utilities.utils.UtilsFont;
 
 public class GUIShape extends WarpedGUI {
 

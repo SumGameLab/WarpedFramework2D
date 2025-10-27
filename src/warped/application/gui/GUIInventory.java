@@ -15,14 +15,13 @@ import warped.graphics.window.WarpedMouse;
 import warped.graphics.window.WarpedMouseEvent;
 import warped.user.keyboard.WarpedKeyboard;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 
 public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 	
 	private Color backgroundColor = new Color(50,50,50);
 	
 	private Color textColor = Color.YELLOW;
-	private Font font = UtilsFont.getDefault();
+	private Font font = fontMatrix.getDynamic();
 
 	private int columns = 8; 
 	private int rows = 8;
@@ -37,7 +36,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 	private int itemSpacingY = iconHeight + rowMargin;
 	
 	private int iconOffsetX = columnMargin / 2;
-	private int textOffsetY = iconHeight + font.getSize() + 2;
+	private int textOffsetY = iconHeight;
 	private int textOffsetX = iconWidth / 6;
 	
 	private int hoverX = -1;
@@ -159,7 +158,7 @@ public class GUIInventory<T extends ItemBindable<?>> extends WarpedGUI {
 			g.drawImage(selectInvent.getMember(i).raster(), rx + iconOffsetX , ry, iconWidth, iconHeight, null);
 			g.setFont(font);
 			g.setColor(textColor);
-			g.drawString(selectInvent.getMember(i).getQuantityString(), rx + textOffsetX, ry + textOffsetY);
+			g.drawString(selectInvent.getMember(i).getQuantityString(), rx + textOffsetX, ry + textOffsetY + g.getFontMetrics().getMaxAscent());
 			
 			if(x == hoverX && y == hoverY) {
 				g.setColor(hoverColor);

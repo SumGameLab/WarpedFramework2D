@@ -14,7 +14,6 @@ import warped.utilities.math.Wouble;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 
 public class GUIValue extends WarpedGUI {
 
@@ -45,9 +44,9 @@ public class GUIValue extends WarpedGUI {
 	
 	private int decimals = 0;
 		
-	private Font font = UtilsFont.getDefault();
+	private Font font = fontMatrix.getDynamic();
 	
-	private VectorI textOffset = new VectorI(borderThickness, borderThickness + font.getSize()); 
+	private VectorI textOffset = new VectorI(borderThickness, borderThickness); 
 	
 	private Winteger  winteger;
 	private Wouble    wouble;
@@ -284,16 +283,16 @@ public class GUIValue extends WarpedGUI {
 		pushGraphics();
 	}
 
-	private final WarpedGraphicAction updateInteger = g2d -> {g2d.drawString(winteger.getString(),textOffset.x(), textOffset.y());};
+	private final WarpedGraphicAction updateInteger = g2d -> {g2d.drawString(winteger.getString(),textOffset.x(), textOffset.y() + g2d.getFontMetrics().getMaxAscent());};
 	private final WarpedGraphicAction updateDouble  = g2d -> {
-		if(decimals == 0) g2d.drawString(wouble.getString(),  textOffset.x(), textOffset.y());
-		else g2d.drawString(wouble.getString(decimals),  textOffset.x(), textOffset.y());
+		if(decimals == 0) g2d.drawString(wouble.getString(),  textOffset.x(), textOffset.y() + g2d.getFontMetrics().getMaxAscent());
+		else g2d.drawString(wouble.getString(decimals),  textOffset.x(), textOffset.y() + g2d.getFontMetrics().getMaxAscent());
 	};
-	private final WarpedGraphicAction updateBoolean = g2d -> {g2d.drawString(woolean.getString(), textOffset.x(), textOffset.y());};
-	private final WarpedGraphicAction updateVectorI = g2d -> {g2d.drawString(vectorI.getString(), textOffset.x(), textOffset.y());};
+	private final WarpedGraphicAction updateBoolean = g2d -> {g2d.drawString(woolean.getString(), textOffset.x(), textOffset.y() + g2d.getFontMetrics().getMaxAscent());};
+	private final WarpedGraphicAction updateVectorI = g2d -> {g2d.drawString(vectorI.getString(), textOffset.x(), textOffset.y() + g2d.getFontMetrics().getMaxAscent());};
 	private final WarpedGraphicAction updateVectorD = g2d -> {
-		if(decimals == 0) g2d.drawString(vectorD.getString(), textOffset.x(), textOffset.y());
-		else g2d.drawString(vectorD.getString(decimals), textOffset.x(), textOffset.y());
+		if(decimals == 0) g2d.drawString(vectorD.getString(), textOffset.x(), textOffset.y() + g2d.getFontMetrics().getMaxAscent());
+		else g2d.drawString(vectorD.getString(decimals), textOffset.x(), textOffset.y() + g2d.getFontMetrics().getMaxAscent());
 	};
 	
 	

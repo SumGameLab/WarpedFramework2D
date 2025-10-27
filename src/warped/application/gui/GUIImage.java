@@ -9,7 +9,6 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 
 public class GUIImage extends WarpedGUI {
 	

@@ -196,7 +196,7 @@ public class UtilsString {
 		    	textLines.add(line);
 		        line = br.readLine();
 		    }
-			
+			br.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

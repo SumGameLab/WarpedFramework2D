@@ -18,7 +18,7 @@ import warped.application.assemblys.ToolTip;
 import warped.application.gui.WarpedGUI;
 import warped.audio.FrameworkAudio;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.FontMatrix;
 
 public class WarpedState {
 	
@@ -89,7 +89,7 @@ public class WarpedState {
 	}
 	
 	public static void setLanguage(String languageLocale) {
-		UtilsFont.setLanguage(languageLocale);
+		FontMatrix.setAlphabetType(languageLocale);
 		for(int i = 0; i < assemblys.size(); i++) {
 			assemblys.get(i).updateLanguage();
 		}

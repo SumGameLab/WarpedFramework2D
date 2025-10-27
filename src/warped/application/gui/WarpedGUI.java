@@ -2,11 +2,13 @@
 package warped.application.gui;
 
 
-import java.awt.RenderingHints;
+import java.awt.Font;
 
 import warped.application.state.WarpedObject;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.math.vectors.VectorI;
+import warped.utilities.utils.FontMatrix;
+import warped.utilities.utils.FontMatrix.FontType;
 
 public abstract class WarpedGUI extends WarpedObject {
 
@@ -15,8 +17,18 @@ public abstract class WarpedGUI extends WarpedObject {
 	protected boolean isLocked 			= false;
 	protected boolean isDraggable 		= false;
 	
+	protected FontMatrix fontMatrix = new FontMatrix();
 
-		
+	/**Set a font override for this GUI.
+	 * @param fontType - the type of font to override.
+	 * @param font - the font to use.
+	 * @apiNote This GUI will use the override font instead of the default font.
+	 * @author 5som3 */
+	public void setFontOverride(FontType fontType, Font font) {
+		fontMatrix.setFontOverride(fontType, font);
+		updateLanguage();
+	}
+	
 	/**Set the offset for this GUI.
 	 * Use in conjunction with offset() to position elements within an assembly.
 	 * @param positionOffset - the offset to apply when calling offset()
@@ -82,6 +94,14 @@ public abstract class WarpedGUI extends WarpedObject {
 	public void updateSlow() {return;}; 
 
 	/**This will generate new buffered images for the sprite of the specified size.
+	 * @param size - the new size of the sprite.
+	 * @apiNote the updateGraphics() method will execute after the sprite has been resized. 
+	 *@author SomeKid*/
+	public void setSize(VectorI size) {setSize(size.x(), size.y());}
+	
+	/**This will generate new buffered images for the sprite of the specified size.
+	 * @param width - the width of the sprite in pixels.
+	 * @param height - the height of the sprite in pixels.
 	 * @apiNote the updateGraphics() method will execute after the sprite has been resized. 
 	 *@author SomeKid*/
 	public void setSize(int width, int height) {

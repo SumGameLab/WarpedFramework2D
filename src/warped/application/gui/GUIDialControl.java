@@ -3,6 +3,7 @@ package warped.application.gui;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
@@ -15,7 +16,6 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsMath;
 
 public class GUIDialControl extends WarpedGUI {
@@ -52,7 +52,7 @@ public class GUIDialControl extends WarpedGUI {
 
 	private Font font = new Font("DialFont", Font.PLAIN, 16);
 	
-	private VectorI textOffset = new VectorI(30, 100);
+	private VectorI textOffset = new VectorI(30, 80);
 	
 	private RotationSprite dial;
 	private RotationSprite face;
@@ -106,7 +106,7 @@ public class GUIDialControl extends WarpedGUI {
 			size = 6;
 			Console.err("GUIDialControl -> setTextSize() -> size is too small : " + size);
 		}
-		font = new Font(font.getFontName(), font.getStyle(), size);
+		font.deriveFont(Font.PLAIN, size);
 		updateGraphics();
 	}
 	
@@ -252,16 +252,17 @@ public class GUIDialControl extends WarpedGUI {
 		if(isTextVisible) {
 			g.setFont(font);
 			String text = UtilsMath.getString(rotation, decimals);
-			int width = g.getFontMetrics().stringWidth(text) + borderThickness * 4;
+			FontMetrics fm = g.getFontMetrics();
+			int width = fm.stringWidth(text) + borderThickness * 4;
 			if(isBackgroundVisible){
 				g.setColor(borderColor);
-				g.fillRect(textOffset.x(), textOffset.y(), width, font.getSize() + borderThickness * 4);
+				g.fillRect(textOffset.x(), textOffset.y(), width + borderThickness * 2, (int)(fm.getStringBounds(text, g).getHeight() + borderThickness * 2));
 				g.setColor(backgroundColor);
-				g.fillRect(textOffset.x() + borderThickness, textOffset.y() + borderThickness, width - borderThickness * 2,  font.getSize() + borderThickness * 2);
+				g.fillRect(textOffset.x() + borderThickness, textOffset.y() + borderThickness, width,  (int)(fm.getStringBounds(text, g).getHeight()));
 			} 
 			
 			g.setColor(textColor);
-			g.drawString(text, textOffset.x() + borderThickness * 2, textOffset.y() + borderThickness + font.getSize());
+			g.drawString(text, textOffset.x() + borderThickness, textOffset.y() + borderThickness + g.getFontMetrics().getMaxAscent());
 		}
 		
 		g.dispose();

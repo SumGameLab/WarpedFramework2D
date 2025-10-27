@@ -19,8 +19,7 @@ import warped.utilities.enums.generalised.AxisType;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUIRadioButtons extends WarpedGUI {
 	
@@ -37,7 +36,7 @@ public class GUIRadioButtons extends WarpedGUI {
 	private ArrayList<WarpedAction> buttonActions = new ArrayList<>();
 	private ToggleSprite toggleSprite;
 	
-	private VectorI textOffset = new VectorI(5); //relative to each button
+	private VectorI textOffset = new VectorI(); //relative to each button
 	
 	private int horizontalPadding = 10; // padding between buttons horizontally
 	private int verticalPadding = 10; //padding between buttons vertically
@@ -53,7 +52,7 @@ public class GUIRadioButtons extends WarpedGUI {
 	private VectorI buttonSize = new VectorI();
 	
 	private Color textColor = Color.WHITE;
-	private Font textFont = UtilsFont.getDefault();
+	private Font textFont = fontMatrix.getDynamic();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 
 	
@@ -103,8 +102,7 @@ public class GUIRadioButtons extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
-		updateGraphics();
+		textFont = fontMatrix.getDynamic(fontStyle, textFont.getSize());
 	}
 
 	/**Set the axis that the buttons will spread across.
@@ -120,7 +118,7 @@ public class GUIRadioButtons extends WarpedGUI {
 	 * @param verticalPadding - will be applied beneath each button, if setAxis() is vertical this will be the button spacing
 	 * @param horizontalPadding - will be applied to the right of each button, if setAxis() is horizontal this will be the button spacing
 	 *@author SomeKid*/
-	public void setButtonPadding(int verticalPadding, int horizontalPadding) {
+	public void setButtonPadding(int horizontalPadding, int verticalPadding) {
 		this.verticalPadding = verticalPadding;
 		this.horizontalPadding = horizontalPadding;
 		updateRadioSize();
@@ -157,6 +155,17 @@ public class GUIRadioButtons extends WarpedGUI {
 	public void setBorderColor(Color color) {
 		this.borderColor = color;
 		updateGraphics();
+	}
+	
+	/**Set the names for each radio button.
+	 * @param names - the names to set the radio buttons.
+	 * @author 5som3*/
+	public void setButtonNames(String... names) {
+		if(names.length > buttonActions.size()) Console.err("GUIRadioButtons -> setButtonNames() -> setting more names than there are buttons, extra names will be ignored");
+		for(int i = 0; i < names.length; i++) {
+			buttonNames.set(i, names[i]);
+		}
+		
 	}
 	
 	/**Set the color of the background
@@ -196,22 +205,7 @@ public class GUIRadioButtons extends WarpedGUI {
 		textFont = new Font(textFont.getFontName(), textFont.getStyle(), size);
 		updateGraphics();
 	}
-	
-	/**Set the style of the text displayed next to the radio buttons.
-	 * @param style - the style to use
-	 * 				- 0 plain
-	 * 				- 1 bold 
-	 * 				- 2 italic
-	 * @author SomeKid*/
-	public void setTextStyle(int style) {
-		if(style < 0 || style > 2) {
-			Console.err("GUIRadioButtons -> setTextStyle() -> invalid style : " + style);
-			style = 0;
-		}
-		textFont = new Font(textFont.getFontName(), style, textFont.getSize());
-		updateGraphics();
-	}
-	
+		
 	/**Set the font of the text displayed next to the radio buttons.
 	 * @param font - the font to use
 	 * @author SomeKid*/
@@ -250,10 +244,10 @@ public class GUIRadioButtons extends WarpedGUI {
 		g.setColor(textColor);
 		for(int i = 0; i < buttonActions.size(); i++) {
 			int buttonX = 0;
-			int buttonY = textFont.getSize();
+			int buttonY = g.getFontMetrics().getMaxAscent();
 			
 			if(axis == AxisType.HORIZONTAL) buttonX = i * (buttonSize.x() + horizontalPadding);    				
-			else buttonY =  i * (buttonSize.y() + verticalPadding) + textFont.getSize();
+			else buttonY =  i * (buttonSize.y() + verticalPadding) + g.getFontMetrics().getMaxAscent();
 			
 			if(i == trueIndex) {
 				if(i == hoveredIndex) g.drawImage(toggleSprite.getOnHoveredRaster(), buttonX, buttonY, buttonSize.x(), buttonSize.y(), null);

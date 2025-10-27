@@ -12,8 +12,7 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.geometry.bezier.BezierCurveObject;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUINotification extends WarpedGUI {
 
@@ -47,7 +46,7 @@ public class GUINotification extends WarpedGUI {
 	
 	private int borderThickness 	 = 2;
 	
-	private VectorI textOffset 		 = new VectorI(12, 14);
+	private VectorI textOffset 		 = new VectorI(12, 2);
 	private VectorI notificationSize = new VectorI(200, 40);
 	private VectorI iconSize		 = new VectorI(30, 30);
 	private VectorI iconOffset 		 = new VectorI(notificationSize.x() - borderThickness * 2 - iconSize.x(), notificationSize.y() - iconSize.y() / 2);
@@ -168,8 +167,7 @@ public class GUINotification extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		font = UtilsFont.getFont(fontStyle, font.getSize());
-		updateGraphics();
+		font = fontMatrix.getDynamic(fontStyle, font.getSize());
 	}
 	
 	/**Set the start and finish position for the notification.
@@ -236,7 +234,8 @@ public class GUINotification extends WarpedGUI {
 			Console.err("GUINotification -> setTextSize() -> the size " + size + " is too small. It will be set to 6");
 			size = 6;
 		}
-		font = new Font(font.getFontName(), font.getStyle(), size);
+		font = font.deriveFont(Font.PLAIN, size);
+		updateGraphics();
 	}
 	
 	/**Set the offset of the text within the notification.
@@ -249,7 +248,10 @@ public class GUINotification extends WarpedGUI {
 	/**Set the font for the notification text.
 	 * @param font - the new font.
 	 * @author 5som3*/
-	public void setFont(Font font) {this.font = font;}
+	public void setFont(Font font) {
+		this.font = font;
+		updateGraphics();
+	}
 	
 	/**Set the thickness of the border.
 	 * @param borderThickness - the thickness measured in pixels. Set to 0 for no border.
@@ -259,13 +261,17 @@ public class GUINotification extends WarpedGUI {
 			Console.err("GUINotification -> setBorderThickness() -> Thickness " + borderThickness + " is too small, it will be set to 0");
 			borderThickness = 0;
 		}
+		updateGraphics();
 	}
 	
 	/**Set the colour of the border.
 	 * @param borderColor - the color for the border
 	 * @apiNote Set borderThickness(0) for no border.
 	 * @author 5som3*/
-	public void setBorderColor(Color borderColor) {this.borderColor = borderColor;}
+	public void setBorderColor(Color borderColor) {
+		this.borderColor = borderColor;
+		updateGraphics();
+	}
 	
 	/**Set the color behind the notification text.
 	 * @param backgroundColor - the colour to render behind the text.
@@ -275,12 +281,16 @@ public class GUINotification extends WarpedGUI {
 	public void setBackgroundColor(Color backgroundColor) {
 		background = null;
 		this.backgroundColor = backgroundColor;
+		updateGraphics();
 	}
 	
 	/**Set the color of the notification text.
 	 * @param textColor - the color of the text.
 	 * @author 5som3*/
-	public void setTextColor(Color textColor) {this.textColor = textColor;}
+	public void setTextColor(Color textColor) {
+		this.textColor = textColor;
+		updateGraphics();
+	}
 	
 	/**Set if the background will be rendered behind the text.
 	 * @param isBackgroundVisible - if true the background will be visible else it will not be rendered.
@@ -367,7 +377,7 @@ public class GUINotification extends WarpedGUI {
 		
 		g.setColor(textColor);
 		g.setFont(font);
-		g.drawString(text, textOffset.x(), textOffset.y());		
+		g.drawString(text, textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());		
 		
 		g.dispose();
 		pushGraphics();

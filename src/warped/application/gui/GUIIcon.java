@@ -10,8 +10,7 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUIIcon extends WarpedGUI {
 
@@ -48,7 +47,7 @@ public class GUIIcon extends WarpedGUI {
 	
 	private int borderThickness = 2;
 	
-	private Font textFont = UtilsFont.getDefault();
+	private Font textFont = fontMatrix.getDynamic();
 		
 	
 	public GUIIcon(int width, int height) {
@@ -96,8 +95,7 @@ public class GUIIcon extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
-		updateGraphics();
+		textFont = fontMatrix.getDynamic(fontStyle, textFont.getSize());
 	}
 	
 	/**Set the font of the text overlay ( if any).
@@ -116,7 +114,7 @@ public class GUIIcon extends WarpedGUI {
 			Console.err("GUIIcon -> setTextSize() -> textSize is too small : " + textSize);
 			 textSize = 12;
 		}
-		this.textFont = new Font(textFont.getFontName(), textFont.getStyle(), textSize);
+		textFont = textFont.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
 	
@@ -298,7 +296,7 @@ public class GUIIcon extends WarpedGUI {
 		if(isText) {			
 			g.setColor(textColor);
 			g.setFont(textFont);
-			g.drawString(textOverlay, textOffset.x(), textOffset.y());			
+			g.drawString(textOverlay, textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());			
 		}
 		
 		g.dispose();

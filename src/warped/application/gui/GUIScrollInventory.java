@@ -7,8 +7,7 @@ import java.util.ArrayList;
 
 import warped.application.state.WarpedObjectIdentity;
 import warped.graphics.window.WarpedMouseEvent;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUIScrollInventory extends WarpedGUI {
 	
@@ -30,10 +29,9 @@ public class GUIScrollInventory extends WarpedGUI {
 	private Vec2i titleTextOffset = new Vec2i(titleTextSize, titleTextSize);
 	
 	private int iconSize = 100;
-	 */
-	private int titleTextStyle 	  	= Font.PLAIN;
 	private int titleTextSize 	 	= 16;
-	private Font titleFont = new Font("Invent Title", titleTextStyle, titleTextSize);
+	 */
+	private Font titleFont = fontMatrix.getDynamic();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private BufferedImage inventory;
@@ -49,28 +47,19 @@ public class GUIScrollInventory extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		titleFont = UtilsFont.getFont(fontStyle, titleFont.getSize());
-		updateGraphics();
+		titleFont = fontMatrix.getDynamic(fontStyle, titleFont.getSize());
 	}
 	
 	public void setTitleTextSize(int titleTextSize) {
-		this.titleTextSize = titleTextSize;
-		updateTitleFont();
+		titleFont = fontMatrix.getDynamic(titleTextSize);		
 	}
-	public void setTitleTextStyle(int titleTextStyle) {
-		this.titleTextStyle = titleTextStyle;
-		updateTitleFont();
-	}
+	
 	
 	
 	public void updateGraphics() {
 		
 	}
 	
-	private void updateTitleFont() {
-		titleFont = new Font("Invent Title", titleTextStyle, titleTextSize);
-		updateGraphics();
-	}
 	
 	@Override
 	protected void mouseEntered() {return;}

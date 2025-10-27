@@ -12,9 +12,10 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.FontMatrix;
 import warped.utilities.utils.UtilsMath;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix.FontAlphabetType;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUITextBoxWrapped extends WarpedGUI {
 
@@ -33,14 +34,14 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	private String paragraph = "";
 	private ArrayList<String> textLines = new ArrayList<>();
 	
-	private Font paragraphFont  = UtilsFont.getDefault(14);
-	private Font titleFont		= UtilsFont.getDefault(18);
+	private Font paragraphFont  = fontMatrix.getDynamic(14);
+	private Font titleFont		= fontMatrix.getDynamic(18);
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
-	private VectorI titleOffset = new VectorI(30, 10);
+	private VectorI titleOffset = new VectorI(30, 0);
 	
 	private int borderThickness = 3;
-	private int titlePadding    = 14;
+	private int titlePadding    = 2;
 	private int linePadding     = 2;	
 	private int marginPadding   = 12;
 	
@@ -95,9 +96,8 @@ public class GUITextBoxWrapped extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		paragraphFont = UtilsFont.getFont(fontStyle, paragraphFont.getSize());
-		titleFont = UtilsFont.getFont(fontStyle, titleFont.getSize());
-		updateGraphics();
+		paragraphFont = fontMatrix.getDynamic(fontStyle, paragraphFont.getSize());
+		titleFont = fontMatrix.getDynamic(fontStyle, titleFont.getSize());
 	}
 	
 	/**A text textBox with the specified parameters.
@@ -186,7 +186,6 @@ public class GUITextBoxWrapped extends WarpedGUI {
 			result += lines.get(i);
 			if(i != lines.size() - 1) result += "/n/";
 		}
-
 		setParagraph(result);
 	}
 	
@@ -215,7 +214,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 			Console.err("GUITextBoxWrapper -> setTitleTextSize() -> text size too small : " + textSize);
 			textSize = 6;
 		}
-		titleFont = new Font(titleFont.getFontName(), titleFont.getStyle(), textSize);
+		titleFont = titleFont.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
 
@@ -227,7 +226,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 			Console.err("GUITextBoxWrapper -> setParagraphTextSize() -> text size too small : " + textSize);
 			textSize = 6;
 		}
-		paragraphFont = new Font(titleFont.getFontName(), titleFont.getStyle(), textSize);
+		paragraphFont = paragraphFont.deriveFont(Font.PLAIN, textSize);
 		updateParagraphLines();
 		updateGraphics();
 	}
@@ -389,55 +388,70 @@ public class GUITextBoxWrapped extends WarpedGUI {
 		boolean finished = false;
 		
 		while(!finished){
-			
-			characterIndex++;
-			if(characterIndex >= paragraph.length()) {
-				//WarpedConsole.ln("GUITextBoxWrapped -> updateParagraphLines() -> index exceeded paragraph length, " + textLines.size() + " text lines were added");
-				finished = true;
-				String line = paragraph.substring(lastLineIndex, characterIndex);
-				if(metrics.stringWidth(line) >= drawableWidth) { // need to start new line
-					textLines.add(paragraph.substring(lastLineIndex, lastWordIndex));
-					lastLineIndex = lastWordIndex + 1;
-					lastWordIndex++;
-					textLines.add(paragraph.substring(lastLineIndex, paragraph.length()));
-					
-				} else { //up to this word still fits, check if another word will fit
-					textLines.add(line);
+			characterIndex++;			
+			if(fontMatrix.getAlphabetType() == FontAlphabetType.CHINESE_SIMPLE || fontMatrix.getAlphabetType() == FontAlphabetType.CHINESE_TRAD || fontMatrix.getAlphabetType() == FontAlphabetType.JAPANESE) { 
+				//Language does not have spaces - determine line breaks by measuring length of character sections. 
+				if(characterIndex >= paragraph.length()) {
+					textLines.add(paragraph.substring(lastLineIndex, characterIndex));
+					finished = true;
 				}
-				break;
-			}
-
-			String character = paragraph.substring(characterIndex, characterIndex + 1);
-			if(character.equals(" ")) { //check if needs new line
+				
 				String line = paragraph.substring(lastLineIndex, characterIndex);
-				if(metrics.stringWidth(line) >= drawableWidth) { // need to start new line
-					textLines.add(paragraph.substring(lastLineIndex, lastWordIndex));
-					lastLineIndex = lastWordIndex + 1;
-					lastWordIndex++;
-					characterIndex = lastWordIndex;
-					
-				} else { //up to this word still fits, check if another word will fit
-					lastWordIndex = characterIndex;
+				int lineWidth = (int)(metrics.getStringBounds(line, g).getWidth());
+				if(lineWidth >= drawableWidth) {
+					textLines.add(paragraph.substring(lastLineIndex, characterIndex - 1));
+					lastLineIndex = characterIndex - 1;
 				}
-			}
-			
-			if(character.equals("/") && characterIndex + 3 < paragraph.length() && paragraph.subSequence(characterIndex, characterIndex + 3).equals("/n/")) { // check if user input the new line key
-				String dropLine = paragraph.substring(lastLineIndex, characterIndex);
-				if(!dropLine.equals(" ")) {
-					if(metrics.stringWidth(dropLine) >= drawableWidth) { // need to start new line
+			} else { 
+				//Language has spaces - Look for spaces between words to determine line breaks 
+				if(characterIndex >= paragraph.length()) {
+					//WarpedConsole.ln("GUITextBoxWrapped -> updateParagraphLines() -> index exceeded paragraph length, " + textLines.size() + " text lines were added");
+					finished = true;
+					String line = paragraph.substring(lastLineIndex, characterIndex);
+					if(metrics.stringWidth(line) >= drawableWidth) { // need to start new line
 						textLines.add(paragraph.substring(lastLineIndex, lastWordIndex));
 						lastLineIndex = lastWordIndex + 1;
 						lastWordIndex++;
-						textLines.add(paragraph.substring(lastLineIndex, characterIndex));
+						textLines.add(paragraph.substring(lastLineIndex, paragraph.length()));
+						
 					} else { //up to this word still fits, check if another word will fit
-						textLines.add(dropLine);
+						textLines.add(line);
 					}
-					
+					break;
 				}
-				textLines.add("");
-				lastLineIndex = characterIndex + 3;
-				lastWordIndex = lastLineIndex;
-				characterIndex = lastWordIndex;
+				
+				String character = paragraph.substring(characterIndex, characterIndex + 1);
+				if(character.equals(" ")) { //check if needs new line
+					String line = paragraph.substring(lastLineIndex, characterIndex);
+					if(metrics.stringWidth(line) >= drawableWidth) { // need to start new line
+						textLines.add(paragraph.substring(lastLineIndex, lastWordIndex));
+						lastLineIndex = lastWordIndex + 1;
+						lastWordIndex++;
+						characterIndex = lastWordIndex;
+						
+					} else { //up to this word still fits, check if another word will fit
+						lastWordIndex = characterIndex;
+					}
+				}
+				
+				if(character.equals("/") && characterIndex + 3 < paragraph.length() && paragraph.subSequence(characterIndex, characterIndex + 3).equals("/n/")) { // check if user input the new line key
+					String dropLine = paragraph.substring(lastLineIndex, characterIndex);
+					if(!dropLine.equals(" ")) {
+						if(metrics.stringWidth(dropLine) >= drawableWidth) { // need to start new line
+							textLines.add(paragraph.substring(lastLineIndex, lastWordIndex));
+							lastLineIndex = lastWordIndex + 1;
+							lastWordIndex++;
+							textLines.add(paragraph.substring(lastLineIndex, characterIndex));
+						} else { //up to this word still fits, check if another word will fit
+							textLines.add(dropLine);
+						}
+						
+					}
+					textLines.add("");
+					lastLineIndex = characterIndex + 3;
+					lastWordIndex = lastLineIndex;
+					characterIndex = lastWordIndex;
+				}
 			}
 		}
 		
@@ -492,7 +506,7 @@ public class GUITextBoxWrapped extends WarpedGUI {
 			
 			g.setFont(titleFont);
 			g.setColor(titleTextColor);
-			g.drawString(title, borderThickness + marginPadding + titleOffset.x(), borderThickness + titlePadding + titleOffset.y());			
+			g.drawString(title, borderThickness + marginPadding + titleOffset.x(), borderThickness + titlePadding + titleOffset.y() + g.getFontMetrics().getAscent());			
 		}
 		
 		g.setColor(borderColor);

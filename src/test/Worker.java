@@ -1,7 +1,5 @@
 package test;
 
-import warped.utilities.utils.UtilsString;
-
 public class Worker {
 	
 	public static void main(String[] args) {
@@ -15,7 +13,6 @@ public class Worker {
 			e.printStackTrace();
 		}
 		UtilsString.translateResourceBundle("en", "bn", "dat/lang/", "cic"); //Bengali
-		UtilsString.translateResourceBundle("en", "zh", "dat/lang/", "cic"); //chinese
 		UtilsString.translateResourceBundle("en", "da", "dat/lang/", "cic"); //danish
 		UtilsString.translateResourceBundle("en", "nl", "dat/lang/", "cic"); //dutch
 		UtilsString.translateResourceBundle("en", "fr", "dat/lang/", "cic"); //french
@@ -36,8 +33,12 @@ public class Worker {
 		UtilsString.translateResourceBundle("en", "ta", "dat/lang/", "cic"); //Tamil
 		UtilsString.translateResourceBundle("en", "tr", "dat/lang/", "cic"); //Trukish
 		UtilsString.translateResourceBundle("en", "vi", "dat/lang/", "cic"); //Vietnamese
-		 */
 		UtilsString.translateResourceBundle("en", "pa", "dat/lang/", "cic"); //Punjabi
+		UtilsString.translateResourceBundle("en", "zh_CN", "dat/lang/", "cic"); //chinese
+		UtilsString.translateResourceBundle("en", "zh_TW", "dat/lang/", "cic"); //taiwan
+		UtilsString.translateResourceBundle("en", "zh_HK", "dat/lang/", "cic"); //hongkong
+		 */
+
 		
 		
 

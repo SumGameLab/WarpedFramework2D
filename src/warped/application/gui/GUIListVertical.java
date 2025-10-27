@@ -14,9 +14,9 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.FontMatrix;
 import warped.utilities.utils.UtilsMath;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUIListVertical extends WarpedGUI {
 	
@@ -69,7 +69,7 @@ public class GUIListVertical extends WarpedGUI {
 	private int optionFontSize = 14;
 	
 	private Color labelTextColor = Color.YELLOW;
-	private Font labelFont 		= UtilsFont.getDefault();
+	private Font labelFont 		= fontMatrix.getDynamic();
 	private FontStyleType labelFontStyle = FontStyleType.REGULAR;
 	
 	
@@ -112,8 +112,7 @@ public class GUIListVertical extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		labelFont = UtilsFont.getFont(labelFontStyle, labelFont.getSize());
-		updateGraphics();
+		labelFont = fontMatrix.getDynamic(labelFontStyle, labelFont.getSize());
 	}
 	
 	/**Will make the list invisible after an option has been selected.
@@ -201,7 +200,7 @@ public class GUIListVertical extends WarpedGUI {
 	 * @param size - the size of the font.
 	 * @author 5som3*/
 	public void setTextSize(int size) {
-		labelFont = new Font(labelFont.getFontName(), labelFont.getStyle(), size);
+		labelFont = labelFont.deriveFont(Font.PLAIN, size);
 		updateGraphics();
 	}
 	
@@ -232,8 +231,8 @@ public class GUIListVertical extends WarpedGUI {
 		if(languageCodes.length > options.size()) Console.err("GUIListVertical -> setOptions() -> more option fonts specified than options, extra fonts will be ignored");
 		ArrayList<Font> fonts = new ArrayList<>();
 		for(int i = 0; i < options.size(); i++) {
-			if(i >= languageCodes.length) fonts.add(UtilsFont.getFont("en", optionFontStyle, optionFontSize));
-			else fonts.add(UtilsFont.getFont(languageCodes[i], optionFontStyle, optionFontSize));
+			if(i >= languageCodes.length) fonts.add(FontMatrix.getStatic("en", optionFontStyle, optionFontSize));
+			else fonts.add(FontMatrix.getStatic(languageCodes[i], optionFontStyle, optionFontSize));
 		}
 		setOptions(options, fonts, null);
 	}
@@ -327,7 +326,7 @@ public class GUIListVertical extends WarpedGUI {
 			if(optionFonts != null) g.setFont(optionFonts.get(i));
 			else g.setFont(labelFont);
 			g.setColor(labelTextColor);
-			g.drawString(option.getName(), textOffset.x(), drawY + textOffset.y() + labelFont.getSize());
+			g.drawString(option.getName(), textOffset.x(), drawY + textOffset.y() + g.getFontMetrics().getMaxAscent());
 			
 			if(i == hoverIndex) {
 				if(optionLocks != null && optionLocks.get(i));					
@@ -384,7 +383,7 @@ public class GUIListVertical extends WarpedGUI {
 
 	@Override
 	protected void mouseReleased(WarpedMouseEvent mouseEvent) {
-		int index = Math.floorDiv((mouseEvent.getPointRelativeToObject().y + scrollOffset), buttonHeight + buttonPadding);
+		int index = Math.floorDiv((mouseEvent.getPointRelativeToObject().y + scrollOffset), buttonHeight);
 		Console.ln("GUIScrollButtonMenu -> mouseReleaseed -> select index : " + index);
 		if(index < 0 || index >= options.size()) return;
 		else if(optionLocks != null && optionLocks.get(index)) return;

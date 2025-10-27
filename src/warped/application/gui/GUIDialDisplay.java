@@ -12,7 +12,6 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsImage;
 import warped.utilities.utils.UtilsMath;
 
@@ -30,8 +29,8 @@ public class GUIDialDisplay extends WarpedGUI {
 	private String text = "0.0";
 	private Colour textColour 			= Colour.YELLOW;
 	private Colour textBackgroundColour	= Colour.BLACK;
-	public Font textFont = UtilsFont.getDefault();
-	private VectorI textOffset			= new VectorI(12, 12);
+	public Font textFont = fontMatrix.getDynamic();
+	private VectorI textOffset			= new VectorI(12, 0);
 	private VectorI textBackgroundSize = new VectorI(60, 30);
 	
 	private RotationSprite faceSprite   = FrameworkSprites.dialIcons.generateRotationSprite(4, 0); // the face of the dial behind the hands - can also be rotate for reverse effect, hand stays still and dial rotates
@@ -190,20 +189,7 @@ public class GUIDialDisplay extends WarpedGUI {
 	 * @apiNote The text will only be drawn if the visibleText() function is called*/	
 	public void setTextSize(int textSize) {
 		textSize = UtilsMath.clampMin(textSize, 0);
-		this.textFont = new Font(textFont.getFontName(), textFont.getStyle(), textSize);
-	}
-	
-	/**Set the textStyle of the rotation text.
-	 * @param textStyle - 0 : plain
-	 * 					- 1 : Bold
-	 * 					- 2 : Italic
-	 * @author SomeKid */
-	public void setTextStyle(int textStyle) {
-		if(textStyle < 0 || textStyle > 2) {
-			Console.err("GUIDial -> setTextStyle() -> invalid text style : " + textStyle + ", see documentation for valid styles");
-			textStyle = 0;
-		} 
-		textFont = new Font(textFont.getFontName(), textStyle, textFont.getSize());
+		textFont = textFont.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
 	
@@ -236,7 +222,8 @@ public class GUIDialDisplay extends WarpedGUI {
 			}
 			
 			g.setColor(textColour.getColor());
-			g.drawString(text, textOffset.x(), textOffset.y());
+			g.setFont(textFont);
+			g.drawString(text, textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());
 		}
 		
 		g.dispose();

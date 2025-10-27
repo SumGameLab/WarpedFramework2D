@@ -15,7 +15,6 @@ import warped.graphics.window.WarpedWindow;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorD;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 
 public class GUIButton extends WarpedGUI {
 	
@@ -63,7 +62,7 @@ public class GUIButton extends WarpedGUI {
 	 * @param image - the image to base this button on.
 	 * @author 5som3*/
 	public GUIButton(BufferedImage image) {
-		sprite = new ButtonSprite(image);
+		sprite = new ButtonSprite(fontMatrix, image);
 		setSprite(sprite);
 		setButtonState(ButtonStateType.PLAIN);
 	}
@@ -79,7 +78,7 @@ public class GUIButton extends WarpedGUI {
 			height = 30;
 		} 
 		
-		sprite = new ButtonSprite(width, height);
+		sprite = new ButtonSprite(fontMatrix, width, height);
 		sprite.setText("default");
 		setSprite(sprite);
 		setButtonState(ButtonStateType.PLAIN);
@@ -89,7 +88,7 @@ public class GUIButton extends WarpedGUI {
 	 * @param text - the text to draw over the button
 	 * @author 5som3*/
 	public GUIButton(String text) {
-		sprite = new ButtonSprite();
+		sprite = new ButtonSprite(fontMatrix);
 		sprite.paint(Colour.GREY_DARK.getColor());
 		sprite.setText(text);
 		setSprite(sprite);
@@ -102,7 +101,7 @@ public class GUIButton extends WarpedGUI {
 	 * @param color - the background color of the button.
 	 * @author 5som3 */
 	public GUIButton(int width, int height, Colour color) {
-		sprite = new ButtonSprite(width, height, color);
+		sprite = new ButtonSprite(fontMatrix, width, height, color);
 		sprite.setButtonColour(color);
 		setSprite(sprite);
 		setButtonState(ButtonStateType.PLAIN);
@@ -114,7 +113,7 @@ public class GUIButton extends WarpedGUI {
 	 * @param text - the text to draw over the button
 	 * @author 5som3 */
 	public GUIButton(int width, int height, String text) {
-		sprite = new ButtonSprite(width, height);
+		sprite = new ButtonSprite(fontMatrix, width, height);
 		sprite.setText(text);
 		setSprite(sprite);
 		setButtonState(ButtonStateType.PLAIN);
@@ -127,23 +126,13 @@ public class GUIButton extends WarpedGUI {
 	 * @param text - the text to draw over the button.
 	 * @author 5som3 */
 	public GUIButton(int width, int height, Colour color, String text) {
-		sprite = new ButtonSprite();
+		sprite = new ButtonSprite(fontMatrix);
 		setSprite(sprite);
 		sprite.setBorderColour(color);
 		sprite.setText(text);
 		setButtonState(ButtonStateType.PLAIN);
 	}
 	
-	/**A button of the specified parameters.
-	 * @Param sprite - a ButtonSprite object to use for this GUIButton.
-	 * @param position - a VectorD to set as PositionPointer
-	 * */
-	public GUIButton(ButtonSprite sprite, VectorD position) {
-		setPositionPointer(position);
-		this.sprite = sprite;
-		setSprite(sprite);
-		setButtonState(ButtonStateType.PLAIN);
-	}
 
 	/**Set the size of the button.
 	 * @param width -the width of the button in pixels
@@ -153,6 +142,27 @@ public class GUIButton extends WarpedGUI {
 		sprite.setButtonSize(width, height);
 		updateGraphics();
 	}
+	
+	public void pointToFormat(GUIButton button) {sprite.pointToFormat(button.sprite);}
+	
+	public void setTextSize(int textSize) {sprite.setTextSize(textSize);}
+	
+	/**Set if the text should shrink to fit within the bounds of the label.
+	 * @param isShrinkToFit - If true the font size will be reduced until the text fits within the label. 
+	 * @author 5som3*/
+	public void setShrinkToFit(boolean isShrinkToFit) {sprite.setShrinkToFit(isShrinkToFit);}
+	
+	/**Set if the text should be centered horizontally in the label.
+	 * @param isCenteredHorizontally - if true the label's text will be centered horizontally.
+	 * @apiNote Will override the text offset x component so that their is equal padding on the left and right of the text.
+	 * @author 5som3*/
+	public void setCenterHorizontally(boolean isCenteredHorizontally) {sprite.setCenterHorizontally(isCenteredHorizontally);}
+	
+	/**Set if the text should be centered vertically in the label.
+	 * @param isCenteredVertically - if true the label's text will be centered vertically
+	 * @apiNote Will override the text offset y component so that their is equal padding on above and below the text.
+	 * @author 5som3*/
+	public void setCenterVertically(boolean isCenteredVertically) {sprite.setCenterVertically(isCenteredVertically);}
 	
 	/**Updates the font based on the language set in UtilsFont.
 	 * @apiNote new font will have the style and size set in this object 
@@ -219,7 +229,7 @@ public class GUIButton extends WarpedGUI {
 	/**Set the text to draw over the button.
 	 * @param text - If you pass multiple text lines they will be drawn with an offset of font size 
 	 * @author SomeKid*/
-	public void setText(String... text) {sprite.setText(text);}
+	public void setText(String text) {sprite.setText(text);}
 	
 	/**Set the text offset
 	 * @param textOffset - Measured in pixels from the top left corner

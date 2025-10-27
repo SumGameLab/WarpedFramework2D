@@ -4,17 +4,18 @@ package warped.graphics.sprite;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.util.Arrays;
-import java.util.List;
 
+import warped.application.gui.GUIButton;
 import warped.application.gui.GUIButton.ButtonStateType;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 import warped.utilities.utils.UtilsImage;
 import warped.utilities.utils.UtilsMath;
 
@@ -29,11 +30,16 @@ public class ButtonSprite extends WarpedSprite {
 	private Colour buttonColour 	  = Colour.GREY_DARK;
 	private int borderThickness   	  = 3;
 	
-	private List<String> text;
+	private String text;
 	private Color textColor  = Color.YELLOW;
-	private Font textFont 	 = UtilsFont.getDefault();
-	private VectorI textOffset = new VectorI(8, textFont.getSize() + 5);
+	private FontMatrix fontMatrix;
+	private Font textFont;
+	private VectorI textOffset = new VectorI();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
+	
+	private boolean isCenteredHorizontally = false;
+	private boolean isCenteredVertically = false;
+	private boolean isShrinkToFit = false;
 	
 	private BufferedImage originalRaster;
 	
@@ -46,8 +52,10 @@ public class ButtonSprite extends WarpedSprite {
 
 	/**The default button sprite.
 	 * @author 5som3*/
-	public ButtonSprite() {
+	public ButtonSprite(FontMatrix fontMatrix) {
 		super(DEFAULT_BUTTON_WIDTH, DEFAULT_BUTTON_HEIGHT);
+		this.fontMatrix = fontMatrix;
+		textFont = fontMatrix.getDynamic();
 		setButtonColour(DEFAULT_BUTTON_COLOR);
 		updateGraphics();
 		setRasterFast(plainRaster);
@@ -57,8 +65,10 @@ public class ButtonSprite extends WarpedSprite {
 	 * @param width - the width of the sprite in pixels.
 	 * @param height - the height of the sprite in pixels. 
 	 * @author 5som3*/
-	public ButtonSprite(int width, int height) {
+	public ButtonSprite(FontMatrix fontMatrix, int width, int height) {
 		super(width, height);
+		this.fontMatrix = fontMatrix;
+		textFont = fontMatrix.getDynamic();
 		setButtonColour(DEFAULT_BUTTON_COLOR);
 		updateGraphics();
 		setRasterFast(plainRaster);
@@ -69,8 +79,10 @@ public class ButtonSprite extends WarpedSprite {
 	 * @param height - the height of the sprite in pixels.
 	 * @param colour - the base colour of the button. (will change when interacted with the mouse).
 	 * @author 5som3*/
-	public ButtonSprite(int width, int height, Colour colour) {
+	public ButtonSprite(FontMatrix fontMatrix, int width, int height, Colour colour) {
 		super(width, height);
+		this.fontMatrix = fontMatrix;
+		textFont = fontMatrix.getDynamic();
 		setButtonColour(colour);
 		updateGraphics();
 		setRasterFast(plainRaster);
@@ -78,12 +90,35 @@ public class ButtonSprite extends WarpedSprite {
 	
 	/**A button sprite based on an image. The width and height will be set to the image width and height.
 	 * @author 5som3*/
-	public ButtonSprite(BufferedImage image) {
+	public ButtonSprite(FontMatrix fontMatrix, BufferedImage image) {
 		super(image.getWidth(), image.getHeight());
+		this.fontMatrix = fontMatrix;
+		textFont = fontMatrix.getDynamic();
 		isColourButton = false;
 		originalRaster = image;
 		generateRasterClones();
 		setRasterFast(plainRaster);	
+	}
+	
+	public void setTextSize(int textSize) {
+		textFont = textFont.deriveFont(Font.PLAIN, textSize);
+		updateGraphics();
+	}
+	
+	public void pointToFormat(ButtonSprite button) {
+		this.isCenteredHorizontally = button.isCenteredHorizontally;
+		this.isCenteredVertically = button.isCenteredVertically;
+		this.isShrinkToFit = button.isShrinkToFit;
+		this.buttonColour = button.buttonColour;
+		this.borderColour = button.borderColour;
+		this.borderThickness = button.borderThickness;
+		this.textColor = button.textColor;
+		this.fontMatrix = button.fontMatrix;
+		this.fontStyle = button.fontStyle;
+		this.textFont = button.textFont;
+		this.originalRaster = button.originalRaster;
+		this.isColourButton = button.isColourButton;
+		updateGraphics();
 	}
 	
 	/**Set the size of the button.
@@ -105,6 +140,38 @@ public class ButtonSprite extends WarpedSprite {
 		lockedRaster   = UtilsImage.generateTintedClone(plainRaster, 90, Colour.BLACK);
 	}
 	
+	/**Set if the text should shrink to fit within the bounds of the label.
+	 * @param isShrinkToFit - If true the font size will be reduced until the text fits within the label. 
+	 * @author 5som3*/
+	public void setShrinkToFit(boolean isShrinkToFit) {
+		if(this.isShrinkToFit != isShrinkToFit) {			
+			this.isShrinkToFit = isShrinkToFit;
+			updateGraphics();
+		}
+	}
+	
+	/**Set if the text should be centered horizontally in the label.
+	 * @param isCenteredHorizontally - if true the label's text will be centered horizontally.
+	 * @apiNote Will override the text offset x component so that their is equal padding on the left and right of the text.
+	 * @author 5som3*/
+	public void setCenterHorizontally(boolean isCenteredHorizontally) {
+		if(this.isCenteredHorizontally != isCenteredHorizontally) {
+			this.isCenteredHorizontally = isCenteredHorizontally;
+			updateGraphics();
+		}
+	}
+	
+	/**Set if the text should be centered vertically in the label.
+	 * @param isCenteredVertically - if true the label's text will be centered vertically
+	 * @apiNote Will override the text offset y component so that their is equal padding on above and below the text.
+	 * @author 5som3*/
+	public void setCenterVertically(boolean isCenteredVertically) {
+		if(this.isCenteredVertically != isCenteredVertically) {
+			this.isCenteredVertically = isCenteredVertically;
+			updateGraphics();
+		}
+	}
+	
 	private void updateGraphics() {
 		Graphics g = getGraphics();
 		
@@ -119,10 +186,36 @@ public class ButtonSprite extends WarpedSprite {
 		
 		if(text != null) {			
 			g.setColor(textColor);
-			g.setFont(textFont);
-			for(int i = 0; i < text.size(); i++) {
-				g.drawString(text.get(i), textOffset.x(), textOffset.y() + (textFont.getSize() + 2) * i);
+			FontMetrics fm = g.getFontMetrics(textFont);
+			Rectangle2D bounds = fm.getStringBounds(text, g);
+			if(isCenteredHorizontally) textOffset.setX(0);
+			if(isCenteredVertically) textOffset.setY(0);
+			if(isShrinkToFit) {
+				if(bounds.getWidth() + textOffset.x() + borderThickness > getWidth() || bounds.getHeight() + textOffset.y()+ fm.getMaxDescent() + borderThickness > getHeight()) {
+					boolean fits = false;
+					int checkSize = textFont.getSize();
+					while(!fits) {
+						checkSize -= 1;
+						if(checkSize <= 0) {
+							fits = true;
+							Console.err("GUILabel -> updateGraphics() -> text is not able to be fit inside the sprite");
+							break;
+						}
+						Font nFont = textFont.deriveFont(Font.PLAIN, checkSize);
+						FontMetrics nfm = g.getFontMetrics(nFont);
+						Rectangle2D cBounds = nfm.getStringBounds(text, g);
+						if(cBounds.getWidth() + textOffset.x() + borderThickness <= getWidth() && cBounds.getHeight() + textOffset.y() + nfm.getMaxDescent() + borderThickness <= getHeight()) {
+							fits = true;
+							textFont = nFont;
+						}
+					}
+				}			
 			}
+			if(isCenteredHorizontally && bounds.getWidth() < getWidth()) textOffset.setX((int)( (getWidth() - bounds.getWidth()) / 2));
+			if(isCenteredVertically && bounds.getHeight() < getHeight()) textOffset.setY((int)( (getHeight() - bounds.getHeight()) / 2));
+			
+			g.setFont(textFont);
+			g.drawString(text, textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());
 		}
 		
 		g.dispose();
@@ -193,20 +286,20 @@ public class ButtonSprite extends WarpedSprite {
 	/**Set the text to draw over the button.
 	 * @param text - If you pass multiple text lines they will be drawn with an offset of font size 
 	 * @author SomeKid*/
-	public void setText(String... text) {
+	public void setText(String text) {
 		if(text == null) {
 			Console.err("GUIButton -> setText() -> invalid text is null or no text");
 			return;
 		}
-		this.text = Arrays.asList(text);
+		this.text = text;
 		updateGraphics();		
 	}
 	
 	/**Set the text to draw over the button.
 	 * @param text - If you pass multiple text lines they will be drawn with an offset of font size 
 	 * @author SomeKid*/
-	public void setText(int x, int y, Font font, Color color, String... text) {	
-		this.text = Arrays.asList(text);
+	public void setText(int x, int y, Font font, Color color, String text) {	
+		this.text = text;
 		textOffset.set(x, y);
 		this.textFont = font;
 		this.textColor = color;
@@ -217,8 +310,7 @@ public class ButtonSprite extends WarpedSprite {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateFont() {
-		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
-		updateGraphics();
+		textFont = fontMatrix.getDynamic(fontStyle, textFont.getSize());
 	}
 	
 	/**Set the text offset

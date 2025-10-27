@@ -11,9 +11,8 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 import warped.utilities.utils.UtilsMath;
-import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUITextBoxLined extends WarpedGUI {
 	
@@ -39,7 +38,7 @@ public class GUITextBoxLined extends WarpedGUI {
 	private HashMap<Integer, String>  textLines  = new HashMap<>();	
 	private HashMap<Integer, Color>   lineColor = new HashMap<>();
 	
-	private Font textFont 			= UtilsFont.getDefault();
+	private Font textFont 			= fontMatrix.getDynamic();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private VectorI textOffset      = new VectorI();
@@ -110,8 +109,7 @@ public class GUITextBoxLined extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
-		updateGraphics();
+		textFont = fontMatrix.getDynamic(fontStyle, textFont.getSize());
 	}
 	
 	/**Set the visibility of the background.
@@ -151,23 +149,8 @@ public class GUITextBoxLined extends WarpedGUI {
 			Console.err("GUITextLines -> setTextSize() -> invalid size : " + textSize);
 			textSize = 12;
 		}
-		textFont = new Font(textFont.getFontName(), textFont.getStyle(), textSize);
+		textFont = textFont.deriveFont(Font.PLAIN, textSize);
 		updateScrollParameters();
-		updateGraphics();
-	}
-
-	/**Set the style of the text block
-	 * @param textStyle   -The style of the text to use
-	 * 					  - 0 Plain 
-	 * 					  - 1 Bold 
-	 * 					  - 2 Italic
-	 * @author SomeKid*/
-	public void setTextStyle(int textStyle) {
-		if(textStyle < 0 || textStyle > 2) {
-			Console.err("GUITextLines -> setTextStyle() -> invalid text style : " + textStyle);
-			textStyle = 0;
-		}
-		textFont = new Font(textFont.getFontName(), textStyle, textFont.getSize());
 		updateGraphics();
 	}
 	
@@ -420,8 +403,8 @@ public class GUITextBoxLined extends WarpedGUI {
 			g.setFont(textFont);
 			int x = borderThickness + 2;
 			for(int i = 0; i < maxLine; i++) {
-				int y = (int)(textFont.getSize() + 2 + (lineThickness * i) - (scroll * scrollMax));
-				if(y < 0 - textFont.getSize() || y > getWidth() - borderThickness * 2) continue;
+				int y = (int)(g.getFontMetrics().getMaxAscent() + 2 + (lineThickness * i) - (scroll * scrollMax));
+				if(y < 0 - g.getFontMetrics().getMaxAscent() || y > getWidth() - borderThickness * 2) continue;
 				g.drawString("" + (i + 1), x, y);
 			}
 		}
@@ -432,14 +415,13 @@ public class GUITextBoxLined extends WarpedGUI {
 		g.setFont(textFont);
 		
 		textLines.forEach((k, v) -> {
-			int y = (int)(textFont.getSize() + 2 + (lineThickness * k) - (scroll * scrollMax) + textOffset.y());
-			if(y < 0 - textFont.getSize() || y > getWidth() - borderThickness * 2);
+			int y = (int)(g.getFontMetrics().getMaxAscent() + 2 + (lineThickness * k) - (scroll * scrollMax) + textOffset.y());
+			if(y < 0 - g.getFontMetrics().getMaxAscent() || y > getWidth() - borderThickness * 2);
 			else {				
 				g.setColor(lineColor.get(k));
 				g.drawString(textLines.get(k), x, y);
 			}
 		});
-		
 		
 		g.dispose();
 		pushGraphics();

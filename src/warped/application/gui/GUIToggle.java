@@ -14,7 +14,6 @@ import warped.graphics.window.WarpedMouse;
 import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsImage;
 
 public class GUIToggle extends WarpedGUI {

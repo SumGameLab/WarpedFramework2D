@@ -16,9 +16,8 @@ import warped.utilities.enums.generalised.AxisType;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 import warped.utilities.utils.UtilsMath;
-import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIScrollBar extends WarpedGUI {
 	
@@ -42,14 +41,14 @@ public class GUIScrollBar extends WarpedGUI {
 
 	private boolean isLabelVisible 	  = false;
 	private String label 			  = "default";
-	private Font labelFont			  = UtilsFont.getDefault();
+	private Font labelFont			  = fontMatrix.getDynamic();
 	
 	private AffineTransform at 		  = new AffineTransform();
 	
 	private boolean showProgressText  = true;
 	private String progressText 	  = "0.50";
 	private VectorI textOffset		  = new VectorI(4, 4);
-	private Font progressFont		  = UtilsFont.getDefault();
+	private Font progressFont		  = fontMatrix.getDynamic();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private boolean isButtonHovered   = false;
@@ -117,8 +116,7 @@ public class GUIScrollBar extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		progressFont = UtilsFont.getFont(fontStyle, progressFont.getSize());
-		updateGraphics();
+		progressFont = fontMatrix.getDynamic(fontStyle, progressFont.getSize());
 	}
 	
 
@@ -181,7 +179,7 @@ public class GUIScrollBar extends WarpedGUI {
 			Console.err("GUIScrollBar -> setProgressTextSize() -> size too small " + size);
 			size = 6;
 		}
-		this.progressFont = new Font(progressFont.getFontName(), progressFont.getStyle(), size);
+		progressFont = progressFont.deriveFont(Font.PLAIN, size);
 		updateGraphics();
 	}
 	
@@ -219,7 +217,7 @@ public class GUIScrollBar extends WarpedGUI {
 			Console.err("GUIScrollBar -> setLabelTextSize() -> size too small " + size);
 			size = 6;
 		}
-		this.labelFont = new Font(labelFont.getFontName(), labelFont.getStyle(), size);
+		labelFont = labelFont.deriveFont(Font.PLAIN, size);
 		updateGraphics();
 	}
 	
@@ -369,10 +367,10 @@ public class GUIScrollBar extends WarpedGUI {
 				FontRenderContext frc = g.getFontRenderContext();
 				Font f = progressFont.deriveFont(at);
 				TextLayout tString = new TextLayout(label, f, frc);
-				tString.draw(g, (borderThickness * 2) + (progressFont.getSize() / 2), (borderThickness * 4) + (progressFont.getSize() * 2));
+				tString.draw(g, (borderThickness * 2) + (g.getFontMetrics().getMaxAscent() / 2), (borderThickness * 4) + (g.getFontMetrics().getMaxAscent() * 2));
 			} else {				
 				g.setFont(progressFont);
-				g.drawString(label, borderThickness * 2, progressFont.getSize() + borderThickness * 2);
+				g.drawString(label, borderThickness * 2, g.getFontMetrics().getMaxAscent() + borderThickness * 2);
 			}
 		}
 		
@@ -386,7 +384,7 @@ public class GUIScrollBar extends WarpedGUI {
 		if(showProgressText) {
 			g.setColor(progressTextColor);
 			g.setFont(progressFont);
-			g.drawString(progressText, buttonPosition.x() + textOffset.x(), buttonPosition.y() + textOffset.y() + progressFont.getSize());			
+			g.drawString(progressText, buttonPosition.x() + textOffset.x(), buttonPosition.y() + textOffset.y() + g.getFontMetrics().getMaxAscent());			
 		}
 		
 		g.dispose();

@@ -12,8 +12,7 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUIListGrid<T> extends WarpedGUI {
 
@@ -50,7 +49,7 @@ public class GUIListGrid<T> extends WarpedGUI {
 	
 	private VectorI textOffset = new VectorI();
 	
-	private Font font = UtilsFont.getDefault();
+	private Font font = fontMatrix.getDynamic();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private int scrollButtonHeight = 20;
@@ -100,8 +99,7 @@ public class GUIListGrid<T> extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		font = UtilsFont.getFont(fontStyle, font.getSize());
-		updateGraphics();
+		font = fontMatrix.getDynamic(fontStyle, font.getSize());
 	}
 	
 	/**Set an action to be executed when the grid is selected.
@@ -237,7 +235,7 @@ public class GUIListGrid<T> extends WarpedGUI {
 			if(drawNames) {				
 				g.setColor(nameColor);
 				g.setFont(font);
-				g.drawString(entryNames.get(i), drawX + textOffset.x(), drawY + textOffset.y() + font.getSize());		
+				g.drawString(entryNames.get(i), drawX + textOffset.x(), drawY + textOffset.y() + g.getFontMetrics().getMaxAscent());		
 			}
 			
 			if(hoverCoordinate.isEqual(xCoord, yCoord)) {

@@ -14,8 +14,7 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
-import warped.utilities.utils.UtilsFont.FontStyleType;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 
 public class GUIPopOutMenu extends WarpedGUI {
 	
@@ -42,8 +41,8 @@ public class GUIPopOutMenu extends WarpedGUI {
 		
 	private int borderThickness 	= 2;
 	
-	private VectorI labelTextOffset = new VectorI(20, 16);
-	private VectorI optionTextOffset= new VectorI(10, 16);
+	private VectorI labelTextOffset = new VectorI(20, 4);
+	private VectorI optionTextOffset= new VectorI(10, 4);
 	
 	private Color borderColor 		= Colour.BLACK.getColor();
 	private Color optionColor 		= Colour.GREY_DARK.getColor();
@@ -53,8 +52,8 @@ public class GUIPopOutMenu extends WarpedGUI {
 	private Color hoverColor 	= Colour.RED_DARK.getColor(100); 
 	private Color pressColor 	= Colour.RED.getColor(100);
 	
-	private Font optionFont 		= UtilsFont.getDefault();
-	private Font labelFont 			= UtilsFont.getDefault();
+	private Font optionFont 		= fontMatrix.getDynamic();
+	private Font labelFont 			= fontMatrix.getDynamic();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 		
 	/**A menu with the specified label and no options.
@@ -106,9 +105,8 @@ public class GUIPopOutMenu extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		optionFont = UtilsFont.getFont(fontStyle, optionFont.getSize());
-		labelFont = UtilsFont.getFont(fontStyle, labelFont.getSize());
-		updateGraphics();
+		optionFont = fontMatrix.getDynamic(fontStyle, optionFont.getSize());
+		labelFont = fontMatrix.getDynamic(fontStyle, labelFont.getSize());
 	}
 	
 	/**Set the options for this menu to display when popped out.
@@ -161,7 +159,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 	 * @param textSize - the size of the text.
 	 * @author 5som3*/
 	public void setOptionTextSize(int textSize) {
-		this.optionFont = new Font(optionFont.getFontName(), optionFont.getStyle(), textSize);
+		optionFont = optionFont.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
 
@@ -170,7 +168,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 	 * @param textSize - the size of the text.
 	 * @author 5som3*/
 	public void setLabelTextSize(int textSize) {
-		this.labelFont = new Font(labelFont.getFontName(), labelFont.getStyle(), textSize);
+		labelFont = labelFont.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
 	
@@ -340,7 +338,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 					g.fillRect(borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 					g.setFont(labelFont);
 					g.setColor(labelTextColor);
-					g.drawString(menuLabel, labelTextOffset.x(), labelTextOffset.y());
+					g.drawString(menuLabel, labelTextOffset.x(), labelTextOffset.y() + g.getFontMetrics().getMaxAscent());
 				} else if(isPoppedOut) {
 					g.setColor(borderColor);
 					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
@@ -348,7 +346,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 					g.fillRect(borderThickness, i * buttonSize.y() + borderThickness,  buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 					g.setColor(optionTextColor);
 					g.setFont(optionFont);
-					g.drawString(options.get(i - 1).getName(), optionTextOffset.x(), i * buttonSize.y() + optionTextOffset.y());
+					g.drawString(options.get(i - 1).getName(), optionTextOffset.x(), i * buttonSize.y() + optionTextOffset.y() + g.getFontMetrics().getMaxAscent());
 				}
 				
 				if(hoveredIndex >= 0 && i == hoveredIndex) {
@@ -367,7 +365,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 					g.fillRect(borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 					g.setFont(labelFont);
 					g.setColor(labelTextColor);
-					g.drawString(menuLabel, labelTextOffset.x(), labelTextOffset.y());
+					g.drawString(menuLabel, labelTextOffset.x(), labelTextOffset.y() + g.getFontMetrics().getMaxAscent());
 				} else if(isPoppedOut) {
 					g.setColor(borderColor);
 					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
@@ -375,7 +373,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 					g.fillRect(i * buttonSize.x() + borderThickness, borderThickness,  buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 					g.setColor(optionTextColor);
 					g.setFont(optionFont);
-					g.drawString(options.get(i - 1).getName(),  i * buttonSize.x() + optionTextOffset.x(), optionTextOffset.y());
+					g.drawString(options.get(i - 1).getName(),  i * buttonSize.x() + optionTextOffset.x(), optionTextOffset.y() + g.getFontMetrics().getMaxAscent());
 				}
 				if(hoveredIndex >= 0 && i == hoveredIndex) {
 					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
@@ -393,7 +391,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 					g.fillRect(borderThickness, options.size() * buttonSize.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 					g.setColor(labelTextColor);
 					g.setFont(labelFont);
-					g.drawString(menuLabel, labelTextOffset.x(), options.size() * buttonSize.y() + labelTextOffset.y());
+					g.drawString(menuLabel, labelTextOffset.x(), options.size() * buttonSize.y() + labelTextOffset.y() + g.getFontMetrics().getMaxAscent());
 				} else if(isPoppedOut) {
 					g.setColor(borderColor);
 					g.fillRect(0, i * buttonSize.y(), buttonSize.x(), buttonSize.y());
@@ -401,7 +399,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 					g.fillRect(borderThickness, i * buttonSize.y() + borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 					g.setColor(optionTextColor);
 					g.setFont(optionFont);
-					g.drawString(options.get(i).getName(), optionTextOffset.x(), i * buttonSize.y() + optionTextOffset.y());
+					g.drawString(options.get(i).getName(), optionTextOffset.x(), i * buttonSize.y() + optionTextOffset.y() + g.getFontMetrics().getMaxAscent());
 				}
 				if(hoveredIndex >= 0 && i == hoveredIndex) {
 					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);
@@ -419,7 +417,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 					g.fillRect(options.size() * buttonSize.x() + borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 					g.setColor(labelTextColor);
 					g.setFont(labelFont);
-					g.drawString(menuLabel, options.size() * buttonSize.x() + labelTextOffset.x(), labelTextOffset.y());
+					g.drawString(menuLabel, options.size() * buttonSize.x() + labelTextOffset.x(), labelTextOffset.y() + g.getFontMetrics().getMaxAscent());
 				} else if(isPoppedOut) {
 					g.setColor(borderColor);
 					g.fillRect(i * buttonSize.x(), 0, buttonSize.x(), buttonSize.y());
@@ -427,7 +425,7 @@ public class GUIPopOutMenu extends WarpedGUI {
 					g.fillRect(i * buttonSize.x() + borderThickness, borderThickness, buttonSize.x() - borderThickness * 2, buttonSize.y() - borderThickness * 2);
 					g.setColor(optionTextColor);
 					g.setFont(optionFont);
-					g.drawString(options.get(i).getName(), i * buttonSize.x() + optionTextOffset.x(), optionTextOffset.y());
+					g.drawString(options.get(i).getName(), i * buttonSize.x() + optionTextOffset.x(), optionTextOffset.y() + g.getFontMetrics().getMaxAscent());
 				}
 				if(hoveredIndex >= 0 && i == hoveredIndex) {
 					if(buttonState == ButtonStateType.PRESSED) g.setColor(pressColor);

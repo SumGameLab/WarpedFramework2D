@@ -8,7 +8,6 @@ import warped.graphics.window.WarpedMouseEvent;
 import warped.utilities.enums.generalised.Colour;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
 import warped.utilities.utils.UtilsString;
 
 public class GUIClock extends WarpedGUI {
@@ -21,8 +20,8 @@ public class GUIClock extends WarpedGUI {
 	
 	private boolean isBackgroundVisible = true;
 	
-	private Font font = UtilsFont.getDefault();
-	private VectorI textOffset = new VectorI(0, font.getSize());
+	private Font font = fontMatrix.getDynamic();
+	private VectorI textOffset = new VectorI();
 	private int borderThickness = 2;
 	
 	public enum ClockModeType {
@@ -70,7 +69,7 @@ public class GUIClock extends WarpedGUI {
 			Console.err("GUIClock -> setTextSize() -> text size is too small : " + textSize);
 			return;
 		}
-		this.font = new Font(font.getName(), font.getStyle(), textSize);
+		font = font.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
 	
@@ -147,12 +146,12 @@ public class GUIClock extends WarpedGUI {
 		g.setColor(textColor);
 		g.setFont(font);
 		switch(mode) {
-		case HOUR_12_WITHOUT_SECONDS: g.drawString(UtilsString.getLocalTime(), textOffset.x(), textOffset.y());		break;
-		case HOUR_12_WITH_SECONDS: g.drawString(UtilsString.getLocalTimePrecise(), textOffset.x(), textOffset.y());	break;
-		case HOUR_24: g.drawString(UtilsString.getLocalTime24Hour(), textOffset.x(), textOffset.y()); 				break;
+		case HOUR_12_WITHOUT_SECONDS: g.drawString(UtilsString.getLocalTime(), textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());		break;
+		case HOUR_12_WITH_SECONDS: g.drawString(UtilsString.getLocalTimePrecise(), textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());	break;
+		case HOUR_24: g.drawString(UtilsString.getLocalTime24Hour(), textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent()); 				break;
 		default:
 			Console.err("GUIClock -> updateGraphisc() -> invalid case : " + mode);
-			g.drawString("ERROR!", textOffset.x(), textOffset.y());
+			g.drawString("ERROR!", textOffset.x(), textOffset.y() + g.getFontMetrics().getMaxAscent());
 			break;
 		}
 		

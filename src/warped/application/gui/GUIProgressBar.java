@@ -13,9 +13,8 @@ import warped.utilities.enums.generalised.Colour;
 import warped.utilities.enums.generalised.DirectionType;
 import warped.utilities.math.vectors.VectorI;
 import warped.utilities.utils.Console;
-import warped.utilities.utils.UtilsFont;
+import warped.utilities.utils.FontMatrix.FontStyleType;
 import warped.utilities.utils.UtilsMath;
-import warped.utilities.utils.UtilsFont.FontStyleType;
 
 public class GUIProgressBar extends WarpedGUI {
 
@@ -30,7 +29,7 @@ public class GUIProgressBar extends WarpedGUI {
 	private String label		 = "";
 	private VectorI textOffset = new VectorI(5, 5);
 	private Colour textColor  = Colour.YELLOW_LIGHT;
-	private Font  textFont 	 = UtilsFont.getDefault();
+	private Font  textFont 	 = fontMatrix.getDynamic();
 	private FontStyleType fontStyle = FontStyleType.REGULAR;
 	
 	private double progress		= 0.0;
@@ -105,8 +104,7 @@ public class GUIProgressBar extends WarpedGUI {
 	 * @apiNote new font will have the style and size set in this object 
 	 * @author 5som3*/
 	public void updateLanguage() {
-		textFont = UtilsFont.getFont(fontStyle, textFont.getSize());
-		updateGraphics();
+		textFont = fontMatrix.getDynamic(fontStyle, textFont.getSize());
 	}
 	
 	/**Set the colour to fill the bar with. This is the color the bar will appear if progress is 100%.
@@ -172,21 +170,7 @@ public class GUIProgressBar extends WarpedGUI {
 	 * @author SomeKid*/
 	public void setTextSize(int textSize) {
 		textSize = UtilsMath.clampMin(textSize, 0);
-		textFont = new Font(textFont.getFontName(), textFont.getStyle(), textSize);
-		updateGraphics();
-	}
-	
-	/**The style of the text displayed over the progress bar
-	 * @param textStyle - 0 Plain
-	 * 					- 1 Bold
-	 * 					- 2 Italic
-	 * @author SomeKid*/
-	public void setTextStyle(int textStyle) {
-		if(textStyle < 0 || textStyle > 2) {
-			Console.err("GUIProgressBar -> setTextStyle() -> invalid style : " + textStyle);
-			textStyle = 0;
-		}
-		textFont = new Font(textFont.getFontName(), textStyle, textFont.getSize());
+		textFont = textFont.deriveFont(Font.PLAIN, textSize);
 		updateGraphics();
 	}
 	
@@ -286,14 +270,14 @@ public class GUIProgressBar extends WarpedGUI {
 		g2d.setFont(textFont);
 		if(fillDirection == DirectionType.LEFT || fillDirection == DirectionType.RIGHT) {
 			if(isProgressTextVisible) g2d.drawString(label + " " + UtilsMath.getString(progress, 2), textOffset.x(), textFont.getSize()+ textOffset.y());
-			else g2d.drawString(label, textOffset.x(), textFont.getSize()+ textOffset.y());
+			else g2d.drawString(label, textOffset.x(),  g2d.getFontMetrics().getMaxAscent() + textOffset.y());
 		} else if(fillDirection == DirectionType.UP || fillDirection == DirectionType.DOWN) {
 			FontRenderContext frc = g2d.getFontRenderContext();
 			Font f = textFont.deriveFont(at);
 			TextLayout tString;
 			if(isProgressTextVisible) tString = new TextLayout(label + " " + UtilsMath.getString(progress, 2), f, frc);   
 			else tString = new TextLayout(label, f, frc);
-			tString.draw(g2d, borderThickness * 2, (borderThickness * 2) + textFont.getSize());
+			tString.draw(g2d, borderThickness * 2, (borderThickness * 2) + g2d.getFontMetrics().getMaxAscent() + textOffset.y());
 		} else { Console.err("GUIProgressBar -> updateGraphics() -> invalid fill dire	ction type "); return;}
 		
 		g2d.dispose();
